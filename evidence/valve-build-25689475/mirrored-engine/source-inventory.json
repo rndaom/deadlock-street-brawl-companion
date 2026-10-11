@@ -1,0 +1,119 @@
+[
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "DumpSource2/convars.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/convars.txt",
+    "sha256": "d592bfd9a42752435c62090d23ff452710d335c1fae76d92fe935d83b4130582",
+    "bytes": 522351,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "DumpSource2/commands.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/commands.txt",
+    "sha256": "4f9af2f0b3dc64af72466b04fc18c2cd7b2f2e1ef24cb4d3ff798cb3d4825aa1",
+    "bytes": 155366,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/steam.inf",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/steam.inf",
+    "sha256": "cc62abfd727724939a107a839ca430d5e191820634850a401bb39871ad38e369",
+    "bytes": 176,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/cfg/machine_convars_default.vcfg",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/cfg/machine_convars_default.vcfg",
+    "sha256": "30b132aac81662e1d4afbff4cee080b0883115f3b1fb0854c537dcce98c9fa81",
+    "bytes": 302,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/cfg/video_defaults_0.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_0.txt",
+    "sha256": "685c52027115ab7f62c05426261dab76dd253fced5ab3629a15a13937054f693",
+    "bytes": 812,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/cfg/video_defaults_1.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_1.txt",
+    "sha256": "484fbaec2f94e7c5d38f98c5b6b7b45ad0a7f9a3fe273351a5a09b684db285b5",
+    "bytes": 811,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/cfg/video_defaults_2.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_2.txt",
+    "sha256": "23db42ee44e9f008669e655d847a7845c0a8ec30b7b0f19d7e5856a30884daf7",
+    "bytes": 808,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/cfg/video_defaults_3.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_3.txt",
+    "sha256": "454ccd1198d84cfb7762bac7664938569f9072a93e8e5435383b7398cb8f6cf4",
+    "bytes": 843,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/cfg/video_version.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_version.txt",
+    "sha256": "7f6484da0e15cd428e7fb5d232ae97039b6530a0660dcfe42d186716b5d1efe0",
+    "bytes": 192,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+    "sha256": "ac99b5bde47c8395f443c838d14e3bb59694421af2c2cf16ddb5a3f956e269bf",
+    "bytes": 137057,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/panorama/scripts/popups/popup_settings.js",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/scripts/popups/popup_settings.js",
+    "sha256": "a955f399689a2a2789c89cf76b34b9ce16d1504c9e6db23c627dc7630ac7ecf6",
+    "bytes": 362,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/pak01_dir/scripts/new_settings.vdata",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/scripts/new_settings.vdata",
+    "sha256": "85a0ad39e5366cc65f09751de109db3c6448ef2b7fb2f073000ed29f14cd707c",
+    "bytes": 5826,
+    "evidence_type": "Valve-authored game data mirrored or binary-derived metadata; not official recommendation; current installed build must be compared"
+  },
+  {
+    "repo": "SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "path": "game/citadel/resource/localization/citadel_main/citadel_main_english.txt",
+    "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/resource/localization/citadel_main/citadel_main_english.txt",
+    "sha256": "fd876043cb44643d4be206baf654adc0794657d5f283a8b09f55e88dc31cd7d5",
+    "bytes": 406610,
+    "evidence_type": "Valve-authored native menu localization; labels/tooltips, not an FPS measurement"
+  }
+]

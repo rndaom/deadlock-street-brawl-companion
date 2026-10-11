@@ -1,0 +1,492 @@
+Deadlock vendor research, round 2
+As of: 2026-10-03
+Only the two assigned round-2 research files were written. No hardware, driver, OS, registry, launch option or game configuration was changed.
+
+Maximum throughput requires measuring native low latency Off against On and comparing equal-scale Stretch against FSR1. Lower internal pixel counts can reduce GPU work, but CPU simulation, draw submission and output-resolution passes remain. Anti-Lag 2 intentionally paces CPU work before sampling input to reduce latency; no local FPS winner is established.
+
+Verified machine context
+AMD Ryzen 7 9800X3D, 8 cores / 16 logical processors
+AMD Radeon RX 7800 XT, 16 GB dedicated VRAM
+Windows 11 Pro 25H2, build 26200.9550
+Graphics driver: Adrenalin 26.8.1 / 32.0.31041.1004
+Chipset package: 8.08.12.551; V-Cache optimizer: 1.0.0.12
+Shared L3: 96 MiB across all 16 logical processors; unrestricted affinity mask 0xFFFF.
+Primary current output: 1920 x 1080 at 480 Hz, physical LG ULTRAGEAR+ GSM780F
+Secondary current output: 1080 x 1920 at 240 Hz, portrait physical Acer XB273 GZ ACR0942
+HAGS and Game Mode configured On; power plan: Ultimate Performance.
+Unknown: Panel native/preferred resolution; Current VRR/FreeSync state; Driver capture/Instant Replay and frame-cap states; Effective Anti-Lag 2 invocation under the current DX11 backend.
+
+Installed game interface
+Build: 25689475 / client6745
+C:\Users\Random\Documents\ChatGPT\Deadlock\evidence\valve-build-25689475\mirrored-engine\game\citadel\pak01_dir\panorama\layout\popups\popup_settings.xml
+Upscaling IDs: 0 None/Stretch; 1 FSR1; 2 FSR2; 3 FSR3; 4 DLSS.
+Spatial render scale: 0.40 to 1.00, step 0.01. Temporal modes: Native 1; Quality 0.666667; Balanced 0.588235; Performance 0.5.
+Spatial AA: 0 none / 1 FXAA. Native low latency: 0 Off / 1 On / 2 NVIDIA Boost.
+FSR1 sharpness: 0 to 1, default 0.25; pass enable/disable mapping is not established.
+Native menu choice/storage confirms supported configuration interface; does not prove active backend invocation, shader pass skipping, FSR version, or measured performance.
+
+Pixel work only
+Approximate internal pixel count = output width x output height x scale squared. Exact resolution rounding/alignment is engine specific.
+No row predicts FPS or whole-frame cost. Output-resolution passes, geometry, simulation, memory traffic, clocks and the upscaler have other costs.
+480 Hz refresh interval: 2.083333 ms.
+
+Scale | Approx. internal resolution | Fraction of output pixels | Pixel reduction
+1.000000 | 1920 x 1080 | 1 | 0%
+0.800000 | 1536 x 864 | 0.64 | 36%
+0.750000 | 1440 x 810 | 0.5625 | 43.75%
+0.700000 | 1344 x 756 | 0.49 | 51%
+0.666667 | 1280 x 720 | 0.444444 | 55.556%
+0.600000 | 1152 x 648 | 0.36 | 64%
+0.588235 | 1129 x 635 | 0.346021 | 65.398%
+0.500000 | 960 x 540 | 0.25 | 75%
+0.400000 | 768 x 432 | 0.16 | 84%
+
+Decision table
+1. throughput_low_latency
+Decision: Include r_low_latency 0 (Off) as a pure-throughput A/B candidate against 1 (On). Retain On for input-latency preference until measurements establish the tradeoff.
+Purpose: Input latency versus actual rendered FPS
+Evidence confidence: High confidence in the mechanism; local throughput effect unmeasured
+Validation: Use the same warmed scene and consistent uncapped state. Validate the observed cap and AL2 activity separately, then capture throughput with the AL2 overlay off. Compare repeated mean and P95/P99 frame times; report latency separately.
+Limit: Off is not guaranteed faster and does not improve image quality. On may reduce latency without a material FPS difference, especially when GPU bound.
+Sources: amd-al2-integration, khronos-al-limit, pcgamer-al2-test
+
+2. spatial_equal_scale
+Decision: Prioritize equal-scale None/Stretch versus FSR1 at 0.70 and 0.60. Use 0.80 as a clarity control and 0.50/0.40 as optional throughput-ceiling probes.
+Purpose: Actual rendered FPS versus edge clarity
+Evidence confidence: Native choices confirmed; whole-pipeline winner unmeasured
+Validation: Hold the backend and internal pixel count constant, then inspect moving targets and souls. Measure the reconstruction overhead rather than converting pixel reduction directly into an FPS claim.
+Limit: Stretch may blur or shimmer. FSR1 may improve edges while costing more GPU work. Scale 0.40 is the native menu minimum, not the standard FSR1 Performance preset.
+Sources: amd-fsr1-manual, amd-fsr2, pcgw
+
+3. temporal_tradeoff
+Decision: Keep FSR2/FSR3 Quality and Native AA as separate quality and motion-stability candidates. Do not assume that disabling FXAA removes temporal AA.
+Purpose: Actual rendered FPS versus motion quality
+Evidence confidence: Algorithms documented; current backend gating unverified
+Validation: Compare native Quality scale 0.666667 against the same-scale spatial option when available. Test Native AA at 1.0 separately and record the available UI and active backend.
+Limit: FSR2/FSR3 integrate anti-aliasing into reconstruction. Temporal history, reactive masks and transparency handling can change ghosting and moving-target readability.
+Sources: amd-fsr2, amd-fsr3, pcgw
+
+4. sharpness_claim
+Decision: Treat sharpening as an image preference. Do not call FSR1 sharpness 0 'RCAS disabled' or an established FPS gain.
+Purpose: Image clarity and evidence accuracy
+Evidence confidence: High confidence that the slider-to-pass mapping is unproven
+Validation: Retain the 0.25 baseline until a clarity comparison is made. A pass-disable claim needs Valve's shader/API mapping or direct runtime evidence.
+Limit: The SDK exposes a separate enableSharpening control, and historical sharpness conventions differ. A numeric sharpness value alone is not a general pass-disable contract.
+Sources: amd-fsr1-cli, amd-fsr1-manual
+
+5. backend_choice
+Decision: Keep the currently working DX11 baseline and test native Vulkan separately. Choose the measured winner for this build.
+Purpose: CPU driver overhead, GPU throughput and stability
+Evidence confidence: High confidence in the protocol; winner unknown
+Validation: Restart for each backend, warm each backend separately, then repeat matched replay/scene captures and inspect frame-time outliers and errors.
+Limit: API capabilities or GPU brand cannot establish a winner. Exclude DXVK, renderer wrappers and unsupported launch flags.
+Sources: amd-rdna-guide, microsoft-dx11-thread, khronos-commandbuffers, forum-current-vulkan
+
+6. al2_api
+Decision: Label AL2 runtime effectiveness under current DX11 unverified until live activity evidence establishes it.
+Purpose: Implementation and compatibility accuracy
+Evidence confidence: High confidence
+Validation: With native On, briefly validate the AL2 activity monitor on the actual backend. Check calibration and grey states. A missing display alone is inconclusive until the hotkey and monitoring path are checked.
+Limit: The AMD 24.9.1 Vulkan announcement refers to Counter-Strike 2, not Deadlock. Generic DX11 SDK support does not prove Deadlock invokes it.
+Sources: amd-al2, amd-al2-title, amd2491
+
+7. frame_generation
+Decision: Keep AFMF and any frame generation off for actual-rendered-FPS benchmarking. Do not count generated display frames as renderer throughput.
+Purpose: Measurement validity
+Evidence confidence: High confidence
+Validation: Record the driver frame-generation state and metric semantics. The inspected Deadlock menu has no separate native FG control.
+Limit: FSR3 upscaling can operate without frame generation. Generated display FPS does not establish faster input simulation.
+Sources: amd-fsr3
+
+8. driver_upscaler
+Decision: Use game-native render scale/upscaling. Keep RSR, VSR, Radeon Boost, Chill and stacked sharpening out of the controlled baseline; avoid bundle toggles such as HYPR-RX.
+Purpose: Reproducibility, image clarity and actual rendered FPS
+Evidence confidence: Strong baseline rationale; current driver states unverified
+Validation: Inventory Deadlock's per-app driver settings before applying a candidate. Document any change as a separate variable.
+Limit: Driver bundles can change several variables simultaneously. No driver state was changed by this research.
+Sources: amd-rsr, amd-frtc
+
+9. fps_cap
+Decision: Measure uncapped game throughput first. Select a play cap afterward using the confirmed 480 Hz output and stable combat performance.
+Purpose: Maximum rendered throughput versus pacing, power and latency
+Evidence confidence: High confidence
+Validation: Verify native and driver caps, VSync and observed FPS. Distinguish a cap plateau from a bottleneck and avoid stacked limiters.
+Limit: 480 Hz gives a 2.083 ms refresh interval. VRR and panel native resolution remain unknown. FRTC's documented 200 FPS ceiling cannot provide a cap near 480 Hz.
+Sources: amd-frtc, khronos-al-limit
+
+10. x3d_scheduling
+Decision: Keep all 16 logical processors available. Do not force CPU 0 exclusion, hard affinity, SMT disabling or old dual-CCD parking recipes.
+Purpose: CPU throughput and scheduling stability
+Evidence confidence: Strong local topology evidence and official caution
+Validation: The audit confirms unrestricted 0xFFFF affinity and one shared 96 MiB L3 across all 16 logical processors.
+Limit: This single cached CCD does not need selection between cached and uncached CCDs. A stopped V-Cache optimizer service alone does not establish a fault.
+Sources: amd-ryzen-guide, amd-9800, amd-x3d-setup, amd-ryzen-live-guide
+
+11. chipset
+Decision: Keep the installed chipset package 8.08.12.551. Do not recommend 8.01.20.513 as an upgrade.
+Purpose: Compatibility and benchmark control
+Evidence confidence: High confidence
+Validation: Selective PnP metadata confirms V-Cache optimizer 1.0.0.12, the component documented to support Windows 11 25H2. Treat any future install separately from config A/B.
+Limit: Installed component versions do not prove that every service is active or that every workload benefits. No Deadlock-specific chipset fix is listed.
+Sources: amd-chipset808, amd-chipset801
+
+12. graphics_driver
+Decision: Keep Adrenalin 26.8.1 constant during config comparisons. Treat optional 26.9.2 as a separate driver test; no Deadlock fix is listed.
+Purpose: Compatibility, rendered FPS and shader warm-up
+Evidence confidence: Release contents confirmed; performance difference unknown
+Validation: Record versions and repeat warmed captures before/after any user-selected driver update. Separate the driver change from config changes.
+Limit: No driver install was performed and no per-game uplift is promised.
+Sources: amd-version, amd2681, amd2692, amd-ags-threading, amd-rx7800-download
+
+13. current_fsr4
+Decision: Do not claim RX 7800 XT can never use FSR4. Do not add an FSR4 option without proof of a supported native game/driver path.
+Purpose: Freshness and no-mod compatibility
+Evidence confidence: Official 2026 RDNA3 support confirmed
+Validation: The installed menu exposes FSR1, FSR2, FSR3 and DLSS. A hardware capability announcement does not add an engine setting.
+Limit: Exclude SDK DLL swaps, wrappers and undocumented mode IDs.
+Sources: amd-fsr41
+
+14. os_controls
+Decision: Keep the current Game Mode, HAGS and power-plan states fixed initially. Treat windowed flip optimization as a backend-specific measurement variable.
+Purpose: Reproducibility, rendered FPS and presentation latency
+Evidence confidence: No universal winner supported
+Validation: If OS A/B is later authorized, change one variable at a time and reboot when required.
+Limit: Existing Ultimate Performance is not proof that it is optimal. Windows DX10/DX11 windowed optimization is not a generic Vulkan feature. No OS state changed in this research.
+Sources: microsoft-hags, microsoft-windowed, amd-x3d-setup
+
+Measurement constraints
+1. Keep driver, display topology, power plan, clocks, overlays and capture states fixed during config A/B.
+2. Warm shaders separately for each native backend; do not reset caches between captures.
+3. Use non-mod ETW tooling to measure CPU/GPU/display frame times. Overall CPU utilization alone cannot diagnose a bottleneck.
+4. The native AL2 monitor validates activity but does not measure click-to-photon latency; disable its overlay for clean throughput captures.
+5. No controlled public benchmark of this current Deadlock build on RX 7800 XT/9800X3D was found that can replace local repeated measurements.
+6. PCGamingWiki was checked as a secondary lead. Full-page open failed, but indexed text was available; runtime/performance statements still need direct validation.
+7. Default platform-clock guidance does not authorize timer/BCD tweaks. Cold-start profiling, if needed, must be separately labeled rather than mixed into sustained throughput comparisons.
+
+Rejected shortcuts
+- Force NVIDIA-only Boost mode 2 on AMD
+- Stack RSR with in-game FSR
+- Count frame generation as an actual-rendered-FPS gain
+- Claim sharpness 0 disables the RCAS pass
+- Assume Vulkan is always faster on AMD
+- Choose -threads 16 solely from the logical processor count
+- Exclude CPU 0, force hard affinity or disable SMT without measurements
+- Use historical CS2 Vulkan driver notes as Deadlock's API contract
+- Install an older chipset package merely because its notes mention Windows 25H2
+- Promise a universal 3 to 8 percent FPS increase from Ultimate Performance
+- Delete all VPKs or driver shader caches as an FPS optimization
+- Claim RX 7000 hardware can never support FSR4
+- Force HPET/platform-clock/timer settings as a general FPS boost
+
+Source ledger (39 entries)
+1. [amd-fsr1] AMD FidelityFX Super Resolution 1
+Type: official developer documentation
+URL: https://gpuopen.com/fidelityfx-superresolution/
+Version/date: Legacy FSR1 page. Sample platform: Adrenalin 21.20, Ryzen 9 5900X, Windows 10 20H2.
+Finding: Spatial reconstruction has a GPU cost. Published RX 6800 XT estimates are at most 0.20 ms at 1440p and 0.40 ms at 4K; neither 1080p nor RX 7800 XT is tabulated.
+Limits: Historical SDK estimates are not Deadlock measurements and do not predict this machine's FPS or 1080p overhead.
+Accessed: 2026-10-03
+
+2. [amd-fsr1-manual] FidelityFX Super Resolution 1.2 technique
+Type: official developer documentation
+URL: https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-spatial/
+Version/date: Current manual for FSR1.2. Installed Deadlock implementation version not established.
+Finding: EASU reconstructs current-frame edges; RCAS is a separate sharpening pass. The API exposes enableSharpening separately from sharpness.
+Limits: A game slider at 0 does not prove that its implementation skips RCAS or that performance increases.
+Accessed: 2026-10-03
+
+3. [amd-fsr1-cli] FidelityFX CLI: FSR and CAS
+Type: official developer documentation
+URL: https://gpuopen.com/learn/using-fidelityfx-cli/
+Version/date: Original CLI integration, September 2021.
+Finding: Original FSR RCAS sharpness uses 0 for maximum and 2 for minimum sharpening. EASU and RCAS require separate invocations.
+Limits: Parameter conventions differ across SDKs. Deadlock's 0 to 1 slider cannot be mapped without its shader/API conversion.
+Accessed: 2026-10-03
+
+4. [amd-fsr2] AMD FidelityFX Super Resolution 2
+Type: official developer documentation
+URL: https://gpuopen.com/fidelityfx-superresolution-2/
+Version/date: FSR2.2.2 page. Historical cost estimates use DX12, Adrenalin 22.5.2 and Ryzen 9 5900X.
+Finding: FSR2 uses color, depth and velocity and replaces TAA. AMD describes it as more demanding than spatial FSR1. RX 6800 XT 1080p Quality and Performance estimates are each under 0.3 ms, excluding sharpening.
+Limits: Algorithm costs do not rank whole Deadlock pipelines. This is not a current RX 7800 XT, DX11 or Vulkan benchmark.
+Accessed: 2026-10-03
+
+5. [amd-fsr2-readme] FidelityFX-FSR2 README
+Type: official developer source documentation
+URL: https://github.com/GPUOpen-Effects/FidelityFX-FSR2/blob/master/README.md
+Version/date: FSR2.2.1 repository README.
+Finding: The repository gives version-specific costs rounded to 0.1 ms without additional sharpening, and reports temporal working/persistent memory.
+Limits: Do not mix estimates from different SDK versions or platforms to manufacture a game ranking.
+Accessed: 2026-10-03
+
+6. [amd-fsr3] AMD FidelityFX Super Resolution 3
+Type: official developer documentation
+URL: https://gpuopen.com/fidelityfx-super-resolution-3/
+Version/date: FSR3.1 table from SDK sample/PIX, Ryzen 9 7950X, Windows 10 and Adrenalin 24.3.1; sharpening and asynchronous compute disabled.
+Finding: Upscaling and frame generation are separately optional. Native AA has the greatest upscaler cost. RX 6800 XT 1080p upscaling estimates: Native AA 0.7 ms, Quality 0.5 ms, Performance 0.4 ms. Separate FG estimates are 1.0/0.9/0.7 ms.
+Limits: Deadlock's FSR3 label does not establish FG. Sample estimates are neither exact Deadlock/RX 7800 XT costs nor FPS predictions.
+Accessed: 2026-10-03
+
+7. [amd-fsr41] FSR Upscaling 4.1 RDNA3 support in SDK 2.3
+Type: official developer announcement
+URL: https://gpuopen.com/learn/amd-fsr-sdk-2-3-blog/
+Version/date: June 24, 2026 announcement; FSR Upscaling 4.1.1.
+Finding: AMD officially expanded ML FSR4.1.1 upscaling support to RX 7000/RDNA3 discrete GPUs.
+Limits: Hardware support does not create a Deadlock menu option or establish current game/driver compatibility. No DLL swaps or wrappers are proposed.
+Accessed: 2026-10-03
+
+8. [amd-al2] AMD Radeon Anti-Lag 2 SDK
+Type: official developer documentation
+URL: https://gpuopen.com/anti-lag-2/
+Version/date: Current SDK 2.0.5.
+Finding: AL2 targets GPU-bound input-to-present latency with an optional FPS limiter. Generic minimum drivers: DX11 24.6.1, DX12 24.7.1, Vulkan 24.9.1, on RDNA1 or newer.
+Limits: Generic SDK compatibility is not proof that Deadlock invokes the SDK on any particular backend.
+Accessed: 2026-10-03
+
+9. [amd-al2-integration] Integrating Radeon Anti-Lag 2 SDK
+Type: official developer documentation
+URL: https://gpuopen.com/learn/integrating-amd-radeon-anti-lag-2-sdk-in-your-game/
+Version/date: Published September 4, 2024; updated August 27, 2026.
+Finding: AL2 puts calculated pacing before input sampling. Limiter value 0 disables limiting. Alt+Shift+L enables its monitor and Right Ctrl temporarily bypasses AL2. Dark/light grey readings distinguish absent calls from uncalibrated data.
+Limits: The software monitor excludes peripheral/display photon timing. It guarantees no FPS uplift. Measure native Off/On throughput separately with monitoring overhead controlled.
+Accessed: 2026-10-03
+
+10. [amd-al2-title] AMD Radeon Anti-Lag technology supported titles
+Type: official vendor title support
+URL: https://www.amd.com/en/products/software/adrenalin/radeon-software-anti-lag.html
+Version/date: Current support page includes the Deadlock logo.
+Finding: AMD lists Deadlock among titles with integrated Anti-Lag 2.
+Limits: The page does not establish backend invocation, live activity or throughput difference.
+Accessed: 2026-10-03
+
+11. [amd2491] Adrenalin 24.9.1 release notes
+Type: official driver release notes
+URL: https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-24-9-1.html
+Version/date: Historical 2024 Vulkan AL2 announcement.
+Finding: The release heading specifically introduces Vulkan Anti-Lag 2 support for Counter-Strike 2.
+Limits: This is not a Deadlock Vulkan-only declaration.
+Accessed: 2026-10-03
+
+12. [khronos-al] VK_AMD_anti_lag extension
+Type: official API specification
+URL: https://docs.vulkan.org/refpages/latest/refpages/source/VK_AMD_anti_lag.html
+Version/date: Revision 1, June 6, 2024.
+Finding: The extension paces CPU work to keep it from running far ahead of the GPU, reducing input-to-screen delay.
+Limits: Extension or loader presence does not prove that the application uses it.
+Accessed: 2026-10-03
+
+13. [khronos-al-limit] VkAntiLagDataAMD
+Type: official API specification
+URL: https://docs.vulkan.org/refpages/latest/refpages/source/VkAntiLagDataAMD.html
+Version/date: Current generated Vulkan specification.
+Finding: The maxFPS limit applies only when Anti-Lag is enabled; 0 disables this limit.
+Limits: Deadlock's mapping of fps_max to this parameter is unestablished. Verify observed caps during On/Off comparisons.
+Accessed: 2026-10-03
+
+14. [khronos-al-call] vkAntiLagUpdateAMD
+Type: official API specification
+URL: https://docs.vulkan.org/refpages/latest/refpages/source/vkAntiLagUpdateAMD.html
+Version/date: Current generated Vulkan specification.
+Finding: Integration places a call before input processing and, when presentation markers are supplied, before queue presentation with matching stage data.
+Limits: Changing a cfg value cannot itself implement the required calls.
+Accessed: 2026-10-03
+
+15. [amd-rdna-guide] RDNA performance guide
+Type: official developer performance guidance
+URL: https://gpuopen.com/learn/rdna-performance-guide/
+Version/date: Current live developer guide.
+Finding: For Vulkan/DX12, the application owns parallel command-buffer recording; the driver does not spawn additional recording threads. Submissions, synchronization and memory placement have costs.
+Limits: This describes engine design, not an end-user launch flag, automatic Vulkan advantage or permission to alter game internals.
+Accessed: 2026-10-03
+
+16. [amd-ags-threading] AGS 5.0 shader compiler controls
+Type: official historical developer documentation
+URL: https://gpuopen.com/learn/ags-5-0-shader-compiler-controls/
+Version/date: January 12, 2017; Crimson 16.9.2 onward.
+Finding: AMD DX11 asynchronous shader compilation is multithreaded and first shader use can stall. A developer API can tune compilation threads.
+Limits: Compilation threads differ from rendering/simulation workers. This is not a basis for arbitrary -threads or mat_queue_mode recipes.
+Accessed: 2026-10-03
+
+17. [microsoft-dx11-thread] D3D11 driver threading capability checks
+Type: official API documentation
+URL: https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multi-thread-support
+Version/date: Current Microsoft Learn documentation.
+Finding: Concurrent creation and command-list support are driver capabilities queried by the application. The runtime can emulate missing features.
+Limits: 16 logical processors or a newer API do not establish faster whole-frame rendering.
+Accessed: 2026-10-03
+
+18. [khronos-commandbuffers] Command-buffer usage and multithreaded recording
+Type: official API sample
+URL: https://docs.vulkan.org/samples/latest/samples/performance/command_buffer_usage/README.html
+Version/date: Current Vulkan sample documentation.
+Finding: Balanced batches and separate command/resource pools per thread are required. Excessive small command buffers or threads may hurt performance.
+Limits: Sample gains cannot be transferred to Deadlock. These are responsibilities of the engine developer.
+Accessed: 2026-10-03
+
+19. [amd-ryzen-guide] AMD Ryzen processor software optimization, GDC 2024
+Type: official developer presentation
+URL: https://gpuopen.com/gdc-presentations/2024/GDC2024_AMD_Ryzen_Processor_Software_Optimization.pdf
+Version/date: March 2024 presentation, printed pages 58 to 59.
+Finding: Profile thread pools separately during initialization and gameplay. Hard affinity masks can interfere with OS scheduling and power management; CPU Sets offer softer placement.
+Limits: Physical-core benefits depend on the workload. This is not a general recommendation to disable SMT or exclude CPU 0.
+Accessed: 2026-10-03
+
+20. [amd-x3d-setup] Ryzen 9 7950X3D/7900X3D system setup
+Type: official AMD staff historical blog, cached search text
+URL: https://community.amd.com/t5/gaming/how-to-set-up-your-system-with-a-new-amd-ryzen-9-7950x3d-or/ba-p/589464
+Version/date: AMD staff author Christian Babcock, February 28, 2023. Cached search text; live URL redirects to the community migration page.
+Finding: The dual-CCD launch guide calls for compatible chipset software, Game Mode On and an updated Game Bar.
+Limits: This 2023 Ryzen 9 context does not establish that 9800X3D needs manual core parking or that uninstalling Game Bar improves FPS.
+Accessed: 2026-10-03
+
+21. [amd-9800] AMD Ryzen 7 9800X3D launch
+Type: official product announcement
+URL: https://ir.amd.com/news-events/press-releases/detail/1225/the-gaming-legend-continues-amd-introduces-next-generation-amd-ryzen-7-9800x3d-processor
+Version/date: October 31, 2024.
+Finding: The 8-core Zen 5 CPU uses second-generation 3D V-Cache with 64 MB of added cache below its core complex die.
+Limits: Marketing hardware comparisons are not Deadlock config gains. Local cache topology is the stronger scheduling evidence.
+Accessed: 2026-10-03
+
+22. [amd-chipset808] AMD chipset 8.08.12.551
+Type: official current driver release notes
+URL: https://www.amd.com/en/resources/support-articles/release-notes/RN-RYZEN-CHIPSET-8-08-12-551.html
+Version/date: Installed package; official download released August 14, 2026.
+Finding: The package includes V-Cache optimizer 1.0.0.12 and PPM provisioning 8.0.0.65. No Deadlock-specific tuning is listed. Selective local PnP metadata confirms optimizer 1.0.0.12.
+Limits: Package/component presence does not establish a per-game benefit. Do not install the older 8.01 package as an upgrade.
+Accessed: 2026-10-03
+
+23. [amd-chipset801] AMD chipset 8.01.20.513
+Type: official historical driver release notes
+URL: https://www.amd.com/en/resources/support-articles/release-notes/RN-RYZEN-CHIPSET-8-01-20-513.html
+Version/date: Earlier 2026 chipset release.
+Finding: V-Cache optimizer 1.0.0.12 explicitly adds Windows 11 25H2 support.
+Limits: The machine already has the newer 8.08 package and this component version. This is compatibility context, not an install recommendation.
+Accessed: 2026-10-03
+
+24. [amd-version] Radeon Vulkan driver version table
+Type: official driver mapping
+URL: https://gpuopen.com/version-table/
+Version/date: Current official version table.
+Finding: Windows Driver Store 32.0.31041.1004 maps to Adrenalin 26.8.1/internal 26.10.41.01. Version 26.9.2 maps to 32.0.32015.2008.
+Limits: Newer does not automatically mean faster Deadlock. Keep the driver constant during config comparisons.
+Accessed: 2026-10-03
+
+25. [amd2681] Adrenalin 26.8.1
+Type: official installed driver release notes
+URL: https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-8-1.html
+Version/date: August 20, 2026.
+Finding: Supports RX 7800 series and lists fixes for other games/capture. No Deadlock-specific fix is listed.
+Limits: Unlisted issues may exist; silence does not prove perfect stability.
+Accessed: 2026-10-03
+
+26. [amd2692] Adrenalin 26.9.2 Optional
+Type: official current driver release notes
+URL: https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-9-2.html
+Version/date: September 29, 2026.
+Finding: This RX 7000-compatible update lists timeout/AL2-state fixes for other titles, not Deadlock.
+Limits: There is no basis to promise a Deadlock uplift. Treat any driver comparison separately and warm shaders afterward.
+Accessed: 2026-10-03
+
+27. [amd-rsr] Radeon Super Resolution support
+Type: official vendor support
+URL: https://www.amd.com/en/resources/support-articles/faqs/DH3-040.html
+Version/date: June 25, 2025, Adrenalin 25.6.1 context.
+Finding: AMD prefers native in-game FSR when available. RSR requires an input below the display's native resolution and can interact with the desktop resolution in borderless mode.
+Limits: Avoid stacking RSR with native FSR. Current 1080p output is not established as the panel's native resolution.
+Accessed: 2026-10-03
+
+28. [amd-frtc] Frame Rate Target Control
+Type: official vendor support
+URL: https://www.amd.com/en/products/software/adrenalin/frtc.html
+Version/date: Current official feature description.
+Finding: FRTC's documented range is 30 to 200 FPS in full-screen exclusive mode on supported APIs/hardware.
+Limits: This is unsuitable for uncapped throughput measurement or a cap near the current 480 Hz output.
+Accessed: 2026-10-03
+
+29. [microsoft-hags] Hardware-accelerated GPU scheduling
+Type: official implementation explanation
+URL: https://devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/
+Version/date: June 30, 2020 implementation background.
+Finding: HAGS moves frequent GPU scheduling work to hardware and was designed as a transparent transition.
+Limits: This is not a universal FPS-gain promise. HAGS is already configured On; keep it constant initially.
+Accessed: 2026-10-03
+
+30. [microsoft-windowed] Windows 11 optimizations for windowed games
+Type: official user documentation
+URL: https://support.microsoft.com/en-us/windows/hardware/display-graphics/optimizations-for-windowed-games-in-windows-11
+Version/date: Current Windows 11 support documentation.
+Finding: Compatible DX10/DX11 windowed games can transition legacy blt presentation to flip presentation, enabling latency and VRR benefits.
+Limits: This is not a generic Vulkan feature or proof that exclusive full-screen always wins.
+Accessed: 2026-10-03
+
+31. [pcgw] PCGamingWiki Deadlock
+Type: secondary wiki lead
+URL: https://www.pcgamingwiki.com/wiki/Deadlock
+Version/date: Search index checked October 3, 2026; full-page open returned an internal error.
+Finding: Reports Stretch/FSR1 with optional FXAA, temporal FSR2/FSR3, Vulkan replacing FSR2 with FSR3, and separate game/menu FPS limiters. No native frame generation documented.
+Limits: Installed XML partly verifies option mapping. Backend gating, current defaults and runtime behavior remain unverified. Exclude gameinfo modifications under the no-mod scope.
+Accessed: 2026-10-03
+
+32. [pcgamer-al2-test] Valorant Anti-Lag 2 LDAT test
+Type: independent first-party measurement, other game
+URL: https://www.pcgamer.com/hardware/valorant-gets-anti-lag-2-but-after-testing-it-i-dont-think-users-with-high-end-amd-rigs-should-crack-open-the-champagne/
+Version/date: May 20, 2026; RX 9070 XT/7800X3D; more than 150 clicks per condition.
+Finding: The author measured a small latency/average-FPS change and a lower 1% low with AL2 On in Valorant practice. Stacking driver Anti-Lag produced latency within reported variance.
+Limits: Different game and hardware; incomplete FPS repetitions/variance/driver detail prevent transfer of a percentage. Supports On/Off testing, not a universal Off recommendation.
+Accessed: 2026-10-03
+
+33. [techspot-fsr] FSR2 versus FSR1/Native in Deathloop
+Type: independent first-party measurement, other game
+URL: https://www.techspot.com/review/2464-amd-fsr-2-vs-dlss-benchmark/
+Version/date: 2022; Ryzen 9 5950X/DDR4 and older GPUs, with settings adjusted to avoid VRAM bottlenecks.
+Finding: Measured tradeoffs vary by GPU, resolution and AA path. Temporal quality and spatial cost are distinct; the bottleneck conditions matter.
+Limits: No current Deadlock/RX 7800 XT data. Different preset/input resolutions do not rank equal-scale native Deadlock choices.
+Accessed: 2026-10-03
+
+34. [forum-al2-menu] Anti-Lag 2 disables dashboard FPS limit
+Type: secondary player bug report
+URL: https://forums.playdeadlock.com/threads/anti-lag-2-0-disables-dashboard-fps-limit.39622/
+Version/date: October 18, 2024; historical single-player report.
+Finding: Reports that native AL2 On changed menu FPS-limiter behavior.
+Limits: Not a currently confirmed bug. It motivates observed-cap validation, not blindly changing the limiter.
+Accessed: 2026-10-03
+
+35. [forum-current-vulkan] Vulkan unplayable after the new update
+Type: secondary current player reports
+URL: https://www.reddit.com/r/DeadlockTheGame/comments/1wtztbq/vulkan_is_unplayable_after_the_new_update/
+Version/date: September 30 to October 2, 2026; mixed AMD/Intel player reports.
+Finding: Reports backend failures/regressions following a recent patch.
+Limits: Uncontrolled samples with different OS/GPU states cannot establish a universal backend winner. Exclude DXVK/admin workarounds from comments.
+Accessed: 2026-10-03
+
+36. [guide-rejected] MISSOUT Deadlock guide
+Type: secondary guide rejected forunsupportedclaims
+URL: https://missoutpc.com/en/optimization/deadlock/
+Version/date: 2026 page.
+Finding: Claims that Deadlock lacks AL2 integration and attributes numerical FPS gains to Ultimate Performance.
+Limits: The AL2 statement conflicts with AMD's official title list. The numerical power-plan claim lacks a reproducible protocol and is excluded as a recommendation basis.
+Accessed: 2026-10-03
+
+37. [amd-ryzen-live-guide] AMD Ryzen CPU Performance Guide
+Type: official developer performance methodology
+URL: https://gpuopen.com/learn/ryzen-performance/
+Version/date: Originally April 20, 2021; last updated February 9, 2024; live page checked October 3, 2026.
+Finding: AMD recommends representative scenes, repeated means/percentiles, enough tail samples and measuring run-to-run coefficient of variation. It recommends the default platform clock and distinguishes cold-cache first-use testing from warmed steady-state captures. GPU queue/idle analysis supports bottleneck diagnosis.
+Limits: Developer advice about shader-cache deletion, profiling-tool requirements, security exclusions or disabling HVCI is not an end-user FPS recipe. No such system changes were performed.
+Accessed: 2026-10-03
+
+38. [amd-rx7800-download] Radeon RX 7800 XT drivers and downloads
+Type: official current device driver support
+URL: https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7800-xt.html
+Version/date: Live device page checked October 3, 2026.
+Finding: For Windows 11, AMD still labels installed Adrenalin 26.8.1 WHQL Recommended, dated August 20, 2026, and newer 26.9.2 WHQL Optional, dated September 29. The product specifies 16 GB GDDR6.
+Limits: The labels support holding the installed driver constant; they do not establish a Deadlock performance ranking. No downloaded package was installed.
+Accessed: 2026-10-03
+
+39. [microsoft-gdc2026] GDC 2026 Windows PC game platform updates
+Type: official current platform announcement
+URL: https://blogs.windows.com/windowsdeveloper/2026/03/11/gdc-2026-announcing-new-tools-and-platform-updates-for-windows-pc-game-developers/
+Version/date: March 11, 2026 announcement.
+Finding: Microsoft announced Xbox mode rollout to desktop/laptop Windows 11 devices in select markets beginning April, and developer-enabled Advanced Shader Delivery through Xbox Store workflows.
+Limits: These announcements do not prove feature availability or integration for Steam Deadlock. They do not provide a cfg switch, automatic FPS uplift, or justification for a platform/launcher change.
+Accessed: 2026-10-03

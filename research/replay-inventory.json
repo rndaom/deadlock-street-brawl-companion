@@ -1,0 +1,40 @@
+{
+  "CapturedUtc": "2026-10-03T23:04:13.3206193Z",
+  "Method": "Read-only scoped rg filename discovery including hidden and ignored files, plus replay/demo directory inventory",
+  "Scopes": [
+    {
+      "Kind": "InstalledGame",
+      "Label": "Deadlock installation"
+    },
+    {
+      "Kind": "AppUserData",
+      "Label": "userdata/profile-1/1422450"
+    }
+  ],
+  "ReplayFiles": [],
+  "ReplayMetadataFiles": [
+    {
+      "Scope": "userdata/profile-1/1422450",
+      "RelativePath": "remote\\cfg\\pending_replay_requests.lst",
+      "Bytes": 28,
+      "ModifiedUtc": "2024-10-13T01:46:42Z"
+    }
+  ],
+  "ReplayFolders": [
+    {
+      "Scope": "Deadlock installation",
+      "RelativePath": "game\\core\\tools\\demoinfo2"
+    }
+  ],
+  "EngineCompatibility": "No downloaded demo found in audited game and app-1422450 userdata/download scopes; runtime replay compatibility cannot be tested",
+  "GameControlPerformed": false,
+  "ContentInspection": "No replay player/chat/message data read; no unrelated userdata app directories read",
+  "NativeDemoToolResources": [
+    {
+      "Scope": "Deadlock installation",
+      "RelativePath": "game\\core\\tools\\demoinfo2\\demoinfo2.txt",
+      "Bytes": 10389,
+      "ModifiedUtc": "2026-09-30T00:59:53.696535Z"
+    }
+  ]
+}

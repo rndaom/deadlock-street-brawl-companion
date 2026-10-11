@@ -1,0 +1,63 @@
+Fresh Valve/update research - round 2
+As of 2026-10-03, America/New_York. Read-only game/system research.
+Companion JSON contains source classifications, limitations, dates, and ledger.
+
+Latest verified update state
+City Never Sleeps was published Sep 29 at 16:25:11 EDT. Rat King was announced Oct 2 at 16:59:51 EDT. The newest official Steam announcement contains no general FPS hotfix. The current Valve forum changelog remains 09-29-2026 with one follow-up covering health bars, colors, down-dash rebinding, minimap bell ping and UI sounds. That follow-up does not claim a rendering fix.
+https://store.steampowered.com/news/app/1422450/view/694273194214819790
+https://store.steampowered.com/news/app/1422450/view/703281025618281704
+https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=1422450&count=10&maxlength=0&feeds=steam_community_announcements&format=json
+https://forums.playdeadlock.com/threads/09-29-2026.166726/
+
+The major update explicitly includes a newer Source 2, rendering/audio/trooper performance work, anticheat improvements and cheaper downward drop shadows. It also changes cloud persistence for more settings. Those changes require current-build validation of inherited overrides and post-restart effective values.
+https://www.playdeadlock.com/cityneversleeps
+
+Fresh clarification on developer messages
+Sep 30 performance fixes are a plan for daily updates. Oct 2 camera trouble prompted a check of mods; an alternate camera fix was being worked on. The later fixed-now reply concerns inability to join games as Rat King. It is not evidence the camera or FPS issue was fixed. Delivered tunnel-box timer and Haze gameplay fixes likewise do not establish a performance fix.
+Original Discord messages were inaccessible. Both the Observatory and Deadvision archives agree on message IDs/times; Deadvision preserves reply subjects. These are corroborated secondary records, not independent authentication of the original Discord posts.
+https://discord.com/channels/1231286446472691825/1231286447131328544/1554972401014538302
+https://discord.com/channels/1231286446472691825/1231311070786752579/1555688504762175510
+https://discord.com/channels/1231286446472691825/1231311070786752579/1555694593973157969
+https://discord.com/channels/1231286446472691825/1231286447131328544/1555697996103155812
+https://thedeadlockobservatory.com/
+https://deadvision.live/api/developers/Yoshi
+
+Exact mod/cache warning remains unverified
+The closest current developer warning is Rat King camera trouble with mods. I found no exact Valve/Yoshi instruction to erase all VPKs or shader caches. Date-filtered archive searches for cache, shader, VPK and FPS returned zero results; performance returned the planned-work message. Missing public evidence is not proof no private message exists.
+Preserve stock VPK asset packages. A mod-free baseline should identify third-party add-ons and use reversible quarantine or backup where needed. Steam verification repairs known stock files; it is not proof all extra add-ons are removed.
+https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
+
+What new reports add
+New-map complaints include major dense-view FPS losses, steady displayed FPS with visible movement jitter, and severe late-game base/patron dips. The worker-profile report supports a scene-work hypothesis, but is not Valve's diagnosis and does not establish that the game uses only one or two CPU cores. The same author reposts that diagnostic evidence in the larger FPS complaint thread; count it once.
+https://forums.playdeadlock.com/threads/city-never-sleeps-severe-view-dependent-fps-regression-source-2-worker-cpu-time-54-in-dense-views-vulkan-dx11.166427/
+https://forums.playdeadlock.com/threads/insane-fps-drop-this-update.165494/
+https://forums.playdeadlock.com/threads/odd-jittering-on-the-new-map.165462/
+https://forums.playdeadlock.com/threads/substantial-fps-drops-in-patron-pit-base-late-game.167202/
+
+Intel Arc users report Vulkan device loss loading/returning to the hideout, with clean driver and cache resets ineffective. That is a distinct compatibility signal, not grounds to transfer an Intel workaround to this AMD machine. A current laptop 40-FPS-cap complaint reportedly predates this patch by months. Earlier Linux/NVIDIA VRAM collapse and January DLSS model results are also not fresh City Never Sleeps diagnoses.
+https://forums.playdeadlock.com/threads/intel-arc-b570-%E2%80%93-vulkan-vk_error_device_lost-when-loading-returning-to-hideout-after-latest-update.166368/
+https://forums.playdeadlock.com/threads/fps-caps-to-40fps-stutters-lags-rtx-5070ti-intel-core-ultra-9-275hx-32gb.165245/
+https://forums.playdeadlock.com/threads/linux-nvidia-persistent-performance-drop-after-about-90-minutes-of-gameplay.161478/
+
+Config provenance changed
+The OptiLock listing now advertises City Never Sleeps compatibility and an Oct 3 update; the artifact audit should use that release rather than the older cached first-pass description. Sqooky's original README records visibility failures from aggressive culling, LOD, decals, camera and ragdoll overrides, and discusses an older matchmaking restriction string. A March FOV forum thread retracts an initial assumption that all gameinfo edits blocked matchmaking. Neither source establishes October enforcement.
+
+The game-install agent freshly matched current English localization to its installed depot SHA1 ceb5a6aa2c1113b3b05fcec8cb00d65c2b10de82. Line 1678, Citadel_StartMatchmaking_UnverifiedPGI, now names unsupported changes to Engine2, MaterialSystem2, NetworkSystem, Particles, RenderSystem, SceneSystem and WorldRenderer plus Tools-mode. It does not mention ConVars. This supersedes older README wording and argues against transplanting engine-section rewrites. It remains denial-message evidence, not a complete runtime enforcement test.
+Local evidence: research/round2/game-install-audit.json, installed_matchmaking_gameinfo_denial_label.
+https://deadlockmods.com/mod/690233
+https://github.com/Sqooky/OptimizationLock
+https://forums.playdeadlock.com/threads/increase-fov-option-to-120.122038/
+
+Actionable decisions for the user's machine
+Use stock camera and current built-in settings for the clean baseline. Validate each inherited command against the installed build. Preserve enemy/trooper visibility, ability decals, blast-vent effects, Doorman ultimate indicators and readable world text. Do not add an unhider or bypass to force protected commands.
+
+This user's Ryzen 7 9800X3D/RX 7800 XT/32 GB Windows PC differs from most cited reports. DX11 is currently loaded according to the local second audit; compare Vulkan under its own warm-up rather than naming a universal winner. Avoid importing DLSS advice into an AMD profile.
+
+Benchmark dense city views, late-game base fights, shop/scoreboard transitions and first-use abilities, then repeat warm-cache runs. Collect frame times, CPU/GPU busy, RAM/commit and VRAM over session duration. Avoid automatic shader-cache deletion: older instrumented reports show more opening stalls following cache/backend changes. Current local memory pressure is a confound to control, not a proven stutter diagnosis.
+https://forums.playdeadlock.com/threads/400ms-main-thread-stalls-during-gameplay-gpu-idle-both-renderers-presentmon-10-sessions.160054/
+https://forums.playdeadlock.com/threads/stutters-every-instance-where-i-had-one.158827/
+
+No benchmark was performed and no gains are claimed by this report. No game, cache, driver, OS or process settings were modified.
+
+Source/date limitations
+Use official Unix timestamps where available. The Rat King aggregator displays a different day than Steam; forum Today/Yesterday labels and inaccessible raw timestamps cannot date a post precisely. Later wiki rows were excluded. No challenge or authenticated source access was bypassed. Full negative findings and individual source ledger are in valve-update.json.

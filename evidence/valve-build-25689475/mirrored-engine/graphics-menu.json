@@ -1,0 +1,660 @@
+[
+  {
+    "key": "r_fullscreen_gamma",
+    "node_type": "CitadelSettingsSlider",
+    "id": "",
+    "label_token": "#citadel_settings_fullscreenbrightness",
+    "minimum": "1.6",
+    "maximum": "2.6",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "citadel_video_preset",
+    "node_type": "CitadelSettingsEnum",
+    "id": "VideoPresets",
+    "label_token": "#citadel_settings_videopreset",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "PresetLow",
+        "label_token": "#citadel_settings_videopreset_low",
+        "value": "0"
+      },
+      {
+        "id": "PresetMedium",
+        "label_token": "#citadel_settings_videopreset_med",
+        "value": "1"
+      },
+      {
+        "id": "PresetHigh",
+        "label_token": "#citadel_settings_videopreset_high",
+        "value": "2"
+      },
+      {
+        "id": "PresetUltra",
+        "label_token": "#citadel_settings_videopreset_ultra",
+        "value": "3"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_upscaling",
+    "node_type": "CitadelSettingsEnum",
+    "id": "UpscalingTechnologyEnum",
+    "label_token": "#citadel_settings_upscaling",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "UpscalingNone",
+        "label_token": "#citadel_settings_upscaling_none",
+        "value": "0"
+      },
+      {
+        "id": "UpscalingFSR",
+        "label_token": "#citadel_settings_upscaling_fsr",
+        "value": "1"
+      },
+      {
+        "id": "UpscalingFSR2",
+        "label_token": "#citadel_settings_upscaling_fsr2",
+        "value": "2"
+      },
+      {
+        "id": "UpscalingFSR3",
+        "label_token": "#citadel_settings_upscaling_fsr3",
+        "value": "3"
+      },
+      {
+        "id": "UpscalingDLSS",
+        "label_token": "#citadel_settings_upscaling_dlss",
+        "value": "4"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "mat_viewportscale",
+    "node_type": "CitadelSettingsSlider",
+    "id": "RenderQuality",
+    "label_token": "#citadel_settings_renderquality",
+    "minimum": "0.4",
+    "maximum": "1.0",
+    "step": "0.01",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "mat_viewportscale",
+    "node_type": "CitadelSettingsEnum",
+    "id": "RenderQualityFSR2Enum",
+    "label_token": "#citadel_settings_fsr2scaling",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "Fsr2ScalingNative",
+        "label_token": "#citadel_settings_fsr2scaling_native",
+        "value": "1.000000"
+      },
+      {
+        "id": "Fsr2ScalingQuality",
+        "label_token": "#citadel_settings_fsr2scaling_quality",
+        "value": "0.666667"
+      },
+      {
+        "id": "Fsr2ScalingBalanced",
+        "label_token": "#citadel_settings_fsr2scaling_balanced",
+        "value": "0.588235"
+      },
+      {
+        "id": "Fsr2ScalingPerformance",
+        "label_token": "#citadel_settings_fsr2scaling_performance",
+        "value": "0.500000"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_dlss_settings_mode",
+    "node_type": "CitadelSettingsEnum",
+    "id": "RenderQualityDLSSEnum",
+    "label_token": "#citadel_settings_dlssscaling",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "DLSSScalingDLAA",
+        "label_token": "#citadel_settings_dlssscaling_DLAA",
+        "value": "4"
+      },
+      {
+        "id": "DLSSScalingQuality",
+        "label_token": "#citadel_settings_dlssscaling_quality",
+        "value": "3"
+      },
+      {
+        "id": "DLSSScalingBalanced",
+        "label_token": "#citadel_settings_dlssscaling_balanced",
+        "value": "2"
+      },
+      {
+        "id": "DLSSScalingPerformance",
+        "label_token": "#citadel_settings_dlssscaling_performance",
+        "value": "1"
+      },
+      {
+        "id": "DLSSScalingAuto",
+        "label_token": "#citadel_settings_dlssscaling_auto",
+        "value": "0"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_dlss_preset",
+    "node_type": "CitadelSettingsEnum",
+    "id": "RenderQualityDLSSTechnology",
+    "label_token": "#citadel_settings_dlsstechnology",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "DLSSTechnologyCNN",
+        "label_token": "#citadel_settings_dlsstechnology_cnn",
+        "value": "6"
+      },
+      {
+        "id": "DLSSTechnologyTransformer",
+        "label_token": "#citadel_settings_dlsstechnology_transformer",
+        "value": "10"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_fsr_rcas_sharpness",
+    "node_type": "CitadelSettingsSlider",
+    "id": "FsrRcasSharpness",
+    "label_token": "#citadel_settings_fsr_rcas_sharpness",
+    "minimum": "0.0",
+    "maximum": "1.0",
+    "step": "0.01",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_fsr2_sharpness",
+    "node_type": "CitadelSettingsSlider",
+    "id": "Fsr2Sharpness",
+    "label_token": "#citadel_settings_fsr2_sharpness",
+    "minimum": "0.0",
+    "maximum": "1.0",
+    "step": "0.01",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_antialiasing",
+    "node_type": "CitadelSettingsEnum",
+    "id": "AntiAliasingEnum",
+    "label_token": "#citadel_settings_antialiasing",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "AntialiasingNone",
+        "label_token": "#citadel_settings_antialiasing_none",
+        "value": "0"
+      },
+      {
+        "id": "AntialiasingFXAA",
+        "label_token": "#citadel_settings_antialiasing_fxaa",
+        "value": "1"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_ssao_quality",
+    "node_type": "CitadelSettingsEnum",
+    "id": "SsaoQualityEnum",
+    "label_token": "#citadel_settings_ssao",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "SSaoQualityOff",
+        "label_token": "#citadel_settings_ssao_quality_off",
+        "value": "0"
+      },
+      {
+        "id": "SsaoQualityLow",
+        "label_token": "#citadel_settings_ssao_quality_low",
+        "value": "1"
+      },
+      {
+        "id": "SsaoQualityMed",
+        "label_token": "#citadel_settings_ssao_quality_med",
+        "value": "2"
+      },
+      {
+        "id": "SsaoQualityHigh",
+        "label_token": "#citadel_settings_ssao_quality_high",
+        "value": "3"
+      },
+      {
+        "id": "SsaoQualityUltra",
+        "label_token": "#citadel_settings_ssao_quality_ultra",
+        "value": "4"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_shadow_quality",
+    "node_type": "CitadelSettingsEnum",
+    "id": "ShadowQualityEnum",
+    "label_token": "#citadel_settings_shadow_quality",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "ShadowQualityLow",
+        "label_token": "#citadel_settings_shadow_quality_low",
+        "value": "0"
+      },
+      {
+        "id": "ShadowQualityMed",
+        "label_token": "#citadel_settings_shadow_quality_med",
+        "value": "1"
+      },
+      {
+        "id": "ShadowQualityHigh",
+        "label_token": "#citadel_settings_shadow_quality_high",
+        "value": "2"
+      },
+      {
+        "id": "ShadowQualityUltra",
+        "label_token": "#citadel_settings_shadow_quality_ultra",
+        "value": "3"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_citadel_fog_quality",
+    "node_type": "CitadelSettingsEnum",
+    "id": "FogEnum",
+    "label_token": "#citadel_settings_fogquality",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "TextureQualityLow",
+        "label_token": "#citadel_settings_fogquality_low",
+        "value": "0"
+      },
+      {
+        "id": "TextureQualityHigh",
+        "label_token": "#citadel_settings_fogquality_high",
+        "value": "1"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_texture_stream_mip_bias",
+    "node_type": "CitadelSettingsEnum",
+    "id": "TextureEnum",
+    "label_token": "#citadel_settings_texturequality",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "TextureQualityLow",
+        "label_token": "#citadel_settings_texturequality_low",
+        "value": "2"
+      },
+      {
+        "id": "TextureQualityMed",
+        "label_token": "#citadel_settings_texturequality_med",
+        "value": "1"
+      },
+      {
+        "id": "TextureQualityHigh",
+        "label_token": "#citadel_settings_texturequality_high",
+        "value": "0"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_post_bloom",
+    "node_type": "CitadelSettingsToggle",
+    "id": "",
+    "label_token": "#citadel_settings_post_bloom",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_effects_bloom",
+    "node_type": "CitadelSettingsToggle",
+    "id": "",
+    "label_token": "#citadel_settings_effects_bloom",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_arealights",
+    "node_type": "CitadelSettingsToggle",
+    "id": "",
+    "label_token": "#citadel_settings_area_lights",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_depth_of_field",
+    "node_type": "CitadelSettingsToggle",
+    "id": "",
+    "label_token": "#citadel_settings_depth_of_field",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "fps_max",
+    "node_type": "CitadelSettingsSlider",
+    "id": "FpsMaxSlider",
+    "label_token": "#citadel_settings_fps_max",
+    "minimum": "60",
+    "maximum": "1000",
+    "step": "1",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "r_low_latency",
+    "node_type": "CitadelEnumDropDown",
+    "id": "LowLatencyDropDown",
+    "label_token": "",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "off",
+        "label_token": "#citadel_settings_lowlatency_off",
+        "value": "0"
+      },
+      {
+        "id": "on",
+        "label_token": "#citadel_settings_lowlatency_on",
+        "value": "1"
+      },
+      {
+        "id": "boost",
+        "label_token": "#citadel_settings_lowlatency_boost",
+        "value": "2"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "citadel_21x9_clamp_hud",
+    "node_type": "CitadelSettingsToggle",
+    "id": "21x9HUDClamp",
+    "label_token": "#citadel_settings_219_clamp_HUD",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "citadel_preview_video_settings_changes",
+    "node_type": "CitadelSettingsToggle",
+    "id": "PreviewVideoChangesButton",
+    "label_token": "#citadel_settings_video_preview",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "citadel_preview_video_settings_duration",
+    "node_type": "CitadelSettingsSlider",
+    "id": "ChangePreviewDurationSlider",
+    "label_token": "#citadel_settings_video_preview_time",
+    "minimum": "2",
+    "maximum": "10.0",
+    "step": "0.1",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "fps_max_ui",
+    "node_type": "CitadelSettingsSlider",
+    "id": "FpsMaxUISlider",
+    "label_token": "#citadel_settings_fps_max_ui",
+    "minimum": "60",
+    "maximum": "1000",
+    "step": "1",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_frametime_show",
+    "node_type": "CitadelEnumDropDown",
+    "id": "TelemetryFrameTimeDropDown",
+    "label_token": "",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "hudtelemetryshowframetime0",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Never",
+        "value": "0"
+      },
+      {
+        "id": "hudtelemetryshowframetime1",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_OnlyInPoorConditions",
+        "value": "1"
+      },
+      {
+        "id": "hudtelemetryshowframetime2",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Always",
+        "value": "2"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_frametime_poor",
+    "node_type": "CitadelSettingsSlider",
+    "id": "TelemetryFrametimePoor",
+    "label_token": "#Citadel_Settings_HudTelemetry_FrameTimePoor",
+    "minimum": "1",
+    "maximum": "100",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_ping_show",
+    "node_type": "CitadelEnumDropDown",
+    "id": "TelemetryPingDropDown",
+    "label_token": "",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "hudtelemetryshowping0",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Never",
+        "value": "0"
+      },
+      {
+        "id": "hudtelemetryshowping1",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_OnlyInPoorConditions",
+        "value": "1"
+      },
+      {
+        "id": "hudtelemetryshowping2",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Always",
+        "value": "2"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_net_misdelivery_show",
+    "node_type": "CitadelEnumDropDown",
+    "id": "TelemetryNetMisdeliveryDropDown",
+    "label_token": "",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "hudtelemetryshowmissedticks0",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Never",
+        "value": "0"
+      },
+      {
+        "id": "hudtelemetryshowmissedticks1",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_OnlyInPoorConditions",
+        "value": "1"
+      },
+      {
+        "id": "hudtelemetryshowmissedticks2",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Always",
+        "value": "2"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_net_misdelivery_poor",
+    "node_type": "CitadelSettingsSlider",
+    "id": "TelemetryNetworkMissedTicksPoor",
+    "label_token": "#Citadel_Settings_HudTelemetry_NetworkMissedTicksPoor",
+    "minimum": "0",
+    "maximum": "2",
+    "step": "",
+    "options": [],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_net_quality_graph_show",
+    "node_type": "CitadelEnumDropDown",
+    "id": "TelemetryNetQualityGraphDropDown",
+    "label_token": "",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "hudtelemetryshownetqualitygraph0",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Never",
+        "value": "0"
+      },
+      {
+        "id": "hudtelemetryshownetqualitygraph1",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_OnlyInPoorConditions",
+        "value": "1"
+      },
+      {
+        "id": "hudtelemetryshownetqualitygraph2",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Always",
+        "value": "2"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  },
+  {
+    "key": "cl_hud_telemetry_net_detailed",
+    "node_type": "CitadelEnumDropDown",
+    "id": "TelemetryNetDetailedDropDown",
+    "label_token": "",
+    "minimum": "",
+    "maximum": "",
+    "step": "",
+    "options": [
+      {
+        "id": "hudtelemetryshownetqualitygraph0",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Never",
+        "value": "0"
+      },
+      {
+        "id": "hudtelemetryshownetqualitygraph1",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_OnlyInPoorConditions",
+        "value": "1"
+      },
+      {
+        "id": "hudtelemetryshownetqualitygraph2",
+        "label_token": "#Citadel_Settings_HudTelemetry_Show_Always",
+        "value": "2"
+      }
+    ],
+    "default": "",
+    "source": "game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml"
+  }
+]

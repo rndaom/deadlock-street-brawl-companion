@@ -1,0 +1,484 @@
+{
+  "schema": 1,
+  "inspected_at_client_date": "2026-10-03",
+  "scope": "Read-only engine research; no installed-game/system writes or native interactions. Evidence files are workspace copies.",
+  "installed_build": {
+    "steam_build_id": 25689475,
+    "client_version": 6745,
+    "server_version": 6745,
+    "source_revision": 11078118,
+    "version_date": "Oct 02 2026",
+    "version_time": "17:45:04"
+  },
+  "provenance": {
+    "repository": "https://github.com/SteamTracking/GameTracking-Deadlock",
+    "commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "commit_time_utc": "2026-10-03T00:53:23Z",
+    "artifact_root": "evidence/valve-build-25689475/mirrored-engine",
+    "inventory": "evidence/valve-build-25689475/mirrored-engine/source-inventory.json",
+    "metadata_type": "Third-party dump of Valve-authored binary convar/command metadata and decompiled native menu; not a Valve optimization recommendation.",
+    "local_match": "All video_defaults_0..3 and video_version match installed extracted resources after CRLF-to-LF normalization. Current popup_settings.vxml_c archive-entry CRC32 3895611e and size 32094 match pinned repo index. CRC32 is not cryptographic proof; normalized preset SHA256 and downloaded source SHA256 are recorded.",
+    "local_comparisons": [
+      "evidence/valve-build-25689475/mirrored-engine/installed-preset-comparison.json",
+      "evidence/valve-build-25689475/mirrored-engine/installed-preset-normalized-comparison.json",
+      "evidence/valve-build-25689475/mirrored-engine/installed-menu-mirror-comparison.json"
+    ],
+    "runtime_limit": "Dumped initial/default/min/max metadata does not prove a console command is accepted or a native video setting took effect in this running process. Parent must validate after a controlled restart and benchmark."
+  },
+  "conclusions": [
+    "Prefer a short native-video profile plus release/archive FPS and telemetry controls. Do not copy hundreds of unrelated internal convars.",
+    "Console devonly/cheat restrictions, gameinfo override restrictions, and native menu video settings are distinct access paths. Menu-exposed devonly values are valid normal native-video settings; devonly in an autoexec does not imply working console access.",
+    "The current Valve Low preset is directly installed-source-backed. It has shadow quality LOW rather than an OFF option.",
+    "Remove this machine's manually inserted unsupported or hidden renderer overrides instead of forcing cheat/internal values. Restoring normal engine behavior can restore graphics work; increased FPS relative to an unsafe older profile is not guaranteed.",
+    "Preserve hardware tier knobs, display identifiers, native resolution, controls, audio and accessibility when current semantics cannot be proven.",
+    "A thousandfold FPS gain cannot be substantiated. Select the best profile using matched current-build measurements."
+  ],
+  "native_mapping_artifact": "evidence/valve-build-25689475/mirrored-engine/graphics-menu.json",
+  "native_profile_mapping": {
+    "r_citadel_upscaling": {
+      "0": "Stretch (no FSR/DLSS reconstruction)",
+      "1": "FSR1 spatial",
+      "2": "FSR2 temporal",
+      "3": "FSR3 (TAA) per installed-source native localization; no frame-generation claim",
+      "4": "DLSS"
+    },
+    "mat_viewportscale": {
+      "generic_min": 0.4,
+      "generic_max": 1,
+      "generic_step": 0.01,
+      "temporal_native": 1,
+      "temporal_quality": 0.666667,
+      "temporal_balanced": 0.588235,
+      "temporal_performance": 0.5
+    },
+    "r_citadel_shadow_quality": {
+      "0": "Low",
+      "1": "Medium",
+      "2": "High",
+      "3": "Ultra"
+    },
+    "r_texture_stream_mip_bias": {
+      "0": "High",
+      "1": "Medium",
+      "2": "Low"
+    },
+    "r_citadel_antialiasing": {
+      "0": "None",
+      "1": "FXAA"
+    },
+    "r_citadel_fog_quality": {
+      "0": "Low",
+      "1": "High"
+    },
+    "r_low_latency": {
+      "0": "Off",
+      "1": "On; native AMD Anti-Lag 2/ NVIDIA low latency path",
+      "2": "NVIDIA-only boost according to dumped help"
+    },
+    "r_citadel_fsr_rcas_sharpness": {
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    "fps_ui_slider": {
+      "min": 60,
+      "max": 1000,
+      "step": 1
+    },
+    "note": "fps_max 0 remains explicitly supported by engine limiter metadata even though it is outside the UI slider range."
+  },
+  "default_metadata_samples": {
+    "fps_max": {
+      "value": "120",
+      "flags": [
+        "archive",
+        "release"
+      ]
+    },
+    "fps_max_ui": {
+      "value": "0",
+      "flags": [
+        "archive"
+      ]
+    },
+    "cl_hud_telemetry_frametime_show": {
+      "value": "1",
+      "flags": [
+        "clientdll",
+        "archive",
+        "release"
+      ]
+    },
+    "thread_pool_option": {
+      "value": "-1",
+      "flags": [
+        "hidden",
+        "release"
+      ],
+      "decision": "No manual override without measured machine-specific benefit."
+    },
+    "engine_low_latency_sleep_after_client_tick": {
+      "value": "false",
+      "flags": [
+        "release"
+      ],
+      "decision": "Leave default; timing change has no established FPS benefit for this machine."
+    },
+    "r_low_latency": {
+      "value": "1",
+      "flags": [
+        "developmentonly",
+        "defensive"
+      ],
+      "decision": "Native video/menu path only in this profile; do not infer console access."
+    },
+    "r_threaded_particles": {
+      "value": "true",
+      "flags": [
+        "developmentonly",
+        "defensive"
+      ],
+      "decision": "Already enabled; no forced scheduler tweak."
+    },
+    "r_threaded_particle_creation": {
+      "value": "true",
+      "flags": [
+        "developmentonly",
+        "defensive"
+      ],
+      "decision": "Already enabled."
+    },
+    "r_threaded_scene_object_update": {
+      "value": "true",
+      "flags": [
+        "developmentonly",
+        "clientdll",
+        "defensive"
+      ],
+      "decision": "Already enabled."
+    },
+    "cl_particle_fallback_base": {
+      "value": "0",
+      "flags": [
+        "developmentonly",
+        "defensive"
+      ],
+      "decision": "Not native menu-exposed; no copied extreme threshold."
+    },
+    "r_particle_max_detail_level": {
+      "value": "3",
+      "flags": [
+        "developmentonly",
+        "defensive",
+        "gameinfo_cannot_override"
+      ],
+      "decision": "Do not force via gameinfo or console."
+    },
+    "r_shadows": {
+      "value": "true",
+      "flags": [
+        "cheat",
+        "gameinfo_cannot_override"
+      ],
+      "decision": "Exclude. Native shadow quality 0 is supported LOW."
+    },
+    "cl_interp_ratio": {
+      "value": "2",
+      "flags": [
+        "clientdll",
+        "userinfo"
+      ],
+      "decision": "Preserve network behavior; not an FPS optimization."
+    },
+    "cl_updaterate": {
+      "value": "20",
+      "flags": [
+        "clientdll",
+        "archive",
+        "userinfo"
+      ],
+      "decision": "Preserve."
+    },
+    "rate": {
+      "value": "80000",
+      "flags": [
+        "archive",
+        "userinfo"
+      ],
+      "decision": "Preserve. Old OptiLock value 786432 is not this dump's initial value."
+    },
+    "cpu_level": {
+      "value": "2",
+      "flags": [
+        "developmentonly",
+        "clientdll",
+        "defensive"
+      ],
+      "decision": "Keep existing native storage unchanged; no menu/preset evidence to normalize."
+    },
+    "mem_level": {
+      "value": "2",
+      "flags": [
+        "developmentonly",
+        "clientdll",
+        "defensive"
+      ],
+      "decision": "Keep unchanged."
+    },
+    "gpu_mem_level": {
+      "value": "2",
+      "flags": [
+        "developmentonly",
+        "clientdll",
+        "defensive"
+      ],
+      "decision": "Keep unchanged."
+    },
+    "gpu_level": {
+      "value": "3",
+      "flags": [
+        "developmentonly",
+        "clientdll",
+        "defensive"
+      ],
+      "decision": "Keep unchanged."
+    }
+  },
+  "stale_and_special_keys": {
+    "absent_from_current_registry_and_menu": [
+      "r_citadel_motion_blur",
+      "r_particle_depth_feathering",
+      "r_citadel_outlines",
+      "r_citadel_half_res_noisy_effects",
+      "r_screen_space_shadows",
+      "r_render_portals",
+      "r_citadel_mboit"
+    ],
+    "native_preset_compatibility_only": [
+      "setting.r_citadel_motion_blur",
+      "setting.r_particle_depth_feathering"
+    ],
+    "active_native_depth_of_field": "r_depth_of_field is present in current menu and registry; false is supported.",
+    "special_video_storage": [
+      "setting.mat_vsync",
+      "setting.shaderquality",
+      "setting.recommendedheight",
+      "setting.useadvanced"
+    ],
+    "note": "Absence from convar dump does not alone disprove a special native video field. shaderquality is in installed native presets and the shader-quality command accepts 0/1. recommendedheight 720 from the stock low preset must not accidentally replace desired native output resolution.",
+    "legacy_source1_variables_not_in_current_dump": [
+      "mat_queue_mode",
+      "r_threaded_renderables",
+      "r_threaded_client_shadow_manager",
+      "mat_forcehardwaresync"
+    ]
+  },
+  "launch_option_audit": [
+    {
+      "option": "-vulkan / -dx11",
+      "status": "Current mirrored engine strings and native renderer UI support backend selection.",
+      "decision": "A/B test current machine with matched warmed scenes. Neither renderer is universally faster; preserve backend until controlled measurement."
+    },
+    {
+      "option": "-high",
+      "status": "No current Valve Deadlock performance recommendation or per-machine benefit established.",
+      "decision": "Omit. Microsoft documents starvation risks from sustained HIGH priority; priority does not create CPU capacity."
+    },
+    {
+      "option": "-threads N",
+      "status": "No current-build primary proof of an optimal fixed count.",
+      "decision": "Omit. Internal thread features are already enabled; avoid fighting automatic scheduling."
+    },
+    {
+      "option": "-nojoy",
+      "status": "No substantiated gameplay FPS improvement.",
+      "decision": "Omit; preserve input behavior."
+    },
+    {
+      "option": "-novid",
+      "status": "At most startup-media behavior if recognized.",
+      "decision": "Do not claim gameplay FPS gain; omit optimization string."
+    },
+    {
+      "option": "-heapsize / -dxlevel / -processheap / -nod3d9ex",
+      "status": "Source1/D3D9-era advice cannot establish current Source2 effect.",
+      "decision": "Exclude without current-build evidence."
+    },
+    {
+      "option": "-console",
+      "status": "Present in user's current process command line; diagnostic convenience.",
+      "decision": "May preserve; no performance claim."
+    },
+    {
+      "option": "-condebug / +con_logfile",
+      "status": "Source1 patterns not assumed here. Current engine strings contain -con_logfile; only developmentonly con_logfile_suffix appears as cvar.",
+      "decision": "Prefer existing release condump export; validate command help before optional launch logging."
+    },
+    {
+      "option": "-insecure / -tools / -allow... / cvar_unhide",
+      "status": "Changes trust/development context or bypasses restrictions.",
+      "decision": "Never needed for this mod-free competitive profile."
+    }
+  ],
+  "validation_plan": {
+    "non_cheat_query_commands": [
+      "help fps_max",
+      "fps_max",
+      "help fps_max_ui",
+      "fps_max_ui",
+      "cvarlist",
+      "find fps_max",
+      "findflags archive",
+      "differences",
+      "print_changed_convars",
+      "sys_info",
+      "cl_interp",
+      "condump"
+    ],
+    "export_note": "condump is release. Current binary names condump%03d.txt; help text still calls .log. Inspect created filename rather than assuming it.",
+    "native_readback": "After game is closed and backed-up settings applied, restart normally, open native graphics menu, verify profile values and native output resolution. Re-read saved video/config files. Unsupported query errors or ignored settings must not count as changes.",
+    "telemetry": "Native HUD frametime_show 2 is release/archive; cl_showfps is release and mode4 documents FPS logging. Reversible diagnostic use, no cheats.",
+    "benchmark": "Warmed representative dense fight replay/camera route with same duration and scene, three or more repetitions per profile, alternate order, keep API/driver/power/background load consistent. Compare average FPS, frame-time percentiles and stutter counts; input latency needs a separate latency measurement.",
+    "bottleneck": "Upscaling primarily lowers GPU work; CPU-limited dense scenes can stay unchanged. Use paired render-resolution variants to diagnose.",
+    "restrictions": "No code injection, no live-process memory read/write, no DLL/VPK/gameinfo modification, no cheats or development-only unlock."
+  },
+  "fsr_evidence": {
+    "source": "https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-temporal/",
+    "point": "FSR2 has nonzero reconstruction work and temporary/persistent GPU-memory cost. AMD's published 1080p DX12 Quality examples include 0.2 ms on RX 7900 XTX and 0.5 ms on RX 6700 XT, without sharpening. These are not Deadlock/DX11/RX 7800 XT measurements.",
+    "inference": "FSR1 80% is an appropriate challenger to existing FSR2 80% because it removes temporal reconstruction but retains GPU-resolution reduction. Native 1080p and FSR2 Quality must remain measured challengers; no automatic winner.",
+    "render_math": {
+      "output": [
+        1920,
+        1080
+      ],
+      "fsr1_scale_0_8": [
+        1536,
+        864
+      ],
+      "scene_pixel_ratio": 0.64,
+      "fsr2_quality_0_666667": [
+        1280,
+        720
+      ]
+    },
+    "clarity": "Readability, distant small targets, aliasing and motion artifacts need actual game review, not merely screenshots of config text."
+  },
+  "concrete_core_review": {
+    "path": "optimization/tools/config-core.mjs",
+    "reviewed": "Read-only at initial concrete-profile review.",
+    "verdict": "No implementation blocker in BASE/native/profile settings or legacy-removal intent. Runtime verification and benchmark remain required.",
+    "findings": [
+      "BASE matched current installed low preset or native menu. r_depth_of_field is active, not obsolete.",
+      "FSR1 0.8 and sharpness 0.2 fit supported sliders. FSR2 Quality 0.666667 fits current enum.",
+      "LOW shadow quality 0 is correct. Do not describe it as shadows off.",
+      "Mipmap bias 2 is native LOW. No extreme bias4/5/8.",
+      "Preserve cpu_level/mem_level/gpu_mem_level/gpu_level. Existing low-tier fields have old optimization provenance, but current semantic effect cannot be proven enough to normalize them.",
+      "Legacy-key removal does not prove performance improvement; it restores defaults for unsupported manual keys.",
+      "Duplicate removal for targeted keys and verification of one desired scalar is sensible; leave unrelated preferences intact.",
+      "No change to parent's files made."
+    ]
+  },
+  "runtime_readout_followup": {
+    "task": "Research-only; no connection, native UI automation, console input, listener probing, game restart or game/system write performed.",
+    "observed_launch_from_parent": "deadlock.exe -steam -console",
+    "external_live_readout_verdict": "No Valve primary documentation found that establishes a supported external read-only convar query API for this already-running retail Deadlock client. This is an evidence limitation, not a universal assertion that Source2 has no remote console or that no listener exists.",
+    "vconsole_scope": "Accessible/indexed Valve Developer Community material describes Dota workshop interaction or Source1 netconport. It does not establish retail Deadlock client attachment under -steam -console. Some requested Source2/VConsole pages returned 403 or unavailable. Third-party TCP/protocol projects are implementations or claims, not Valve support guarantees, and were not used to attach.",
+    "current_valve_metadata": {
+      "consoletool": "Release/dontrecord command; opens a VConsole subtool. This does not establish an external client readout endpoint or attachment procedure.",
+      "vconsole_rcon_server_details": "Release/dontrecord/server_cannot_query convar; help explicitly concerns easy connection to a dedicated server, not this retail client.",
+      "installed_subtools": "Installed game/core/tools/vconsole_subtools.txt declares ConvarHelperTool and ConsoleHistoryHelperTool. Their m_bRequiresAppConnection=false concerns subtool launch, not proof that current retail runtime values can be obtained while disconnected or without an enabled console transport.",
+      "readout_commands": "Current pinned registry marks help, find, cvarlist, differences, print_changed_convars and condump release. Their existence is evidence for a normal manual console diagnostic path; acceptance of each requested convar still requires actual runtime output."
+    },
+    "launch_time_logging": {
+      "verdict": "No current-build Valve source/documentation was found guaranteeing that -consolelog or -con_logfile causes +queries/+exec to execute after native video settings, archived settings and menu initialization finish.",
+      "distinction": "Logging output and scheduling queries are separate mechanisms. Binary option strings and generic Source1 +command syntax do not establish supported current syntax, logging destination, command acceptance, settings-load order or final settled values.",
+      "claim_limit": "Do not call launch-time query output a verified final profile readback unless its timing and values are checked in the actual current process. No launch options were added during this research."
+    },
+    "manual_fallback": "After a normal restart with the intended profile, let the main menu and settings finish loading. A human can open the already-enabled normal console, execute the prepared query-only runtime-check.cfg, then condump and inspect output/errors plus the native graphics menu. This establishes observation at the time the human chose; it does not bypass hidden/development-only access restrictions. condump writes only a diagnostic console export.",
+    "excluded_methods": "No process memory access, arbitrary named-pipe commands, custom remote protocols, injection, hooking, insecure mode, cheats or development-only unlock. In particular an installed -concommandpipe string requiring -insecure is not an acceptable fallback.",
+    "sources_consulted": [
+      {
+        "url": "https://developer.valvesoftware.com/wiki/Dota_2_Workshop_Tools/Addon_Overview/Playing_Addons?uselang=ru",
+        "status": "Indexed/search excerpt described opening VConsole and interactive workshop custom-game commands; direct follow-up fetch returned 403. Does not establish Deadlock retail attachment."
+      },
+      {
+        "url": "https://developer.valvesoftware.com/wiki/CHILLMODEA/Pages/Command_line_options",
+        "status": "Valve-hosted community-user draft describes Source1 hl2.exe and netconport; explicitly not promoted to current Source2/Deadlock support evidence."
+      },
+      {
+        "url": "https://developer.valvesoftware.com/wiki/Valve_Console",
+        "status": "Direct fetch returned 403; no substantive contents relied upon."
+      },
+      {
+        "url": "https://developer.valvesoftware.com/wiki/Dota_2_Workshop_Tools/Scripting/Dedicated_VConsole_Log_Viewer",
+        "status": "Direct fetch unavailable; no substantive contents relied upon."
+      },
+      {
+        "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/commands.txt",
+        "status": "Pinned current metadata for normal console readout/export commands."
+      },
+      {
+        "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/convars.txt",
+        "status": "Pinned current metadata for dedicated-server VConsole convar and con_logfile_suffix; not startup sequencing."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "current_localization",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/resource/localization/citadel_main/citadel_main_english.txt",
+      "type": "Valve native menu labels/tooltips; matched actual installed localization after BOM/newline normalization"
+    },
+    {
+      "id": "current_convars",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/convars.txt",
+      "type": "Current-build mirrored binary-derived Valve metadata"
+    },
+    {
+      "id": "current_commands",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/commands.txt",
+      "type": "Current-build mirrored binary-derived Valve metadata"
+    },
+    {
+      "id": "current_menu",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+      "type": "Valve native menu reconstructed by Source 2 Viewer"
+    },
+    {
+      "id": "current_low_preset",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_0.txt",
+      "type": "Valve native low preset, matched installed resource"
+    },
+    {
+      "id": "tracking_pipeline",
+      "url": "https://github.com/SteamTracking/GameTracking-Deadlock/blob/4c6431ccdb816d2911bbbaa4335169cc34140386/update.sh",
+      "type": "Primary extraction pipeline"
+    },
+    {
+      "id": "source1_flags",
+      "url": "https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/public/tier1/iconvar.h",
+      "type": "Official Valve Source1 SDK; historical common flag semantics only"
+    },
+    {
+      "id": "windows_priority",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities",
+      "type": "Official Microsoft OS scheduling reference"
+    },
+    {
+      "id": "amd_fsr2",
+      "url": "https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-temporal/",
+      "type": "Official AMD upscaling implementation/performance guide"
+    },
+    {
+      "id": "amd_antilag",
+      "url": "https://www.amd.com/en/products/software/adrenalin/radeon-software-anti-lag.html",
+      "type": "Official AMD product support; developer-integrated AL2"
+    },
+    {
+      "id": "vrf_parser",
+      "url": "https://github.com/ValveResourceFormat/ValveResourceFormat",
+      "type": "Primary reverse-engineering tool project; no tool installed or run here"
+    }
+  ],
+  "documentation_limit": "Valve Developer Community Source2 command-line page returned 403 repeatedly. Source1 command lists are not used as current Deadlock authority. Third-party optimization posts are not used as proof."
+}

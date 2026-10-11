@@ -1,0 +1,23 @@
+{
+  "kind": "synthetic-public-asset-fixture",
+  "gameCapture": false,
+  "participantValidation": false,
+  "generatedAt": "2026-10-03T22:35:16.9681156\u002B00:00",
+  "templates": 173,
+  "expectedIcons": 346,
+  "recognizedIcons": 295,
+  "withheldIcons": 51,
+  "wrongIdentities": 0,
+  "blankRejected": true,
+  "croppedCoordinatesPassed": true,
+  "p50Milliseconds": 12,
+  "p95Milliseconds": 22,
+  "limitations": "Fixtures render public PNGs at pinned CSS positions; these counts do not measure actual game/HDR/hover/overlay accuracy or calibrated probabilities.",
+  "coverageFixValidatedAt": "2026-10-03T22:45:08.8844289\u002B00:00",
+  "knownAndUnknownSlotsPreserved": true,
+  "blankBonusYieldsTwoUnknownSlots": true,
+  "missingCacheYieldsTwoUnknownSlots": true,
+  "noBonusYieldsNoCandidates": true,
+  "edgeBoundsClamped": true,
+  "malformedManifestReturnsUnavailable": true
+}

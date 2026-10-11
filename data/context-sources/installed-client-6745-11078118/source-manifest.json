@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": "6745",
+  "revision": "11078118",
+  "source": "Installed Valve static client resources; no gameplay capture or personal data",
+  "indexSha256": "740b896642459d077a4777e83e8b3743acf50d82301f27631b50957ab8834ba7",
+  "decoder": {
+    "name": "Source2Viewer-CLI",
+    "version": "Version: 20.0.6980+a06886f7d06049052d32a7381ec05523064a2ca0",
+    "sha256": "a4bb4f9945db985efb2cad90a90d06867de5ba7e0447a2a4a69a07dace781028"
+  },
+  "svgRasterizerSha256": "423d29187955bd7a2a7ac9c04bbeb93699d29f367f90cd156f1efa5bb6c96696",
+  "sources": [
+    {
+      "sourcePath": "steam.inf",
+      "file": "steam.inf",
+      "sha256": "39baf9fa7b984073b870ee7e554b1fcb469abcddc4094b7a262d692fb0aa3969",
+      "bytes": 185
+    },
+    {
+      "sourcePath": "panorama/images/hud/ability_upgrade_check_psd.vtex_c",
+      "file": "raw/ability_upgrade_check_psd.vtex_c",
+      "archiveFile": "pak01_118.vpk",
+      "offset": 50022640,
+      "bytes": 18452,
+      "crc32": "02ac9009",
+      "sha256": "c5341049cccc2fe2631b221e9d65564c36d508dc666a4f3c543c3221743a2dc1"
+    },
+    {
+      "sourcePath": "panorama/images/hud/hero_ability_pip_psd.vtex_c",
+      "file": "raw/hero_ability_pip_psd.vtex_c",
+      "archiveFile": "pak01_301.vpk",
+      "offset": 56026864,
+      "bytes": 6164,
+      "crc32": "11236ad0",
+      "sha256": "fa3188d229869ea781ebfe14aaa69cc3d5f2c586834a778bafdb68c5312e3767"
+    },
+    {
+      "sourcePath": "panorama/images/hud/hero_ability_pip_empty_psd.vtex_c",
+      "file": "raw/hero_ability_pip_empty_psd.vtex_c",
+      "archiveFile": "pak01_301.vpk",
+      "offset": 56020688,
+      "bytes": 6164,
+      "crc32": "48c483a1",
+      "sha256": "9f320cc3b82e83b41d899129d7506a73efb60f72a3d4bbd95eef3d6b7d3c6605"
+    },
+    {
+      "sourcePath": "panorama/images/hud/ap_icon.vsvg_c",
+      "file": "raw/ap_icon.vsvg_c",
+      "archiveFile": "pak01_161.vpk",
+      "offset": 45490144,
+      "bytes": 1823,
+      "crc32": "92d5462d",
+      "sha256": "908504ad8dddc0fe8657cb4d830b8a95a72083fb68ad702bb833bd8a5c087a4c"
+    },
+    {
+      "sourcePath": "panorama/images/hud/spec_icon_png.vtex_c",
+      "file": "raw/spec_icon_png.vtex_c",
+      "archiveFile": "pak01_316.vpk",
+      "offset": 72246208,
+      "bytes": 4356,
+      "crc32": "75b1a0c4",
+      "sha256": "6c708a320da55fd0d3554274e227f6ea39abd290a16c335d8c902ce2f9492937"
+    },
+    {
+      "sourcePath": "panorama/layout/citadel_hud_top_bar_player.vxml_c",
+      "file": "raw/citadel_hud_top_bar_player.vxml_c",
+      "archiveFile": "pak01_266.vpk",
+      "offset": 86302528,
+      "bytes": 5190,
+      "crc32": "79aba3f1",
+      "sha256": "032d3756da12107a81c63c8cf577db42bb47fe1fa8bae31eb4d11eb1ea0badb1"
+    }
+  ],
+  "glyphs": [
+    {
+      "id": "ability-upgrade-check",
+      "file": "glyphs/ability-upgrade-check.png",
+      "sourcePath": "panorama/images/hud/ability_upgrade_check_psd.vtex_c",
+      "sourceFile": "raw/ability_upgrade_check_psd.vtex_c",
+      "sourceSha256": "c5341049cccc2fe2631b221e9d65564c36d508dc666a4f3c543c3221743a2dc1",
+      "exportFile": "exports/ability_upgrade_check_psd.png",
+      "exportSha256": "d1575066ba6f8be65c5d3aa8e936e41ab3c26b93a36507da20bf7e4603a14aec",
+      "bytes": 869,
+      "width": 64,
+      "height": 64,
+      "extractedAt": "2026-10-04T00:08:10.848Z"
+    },
+    {
+      "id": "ability-pip",
+      "file": "glyphs/ability-pip.png",
+      "sourcePath": "panorama/images/hud/hero_ability_pip_psd.vtex_c",
+      "sourceFile": "raw/hero_ability_pip_psd.vtex_c",
+      "sourceSha256": "fa3188d229869ea781ebfe14aaa69cc3d5f2c586834a778bafdb68c5312e3767",
+      "exportFile": "exports/hero_ability_pip_psd.png",
+      "exportSha256": "a9b8cb665e5f6cc8e28f5611708e233275f9c67bd641e5ec48531ae4814eddda",
+      "bytes": 471,
+      "width": 32,
+      "height": 32,
+      "extractedAt": "2026-10-04T00:08:10.848Z"
+    },
+    {
+      "id": "ability-pip-empty",
+      "file": "glyphs/ability-pip-empty.png",
+      "sourcePath": "panorama/images/hud/hero_ability_pip_empty_psd.vtex_c",
+      "sourceFile": "raw/hero_ability_pip_empty_psd.vtex_c",
+      "sourceSha256": "9f320cc3b82e83b41d899129d7506a73efb60f72a3d4bbd95eef3d6b7d3c6605",
+      "exportFile": "exports/hero_ability_pip_empty_psd.png",
+      "exportSha256": "3f5a08098795ad52695d2c5d1c2a8ef59e866d49e5959614651ed22a1e22629e",
+      "bytes": 306,
+      "width": 32,
+      "height": 32,
+      "extractedAt": "2026-10-04T00:08:10.848Z"
+    },
+    {
+      "id": "ap-icon",
+      "file": "glyphs/ap-icon.png",
+      "sourcePath": "panorama/images/hud/ap_icon.vsvg_c",
+      "sourceFile": "raw/ap_icon.vsvg_c",
+      "sourceSha256": "908504ad8dddc0fe8657cb4d830b8a95a72083fb68ad702bb833bd8a5c087a4c",
+      "exportFile": "exports/ap.png",
+      "exportSha256": "e29808a31ea8fb5de0827d0457b433ddeace724b1697ab2205d48159b7e75c71",
+      "bytes": 1122,
+      "width": 51,
+      "height": 51,
+      "extractedAt": "2026-10-04T00:08:10.848Z"
+    },
+    {
+      "id": "spectator-icon",
+      "file": "glyphs/spectator-icon.png",
+      "sourcePath": "panorama/images/hud/spec_icon_png.vtex_c",
+      "sourceFile": "raw/spec_icon_png.vtex_c",
+      "sourceSha256": "6c708a320da55fd0d3554274e227f6ea39abd290a16c335d8c902ce2f9492937",
+      "exportFile": "exports/spec_icon_png.png",
+      "exportSha256": "b8620915e45b45bd6484d6abe95d792335ca665d983ae234b0da9d9d836c70f8",
+      "bytes": 301,
+      "width": 24,
+      "height": 24,
+      "extractedAt": "2026-10-04T00:08:10.848Z"
+    }
+  ]
+}

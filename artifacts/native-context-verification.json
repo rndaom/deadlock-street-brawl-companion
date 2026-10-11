@@ -1,0 +1,1082 @@
+{
+  "schemaVersion": 1,
+  "testedAt": "2026-10-04T00:47:02.117Z",
+  "scope": "synthetic production native executable only; no game capture, names, screenshots, raw OCR or player identifiers",
+  "executableSha256": "225c167a9c8a658d0b80ade5e37a942a69e76b8e50d05c00720ae2b3bd74ba84",
+  "contextManifestSha256": "0290acbc5d35eb6f8ebd9769899a90bd1f28137037a2590df17f9bdd7cea0ff4",
+  "itemManifestSha256": "fc81ef35c293bcf462cae9a40fa21267fe0b1b3fcc45b8e1840ab89f7165bf7d",
+  "elapsedMs": 3046.14,
+  "stderrBytes": 0,
+  "workerExited": true,
+  "warmup": {
+    "wallMs": 688.71,
+    "elapsedMs": 211.17,
+    "cpuMs": 171.875,
+    "workingSetMb": 153.55
+  },
+  "limits": {
+    "contextMatcherBudgetMs": 60,
+    "teamItemRecords": 192,
+    "ownItemRecords": 22,
+    "capturePixels": 2000000,
+    "warmCoordinatorDeadlineMs": 250
+  },
+  "assertions": {
+    "strictPayloads": true,
+    "payloadUnder256": true,
+    "wholeOwnHero": true,
+    "eightRoster": true,
+    "eightWithoutRound": true,
+    "laterSeats": true,
+    "ownRanks": true,
+    "readableNextPrices": true,
+    "ownAbilityPoints": true,
+    "footerOwnHero": true,
+    "latePoseProgress": true,
+    "negativeBlank": true,
+    "spectatorVeto": true,
+    "spectatorGlyphVeto": true,
+    "affordabilityNotRank": true,
+    "unreadTierNotRank": true,
+    "topCropNoOwn": true,
+    "noFalseCompleteInventory": true,
+    "cropBoundary": true
+  },
+  "limitations": {
+    "completeNextPrices": false,
+    "liveContextAccuracyValidated": false,
+    "completeInventoryValidated": false
+  },
+  "timing": {
+    "warmReadWallMinMs": 34.35,
+    "warmReadWallMaxMs": 208.61,
+    "warmOver250": 0
+  },
+  "failure": null,
+  "cases": [
+    {
+      "fixture": "scoreboard-no-round",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "ok",
+      "wallMs": 208.61,
+      "elapsedMs": 205.64,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 15,
+      "recognizedItems": 11,
+      "playerSeats": [
+        1,
+        2,
+        3
+      ],
+      "ownItems": 8,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 203.125,
+        "workingSetMb": 173.21,
+        "privateMemoryMb": 84.2,
+        "captureMs": 67.12,
+        "ocrMs": 47.14,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard-no-round",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "unchanged",
+      "wallMs": 179.01,
+      "elapsedMs": 175.59,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 214,
+      "recognizedItems": 26,
+      "playerSeats": [
+        5,
+        6,
+        7,
+        0,
+        1,
+        4,
+        2,
+        3
+      ],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 140.625,
+        "workingSetMb": 176.18,
+        "privateMemoryMb": 86.92,
+        "captureMs": 65.76,
+        "ocrMs": 23.52,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard-no-round",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "unchanged",
+      "wallMs": 110.88,
+      "elapsedMs": 109.49,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 214,
+      "recognizedItems": 19,
+      "playerSeats": [
+        3,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        4
+      ],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 78.125,
+        "workingSetMb": 185.71,
+        "privateMemoryMb": 96.82,
+        "captureMs": 64.87,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "ok",
+      "wallMs": 155.29,
+      "elapsedMs": 153.15,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 214,
+      "recognizedItems": 18,
+      "playerSeats": [
+        7,
+        0,
+        4,
+        5,
+        1,
+        2,
+        3
+      ],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 125,
+        "workingSetMb": 206.29,
+        "privateMemoryMb": 117.48,
+        "captureMs": 54.44,
+        "ocrMs": 49.54,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "unchanged",
+      "wallMs": 112.84,
+      "elapsedMs": 111.33,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 214,
+      "recognizedItems": 24,
+      "playerSeats": [
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 109.375,
+        "workingSetMb": 209.03,
+        "privateMemoryMb": 121.3,
+        "captureMs": 55.45,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "unchanged",
+      "wallMs": 97.81,
+      "elapsedMs": 84.56,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 214,
+      "recognizedItems": 15,
+      "playerSeats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 78.125,
+        "workingSetMb": 218.54,
+        "privateMemoryMb": 130.66,
+        "captureMs": 53.61,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "unchanged",
+      "wallMs": 122.61,
+      "elapsedMs": 120.92,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 214,
+      "recognizedItems": 28,
+      "playerSeats": [
+        7,
+        0,
+        1,
+        2,
+        3,
+        5,
+        6,
+        4
+      ],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 109.375,
+        "workingSetMb": 228.96,
+        "privateMemoryMb": 140.45,
+        "captureMs": 55.69,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "unchanged",
+      "wallMs": 76.7,
+      "elapsedMs": 75.2,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 62.5,
+        "workingSetMb": 238.23,
+        "privateMemoryMb": 150.16,
+        "captureMs": 54.42,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "scoreboard",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 0.35
+      },
+      "status": "ok",
+      "wallMs": 189.04,
+      "elapsedMs": 152.49,
+      "ownHero": null,
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "unknown",
+      "items": 192,
+      "recognizedItems": 12,
+      "playerSeats": [
+        4,
+        5,
+        6,
+        7,
+        0,
+        1,
+        2,
+        3
+      ],
+      "ownItems": 0,
+      "ranks": [],
+      "prices": [],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": null,
+      "metrics": {
+        "cpuMs": 78.125,
+        "workingSetMb": 216.42,
+        "privateMemoryMb": 127.57,
+        "captureMs": 47.23,
+        "ocrMs": 34.33,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "ok",
+      "wallMs": 116.63,
+      "elapsedMs": 115.62,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prices": [
+        null,
+        2,
+        5,
+        null
+      ],
+      "abilityPoints": 3,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 46.875,
+        "workingSetMb": 220.22,
+        "privateMemoryMb": 130.89,
+        "captureMs": 43.87,
+        "ocrMs": 26.85,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-late",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "ok",
+      "wallMs": 104.58,
+      "elapsedMs": 103.78,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 62.5,
+        "workingSetMb": 220.48,
+        "privateMemoryMb": 131.7,
+        "captureMs": 43.76,
+        "ocrMs": 24.04,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-late",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "unchanged",
+      "wallMs": 57.79,
+      "elapsedMs": 56.84,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 31.25,
+        "workingSetMb": 220.85,
+        "privateMemoryMb": 132.35,
+        "captureMs": 40.44,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-late",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "unchanged",
+      "wallMs": 56.24,
+      "elapsedMs": 55.51,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 62.5,
+        "workingSetMb": 223.84,
+        "privateMemoryMb": 135.34,
+        "captureMs": 40.33,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-late",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "unchanged",
+      "wallMs": 58.45,
+      "elapsedMs": 57.79,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 31.25,
+        "workingSetMb": 226.62,
+        "privateMemoryMb": 137.92,
+        "captureMs": 40.82,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-late",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "unchanged",
+      "wallMs": 55.38,
+      "elapsedMs": 54.69,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 46.875,
+        "workingSetMb": 229.8,
+        "privateMemoryMb": 141.32,
+        "captureMs": 39.72,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-late",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "unchanged",
+      "wallMs": 59.88,
+      "elapsedMs": 59.12,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 62.5,
+        "workingSetMb": 232.59,
+        "privateMemoryMb": 143.9,
+        "captureMs": 41.86,
+        "ocrMs": 0,
+        "unchanged": true
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "spectator",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "ok",
+      "wallMs": 105.05,
+      "elapsedMs": 103.97,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "spectator",
+      "items": 0,
+      "recognizedItems": 0,
+      "playerSeats": [],
+      "ownItems": 0,
+      "ranks": [],
+      "prices": [],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": null,
+      "metrics": {
+        "cpuMs": 78.125,
+        "workingSetMb": 238.31,
+        "privateMemoryMb": 149.64,
+        "captureMs": 47.23,
+        "ocrMs": 11.61,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "spectator-glyph",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "ok",
+      "wallMs": 180.52,
+      "elapsedMs": 178.69,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 8,
+      "rosterUnknown": 0,
+      "panel": "scoreboard",
+      "viewMode": "spectator",
+      "items": 192,
+      "recognizedItems": 15,
+      "playerSeats": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        0,
+        1,
+        4
+      ],
+      "ownItems": 0,
+      "ranks": [],
+      "prices": [],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": null,
+      "metrics": {
+        "cpuMs": 140.625,
+        "workingSetMb": 246.95,
+        "privateMemoryMb": 157.41,
+        "captureMs": 62.09,
+        "ocrMs": 52.18,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-affordable",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "ok",
+      "wallMs": 104.54,
+      "elapsedMs": 103.52,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 78.125,
+        "workingSetMb": 221.23,
+        "privateMemoryMb": 132.22,
+        "captureMs": 40.62,
+        "ocrMs": 27.46,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "abilities-partial",
+      "crop": {
+        "x": 0,
+        "y": 0.6,
+        "width": 1,
+        "height": 0.4
+      },
+      "status": "ok",
+      "wallMs": 98.64,
+      "elapsedMs": 97.73,
+      "ownHero": "hero_chrono",
+      "rosterRecognized": 0,
+      "rosterUnknown": 0,
+      "panel": "hud",
+      "viewMode": "unknown",
+      "items": 22,
+      "recognizedItems": 10,
+      "playerSeats": [],
+      "ownItems": 10,
+      "ranks": [
+        0,
+        1,
+        null,
+        3
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 78.125,
+        "workingSetMb": 220.87,
+        "privateMemoryMb": 131.21,
+        "captureMs": 44.2,
+        "ocrMs": 28.39,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    },
+    {
+      "fixture": "blank",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "status": "ok",
+      "wallMs": 34.35,
+      "elapsedMs": 33.44,
+      "ownHero": null,
+      "rosterRecognized": 0,
+      "rosterUnknown": 8,
+      "panel": "unknown",
+      "viewMode": "unknown",
+      "items": 0,
+      "recognizedItems": 0,
+      "playerSeats": [],
+      "ownItems": 0,
+      "ranks": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "prices": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "abilityPoints": null,
+      "completeInventory": false,
+      "abilitySlotCount": 4,
+      "metrics": {
+        "cpuMs": 31.25,
+        "workingSetMb": 223.29,
+        "privateMemoryMb": 134.44,
+        "captureMs": 2.41,
+        "ocrMs": 12.29,
+        "unchanged": false
+      },
+      "strictPayloadValid": true,
+      "allBoundsWithinCrop": true
+    }
+  ],
+  "contextDescriptorSha256": "86850c8db985b1201f15e02e7eb663c7b4241e62fe06d2158fa2d532b5cf58f5",
+  "itemDescriptorSha256": "963aeceb463958490c1f57d97474ad509c3e78f3e5352e0ea4ec90cd267e6f15",
+  "resources": {
+    "requestCpuMsTotal": 1734.375,
+    "requestCpuMsMax": 203.125,
+    "workingSetMbPeak": 246.95,
+    "privateMemoryMbPeak": 157.41,
+    "affinityLimited": null,
+    "affinityMeasurement": "single logical CPU configured by native startup; this run coordinator normalized metrics omitted the raw native affinity flag"
+  },
+  "priorRevisionTimingVariance": {
+    "scope": "earlier revision before bounded center-first AP search; desktop load not controlled",
+    "warmReadWallMaxMs": 482.38,
+    "warmOver250": 2,
+    "deadlineRaised": false
+  }
+}

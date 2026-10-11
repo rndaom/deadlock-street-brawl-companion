@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 2,
+  "date": "2026-10-03",
+  "generatedAt": "2026-10-04T00:54:30.876Z",
+  "applicationVersion": "0.3.0",
+  "scope": "Windows game-test build: visible team/build tracking, contextual main-item guidance, minimal enemy/item interface and separate legacy provider/Demo paths.",
+  "readyForGameTest": false,
+  "applicationOpened": false,
+  "mainWindowPresent": false,
+  "realParticipantMatchesObservedForNewContextReader": 0,
+  "fullTrackingPassed": false,
+  "fullContextModelValidated": false,
+  "optimalRecommendationValidated": false,
+  "catalog": {
+    "clientVersion": "6745",
+    "sourceRevision": "11078118",
+    "baseItems": 173,
+    "releasedHeroes": 39,
+    "signatureAbilities": 156,
+    "liveModelValidated": false
+  },
+  "tests": {
+    "totalTestsPassed": 747,
+    "fixtureAndMockTestsPassed": 746,
+    "testFilesPassed": 20,
+    "skippedTests": 0,
+    "nativeWindowsOcrIntegrationPassed": true,
+    "nativeContextAssertionsPassed": 19,
+    "nativeContextFramesChecked": 21,
+    "typecheckPassed": true,
+    "localBuildPassed": true,
+    "unsignedDirectoryPackagingPassed": true,
+    "actualDesktopUiSmokePassed": true,
+    "desktopUiLayoutsChecked": 10,
+    "packagedReaderBinaryVerified": true,
+    "packagedIconCount": 173,
+    "packagedContextAssetCount": 278,
+    "staticDescriptorCachesVerified": [
+      {
+        "directory": "context-icons",
+        "templateCount": 688,
+        "bytes": 1621341,
+        "sha256": "86850c8db985b1201f15e02e7eb663c7b4241e62fe06d2158fa2d532b5cf58f5"
+      },
+      {
+        "directory": "reader-icons",
+        "templateCount": 173,
+        "bytes": 404775,
+        "sha256": "963aeceb463958490c1f57d97474ad509c3e78f3e5352e0ea4ec90cd267e6f15"
+      }
+    ],
+    "latePublicationRejected": true,
+    "rendererExpiresStaleCards": true,
+    "rendererUnconfirmedWatchdogPassed": true,
+    "automaticDraftToCombatRegressionPassed": true,
+    "sameFrameHeroInventoryAssociationPassed": true,
+    "sourceTestArtifact": "test-results-0.3.0.json",
+    "nativeArtifact": "native-context-verification.json",
+    "uiArtifact": "screen-reader-ui-verification.json",
+    "packageArtifact": "package-verification.json"
+  },
+  "screenReading": {
+    "implemented": true,
+    "enabledByDefault": true,
+    "source": "Verified visible foreground deadlock.exe client only",
+    "engine": "Installed Windows.Media.Ocr",
+    "recognitionAssets": "173 item images, 278 hero/ability/HUD images and hash-bound static descriptors; no gameplay downloads",
+    "twoFreshOfferObservationsRequired": true,
+    "missingDetailsRemainUnknown": true,
+    "contextualComparisonImplemented": true,
+    "observedOwnAlliedEnemyContextUsed": true,
+    "ownAbilityInvestmentUsed": true,
+    "nativeInventoryCoverage": "partial",
+    "completeNativeInventoryValidated": false,
+    "completeNextPricesValidated": false,
+    "nativeReadablePricesInFixtures": [
+      2,
+      5
+    ],
+    "nativeAbilityPointsInFixture": 3,
+    "nativeAbilityRanksInFixtures": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "ownershipRefreshMaximumAgeMs": 30000,
+    "fullyReadCurrentCardsValidated": false,
+    "mainItemOnlyQualifierVisible": true,
+    "actualGameContextAccuracyMeasured": false,
+    "actualGameTeamReaderChecked": false,
+    "earlierBoundedRealGameDraftMainNamesRecognized": 3,
+    "earlierActualCombatFramesWithoutOffers": 4,
+    "normalGameImagesSaved": false,
+    "gameplayInputSent": false
+  },
+  "interface": {
+    "essentialItemAndCardPosition": true,
+    "visibleEnemyHeroesAndObservedItems": true,
+    "reasonsCollapsedByDefault": true,
+    "ownBuildAlliesAbilitiesCollapsedByDefault": true,
+    "calculationsContinueWithDetailsClosed": true,
+    "stalePartialCoverageVisible": true
+  },
+  "performance": {
+    "readerSeparateProcess": true,
+    "readerPriority": "BelowNormal",
+    "readerLogicalCpuAffinity": 1,
+    "onePackagedReaderObserved": true,
+    "maxDraftReadStartsPerSecond": 2,
+    "maxOutsideDraftReadStartsPerSecond": 1,
+    "contextMatcherSoftBudgetMs": 60,
+    "maxCapturePixels": 2000000,
+    "warmReadTimeoutMs": 250,
+    "startupTimeoutMs": 3000,
+    "oneActiveRequest": true,
+    "queuedReads": 0,
+    "cooldownWorkMultiplier": 4,
+    "gameFrameTimesMeasured": false,
+    "zeroLagVerified": false,
+    "syntheticStartupMs": 688.71,
+    "syntheticWarmReadTiming": {
+      "warmReadWallMinMs": 34.35,
+      "warmReadWallMaxMs": 208.61,
+      "warmOver250": 0
+    },
+    "finalBackgroundArtifact": "screen-reader-0.3.0-background-profile.json",
+    "finalBackgroundDurationSeconds": 20.02,
+    "finalBackgroundProcessesStable": true,
+    "finalBackgroundProcessCount": 5,
+    "finalBackgroundCpuPercent": 0,
+    "finalBackgroundCpuNote": "No measurable CPU counter increment at Windows counter resolution in this sample; foreground/active reading state and game frame times were not recorded.",
+    "finalBackgroundWorkingSetSumMb": 522.9,
+    "finalBackgroundPrivateCommittedMb": 318.4
+  },
+  "legacyProviderGate": {
+    "signedProviderBuildTested": false,
+    "noImageAcquisitionMethodVerified": false,
+    "currentOwnOffersDocumented": false,
+    "actualRerollsDocumented": false,
+    "completeCurrentInventorySemanticsDocumented": false,
+    "exactAbilityInvestmentDocumented": false,
+    "boundedUpstreamTimingDocumented": false,
+    "providerFullTrackingProofPassed": false
+  },
+  "latency": {
+    "gameToAdviceP95Ms": null,
+    "receiptToRenderP95Ms": null
+  },
+  "nextValidation": "Normal human Street Brawl test: show Tab between choices, compare heroes/items/ranks and suggestions to actual visible panels, check closure and game smoothness. Full modifiers, complete removal/stack coverage and reroll model remain unvalidated.",
+  "privacy": "No real names, player/account identifiers, choices, game images or raw OCR in this report. Active Steam alias is read locally for ownership; normal game readings stay in memory. Earlier explicitly authorized private development captures are excluded from the package.",
+  "latestUserGameTest": {
+    "date": "2026-10-03",
+    "result": "failed",
+    "observedBehavior": "No item choice or team data during Street Brawl; remained on waiting message",
+    "reviewInProgress": true
+  }
+}

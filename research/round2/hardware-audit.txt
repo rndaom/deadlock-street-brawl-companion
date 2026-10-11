@@ -1,0 +1,13 @@
+Read-only round 2 hardware/resource audit captured 2026-10-03T23:53:06.5190432Z
+Primary current output: 1920x1080 at 480 Hz through AMD Radeon RX 7800 XT.
+Renderer evidence: DX11 renderer module loaded. Scene/foreground unknown; no gameplay bottleneck determination.
+Two-snapshot process interval: 5.888 seconds. Deadlock all-CPU share: 3.18%; private 9697.4 MiB; working set 5055.4 MiB.
+Available physical RAM MiB: 2976 -> 2921. Commit used %: 90 -> 90.
+Memory pages input/s snapshots: 0 -> 0; page read operations/s: 0 -> 0. These are not a causal paging/stutter diagnosis.
+Deadlock 3D per-engine busy % over native counter interval: 7.817. Other engines may overlap; this is not FPS or complete GPU occupancy.
+First-pass available MiB 4720 vs current 2921; commit % 92 vs 90.
+Native DxgKrnl ETW provider and existing PresentMon tool available for noninjecting FPS capture; no capture or FPS measurement performed by this audit.
+No game controls, settings changes, process stopping, priority/affinity changes or downloads. No serial numbers, unrelated command lines, player/chat/message data collected.
+Computed commit use: 90.84% -> 90.99%; native integer counter reports 90% in both snapshots.
+Measured background confounder: Roblox Studio used 7.43% of all logical CPU capacity and 6.139% of the same GPU 3D engine; Deadlock used 3.18% CPU and 7.817% 3D-engine time during unknown scene.
+Installed AMD chipset package 8.08.12.551; V-Cache component 1.0.0.12. Windows reports one shared 96 MiB L3 cache across all 16 logical CPUs; this gives no hardware basis for hard affinity or excluding CPU 0.

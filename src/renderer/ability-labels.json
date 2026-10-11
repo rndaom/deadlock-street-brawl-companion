@@ -1,0 +1,1154 @@
+{
+  "clientVersion": "6774",
+  "revision": "11112755",
+  "abilities": [
+    {
+      "id": "citadel_ability_bull_heal",
+      "numericId": "4072270083",
+      "heroId": "hero_atlas",
+      "slot": 0,
+      "name": "Siphon Life"
+    },
+    {
+      "id": "citadel_ability_bull_charge",
+      "numericId": "2824119765",
+      "heroId": "hero_atlas",
+      "slot": 1,
+      "name": "Shoulder Charge"
+    },
+    {
+      "id": "citadel_ability_passive_beefy",
+      "numericId": "715762406",
+      "heroId": "hero_atlas",
+      "slot": 2,
+      "name": "Infernal Resilience"
+    },
+    {
+      "id": "citadel_ability_bull_leap",
+      "numericId": "509856396",
+      "heroId": "hero_atlas",
+      "slot": 3,
+      "name": "Seismic Impact"
+    },
+    {
+      "id": "ability_fencer_throwblade",
+      "numericId": "725153709",
+      "heroId": "hero_fencer",
+      "slot": 0,
+      "name": "Disengaging Sigil"
+    },
+    {
+      "id": "ability_fencer_riposte",
+      "numericId": "2006773718",
+      "heroId": "hero_fencer",
+      "slot": 1,
+      "name": "Riposte"
+    },
+    {
+      "id": "ability_fencer_lunge",
+      "numericId": "147493976",
+      "heroId": "hero_fencer",
+      "slot": 2,
+      "name": "Flawless Advance"
+    },
+    {
+      "id": "ability_fencer_ultimate",
+      "numericId": "494112189",
+      "heroId": "hero_fencer",
+      "slot": 3,
+      "name": "Itani Lo Sahn"
+    },
+    {
+      "id": "ability_baba_bubbling_brew",
+      "numericId": "1282689113",
+      "heroId": "hero_baba",
+      "slot": 0,
+      "name": "Threadsap"
+    },
+    {
+      "id": "ability_baba_bench_run",
+      "numericId": "3122124161",
+      "heroId": "hero_baba",
+      "slot": 1,
+      "name": "Granny Long Legs"
+    },
+    {
+      "id": "ability_baba_hexing_brew",
+      "numericId": "2003165630",
+      "heroId": "hero_baba",
+      "slot": 2,
+      "name": "Baba's Brew"
+    },
+    {
+      "id": "ability_baba_ultimate_2",
+      "numericId": "299875845",
+      "heroId": "hero_baba",
+      "slot": 3,
+      "name": "Feed The Birds"
+    },
+    {
+      "id": "citadel_ability_uppercut",
+      "numericId": "3089858203",
+      "heroId": "hero_bebop",
+      "slot": 0,
+      "name": "Exploding Uppercut"
+    },
+    {
+      "id": "citadel_ability_sticky_bomb",
+      "numericId": "2521902222",
+      "heroId": "hero_bebop",
+      "slot": 1,
+      "name": "Sticky Bomb"
+    },
+    {
+      "id": "citadel_ability_hook",
+      "numericId": "1928108461",
+      "heroId": "hero_bebop",
+      "slot": 2,
+      "name": "Grapple Arm"
+    },
+    {
+      "id": "citadel_ability_bebop_laser_beam",
+      "numericId": "3832675871",
+      "heroId": "hero_bebop",
+      "slot": 3,
+      "name": "Hyper Beam"
+    },
+    {
+      "id": "ability_punkgoat_ult",
+      "numericId": "1841661392",
+      "heroId": "hero_punkgoat",
+      "slot": 0,
+      "name": "Bashdown"
+    },
+    {
+      "id": "ability_punkgoat_goatflip",
+      "numericId": "1792773251",
+      "heroId": "hero_punkgoat",
+      "slot": 1,
+      "name": "Rising Ram"
+    },
+    {
+      "id": "ability_punkgoat_blasted",
+      "numericId": "3296031213",
+      "heroId": "hero_punkgoat",
+      "slot": 2,
+      "name": "Blasted"
+    },
+    {
+      "id": "ability_punkgoat_tether",
+      "numericId": "3762861984",
+      "heroId": "hero_punkgoat",
+      "slot": 3,
+      "name": "Chain Gang"
+    },
+    {
+      "id": "ability_nano_clustergrenade",
+      "numericId": "4131517918",
+      "heroId": "hero_nano",
+      "slot": 0,
+      "name": "Gloom Bombs"
+    },
+    {
+      "id": "ability_nano_dash",
+      "numericId": "1426567660",
+      "heroId": "hero_nano",
+      "slot": 1,
+      "name": "Leaping Slash"
+    },
+    {
+      "id": "ability_nano_catform",
+      "numericId": "1009029159",
+      "heroId": "hero_nano",
+      "slot": 2,
+      "name": "Ava"
+    },
+    {
+      "id": "ability_nano_shadow_pulse",
+      "numericId": "2054144742",
+      "heroId": "hero_nano",
+      "slot": 3,
+      "name": "Return to Shadows"
+    },
+    {
+      "id": "ability_unicorn_radiantblast",
+      "numericId": "3443575800",
+      "heroId": "hero_unicorn",
+      "slot": 0,
+      "name": "Light Eater"
+    },
+    {
+      "id": "ability_unicorn_prismaticguard",
+      "numericId": "1950738949",
+      "heroId": "hero_unicorn",
+      "slot": 1,
+      "name": "Dazzling Trick"
+    },
+    {
+      "id": "ability_unicorn_luminousstrike",
+      "numericId": "1011349580",
+      "heroId": "hero_unicorn",
+      "slot": 2,
+      "name": "Radiant Daggers"
+    },
+    {
+      "id": "ability_unicorn_dazzlingorb",
+      "numericId": "2590796390",
+      "heroId": "hero_unicorn",
+      "slot": 3,
+      "name": "Shining Wonder"
+    },
+    {
+      "id": "drifter_blood_blast",
+      "numericId": "3120550633",
+      "heroId": "hero_drifter",
+      "slot": 0,
+      "name": "Rend"
+    },
+    {
+      "id": "drifter_shadow_mark",
+      "numericId": "1264175662",
+      "heroId": "hero_drifter",
+      "slot": 1,
+      "name": "Stalker's Mark"
+    },
+    {
+      "id": "ability_drifter_hunger",
+      "numericId": "1033019133",
+      "heroId": "hero_drifter",
+      "slot": 2,
+      "name": "Bloodscent"
+    },
+    {
+      "id": "drifter_darkness",
+      "numericId": "1168182161",
+      "heroId": "hero_drifter",
+      "slot": 3,
+      "name": "Eternal Night"
+    },
+    {
+      "id": "citadel_ability_stomp",
+      "numericId": "3760705623",
+      "heroId": "hero_dynamo",
+      "slot": 0,
+      "name": "Kinetic Pulse"
+    },
+    {
+      "id": "citadel_ability_void_sphere",
+      "numericId": "2031714424",
+      "heroId": "hero_dynamo",
+      "slot": 1,
+      "name": "Quantum Entanglement"
+    },
+    {
+      "id": "citadel_ability_nikuman",
+      "numericId": "492030745",
+      "heroId": "hero_dynamo",
+      "slot": 2,
+      "name": "Rejuvenating Aurora"
+    },
+    {
+      "id": "citadel_ability_self_vacuum",
+      "numericId": "249410288",
+      "heroId": "hero_dynamo",
+      "slot": 3,
+      "name": "Singularity"
+    },
+    {
+      "id": "ability_necro_hauntingskull",
+      "numericId": "3214055642",
+      "heroId": "hero_necro",
+      "slot": 0,
+      "name": "Jar of Dead"
+    },
+    {
+      "id": "ability_necro_zombiewall",
+      "numericId": "2001589780",
+      "heroId": "hero_necro",
+      "slot": 1,
+      "name": "Grasping Hands"
+    },
+    {
+      "id": "ability_necro_fear",
+      "numericId": "629925354",
+      "heroId": "hero_necro",
+      "slot": 2,
+      "name": "Essence Theft"
+    },
+    {
+      "id": "ability_necro_gravestone",
+      "numericId": "4110547059",
+      "heroId": "hero_necro",
+      "slot": 3,
+      "name": "Borrowed Decree"
+    },
+    {
+      "id": "ability_charged_shot",
+      "numericId": "548943648",
+      "heroId": "hero_orion",
+      "slot": 0,
+      "name": "Charged Shot"
+    },
+    {
+      "id": "ability_power_jump",
+      "numericId": "3452399392",
+      "heroId": "hero_orion",
+      "slot": 1,
+      "name": "Rain of Arrows"
+    },
+    {
+      "id": "ability_immobilize_trap",
+      "numericId": "512733154",
+      "heroId": "hero_orion",
+      "slot": 2,
+      "name": "Spirit Snare"
+    },
+    {
+      "id": "ability_guided_arrow",
+      "numericId": "3242902780",
+      "heroId": "hero_orion",
+      "slot": 3,
+      "name": "Guided Owl"
+    },
+    {
+      "id": "ability_sleep_dagger",
+      "numericId": "2948410412",
+      "heroId": "hero_haze",
+      "slot": 0,
+      "name": "Sleep Dagger"
+    },
+    {
+      "id": "ability_smoke_bomb",
+      "numericId": "2414191464",
+      "heroId": "hero_haze",
+      "slot": 1,
+      "name": "Smoke Bomb"
+    },
+    {
+      "id": "ability_stacking_damage",
+      "numericId": "1080948381",
+      "heroId": "hero_haze",
+      "slot": 2,
+      "name": "Fixation"
+    },
+    {
+      "id": "ability_bullet_flurry",
+      "numericId": "731943444",
+      "heroId": "hero_haze",
+      "slot": 3,
+      "name": "Bullet Dance"
+    },
+    {
+      "id": "ability_explosive_barrel",
+      "numericId": "1235098866",
+      "heroId": "hero_astro",
+      "slot": 0,
+      "name": "Powder Keg"
+    },
+    {
+      "id": "ability_bounce_pad",
+      "numericId": "2240607294",
+      "heroId": "hero_astro",
+      "slot": 1,
+      "name": "Bounce Pad"
+    },
+    {
+      "id": "ability_crackshot",
+      "numericId": "4179229681",
+      "heroId": "hero_astro",
+      "slot": 2,
+      "name": "Crackshot"
+    },
+    {
+      "id": "ability_gravity_lasso",
+      "numericId": "3190606822",
+      "heroId": "hero_astro",
+      "slot": 3,
+      "name": "Spirit Lasso"
+    },
+    {
+      "id": "ability_incendiary_projectile",
+      "numericId": "491391007",
+      "heroId": "hero_inferno",
+      "slot": 0,
+      "name": "Napalm"
+    },
+    {
+      "id": "ability_flame_dash",
+      "numericId": "3516947824",
+      "heroId": "hero_inferno",
+      "slot": 1,
+      "name": "Flame Dash"
+    },
+    {
+      "id": "ability_afterburn",
+      "numericId": "1593133799",
+      "heroId": "hero_inferno",
+      "slot": 2,
+      "name": "Afterburn"
+    },
+    {
+      "id": "ability_fire_bomb",
+      "numericId": "1142270357",
+      "heroId": "hero_inferno",
+      "slot": 3,
+      "name": "Concussive Combustion"
+    },
+    {
+      "id": "citadel_ability_tengu_urn",
+      "numericId": "4111222521",
+      "heroId": "hero_tengu",
+      "slot": 0,
+      "name": "Entangling Thorns"
+    },
+    {
+      "id": "citadel_ability_tangotether",
+      "numericId": "1531378655",
+      "heroId": "hero_tengu",
+      "slot": 1,
+      "name": "Kudzu Connection"
+    },
+    {
+      "id": "citadel_ability_tengu_stone_form",
+      "numericId": "3642273386",
+      "heroId": "hero_tengu",
+      "slot": 2,
+      "name": "Stone Form"
+    },
+    {
+      "id": "citadel_ability_tengu_airlift",
+      "numericId": "1247583368",
+      "heroId": "hero_tengu",
+      "slot": 3,
+      "name": "Air Drop"
+    },
+    {
+      "id": "ability_ice_grenade",
+      "numericId": "18921423",
+      "heroId": "hero_kelvin",
+      "slot": 0,
+      "name": "Frost Grenade"
+    },
+    {
+      "id": "ability_icepath",
+      "numericId": "1963397252",
+      "heroId": "hero_kelvin",
+      "slot": 1,
+      "name": "Ice Path"
+    },
+    {
+      "id": "ability_icebeam",
+      "numericId": "2351041382",
+      "heroId": "hero_kelvin",
+      "slot": 2,
+      "name": "Arctic Beam"
+    },
+    {
+      "id": "ability_ice_dome",
+      "numericId": "3826390464",
+      "heroId": "hero_kelvin",
+      "slot": 3,
+      "name": "Frozen Shelter"
+    },
+    {
+      "id": "ability_blood_bomb",
+      "numericId": "715325746",
+      "heroId": "hero_ghost",
+      "slot": 0,
+      "name": "Essence Bomb"
+    },
+    {
+      "id": "ability_life_drain",
+      "numericId": "218284420",
+      "heroId": "hero_ghost",
+      "slot": 1,
+      "name": "Life Drain"
+    },
+    {
+      "id": "ability_blood_shards",
+      "numericId": "3230530872",
+      "heroId": "hero_ghost",
+      "slot": 2,
+      "name": "Malice"
+    },
+    {
+      "id": "ability_health_swap",
+      "numericId": "1307289689",
+      "heroId": "hero_ghost",
+      "slot": 3,
+      "name": "Soul Exchange"
+    },
+    {
+      "id": "citadel_ability_lash_down_strike",
+      "numericId": "3561817145",
+      "heroId": "hero_lash",
+      "slot": 0,
+      "name": "Ground Strike"
+    },
+    {
+      "id": "citadel_ability_lash",
+      "numericId": "2670099061",
+      "heroId": "hero_lash",
+      "slot": 1,
+      "name": "Grapple"
+    },
+    {
+      "id": "ability_lash_flog",
+      "numericId": "519124136",
+      "heroId": "hero_lash",
+      "slot": 2,
+      "name": "Flog"
+    },
+    {
+      "id": "citadel_ability_lash_ultimate",
+      "numericId": "397010810",
+      "heroId": "hero_lash",
+      "slot": 3,
+      "name": "Death Slam"
+    },
+    {
+      "id": "citadel_ability_shieldedsentry",
+      "numericId": "3133377790",
+      "heroId": "hero_forge",
+      "slot": 0,
+      "name": "Mini Turret"
+    },
+    {
+      "id": "citadel_ability_mobile_resupply",
+      "numericId": "2142734020",
+      "heroId": "hero_forge",
+      "slot": 1,
+      "name": "Medicinal Specter"
+    },
+    {
+      "id": "citadel_ability_fissure_wall",
+      "numericId": "1725685134",
+      "heroId": "hero_forge",
+      "slot": 2,
+      "name": "Spectral Wall"
+    },
+    {
+      "id": "citadel_ability_rocket_barrage",
+      "numericId": "3503044146",
+      "heroId": "hero_forge",
+      "slot": 3,
+      "name": "Heavy Barrage"
+    },
+    {
+      "id": "ability_vampirebat_steallife",
+      "numericId": "193508101",
+      "heroId": "hero_vampirebat",
+      "slot": 0,
+      "name": "Rake"
+    },
+    {
+      "id": "ability_vampirebat_batblink",
+      "numericId": "2398133749",
+      "heroId": "hero_vampirebat",
+      "slot": 1,
+      "name": "Sanguine Retreat"
+    },
+    {
+      "id": "ability_vampirebat_lovebites",
+      "numericId": "1233782561",
+      "heroId": "hero_vampirebat",
+      "slot": 2,
+      "name": "Love Bites"
+    },
+    {
+      "id": "ability_vampirebat_batswarm",
+      "numericId": "3379486147",
+      "heroId": "hero_vampirebat",
+      "slot": 3,
+      "name": "Nox Nostra"
+    },
+    {
+      "id": "mirage_fire_beetles",
+      "numericId": "3733594387",
+      "heroId": "hero_mirage",
+      "slot": 0,
+      "name": "Fire Scarabs"
+    },
+    {
+      "id": "mirage_tornado",
+      "numericId": "1336069669",
+      "heroId": "hero_mirage",
+      "slot": 1,
+      "name": "Dust Devil"
+    },
+    {
+      "id": "mirage_sand_phantom",
+      "numericId": "2221949202",
+      "heroId": "hero_mirage",
+      "slot": 2,
+      "name": "Djinn's Mark"
+    },
+    {
+      "id": "mirage_teleport",
+      "numericId": "2604653402",
+      "heroId": "hero_mirage",
+      "slot": 3,
+      "name": "Traveler"
+    },
+    {
+      "id": "ability_intimidate",
+      "numericId": "1454278799",
+      "heroId": "hero_krill",
+      "slot": 0,
+      "name": "Scorn"
+    },
+    {
+      "id": "ability_burrow",
+      "numericId": "2406758797",
+      "heroId": "hero_krill",
+      "slot": 1,
+      "name": "Burrow"
+    },
+    {
+      "id": "ability_throw_sand",
+      "numericId": "1914797280",
+      "heroId": "hero_krill",
+      "slot": 2,
+      "name": "Sand Blast"
+    },
+    {
+      "id": "ability_ult_combo",
+      "numericId": "1917840730",
+      "heroId": "hero_krill",
+      "slot": 3,
+      "name": "Combo"
+    },
+    {
+      "id": "ability_bookworm_dragonfire",
+      "numericId": "604448162",
+      "heroId": "hero_bookworm",
+      "slot": 0,
+      "name": "Bookwyrm"
+    },
+    {
+      "id": "ability_bookworm_knightbarrier",
+      "numericId": "3553292912",
+      "heroId": "hero_bookworm",
+      "slot": 1,
+      "name": "Plot Armor"
+    },
+    {
+      "id": "ability_bookworm_aoemagic",
+      "numericId": "3054993162",
+      "heroId": "hero_bookworm",
+      "slot": 2,
+      "name": "Captivating Read"
+    },
+    {
+      "id": "ability_bookworm_knightcharge",
+      "numericId": "1841901343",
+      "heroId": "hero_bookworm",
+      "slot": 3,
+      "name": "Rallying Charge"
+    },
+    {
+      "id": "citadel_ability_chrono_pulse_grenade",
+      "numericId": "58655583",
+      "heroId": "hero_chrono",
+      "slot": 0,
+      "name": "Pulse Grenade"
+    },
+    {
+      "id": "citadel_ability_chrono_time_wall",
+      "numericId": "1366719170",
+      "heroId": "hero_chrono",
+      "slot": 1,
+      "name": "Time Wall"
+    },
+    {
+      "id": "citadel_ability_chrono_kinetic_carbine",
+      "numericId": "1128670012",
+      "heroId": "hero_chrono",
+      "slot": 2,
+      "name": "Kinetic Carbine"
+    },
+    {
+      "id": "citadel_ability_chrono_swap",
+      "numericId": "2917891787",
+      "heroId": "hero_chrono",
+      "slot": 3,
+      "name": "Paradoxical Swap"
+    },
+    {
+      "id": "synth_barrage",
+      "numericId": "938149308",
+      "heroId": "hero_synth",
+      "slot": 0,
+      "name": "Barrage"
+    },
+    {
+      "id": "synth_plasma_flux",
+      "numericId": "1976701714",
+      "heroId": "hero_synth",
+      "slot": 1,
+      "name": "Flying Cloak"
+    },
+    {
+      "id": "synth_pulse",
+      "numericId": "3747867012",
+      "heroId": "hero_synth",
+      "slot": 2,
+      "name": "Enchanter's Satchel"
+    },
+    {
+      "id": "synth_affliction",
+      "numericId": "2954330093",
+      "heroId": "hero_synth",
+      "slot": 3,
+      "name": "Affliction"
+    },
+    {
+      "id": "ability_ratking_scrap_grenade",
+      "numericId": "3002308408",
+      "heroId": "hero_ratking",
+      "slot": 0,
+      "name": "Scrap Grenade"
+    },
+    {
+      "id": "ability_ratking_ratnibble",
+      "numericId": "3681399397",
+      "heroId": "hero_ratking",
+      "slot": 1,
+      "name": "Rat Swarm"
+    },
+    {
+      "id": "ability_ratking_ratarmor",
+      "numericId": "690412829",
+      "heroId": "hero_ratking",
+      "slot": 2,
+      "name": "Royal Pestments"
+    },
+    {
+      "id": "ability_ratking_standard_bearer",
+      "numericId": "1627989937",
+      "heroId": "hero_ratking",
+      "slot": 3,
+      "name": "Rule, Ratannia!"
+    },
+    {
+      "id": "ability_familiar_ability02",
+      "numericId": "3692321247",
+      "heroId": "hero_familiar",
+      "slot": 0,
+      "name": "Pillow Toss"
+    },
+    {
+      "id": "ability_familiar_attach",
+      "numericId": "1568845221",
+      "heroId": "hero_familiar",
+      "slot": 1,
+      "name": "Tag Along"
+    },
+    {
+      "id": "ability_familiar_helpinghands",
+      "numericId": "536278136",
+      "heroId": "hero_familiar",
+      "slot": 2,
+      "name": "Lil Helpers"
+    },
+    {
+      "id": "ability_familiar_ability01",
+      "numericId": "2396527575",
+      "heroId": "hero_familiar",
+      "slot": 3,
+      "name": "Naptime"
+    },
+    {
+      "id": "citadel_ability_lightning_ball",
+      "numericId": "1065103387",
+      "heroId": "hero_gigawatt",
+      "slot": 0,
+      "name": "Lightning Ball"
+    },
+    {
+      "id": "citadel_ability_static_charge",
+      "numericId": "1074714947",
+      "heroId": "hero_gigawatt",
+      "slot": 1,
+      "name": "Static Charge"
+    },
+    {
+      "id": "ability_power_surge",
+      "numericId": "539192269",
+      "heroId": "hero_gigawatt",
+      "slot": 2,
+      "name": "Power Surge"
+    },
+    {
+      "id": "citadel_ability_storm_cloud",
+      "numericId": "2061574352",
+      "heroId": "hero_gigawatt",
+      "slot": 3,
+      "name": "Storm Cloud"
+    },
+    {
+      "id": "citadel_ability_shiv_dagger",
+      "numericId": "2460791803",
+      "heroId": "hero_shiv",
+      "slot": 0,
+      "name": "Serrated Knives"
+    },
+    {
+      "id": "citadel_ability_shiv_dash",
+      "numericId": "1458044103",
+      "heroId": "hero_shiv",
+      "slot": 1,
+      "name": "Slice and Dice"
+    },
+    {
+      "id": "citadel_ability_shiv_defer_damage",
+      "numericId": "1537272748",
+      "heroId": "hero_shiv",
+      "slot": 2,
+      "name": "Bloodletting"
+    },
+    {
+      "id": "citadel_ability_shiv_killing_blow",
+      "numericId": "1835738020",
+      "heroId": "hero_shiv",
+      "slot": 3,
+      "name": "Killing Blow"
+    },
+    {
+      "id": "ability_werewolf_unloadgun",
+      "numericId": "1385849824",
+      "heroId": "hero_werewolf",
+      "slot": 0,
+      "name": "Slam Fire"
+    },
+    {
+      "id": "ability_werewolf_kickflip",
+      "numericId": "2717130900",
+      "heroId": "hero_werewolf",
+      "slot": 1,
+      "name": "Boot Kick"
+    },
+    {
+      "id": "ability_werewolf_netshot",
+      "numericId": "3983754897",
+      "heroId": "hero_werewolf",
+      "slot": 2,
+      "name": "Entangling Bola"
+    },
+    {
+      "id": "ability_werewolf_transformation",
+      "numericId": "515791019",
+      "heroId": "hero_werewolf",
+      "slot": 3,
+      "name": "Lycan Curse"
+    },
+    {
+      "id": "ability_magician_magicbolt",
+      "numericId": "3156905386",
+      "heroId": "hero_magician",
+      "slot": 0,
+      "name": "Vexing Bolt"
+    },
+    {
+      "id": "ability_magician_cloneturret",
+      "numericId": "12456023",
+      "heroId": "hero_magician",
+      "slot": 1,
+      "name": "Spectral Assistant"
+    },
+    {
+      "id": "ability_magician_animalhexarea",
+      "numericId": "2142213586",
+      "heroId": "hero_magician",
+      "slot": 2,
+      "name": "Rabbit Hex"
+    },
+    {
+      "id": "ability_magician_copyult",
+      "numericId": "191022746",
+      "heroId": "hero_magician",
+      "slot": 3,
+      "name": "Audience Participation"
+    },
+    {
+      "id": "ability_chessmaster_throwbishop",
+      "numericId": "4011110259",
+      "heroId": "hero_chessmaster",
+      "slot": 0,
+      "name": "Setup Bishop"
+    },
+    {
+      "id": "ability_chessmaster_knightbuff",
+      "numericId": "4180486641",
+      "heroId": "hero_chessmaster",
+      "slot": 1,
+      "name": "Kingside Knight"
+    },
+    {
+      "id": "ability_chessmaster_forkpiece",
+      "numericId": "2424652896",
+      "heroId": "hero_chessmaster",
+      "slot": 2,
+      "name": "Rook Battery"
+    },
+    {
+      "id": "ability_chessmaster_queen",
+      "numericId": "1389230689",
+      "heroId": "hero_chessmaster",
+      "slot": 3,
+      "name": "Develop Queen"
+    },
+    {
+      "id": "ability_doorman_bomb",
+      "numericId": "103496908",
+      "heroId": "hero_doorman",
+      "slot": 0,
+      "name": "Call Bell"
+    },
+    {
+      "id": "ability_doorman_doorway",
+      "numericId": "109766091",
+      "heroId": "hero_doorman",
+      "slot": 1,
+      "name": "Doorway"
+    },
+    {
+      "id": "ability_doorman_luggage_cart",
+      "numericId": "1719512318",
+      "heroId": "hero_doorman",
+      "slot": 2,
+      "name": "Luggage Cart"
+    },
+    {
+      "id": "ability_doorman_hotel",
+      "numericId": "1703045691",
+      "heroId": "hero_doorman",
+      "slot": 3,
+      "name": "Hotel Guest"
+    },
+    {
+      "id": "ability_priest_flashbang",
+      "numericId": "911307831",
+      "heroId": "hero_priest",
+      "slot": 0,
+      "name": "Consecrating Grenade"
+    },
+    {
+      "id": "ability_priest_knockback",
+      "numericId": "1764146857",
+      "heroId": "hero_priest",
+      "slot": 1,
+      "name": "Gutshot"
+    },
+    {
+      "id": "ability_priest_beartrap",
+      "numericId": "11154161",
+      "heroId": "hero_priest",
+      "slot": 2,
+      "name": "Hex-Lined Snap Trap"
+    },
+    {
+      "id": "ability_priest_weaponswap",
+      "numericId": "2918874166",
+      "heroId": "hero_priest",
+      "slot": 3,
+      "name": "Ira Domini"
+    },
+    {
+      "id": "ability_frank_shocktarget2",
+      "numericId": "2043074967",
+      "heroId": "hero_frank",
+      "slot": 0,
+      "name": "Pain Battery"
+    },
+    {
+      "id": "ability_frank_selfzap",
+      "numericId": "3727084744",
+      "heroId": "hero_frank",
+      "slot": 1,
+      "name": "Jumpstart"
+    },
+    {
+      "id": "ability_frank_painaura",
+      "numericId": "1472593493",
+      "heroId": "hero_frank",
+      "slot": 2,
+      "name": "Aura of Suffering"
+    },
+    {
+      "id": "ability_frank_revive",
+      "numericId": "3493884851",
+      "heroId": "hero_frank",
+      "slot": 3,
+      "name": "Shocking Reanimation"
+    },
+    {
+      "id": "citadel_ability_hornet_chain",
+      "numericId": "537527508",
+      "heroId": "hero_hornet",
+      "slot": 0,
+      "name": "Stake"
+    },
+    {
+      "id": "citadel_ability_hornet_leap",
+      "numericId": "1796564033",
+      "heroId": "hero_hornet",
+      "slot": 1,
+      "name": "Flight"
+    },
+    {
+      "id": "citadel_ability_hornet_sting",
+      "numericId": "2048438176",
+      "heroId": "hero_hornet",
+      "slot": 2,
+      "name": "Crow Familiar"
+    },
+    {
+      "id": "citadel_ability_hornet_snipe",
+      "numericId": "775377419",
+      "heroId": "hero_hornet",
+      "slot": 3,
+      "name": "Assassinate"
+    },
+    {
+      "id": "viscous_goo_grenade",
+      "numericId": "3247040238",
+      "heroId": "hero_viscous",
+      "slot": 0,
+      "name": "Splatter"
+    },
+    {
+      "id": "viscous_restorative_goo",
+      "numericId": "3788152387",
+      "heroId": "hero_viscous",
+      "slot": 1,
+      "name": "The Cube"
+    },
+    {
+      "id": "viscous_telepunch",
+      "numericId": "1020817390",
+      "heroId": "hero_viscous",
+      "slot": 2,
+      "name": "Puddle Punch"
+    },
+    {
+      "id": "viscous_goo_bowling_ball",
+      "numericId": "4206531918",
+      "heroId": "hero_viscous",
+      "slot": 3,
+      "name": "Goo Ball"
+    },
+    {
+      "id": "ability_viper_debuffdagger",
+      "numericId": "645773760",
+      "heroId": "hero_viper",
+      "slot": 0,
+      "name": "Screwjab Dagger"
+    },
+    {
+      "id": "ability_viper_venom",
+      "numericId": "3428732129",
+      "heroId": "hero_viper",
+      "slot": 1,
+      "name": "Lethal Venom"
+    },
+    {
+      "id": "ability_viper_snakedash",
+      "numericId": "1469918191",
+      "heroId": "hero_viper",
+      "slot": 2,
+      "name": "Slither"
+    },
+    {
+      "id": "ability_viper_petrifybola",
+      "numericId": "1594727071",
+      "heroId": "hero_viper",
+      "slot": 3,
+      "name": "Petrifying Bola"
+    },
+    {
+      "id": "ability_warden_crowd_control",
+      "numericId": "2656490109",
+      "heroId": "hero_warden",
+      "slot": 0,
+      "name": "Alchemical Flask"
+    },
+    {
+      "id": "ability_warden_high_alert",
+      "numericId": "2751689917",
+      "heroId": "hero_warden",
+      "slot": 1,
+      "name": "Willpower"
+    },
+    {
+      "id": "ability_warden_lock_down",
+      "numericId": "1656913918",
+      "heroId": "hero_warden",
+      "slot": 2,
+      "name": "Binding Word"
+    },
+    {
+      "id": "ability_warden_riot_protocol",
+      "numericId": "2702908623",
+      "heroId": "hero_warden",
+      "slot": 3,
+      "name": "Last Stand"
+    },
+    {
+      "id": "citadel_ability_card_toss",
+      "numericId": "1999680326",
+      "heroId": "hero_wraith",
+      "slot": 0,
+      "name": "Card Trick"
+    },
+    {
+      "id": "citadel_ability_projectmind",
+      "numericId": "4147641675",
+      "heroId": "hero_wraith",
+      "slot": 1,
+      "name": "Project Mind"
+    },
+    {
+      "id": "citadel_ability_wraith_rapidfire",
+      "numericId": "1842576017",
+      "heroId": "hero_wraith",
+      "slot": 2,
+      "name": "Full Auto"
+    },
+    {
+      "id": "citadel_ability_psychic_lift",
+      "numericId": "2981692841",
+      "heroId": "hero_wraith",
+      "slot": 3,
+      "name": "Telekinesis"
+    },
+    {
+      "id": "citadel_ability_power_slash",
+      "numericId": "3255651252",
+      "heroId": "hero_yamato",
+      "slot": 0,
+      "name": "Power Slash"
+    },
+    {
+      "id": "citadel_ability_flying_strike",
+      "numericId": "2566573207",
+      "heroId": "hero_yamato",
+      "slot": 1,
+      "name": "Flying Slash"
+    },
+    {
+      "id": "citadel_ability_healing_slash",
+      "numericId": "2366960452",
+      "heroId": "hero_yamato",
+      "slot": 2,
+      "name": "Crimson Slash"
+    },
+    {
+      "id": "citadel_ability_infinity_slash",
+      "numericId": "3319782965",
+      "heroId": "hero_yamato",
+      "slot": 3,
+      "name": "Shadow Transformation"
+    }
+  ]
+}

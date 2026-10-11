@@ -1,0 +1,833 @@
+[
+  {
+    "name": "Skip-eo/Deadlock-Config",
+    "repo": {
+      "id": 875901695,
+      "node_id": "R_kgDONDUy_w",
+      "name": "Deadlock-Config",
+      "full_name": "Skip-eo/Deadlock-Config",
+      "private": false,
+      "owner": {
+        "login": "Skip-eo",
+        "id": 70055499,
+        "node_id": "MDQ6VXNlcjcwMDU1NDk5",
+        "avatar_url": "https://avatars.githubusercontent.com/u/70055499?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/Skip-eo",
+        "html_url": "https://github.com/Skip-eo",
+        "followers_url": "https://api.github.com/users/Skip-eo/followers",
+        "following_url": "https://api.github.com/users/Skip-eo/following{/other_user}",
+        "gists_url": "https://api.github.com/users/Skip-eo/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/Skip-eo/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/Skip-eo/subscriptions",
+        "organizations_url": "https://api.github.com/users/Skip-eo/orgs",
+        "repos_url": "https://api.github.com/users/Skip-eo/repos",
+        "events_url": "https://api.github.com/users/Skip-eo/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/Skip-eo/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/Skip-eo/Deadlock-Config",
+      "description": "Set of optimisations, tweaks and improvements for Valve's Deadlock.",
+      "fork": false,
+      "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config",
+      "forks_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/forks",
+      "keys_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/teams",
+      "hooks_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/hooks",
+      "issue_events_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/events",
+      "assignees_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/tags",
+      "blobs_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/languages",
+      "stargazers_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/stargazers",
+      "contributors_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/contributors",
+      "subscribers_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/subscribers",
+      "subscription_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/subscription",
+      "commits_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/merges",
+      "archive_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/downloads",
+      "issues_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/labels{/name}",
+      "releases_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/deployments",
+      "created_at": "2024-10-21T04:15:04Z",
+      "updated_at": "2025-04-21T22:36:10Z",
+      "pushed_at": "2025-04-21T22:36:06Z",
+      "git_url": "git://github.com/Skip-eo/Deadlock-Config.git",
+      "ssh_url": "git@github.com:Skip-eo/Deadlock-Config.git",
+      "clone_url": "https://github.com/Skip-eo/Deadlock-Config.git",
+      "svn_url": "https://github.com/Skip-eo/Deadlock-Config",
+      "homepage": null,
+      "size": 13834,
+      "stargazers_count": 2,
+      "watchers_count": 2,
+      "language": null,
+      "has_issues": true,
+      "has_projects": true,
+      "has_downloads": false,
+      "has_wiki": true,
+      "has_pages": false,
+      "has_discussions": false,
+      "forks_count": 0,
+      "mirror_url": null,
+      "archived": false,
+      "disabled": false,
+      "open_issues_count": 1,
+      "license": {
+        "key": "cc0-1.0",
+        "name": "Creative Commons Zero v1.0 Universal",
+        "spdx_id": "CC0-1.0",
+        "url": "https://api.github.com/licenses/cc0-1.0",
+        "node_id": "MDc6TGljZW5zZTY="
+      },
+      "allow_forking": true,
+      "is_template": false,
+      "web_commit_signoff_required": false,
+      "has_pull_requests": true,
+      "pull_request_creation_policy": "all",
+      "topics": [],
+      "visibility": "public",
+      "forks": 0,
+      "open_issues": 1,
+      "watchers": 2,
+      "default_branch": "main",
+      "temp_clone_token": null,
+      "network_count": 0,
+      "subscribers_count": 1
+    },
+    "commit": {
+      "sha": "c97c17288d14f22b9201e83616807d0f2e6df0e0",
+      "node_id": "C_kwDONDUy_9oAKGM5N2MxNzI4OGQxNGYyMmI5MjAxZTgzNjE2ODA3ZDBmMmU2ZGYwZTA",
+      "commit": {
+        "author": {
+          "name": "SKIÞ",
+          "email": "70055499+Skip-eo@users.noreply.github.com",
+          "date": "2025-04-21T22:36:06Z"
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "date": "2025-04-21T22:36:06Z"
+        },
+        "message": "Update README.md",
+        "tree": {
+          "sha": "2880beec9c24ca68e0917f6b28cf416548e1e224",
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/trees/2880beec9c24ca68e0917f6b28cf416548e1e224"
+        },
+        "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/commits/c97c17288d14f22b9201e83616807d0f2e6df0e0",
+        "comment_count": 0,
+        "verification": {
+          "verified": true,
+          "reason": "valid",
+          "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJoBshWCRC1aQ7uu5UhlAAAWegQAGZ6cLHGHxOoO/BmAOffiNJ5\nAjOAtYj0kxgrhSuiIM3sZUhsYsTWoKxD5/JJEyqF1GcEfpILTl3xINHafckudjIi\nmPkX1+CLHljM7J0ZR5qs87dhGz+8m45Y+NHC7k+2wIfhRr6mIuo/r6D+R5S6nXc0\nR/bam7zGflyosxLIW4sEAGb9zMfjfzXq0b8e0FBLGmcKqSMhDfqQHnc9NBUUgrOE\nXZEqrKNN/vcQv/CChkjs+BaHMfGsI66OMo34VriV6WcaCnPycCdoTgw0fBlvNW6b\nvnSt1P0WGQTrmiArBgDyU2odxdAsh3j9FpW9PJeTORJv24UHlxpqEOOiG42kZlGi\nAe0Z3rgeKrsNv7+It8gR4b/XFBUdCXuhEl3cRSub6E8aapehiR/50EvKJfbgUq2j\ntHxmXY3rlkGO7icnz6AaQ6xTTI56K0RnCeQEGa5dE2gYWlsMCbyBJWQA6wDfy3PM\ni4gQVE8nbokjp9uGJiOKnMKB96zHZ9xFd/QsAOC92EQU2dXJkxEorJcBY0o59a3V\nMRuqE3p+MmaTe3xsjAbgiCSo2Gr8vCA+TAOO+J5YjFliuunuBlT3q2ox2JZyr+ww\ns2Frw9i2vhNWHWqF9q/n3G/OaYjDm0/juUSq02ShKMMMTbTPnHFZKXu3dc1kBdBn\n408/FT8ofewmfOokEVp0\n=SC/u\n-----END PGP SIGNATURE-----\n",
+          "payload": "tree 2880beec9c24ca68e0917f6b28cf416548e1e224\nparent f66fa5c1677115287f7e2f10ec9c25958990fc63\nauthor SKIÞ <70055499+Skip-eo@users.noreply.github.com> 1745274966 +0930\ncommitter GitHub <noreply@github.com> 1745274966 +0930\n\nUpdate README.md",
+          "verified_at": "2025-04-21T22:41:08Z"
+        }
+      },
+      "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/commits/c97c17288d14f22b9201e83616807d0f2e6df0e0",
+      "html_url": "https://github.com/Skip-eo/Deadlock-Config/commit/c97c17288d14f22b9201e83616807d0f2e6df0e0",
+      "comments_url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/commits/c97c17288d14f22b9201e83616807d0f2e6df0e0/comments",
+      "author": {
+        "login": "Skip-eo",
+        "id": 70055499,
+        "node_id": "MDQ6VXNlcjcwMDU1NDk5",
+        "avatar_url": "https://avatars.githubusercontent.com/u/70055499?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/Skip-eo",
+        "html_url": "https://github.com/Skip-eo",
+        "followers_url": "https://api.github.com/users/Skip-eo/followers",
+        "following_url": "https://api.github.com/users/Skip-eo/following{/other_user}",
+        "gists_url": "https://api.github.com/users/Skip-eo/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/Skip-eo/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/Skip-eo/subscriptions",
+        "organizations_url": "https://api.github.com/users/Skip-eo/orgs",
+        "repos_url": "https://api.github.com/users/Skip-eo/repos",
+        "events_url": "https://api.github.com/users/Skip-eo/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/Skip-eo/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "web-flow",
+        "id": 19864447,
+        "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/web-flow",
+        "html_url": "https://github.com/web-flow",
+        "followers_url": "https://api.github.com/users/web-flow/followers",
+        "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+        "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+        "organizations_url": "https://api.github.com/users/web-flow/orgs",
+        "repos_url": "https://api.github.com/users/web-flow/repos",
+        "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/web-flow/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "f66fa5c1677115287f7e2f10ec9c25958990fc63",
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/commits/f66fa5c1677115287f7e2f10ec9c25958990fc63",
+          "html_url": "https://github.com/Skip-eo/Deadlock-Config/commit/f66fa5c1677115287f7e2f10ec9c25958990fc63"
+        }
+      ]
+    },
+    "tree": {
+      "sha": "c97c17288d14f22b9201e83616807d0f2e6df0e0",
+      "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/trees/c97c17288d14f22b9201e83616807d0f2e6df0e0",
+      "tree": [
+        {
+          "path": "Deadlock Commands.xlsx",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "00dfaba36de2d51c9635255ca45fc7179a9b9403",
+          "size": 135585,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/00dfaba36de2d51c9635255ca45fc7179a9b9403"
+        },
+        {
+          "path": "LICENSE",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0e259d42c996742e9e3cba14c677129b2c1b6311",
+          "size": 7048,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/0e259d42c996742e9e3cba14c677129b2c1b6311"
+        },
+        {
+          "path": "README.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5df60541bb71e19b8463298a8a05c41d7210d114",
+          "size": 6596,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/5df60541bb71e19b8463298a8a05c41d7210d114"
+        },
+        {
+          "path": "autoexec.cfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b817294bc32942cf780447fb8ccae384c0e17cbf",
+          "size": 6545,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/b817294bc32942cf780447fb8ccae384c0e17cbf"
+        },
+        {
+          "path": "images",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "494e9225882dcab5a11ef25e813ec0df05a31e32",
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/trees/494e9225882dcab5a11ef25e813ec0df05a31e32"
+        },
+        {
+          "path": "images/16by9.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4654791b8ac8b0ebdc59459e3fa1791286eed486",
+          "size": 3612999,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/4654791b8ac8b0ebdc59459e3fa1791286eed486"
+        },
+        {
+          "path": "images/21by9.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a06e304b11200f9ed8785b086783f5d0006223ad",
+          "size": 9828076,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/a06e304b11200f9ed8785b086783f5d0006223ad"
+        },
+        {
+          "path": "images/Deadlock-Set-Read-Only.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1fe8f541b3c183c780a657d6080ddd9808a6a4b4",
+          "size": 16849,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/1fe8f541b3c183c780a657d6080ddd9808a6a4b4"
+        },
+        {
+          "path": "images/Deadlock-Video-Config.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2dd8be7b9b24f434a1bd734c8b6a3d3af1bc9ea2",
+          "size": 89399,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/2dd8be7b9b24f434a1bd734c8b6a3d3af1bc9ea2"
+        },
+        {
+          "path": "images/NVCP-Change-Resolution.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "89541dcacbebaa3da989a40f21d5f3fe228ffca1",
+          "size": 104424,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/89541dcacbebaa3da989a40f21d5f3fe228ffca1"
+        },
+        {
+          "path": "images/NVCP-Custom-Resolution-Settings.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3b9ac37a38f016ac949f29c84b63d19893e47295",
+          "size": 24088,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/3b9ac37a38f016ac949f29c84b63d19893e47295"
+        },
+        {
+          "path": "images/NVCP-Custom-Resolution.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "72cfdf302b34b3fcca94d0e46834a7d15bc0bea5",
+          "size": 17565,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/72cfdf302b34b3fcca94d0e46834a7d15bc0bea5"
+        },
+        {
+          "path": "images/NVCP-Desktop-Sizing.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "13db9d05fd7c3778eeb7575da6c8a77524d04776",
+          "size": 95335,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/13db9d05fd7c3778eeb7575da6c8a77524d04776"
+        },
+        {
+          "path": "images/gameinfo.png",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "af20556e7f53b45178dd813f339806c68b621ba0",
+          "size": 64197,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/af20556e7f53b45178dd813f339806c68b621ba0"
+        },
+        {
+          "path": "pak01_dir.vpk",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "02c5a10f8e5cbd244c0886935e44cbbc18082546",
+          "size": 242981,
+          "url": "https://api.github.com/repos/Skip-eo/Deadlock-Config/git/blobs/02c5a10f8e5cbd244c0886935e44cbbc18082546"
+        }
+      ],
+      "truncated": false
+    }
+  },
+  {
+    "name": "B13rg/deadlock-config",
+    "repo": {
+      "id": 858980261,
+      "node_id": "R_kgDOMzL_pQ",
+      "name": "deadlock-config",
+      "full_name": "B13rg/deadlock-config",
+      "private": false,
+      "owner": {
+        "login": "B13rg",
+        "id": 13488329,
+        "node_id": "MDQ6VXNlcjEzNDg4MzI5",
+        "avatar_url": "https://avatars.githubusercontent.com/u/13488329?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/B13rg",
+        "html_url": "https://github.com/B13rg",
+        "followers_url": "https://api.github.com/users/B13rg/followers",
+        "following_url": "https://api.github.com/users/B13rg/following{/other_user}",
+        "gists_url": "https://api.github.com/users/B13rg/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/B13rg/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/B13rg/subscriptions",
+        "organizations_url": "https://api.github.com/users/B13rg/orgs",
+        "repos_url": "https://api.github.com/users/B13rg/repos",
+        "events_url": "https://api.github.com/users/B13rg/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/B13rg/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/B13rg/deadlock-config",
+      "description": "Collection of various deadlock config components",
+      "fork": false,
+      "url": "https://api.github.com/repos/B13rg/deadlock-config",
+      "forks_url": "https://api.github.com/repos/B13rg/deadlock-config/forks",
+      "keys_url": "https://api.github.com/repos/B13rg/deadlock-config/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/B13rg/deadlock-config/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/B13rg/deadlock-config/teams",
+      "hooks_url": "https://api.github.com/repos/B13rg/deadlock-config/hooks",
+      "issue_events_url": "https://api.github.com/repos/B13rg/deadlock-config/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/B13rg/deadlock-config/events",
+      "assignees_url": "https://api.github.com/repos/B13rg/deadlock-config/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/B13rg/deadlock-config/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/B13rg/deadlock-config/tags",
+      "blobs_url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/B13rg/deadlock-config/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/B13rg/deadlock-config/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/B13rg/deadlock-config/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/B13rg/deadlock-config/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/B13rg/deadlock-config/languages",
+      "stargazers_url": "https://api.github.com/repos/B13rg/deadlock-config/stargazers",
+      "contributors_url": "https://api.github.com/repos/B13rg/deadlock-config/contributors",
+      "subscribers_url": "https://api.github.com/repos/B13rg/deadlock-config/subscribers",
+      "subscription_url": "https://api.github.com/repos/B13rg/deadlock-config/subscription",
+      "commits_url": "https://api.github.com/repos/B13rg/deadlock-config/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/B13rg/deadlock-config/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/B13rg/deadlock-config/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/B13rg/deadlock-config/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/B13rg/deadlock-config/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/B13rg/deadlock-config/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/B13rg/deadlock-config/merges",
+      "archive_url": "https://api.github.com/repos/B13rg/deadlock-config/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/B13rg/deadlock-config/downloads",
+      "issues_url": "https://api.github.com/repos/B13rg/deadlock-config/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/B13rg/deadlock-config/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/B13rg/deadlock-config/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/B13rg/deadlock-config/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/B13rg/deadlock-config/labels{/name}",
+      "releases_url": "https://api.github.com/repos/B13rg/deadlock-config/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/B13rg/deadlock-config/deployments",
+      "created_at": "2024-09-17T21:37:24Z",
+      "updated_at": "2026-01-09T23:57:14Z",
+      "pushed_at": "2024-09-18T02:35:36Z",
+      "git_url": "git://github.com/B13rg/deadlock-config.git",
+      "ssh_url": "git@github.com:B13rg/deadlock-config.git",
+      "clone_url": "https://github.com/B13rg/deadlock-config.git",
+      "svn_url": "https://github.com/B13rg/deadlock-config",
+      "homepage": null,
+      "size": 132,
+      "stargazers_count": 2,
+      "watchers_count": 2,
+      "language": null,
+      "has_issues": true,
+      "has_projects": false,
+      "has_downloads": false,
+      "has_wiki": true,
+      "has_pages": false,
+      "has_discussions": true,
+      "forks_count": 0,
+      "mirror_url": null,
+      "archived": false,
+      "disabled": false,
+      "open_issues_count": 0,
+      "license": null,
+      "allow_forking": true,
+      "is_template": false,
+      "web_commit_signoff_required": false,
+      "has_pull_requests": true,
+      "pull_request_creation_policy": "all",
+      "topics": [],
+      "visibility": "public",
+      "forks": 0,
+      "open_issues": 0,
+      "watchers": 2,
+      "default_branch": "main",
+      "temp_clone_token": null,
+      "network_count": 0,
+      "subscribers_count": 1
+    },
+    "commit": {
+      "sha": "ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+      "node_id": "C_kwDOMzL_pdoAKGFlNDBjNDFlOTQ0NWQ5ZDFmZDk1OGM5MGIyMDE5ZmJmZGRhYTA1ZTg",
+      "commit": {
+        "author": {
+          "name": "Yuki",
+          "email": "yuki@bushi.moe",
+          "date": "2024-09-18T02:35:34Z"
+        },
+        "committer": {
+          "name": "Yuki",
+          "email": "yuki@bushi.moe",
+          "date": "2024-09-18T02:35:34Z"
+        },
+        "message": "add reddit to readme",
+        "tree": {
+          "sha": "56436f932a0914e3be35dc200ff680e76757174b",
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/trees/56436f932a0914e3be35dc200ff680e76757174b"
+        },
+        "url": "https://api.github.com/repos/B13rg/deadlock-config/git/commits/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+        "comment_count": 0,
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null,
+          "verified_at": null
+        }
+      },
+      "url": "https://api.github.com/repos/B13rg/deadlock-config/commits/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+      "html_url": "https://github.com/B13rg/deadlock-config/commit/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+      "comments_url": "https://api.github.com/repos/B13rg/deadlock-config/commits/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8/comments",
+      "author": null,
+      "committer": null,
+      "parents": [
+        {
+          "sha": "fab00835986681c4931af258fb07ead5080c2692",
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/commits/fab00835986681c4931af258fb07ead5080c2692",
+          "html_url": "https://github.com/B13rg/deadlock-config/commit/fab00835986681c4931af258fb07ead5080c2692"
+        }
+      ]
+    },
+    "tree": {
+      "sha": "ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+      "url": "https://api.github.com/repos/B13rg/deadlock-config/git/trees/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+      "tree": [
+        {
+          "path": "Taskfile.yml",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ba427fadcdc5e682c2dc2481db956d8323ae9093",
+          "size": 481,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/ba427fadcdc5e682c2dc2481db956d8323ae9093"
+        },
+        {
+          "path": "cvarlist.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "cf10b795dec72657cfa351ef8d0b5d9e481d530f",
+          "size": 402004,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/cf10b795dec72657cfa351ef8d0b5d9e481d530f"
+        },
+        {
+          "path": "game",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "81d3097d8b050f8b1e4a75c4ee10796b96f3ef98",
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/trees/81d3097d8b050f8b1e4a75c4ee10796b96f3ef98"
+        },
+        {
+          "path": "game/boot.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5fbd1acfe5eef095f9bac1c1956715e7c8f5621f",
+          "size": 36,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/5fbd1acfe5eef095f9bac1c1956715e7c8f5621f"
+        },
+        {
+          "path": "game/citadel_1v1_match.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "c0d8a25cf7743893a9f5c683108ba33f37ea6a20",
+          "size": 153,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/c0d8a25cf7743893a9f5c683108ba33f37ea6a20"
+        },
+        {
+          "path": "game/citadel_botmatch_6v6_spectator.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "cc92113a168dc1783094db211076e894bfab5c14",
+          "size": 677,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/cc92113a168dc1783094db211076e894bfab5c14"
+        },
+        {
+          "path": "game/citadel_botmatch_build_test.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "302dd7fc9bb1700c8a73ba86b71dc6e9b836973a",
+          "size": 678,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/302dd7fc9bb1700c8a73ba86b71dc6e9b836973a"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_1v1.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "8a723152e7a4d86fd6d259f13574d1b5ab0aea85",
+          "size": 110,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/8a723152e7a4d86fd6d259f13574d1b5ab0aea85"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_2v2_guided.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "117e6ecc0450d28644173548d5c812f8f9d66686",
+          "size": 1134,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/117e6ecc0450d28644173548d5c812f8f9d66686"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_6v6.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "dab8ce0c90c1a2b80a267daccd12a17e1895cfcb",
+          "size": 1221,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/dab8ce0c90c1a2b80a267daccd12a17e1895cfcb"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_6v6_easy.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "bdc5a629213ac2bceb9c4963b941bfad0f2aa33a",
+          "size": 1252,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/bdc5a629213ac2bceb9c4963b941bfad0f2aa33a"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_6v6_guided.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "07a0b03b7086de0ab49fe712f572d2b3f642e1ae",
+          "size": 1157,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/07a0b03b7086de0ab49fe712f572d2b3f642e1ae"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_6v6_hard.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "89fc8323683c65632d0bfea6be5eab4db720ee2f",
+          "size": 1256,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/89fc8323683c65632d0bfea6be5eab4db720ee2f"
+        },
+        {
+          "path": "game/citadel_botmatch_practice_6v6_medium.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "a899ce03e8152d0d41c8d5a0fd6469358453e471",
+          "size": 1255,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/a899ce03e8152d0d41c8d5a0fd6469358453e471"
+        },
+        {
+          "path": "game/citadel_botmatch_test.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "789a7ce538f2b9106268079a8f1c91aa66f18c00",
+          "size": 618,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/789a7ce538f2b9106268079a8f1c91aa66f18c00"
+        },
+        {
+          "path": "game/citadel_dev_intro_test.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "5b5ff6c610a9f5ae1551e8408e1f2ed187e729d4",
+          "size": 380,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/5b5ff6c610a9f5ae1551e8408e1f2ed187e729d4"
+        },
+        {
+          "path": "game/citadel_lane_challenge.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "426e2cb1b408b28b9c60c33aa513361befbcf181",
+          "size": 1194,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/426e2cb1b408b28b9c60c33aa513361befbcf181"
+        },
+        {
+          "path": "game/citadel_lane_challenge_end.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "0acde12a4f6d3c54e0df66e2ec6bd21298490144",
+          "size": 113,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/0acde12a4f6d3c54e0df66e2ec6bd21298490144"
+        },
+        {
+          "path": "game/citadel_sandbox_match.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "e3c3b292dbc2d27683a4a58f4db89096f2ea029e",
+          "size": 149,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/e3c3b292dbc2d27683a4a58f4db89096f2ea029e"
+        },
+        {
+          "path": "game/citadel_server.cfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "d80233609f9b9713268949494ee2691494c56bbf",
+          "size": 474,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/d80233609f9b9713268949494ee2691494c56bbf"
+        },
+        {
+          "path": "game/configdefaults.linux.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "2b175f4099f9a01321987e05809a98faf82716ff",
+          "size": 18,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/2b175f4099f9a01321987e05809a98faf82716ff"
+        },
+        {
+          "path": "game/configdefaults.osx.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "2b175f4099f9a01321987e05809a98faf82716ff",
+          "size": 18,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/2b175f4099f9a01321987e05809a98faf82716ff"
+        },
+        {
+          "path": "game/configdefaults.pc.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "2b175f4099f9a01321987e05809a98faf82716ff",
+          "size": 18,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/2b175f4099f9a01321987e05809a98faf82716ff"
+        },
+        {
+          "path": "game/configschema.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "aab1675b00b8e822421e7e24b4a867ba7ad4bbb6",
+          "size": 73,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/aab1675b00b8e822421e7e24b4a867ba7ad4bbb6"
+        },
+        {
+          "path": "game/machine_convars.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "70089fd128d32e5c03179f0bff6b4c892f59612f",
+          "size": 8093,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/70089fd128d32e5c03179f0bff6b4c892f59612f"
+        },
+        {
+          "path": "game/machine_convars_default.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "d2d7b7f30128216d61a3c943391da67c6f7b89d7",
+          "size": 256,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/d2d7b7f30128216d61a3c943391da67c6f7b89d7"
+        },
+        {
+          "path": "game/ps5_controller_mapping.vdf",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "87ededbbacb24e35ee314557c989b91db64c8299",
+          "size": 31329,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/87ededbbacb24e35ee314557c989b91db64c8299"
+        },
+        {
+          "path": "game/steam_input_manifest.vdf",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "e17944b316e3b292c3ea7978b03e963ee4c2406c",
+          "size": 5938,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/e17944b316e3b292c3ea7978b03e963ee4c2406c"
+        },
+        {
+          "path": "game/steamdeck_mapping.vdf",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "880fae4e06a3d92d51202e4c00310aed929bf407",
+          "size": 36343,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/880fae4e06a3d92d51202e4c00310aed929bf407"
+        },
+        {
+          "path": "game/user_convars_0_slot0.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d351f75a5092957a54733ebc84cd676e01a0c9e2",
+          "size": 1394,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/d351f75a5092957a54733ebc84cd676e01a0c9e2"
+        },
+        {
+          "path": "game/user_convars_0_slot0.vcfg_lastclouded",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d351f75a5092957a54733ebc84cd676e01a0c9e2",
+          "size": 1394,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/d351f75a5092957a54733ebc84cd676e01a0c9e2"
+        },
+        {
+          "path": "game/user_keys_0_slot0.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b918004930bb6a2f6410389c1c55d841992c3fd8",
+          "size": 62,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/b918004930bb6a2f6410389c1c55d841992c3fd8"
+        },
+        {
+          "path": "game/user_keys_0_slot0.vcfg_lastclouded",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b918004930bb6a2f6410389c1c55d841992c3fd8",
+          "size": 62,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/b918004930bb6a2f6410389c1c55d841992c3fd8"
+        },
+        {
+          "path": "game/user_keys_0_slot1.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "909a2f98df0260dab00eafb78e44de965be5b456",
+          "size": 16,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/909a2f98df0260dab00eafb78e44de965be5b456"
+        },
+        {
+          "path": "game/user_keys_0_slot2.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "909a2f98df0260dab00eafb78e44de965be5b456",
+          "size": 16,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/909a2f98df0260dab00eafb78e44de965be5b456"
+        },
+        {
+          "path": "game/user_keys_0_slot3.vcfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "909a2f98df0260dab00eafb78e44de965be5b456",
+          "size": 16,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/909a2f98df0260dab00eafb78e44de965be5b456"
+        },
+        {
+          "path": "game/user_keys_default.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "bb887e20bfe92b8622a5b0f84e48fa89e3d8c160",
+          "size": 818,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/bb887e20bfe92b8622a5b0f84e48fa89e3d8c160"
+        },
+        {
+          "path": "game/user_keys_dev_default.vcfg",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "e120af64da4c75e6f8feb7514759cccd8759c999",
+          "size": 1044,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/e120af64da4c75e6f8feb7514759cccd8759c999"
+        },
+        {
+          "path": "game/video.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4e4e0cbd63eff11333a4836b86cc88e15b8f0b4c",
+          "size": 2189,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/4e4e0cbd63eff11333a4836b86cc88e15b8f0b4c"
+        },
+        {
+          "path": "game/video.txt.bak",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "dc6d58761a2c8e54059d5c3e761520aab7cfae7b",
+          "size": 309,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/dc6d58761a2c8e54059d5c3e761520aab7cfae7b"
+        },
+        {
+          "path": "modifiers.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "97897e08cdcb8c1c66bd8226dc01402db4875c08",
+          "size": 15690,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/97897e08cdcb8c1c66bd8226dc01402db4875c08"
+        },
+        {
+          "path": "readme.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "899ce820bad76b5d58ab4dc81b3a2a73d8506831",
+          "size": 723,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/899ce820bad76b5d58ab4dc81b3a2a73d8506831"
+        },
+        {
+          "path": "user",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "ba37a4c15561622083803e57aacdc6b01762b310",
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/trees/ba37a4c15561622083803e57aacdc6b01762b310"
+        },
+        {
+          "path": "user/gamestate_integration_testerino.cfg",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1b9139b1d0664059b890daae51a573b10df6ccb0",
+          "size": 344,
+          "url": "https://api.github.com/repos/B13rg/deadlock-config/git/blobs/1b9139b1d0664059b890daae51a573b10df6ccb0"
+        }
+      ],
+      "truncated": false
+    }
+  }
+]

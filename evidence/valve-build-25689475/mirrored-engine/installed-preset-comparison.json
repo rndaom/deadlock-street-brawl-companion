@@ -1,0 +1,32 @@
+[
+  {
+    "name": "video_defaults_0.txt",
+    "installed_sha256": "d7a1f987c4da334533e9a92f196814eb3d4e0923e3e1d558bbfc32bc0cc8de0d",
+    "mirrored_sha256": "685c52027115ab7f62c05426261dab76dd253fced5ab3629a15a13937054f693",
+    "exact_match": false
+  },
+  {
+    "name": "video_defaults_1.txt",
+    "installed_sha256": "7ef678e7c21f2ca32374834d8c898a83326770512a8463e43e8a6525a9f8807b",
+    "mirrored_sha256": "484fbaec2f94e7c5d38f98c5b6b7b45ad0a7f9a3fe273351a5a09b684db285b5",
+    "exact_match": false
+  },
+  {
+    "name": "video_defaults_2.txt",
+    "installed_sha256": "16ff9880470092b76722851bb840c3c05bcf1741ad0c25ec4e8490d18d42ab84",
+    "mirrored_sha256": "23db42ee44e9f008669e655d847a7845c0a8ec30b7b0f19d7e5856a30884daf7",
+    "exact_match": false
+  },
+  {
+    "name": "video_defaults_3.txt",
+    "installed_sha256": "dff9d39949ce2c4988dcfcfab71e2cdf939825b89d089ad0c341a023629fe278",
+    "mirrored_sha256": "454ccd1198d84cfb7762bac7664938569f9072a93e8e5435383b7398cb8f6cf4",
+    "exact_match": false
+  },
+  {
+    "name": "video_version.txt",
+    "installed_sha256": "71221263e4448ad9eaeac8492df3033e69b827f4d909c5d1c542a5c2b6e6e2f0",
+    "mirrored_sha256": "7f6484da0e15cd428e7fb5d232ae97039b6530a0660dcfe42d186716b5d1efe0",
+    "exact_match": false
+  }
+]

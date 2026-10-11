@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "applicationVersion": "0.2.1",
+  "date": "2026-10-03",
+  "scope": "User-authorized bounded visible-game review and sanitized automatic-loop regression; no game focus, gameplay input, process-memory reads, or injection.",
+  "oldBuildReproduction": {
+    "unchangedMainCardsWithConfidenceDrift": true,
+    "readingAfterThirteenFrames": true,
+    "readingAfterTenSimulatedMinutesWithoutPolling": true
+  },
+  "actualVisibleGameObservations": {
+    "clientWidth": 1920,
+    "clientHeight": 1080,
+    "combatFrames": 4,
+    "combatOffers": 0,
+    "draftFrames": 4,
+    "firstDraftFrameStillRevealing": true,
+    "subsequentDraftFramesMainNamesRecognized": 3,
+    "rerollLabelTemporarilyUnreadWithSameMainCards": true,
+    "completeSpecialDetailsConfirmed": false,
+    "draftFirstReadMs": 195.9,
+    "draftSubsequentReadRangeMs": [101.8, 105.7],
+    "gameFrameTimesMeasured": false
+  },
+  "repairedAutomaticLoop": {
+    "twoFreshMainCardObservationsConfirm": true,
+    "confidenceAndMissingCounterJitterTolerated": true,
+    "unknownDetailsWithholdPreferredPick": true,
+    "combatClearsCards": true,
+    "tenSimulatedMinutesRemainClear": true,
+    "unfinishedConfirmationExpires": true,
+    "lateRpcCannotRestoreOldCards": true,
+    "slowHeadingReadReachesFullRead": true,
+    "headingAndClosingControlsCovered": true
+  },
+  "validation": {
+    "testsPassed": 454,
+    "testFilesPassed": 11,
+    "screenIntegrationChecksPassed": 48,
+    "actualWindowsOcrFixturePassed": true,
+    "actualDesktopStaleAndWatchdogChecksPassed": true,
+    "rebuiltPackageReopened": true,
+    "onePackagedReaderBelowNormalSingleLogicalCpu": true,
+    "rebuiltPackageNewLiveDraftConfirmed": false,
+    "overallGameReadingAccuracyMeasured": false,
+    "gamePerformanceCompared": false
+  },
+  "privacy": "No raw images, OCR transcript, selected item, player identifier, match identifier, or participant state. Private bounded review captures remain excluded from source and package."
+}

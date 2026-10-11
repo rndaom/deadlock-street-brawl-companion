@@ -1,0 +1,92 @@
+[
+  {
+    "path": "panorama/layout/popups/popup_settings.vxml_c",
+    "mirror_index_line": "panorama/layout/popups/popup_settings.vxml_c CRC:003895611e size:32094",
+    "installed_entry": {
+      "path": "panorama/layout/popups/popup_settings.vxml_c",
+      "crc32": "3895611e",
+      "archive": 183,
+      "offset": 51939632,
+      "bytes": 32094
+    },
+    "crc_equal": true,
+    "bytes_equal": true,
+    "source_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir.txt",
+    "evidence_limit": "Matching CRC32 and size confirms same archive entry identity with high practical confidence; CRC32 is not a cryptographic hash. Parent extracted installed resource; reconstructed XML comes from pinned third-party Source 2 Viewer pipeline."
+  },
+  {
+    "path": "scripts/new_settings.vdata_c",
+    "mirror_index_line": "scripts/new_settings.vdata_c CRC:00ccfde7f6 size:2726",
+    "installed_entry": {
+      "path": "scripts/new_settings.vdata_c",
+      "crc32": "ccfde7f6",
+      "archive": 183,
+      "offset": 68447136,
+      "bytes": 2726
+    },
+    "crc_equal": true,
+    "bytes_equal": true,
+    "source_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir.txt",
+    "evidence_limit": "Matching CRC32 and size confirms same archive entry identity with high practical confidence; CRC32 is not a cryptographic hash. Parent extracted installed resource; reconstructed XML comes from pinned third-party Source 2 Viewer pipeline."
+  },
+  {
+    "path": "cfg/video_defaults_0.txt",
+    "mirror_index_line": "cfg/video_defaults_0.txt CRC:00d10b9389 size:834",
+    "installed_entry": {
+      "path": "cfg/video_defaults_0.txt",
+      "crc32": "d10b9389",
+      "archive": 317,
+      "offset": 44174736,
+      "bytes": 834
+    },
+    "crc_equal": true,
+    "bytes_equal": true,
+    "source_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir.txt",
+    "evidence_limit": "Matching CRC32 and size confirms same archive entry identity with high practical confidence; CRC32 is not a cryptographic hash. Parent extracted installed resource; reconstructed XML comes from pinned third-party Source 2 Viewer pipeline."
+  },
+  {
+    "path": "cfg/video_defaults_1.txt",
+    "mirror_index_line": "cfg/video_defaults_1.txt CRC:00857e0a22 size:833",
+    "installed_entry": {
+      "path": "cfg/video_defaults_1.txt",
+      "crc32": "857e0a22",
+      "archive": 317,
+      "offset": 44175584,
+      "bytes": 833
+    },
+    "crc_equal": true,
+    "bytes_equal": true,
+    "source_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir.txt",
+    "evidence_limit": "Matching CRC32 and size confirms same archive entry identity with high practical confidence; CRC32 is not a cryptographic hash. Parent extracted installed resource; reconstructed XML comes from pinned third-party Source 2 Viewer pipeline."
+  },
+  {
+    "path": "cfg/video_defaults_2.txt",
+    "mirror_index_line": "cfg/video_defaults_2.txt CRC:0043be704b size:830",
+    "installed_entry": {
+      "path": "cfg/video_defaults_2.txt",
+      "crc32": "43be704b",
+      "archive": 317,
+      "offset": 44176432,
+      "bytes": 830
+    },
+    "crc_equal": true,
+    "bytes_equal": true,
+    "source_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir.txt",
+    "evidence_limit": "Matching CRC32 and size confirms same archive entry identity with high practical confidence; CRC32 is not a cryptographic hash. Parent extracted installed resource; reconstructed XML comes from pinned third-party Source 2 Viewer pipeline."
+  },
+  {
+    "path": "cfg/video_defaults_3.txt",
+    "mirror_index_line": "cfg/video_defaults_3.txt CRC:005e01ac0d size:865",
+    "installed_entry": {
+      "path": "cfg/video_defaults_3.txt",
+      "crc32": "5e01ac0d",
+      "archive": 317,
+      "offset": 44177264,
+      "bytes": 865
+    },
+    "crc_equal": true,
+    "bytes_equal": true,
+    "source_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir.txt",
+    "evidence_limit": "Matching CRC32 and size confirms same archive entry identity with high practical confidence; CRC32 is not a cryptographic hash. Parent extracted installed resource; reconstructed XML comes from pinned third-party Source 2 Viewer pipeline."
+  }
+]

@@ -1,0 +1,1020 @@
+{
+  "schema_version": 1,
+  "audit_scope": "Round 2: independent community breadth, fresh repository/distribution checks, original bug reports, and no-mod configuration candidates. No optimizer executed or game files modified.",
+  "checked_utc": "2026-10-04T00:02:01.680Z",
+  "target": {
+    "cpu": "AMD Ryzen 7 9800X3D",
+    "gpu": "AMD Radeon RX 7800 XT 16 GiB",
+    "ram": "32 GiB DDR5 configured 6400",
+    "os": "Windows 11 Pro 25H2 build 26200.9550",
+    "output": "1920x1080 480 Hz; secondary portrait 1080x1920 240 Hz",
+    "build_evidence": "Initially audited Steam build 25689475 / client 6745. The parent's fresh installed-build check governs any later hotfix compatibility.",
+    "baseline": "The active file already stored low-like settings: FSR2 enum 2 at about 80% scale, mip bias 2, VSync off, low latency 1 and unlimited FPS. Reapplying unchanged low values is not an incremental measured gain."
+  },
+  "evidence_levels": {
+    "primary_setting_definition": "Build-matched Valve menu/preset/registry establishes name, range, default and exposed path; does not establish local FPS gain.",
+    "independently_measured_diagnostic": "Original report supplies defined samples/counters/camera or session methodology. Useful mechanism or workload evidence; not a transfer guarantee.",
+    "uncontrolled_before_after": "Original author reports numbers but changes multiple variables or lacks controlled scene/capture/patch details.",
+    "anecdote": "Original firsthand observation without controlled measurements.",
+    "editorial": "Recommendations or author's claims; no independent performance dataset.",
+    "discovery_only": "Search excerpt or inaccessible resource; not counted as inspected full source."
+  },
+  "sources": [
+    {
+      "id": "S01",
+      "category": "GitHub",
+      "origin": "OptiLock author",
+      "title": "OptiLock fresh repository API and pinned source",
+      "url": "https://github.com/dacooderr/OptiLock/tree/7f7a54a1b8237d9b66348067d09f93174c47d303",
+      "published": "2026-10-02T04:33:05Z",
+      "patch": "Author labels City Never Sleeps; no exact tested build in repo",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Fresh GitHub repo/commits/issues/comments API plus prior static whole-repository audit",
+      "findings": "GitHub HEAD remains 7f7a54a1b8237d9b66348067d09f93174c47d303. Four issues remain unchanged: #10 keyboard remapping is open; #9 Steam Deck input was restored with SteamInput 1; #7 concerns the Sinners visual fix. The author's roughly 40% average-FPS and 30% lows claims lack reproducible traces and scene definitions.",
+      "limitations": "Author claims are not independent empirical evidence. Four repository VPKs exceed the requested no-mod scope.",
+      "local_evidence": [
+        "optilock-latest-api.json",
+        "../optilock-audit.json"
+      ]
+    },
+    {
+      "id": "S02",
+      "category": "Distribution primary",
+      "origin": "OptiLock author/GameBanana",
+      "title": "Fresh GameBanana release metadata and configs ZIP",
+      "url": "https://gamebanana.com/mods/690233",
+      "api_url": "https://gamebanana.com/apiv11/Mod/690233/ProfilePage",
+      "published": "2026-10-02T04:36:21Z (primary upload epoch 1790915781)",
+      "patch": "City Never Sleeps label; page version4.6; newest configs archive version5",
+      "hardware": null,
+      "sample": 36,
+      "evidence": "primary_setting_definition",
+      "inspection": "Primary public metadata; checksum-verified ZIP entries read statically, no execution/install",
+      "findings": "Primary file 1834114 is optilock_fps_configs_9b22e.zip, 743,722 bytes, MD5 57639d501e853b4e368337b5d8f93d5c. All 36 text files match pinned GitHub after CRLF-to-LF normalization; every gameinfo/video scalar sequence matches. This ZIP contains no VPKs. The page describes seven mod components; the separate Essential Fixes ZIP was not downloaded or audited.",
+      "limitations": "File version 5 does not introduce new scalar settings. October 1/3 scraper dates differ from the actual October 2 primary upload epoch. Cache-purge advice is not backed by a controlled benchmark.",
+      "local_evidence": [
+        "optilock-gamebanana-profile.json",
+        "optilock-v5-static-contents.json",
+        "community-config-static-audit.json"
+      ]
+    },
+    {
+      "id": "S03",
+      "category": "Distribution index",
+      "origin": "Deadlock Trade mirror of OptiLock",
+      "title": "OptiLock indexed distribution description",
+      "url": "https://deadlocktrade.gg/mods/optilock-fps-configs-essential-performance-fixes",
+      "published": "Index displays2026-10-01; primary source uploaded2026-10-02",
+      "patch": "City Never Sleeps",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Full indexed page",
+      "findings": "The mirror repeats the author's installation, cache advice and 700-hour/best-performing claims. Generic installation/removal FAQ text conflicts with the actual gameinfo replacement instructions.",
+      "limitations": "This is not an independent benchmark. Prefer the primary release API and ZIP comparison over inconsistent mirror dates."
+    },
+    {
+      "id": "S04",
+      "category": "GitHub",
+      "origin": "OptimizationLock author",
+      "title": "OptimizationLock pinned current sources",
+      "url": "https://github.com/Sqooky/OptimizationLock/tree/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae",
+      "published": "2026-10-03T18:08:56Z",
+      "patch": "Post City Never Sleeps/RatKing commits",
+      "hardware": null,
+      "sample": 3,
+      "evidence": "editorial",
+      "inspection": "Fresh API/tree/issues; staticREADME andSqooky/Max/KaizGI parse against currentregistry",
+      "findings": "Current Sqooky, Max FPS and Kaiz gameinfo variants contain respectively 318/359/327 scalar assignments, 309/337/319 unique names and 9/21/8 duplicated names. They include 190/209/217 development-only names and 58/68/61 cheat names. The README labels Boot deprecated and Piggy outdated. The tree includes a benchmark PNG, but no reusable raw frametime dataset was found; the image was not validated as a current-build benchmark.",
+      "limitations": "Comments describe hypotheses. Flag categories overlap and do not establish runtime effectiveness, anti-cheat behavior or measured gains. Variants also add mod search paths.",
+      "local_evidence": [
+        "optimizationlock-latest-api.json",
+        "optimizationlock-source-inventory.json",
+        "community-config-static-audit.json"
+      ]
+    },
+    {
+      "id": "S05",
+      "category": "GitHub issues",
+      "origin": "OptimizationLock users/author",
+      "title": "Current visibility, HUD and hero camera regressions",
+      "url": "https://github.com/Sqooky/OptimizationLock/issues/73",
+      "related_urls": [
+        "https://github.com/Sqooky/OptimizationLock/issues/72",
+        "https://github.com/Sqooky/OptimizationLock/issues/70",
+        "https://github.com/Sqooky/OptimizationLock/issues/60"
+      ],
+      "published": "2026-10-02; particleissueSep30",
+      "patch": "City Never Sleeps/RatKing; author version2.12.1 forparticleissue",
+      "hardware": null,
+      "sample": "Several user reports; not independent controlled trials",
+      "evidence": "anecdote",
+      "inspection": "Fresh primaryissue bodies",
+      "findings": "Issue #73 reports invisible entities on the correct side of a veil with no VPK mods, only custom gameinfo. #72 reports a hud.xml fatal error; #70 concerns Rat King's camera. #60 reported invisible bullets/abilities under Vulkan, restored by DX11. The current README ties a missing Doorman ultimate indicator to cl_ragdoll_limit 0.",
+      "limitations": "No single offending setting was isolated. Closed issues may have later fixes. Plain text configs still require visual and compatibility checks."
+    },
+    {
+      "id": "S06",
+      "category": "Official forum",
+      "origin": "Valve developer JasperP",
+      "title": "Valve diagnostic methodology and historical Windows/backend investigation",
+      "url": "https://forums.playdeadlock.com/threads/suggestion-about-rendering.94150/page-2",
+      "published": "2026-02-12 to2026-02-18",
+      "patch": "Pre City Never Sleeps; historical methodology",
+      "hardware": "Reports includeNVIDIA andAMD; developer asksOS/GPU/backend",
+      "sample": "Valve posts21,25,29,33,38,40 andcommunity responses",
+      "evidence": "primary_setting_definition",
+      "inspection": "Original forum developer responses",
+      "findings": "Valve developer JasperP uses bot matches internally and requests renderer comparisons after restarting, distinctions between bots/Explore NYC/live matches, actual overlay values, and organized PerfView traces with video. Disabling HUD/particles was suggested for diagnosis. That historical Windows 10-specific issue was already fixed under Windows 11.",
+      "limitations": "Historical diagnostic instructions do not establish a current-patch fix or a suitable competitive HUD/particle-off profile."
+    },
+    {
+      "id": "S07",
+      "category": "Official forum",
+      "origin": "mccarty.i.m original report",
+      "title": "400ms main-thread stalls; PresentMon ten sessions",
+      "url": "https://forums.playdeadlock.com/threads/400ms-main-thread-stalls-during-gameplay-gpu-idle-both-renderers-presentmon-10-sessions.160054/",
+      "published": "2026-09-01",
+      "patch": "Pre City Never Sleeps; exactbuild absent",
+      "hardware": "9800X3D,RTX5080driver32.0.16.1088,64GiB6200DDR5,990Pro,4K240Hz,Win11build26200",
+      "sample": "~10hours,10sessions,sixconfigs; attachment7.4KBnot downloaded",
+      "evidence": "independently_measured_diagnostic",
+      "inspection": "Original post and described counters/method",
+      "findings": "Across roughly ten hours, ten sessions and six configurations, the author reported 200–560 ms stalls with CPU busy near frame duration and almost idle GPU work; one example was a 410 ms frame, 410.7 ms CPU busy and 2.1 ms GPU busy. After a backend/cache change, 22 of 38 stalls clustered into the first ten minutes; subsequent warm-cache sessions were flatter. An old shader-loading command reportedly reduced opening stalls from 19 to 8, with little steady-state change. Removing about 310 MB of mods reduced but did not eliminate stalls.",
+      "limitations": "The experiment was not a clean no-mod setting A/B. mat_async_shader_load is absent from the current registry. The useful result is the need to warm and control caches, not to copy that obsolete command."
+    },
+    {
+      "id": "S08",
+      "category": "Official forum",
+      "origin": "MrNoahJ original report",
+      "title": "City Never Sleeps dense-view worker CPU comparison",
+      "url": "https://forums.playdeadlock.com/threads/city-never-sleeps-severe-view-dependent-fps-regression-source-2-worker-cpu-time-54-in-dense-views-vulkan-dx11.166427/",
+      "published": "2026-09-30 (Wednesday displayed)",
+      "patch": "City Never Sleeps; exactbuild absent",
+      "hardware": "13600KF,RX7900XTX,32GiB,NixOS/Linux,ProtonExperimental/GE11-7",
+      "sample": "Matched stationary cameras;10secondLinuxperf captures",
+      "evidence": "independently_measured_diagnostic",
+      "inspection": "Original post screenshots/counter tables andmethod",
+      "findings": "Matched stationary views produced 134 FPS/7.5 ms in the dense view versus 271 FPS/3.7 ms in the simple view. Ten-second Linux perf captures showed worker CPU time 24.00 versus 15.58 seconds, about 54% more; primary-thread time was 8.37 versus 8.47 seconds. The report reproduced native Vulkan and DX11 through DXVK; Ultra-to-Low changes had little effect.",
+      "limitations": "One Linux/Proton host is not a native Windows DX11 benchmark. The author did not identify the exact CPU subsystem. This also does not support a universal single-thread-only explanation."
+    },
+    {
+      "id": "S09",
+      "category": "Official forum",
+      "origin": "byzantophile20 original report",
+      "title": "RX7800XT view/Tab performance degradation",
+      "url": "https://forums.playdeadlock.com/threads/165-90-fps-drop-when-looking-towards-blue-or-when-opening-tab-menu.162300/",
+      "published": "2026-09-15 to2026-09-16",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "RX7800XT,Intel14600",
+      "sample": "5–6matches,threeauthorposts,screenshots",
+      "evidence": "anecdote",
+      "inspection": "Original post andfollowups",
+      "findings": "On an RX 7800 XT and Intel 14600, lane-facing views and Tab reportedly fell from 165 to 60–90 FPS after about fifteen minutes; screenshots showed 158 initially and 90/100 later. Underground views were unaffected. Street Brawl initially avoided the problem, but a follow-up reported onset after five minutes.",
+      "limitations": "Renderer and traces were not supplied. This identifies camera, UI, mode and elapsed-time confounds rather than a proven configuration remedy."
+    },
+    {
+      "id": "S10",
+      "category": "Official forum",
+      "origin": "iornpro original report",
+      "title": "9800X3D/7900XTX stutter and window-mode comparison",
+      "url": "https://forums.playdeadlock.com/threads/stutters-every-instance-where-i-had-one.158827/",
+      "published": "2026-08-26",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "9800X3D,RX7900XTX,DDR5-6000CL28;OSnotstated",
+      "sample": "Oneauthor,self-reportedcap240,lows140–180",
+      "evidence": "anecdote",
+      "inspection": "Original post",
+      "findings": "A 9800X3D/7900 XTX user reported fewer stutters after Vulkan-to-DX11, then fewer regular-play hitches after borderless-to-fullscreen. Opening the shop and first large abilities still hitched. The user reported a 240 FPS cap and lows of 140–180.",
+      "limitations": "Two variables changed, with no fixed scene or capture count. This is an optional display-mode hypothesis, not a universal fullscreen percentage gain."
+    },
+    {
+      "id": "S11",
+      "category": "Official forum",
+      "origin": "drewstefanjames original report",
+      "title": "Postpatch StreetBrawl late-round severe drops",
+      "url": "https://forums.playdeadlock.com/threads/severe-fps-drops-in-the-late-game.166050/",
+      "published": "Postpatch2026-09-29/30; page showsrelativeYesterday",
+      "patch": "City Never Sleeps",
+      "hardware": "5800X,RX6900XT16GiB,16GiBRAM,990Pro1TB",
+      "sample": "TwoStreetBrawlmatches108820453/108831336",
+      "evidence": "anecdote",
+      "inspection": "Original post withmatchIDs; additional7800X3D/5070Ti report",
+      "findings": "Two Street Brawl matches, 108820453 and 108831336, reportedly fell to about 6 FPS/120–150 ms during round five; one recovered while idle and the other persisted. Another user reported similar drops on 7800X3D/5070 Ti.",
+      "limitations": "Backend, settings and traces were absent. Severe late-round bugs should not be mistaken for normal GPU quality scaling."
+    },
+    {
+      "id": "S12",
+      "category": "Official forum",
+      "origin": "TOCCIOmain original report",
+      "title": "Single-core bottleneck and failed affinity/Vulkan remedies",
+      "url": "https://forums.playdeadlock.com/threads/deadlock-single-core-100-bottleneck-144-to-90-fps-drops-process-lasso-doesnt-fix-it-engine-refuses-to-distribute-load.154113/",
+      "published": "2026-08-04 to2026-08-06; currentOctreply",
+      "patch": "Pre City Never Sleeps original",
+      "hardware": "7700X,RTX5070,32GiB,Win11",
+      "sample": "Oneauthor,sameFPSUltra/Low,affinityseveralcores;no rawtrace",
+      "evidence": "anecdote",
+      "inspection": "Original post andauthorfollowup",
+      "findings": "The author's 144-to-90 FPS problem persisted on Ultra and Low. Restricting affinity moved the busy core without substantial gain. A suggested Vulkan/-high/-threads recipe was followed by the author's report of worse Vulkan stutter and little benefit from affinity changes.",
+      "limitations": "The author's claim that Source 2 never splits work is not implementation evidence. The newer worker-CPU report shows substantial worker work. No universal priority or affinity recommendation follows."
+    },
+    {
+      "id": "S13",
+      "category": "Official forum",
+      "origin": "hoovy032/Ramiko/eh1se",
+      "title": "Vindicta scope slowdowns and competing latency/mod remedies",
+      "url": "https://forums.playdeadlock.com/threads/vindicta-ultimate-fps-drop.120799/",
+      "published": "2026-03-23 to2026-05-21",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "11300H,RTX3050TiLaptop4GiB,8GiBDDR4 original",
+      "sample": "Oneoriginalmatch69817240 plusuncontrolledresponses",
+      "evidence": "anecdote",
+      "inspection": "Original thread",
+      "findings": "The original Vindicta report dropped from about 50 to 10–15 FPS while scoping. One respondent said a scope asset mod helped despite Reflex already being off; another said disabling low latency helped.",
+      "limitations": "Different hardware and potentially different causes, without controlled captures. Asset mods are excluded; this does not justify disabling AMD Anti-Lag 2 by default."
+    },
+    {
+      "id": "S14",
+      "category": "Official forum",
+      "origin": "CirqueAlvis originalreport",
+      "title": "Vulkan cap/Reflex hitching with videoattachments",
+      "url": "https://forums.playdeadlock.com/threads/vulkan-issue-capped-at-60fps-when-nvidia-reflex-is-off-severe-hitching-when-on.125144/",
+      "published": "2026-04-08",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "5600G,RTX2070Super(previous1660Ti),16GiB3200,Win10Home21H2",
+      "sample": "Fourvideoclipattachments;no aggregateCSV inspected",
+      "evidence": "anecdote",
+      "inspection": "Original post anddriver-settingslist",
+      "findings": "The author reported stable DX11 with Reflex on/off, but a Vulkan 60 FPS cap with it off and hitching with it on. Driver settings also included Ultra low latency, a 120 FPS foreground limit and a 30 FPS background limit; undervolting was another variable.",
+      "limitations": "Older NVIDIA/Windows 10 hardware and overlapping limiters confound the result. Verify effective caps instead of transferring this report to the Radeon host."
+    },
+    {
+      "id": "S15",
+      "category": "Official forum",
+      "origin": "Doorman bugreport/users",
+      "title": "Ragdoll cap can remove Doorman ultimate VFX",
+      "url": "https://forums.playdeadlock.com/threads/doorman-ult-vfx-disappear-before-the-ult-ends.79661/",
+      "published": "2025-09-08;2026-06-16followup",
+      "patch": "Historical; corroborated currentS04README",
+      "hardware": null,
+      "sample": "Several users;uncontrolledfixresponses",
+      "evidence": "anecdote",
+      "inspection": "Indexedprimarypostsexcerpt andcurrentREADMEcorroboration",
+      "findings": "The original report and current Sqooky README connect cl_ragdoll_limit 0 to missing Doorman ultimate VFX. Follow-ups suggested -1 or small positive limits such as 1/2.",
+      "limitations": "Small positive limits were not shown safe with simultaneous ultimates. Keep the native limit of 20 until cue behavior is validated."
+    },
+    {
+      "id": "S16",
+      "category": "Reddit",
+      "origin": "RX7800XT originalauthor",
+      "title": "Current patch Vulkan graphical corruption on same GPU",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1wu0i9o/vulkan_graphics_are_incredibly_glitchy_after_the/",
+      "published": "2026-09-30",
+      "patch": "City Never Sleeps",
+      "hardware": "RX7800XT;CPU/OSunstated",
+      "sample": "Oneauthor,video;verifiedfiles,mods on/off,driversbefore/after",
+      "evidence": "anecdote",
+      "inspection": "Original post",
+      "findings": "A current-patch RX 7800 XT user reported Vulkan map/lighting pop-in, corrupted textures, blocky buff outlines and ziplines visible through walls. DX11 reportedly rendered correctly. File verification, mods on/off and driver updates did not resolve the reported Vulkan behavior.",
+      "limitations": "This is one visual report without exact build/driver details or a controlled FPS comparison. It warrants a visual acceptance gate before choosing Vulkan."
+    },
+    {
+      "id": "S17",
+      "category": "Reddit",
+      "origin": "Independent currentpatch authors",
+      "title": "Performance after update mixed reports",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1wtzd60/performance_after_update/",
+      "published": "2026-09-30",
+      "patch": "City Never Sleeps",
+      "hardware": "13600K/6800XT;10700KF@5.1/RX7800XT/32GiB;7800X3D/3080Ti",
+      "sample": "OPonegame;severalcomments",
+      "evidence": "anecdote",
+      "inspection": "Original post andhardwarecomments",
+      "findings": "Reports conflict: the original author gave 1% lows of 85–100 before and 65–90 after one update match; a 13600K/6800 XT Vulkan user reported 200 to below 144 FPS. A 10700KF/7800 XT user described about 120 FPS average and 60 in fights with Vulkan/FSR3. A 7800X3D/3080 Ti user reported no performance change.",
+      "limitations": "Different settings, scenes, counters and patch identifiers prevent a common percentage estimate."
+    },
+    {
+      "id": "S18",
+      "category": "Reddit",
+      "origin": "Stunning-Box423",
+      "title": "Reset/reinstall/threads/Vulkan multichange currentpatch remedy",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1ww44z9/how_i_got_the_new_update_to_run_better/",
+      "published": "2026-10-02(indexed);relative1dpage",
+      "patch": "City Never Sleeps",
+      "hardware": "RTX5060,XeonW-2135,32GiB",
+      "sample": "Oneauthor80–100FPS120goodday;no beforecapture",
+      "evidence": "uncontrolled_before_after",
+      "inspection": "Original post/comments",
+      "findings": "The recipe stacks driver/Windows updates, DX cache deletion, removal of processor devices, game reinstall with leftover deletion, a threads flag and switching DX11 to Vulkan. The author explicitly did not know whether the threads option did anything and expected initial shader stutter.",
+      "limitations": "No before capture or causal isolation. This is not evidence to remove CPU drivers, force thread counts, purge caches or wipe preferences."
+    },
+    {
+      "id": "S19",
+      "category": "Reddit",
+      "origin": "InterviewLimp7938",
+      "title": "New patch performance fix using Sqooky GI",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1wumzaf/guide_new_patch_performance_fix/",
+      "published": "2026-10-01(indexed);pagecachetimeinconsistent",
+      "patch": "City Never Sleeps",
+      "hardware": "5800X3D;NVIDIAGPUunspecified",
+      "sample": "Self-reported150avg/80lows→250avg/150lows;no capturefiles",
+      "evidence": "uncontrolled_before_after",
+      "inspection": "Original post/comments",
+      "findings": "The author reports 150 average/80 lows to 250 average/150 lows after uncapping, cache deletion, reinstall, a Max FPS gameinfo, a larger NVIDIA shader cache, DX11 and either DLSS CNN 2x or Stretch 80%. A comment reports a HUD fatal error.",
+      "limitations": "No defined matched scene, repetitions, GPU model, driver or raw capture. The large compound change does not isolate any beneficial knob."
+    },
+    {
+      "id": "S20",
+      "category": "Reddit",
+      "origin": "Bubu188",
+      "title": "CachyOS/Windows comparison and Kaiz anecdotes",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1wuxwwo/for_people_with_performance_issues_fps/",
+      "published": "2026-10-01(indexed);relativecachedtime",
+      "patch": "City Never Sleeps",
+      "hardware": "12400F,RX66008GiB,16GiBDDR4-3600,Gen3NVMe",
+      "sample": "OneauthorExploreNYC;otherhardware-unspecifiedKaizcomment",
+      "evidence": "uncontrolled_before_after",
+      "inspection": "Original post/comments",
+      "findings": "An RX 6600/12400F user reports Windows 30–40 to CachyOS 80–90 FPS in Explore NYC after switching OS. A separate commenter claims Kaiz changed 90 to 120–140 on unspecified hardware.",
+      "limitations": "OS, backend, drivers, caches and render paths are uncontrolled. This does not justify migrating the user's working Windows installation."
+    },
+    {
+      "id": "S21",
+      "category": "Reddit",
+      "origin": "Originalauthortechnicalstate",
+      "title": "9800X3D/7900XTX stutter observations",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1vqht5q/deadlocks_technical_state/",
+      "published": "2026-08-17",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "9800X3D,7900XTX,DDR5-6000CL28,M2",
+      "sample": "Original author's CPU-upgrade observation plus conflicting same-CPU reply; no captures",
+      "evidence": "anecdote",
+      "inspection": "Original complete page body and same-CPU replies re-opened during final verification",
+      "findings": "A 9800X3D/7900 XTX user reported brief 240-to-30 FPS stalls persisting after upgrading from 5800X, and minor FSR3 temporal issues on particle textures and distant buildings. A same-CPU respondent reported no stutters at a 320 FPS cap with native Stretch/Low settings on NVIDIA. The author corrected a CPU-utilization statement: the 90–100% figure referred to the GPU, with CPU around 40–50%.",
+      "limitations": "These are conflicting firsthand observations without trace data. The post's assumption that the game uses Vulkan does not apply to every configured backend. Third-party upscaler injection discussed in replies is outside scope."
+    },
+    {
+      "id": "S22",
+      "category": "Reddit",
+      "origin": "Objective-Yogurt1503/AnomaLuna",
+      "title": "Old FSR/Vulkan advice with actual iGPU output confound",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1gg3y1o/need_advice_to_improve_framerate/",
+      "published": "2024-10-31",
+      "patch": "2024playtest",
+      "hardware": "OP7600X/RX6600/32GiB;adviser5800H/3050Laptop/16GiB",
+      "sample": "Oneauthor,settingscopied+monitorportchanged",
+      "evidence": "uncontrolled_before_after",
+      "inspection": "Original thread",
+      "findings": "An old thread contains advice that FSR/Vulkan performs poorly, but the original RX 6600 user ultimately discovered the display was connected to the motherboard instead of the graphics card. Copying settings alone had only produced roughly 60 FPS in sandbox.",
+      "limitations": "This frequently linked report does not establish that FSR is always slower or Windows 10 is better. Physical output wiring was a major confound."
+    },
+    {
+      "id": "S23",
+      "category": "Reddit",
+      "origin": "Firsthand2024FSR1authors",
+      "title": "FSR1 80% plus Vulkan multichange report",
+      "url": "https://www.reddit.com/r/DeadlockTheGame/comments/1ffnsel/",
+      "published": "2024-09-13",
+      "patch": "2024playtest",
+      "hardware": "Unspecifiedi7,'2060ti'wording,16GiB",
+      "sample": "Sandboxthenfewgames;60→100–120self-report",
+      "evidence": "uncontrolled_before_after",
+      "inspection": "Fullsearch-indexedoriginalthread/comments",
+      "findings": "A 2024 author claims about 60 to 100–120 FPS after combining FSR1 80% with Vulkan over a few games. Bebop ultimate still caused drops and the cap was 120.",
+      "limitations": "Old build, ambiguous GPU description, combined changes and unmatched scenes. It supports a candidate worth testing, not a gain estimate for this machine."
+    },
+    {
+      "id": "S24",
+      "category": "Reddit imagequality",
+      "origin": "bAaDwRiTiNg",
+      "title": "AA/upscaler in-motion visual comparison",
+      "url": "https://www.reddit.com/r/FuckTAA/comments/1iyx17c/deadlock_motion_comparison_no/",
+      "published": "2025-02-26",
+      "patch": "2025FSR3/DLSSintroductionera",
+      "hardware": "GPU/CPUunstated;1440pmax,postprocess/motionbluroff,180FPS",
+      "sample": "Forwardandlateralvideo+PNGsidebysides",
+      "evidence": "independently_measured_diagnostic",
+      "inspection": "Originalmethodsandlinks;notraworiginalmediaqualityassessment",
+      "findings": "The author compares No AA, FXAA, FSR1, FSR3 and DLSS with forward/lateral motion videos and PNGs. FSR3 used 50% scale with sharpness zero. The author acknowledges compression, cropping and imperfect alignment.",
+      "limitations": "Useful visual-test methodology; not a current FPS A/B or a demonstrated 1080p/80%-scale quality result. Original remote media was not downloaded for inspection."
+    },
+    {
+      "id": "S25",
+      "category": "Steam discussion",
+      "origin": "Independentuseroriginal",
+      "title": "2026 FSR1 67% helped when other remedies failed",
+      "url": "https://steamcommunity.com/app/1422450/discussions/0/689747912977023532/",
+      "published": "2026-01-26;editedJan28",
+      "patch": "Old Gods/NewBlood",
+      "hardware": "8700K,RTX30508GiB,24GiB2667CL15,1440p180Hz,NVMe",
+      "sample": "Oneauthor,variousreinstalls/configs;no controlledcaptures",
+      "evidence": "uncontrolled_before_after",
+      "inspection": "Originalthread",
+      "findings": "An 8700K/3050 user reports a decline from 100+ to a maximum around 80 and 15 FPS during fights. Reinstalling Windows did not fix it. Switching DLSS to FSR1 at 67% helped somewhat, while removing a missing gameinfo path helped temporarily.",
+      "limitations": "Modified gameinfo/video, old patch and no per-setting capture. Compare algorithms at equal scale instead of copying a compound recipe."
+    },
+    {
+      "id": "S26",
+      "category": "Steam discussion",
+      "origin": "Gyllz/community",
+      "title": "FPS halves after first game",
+      "url": "https://steamcommunity.com/app/1422450/discussions/0/756178376553863189/",
+      "published": "2026-02-24;replyMar7",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "5600X,RX6650XT,16GiB3200,M2SSD",
+      "sample": "Oneoriginalreport;cachepurgesuggestedwithoutreportedvalidation",
+      "evidence": "anecdote",
+      "inspection": "Fullindexedoriginalpost",
+      "findings": "A 5600X/6650 XT user reports roughly halved FPS and poor pacing in the next game. A reply suggests shader-cache deletion, without a reported successful follow-up.",
+      "limitations": "No demonstrated cache cause or remedy. Include second-match and elapsed-session controls."
+    },
+    {
+      "id": "S27",
+      "category": "Steam discussion",
+      "origin": "IndependentoriginalRTX3050author",
+      "title": "Background second-screen video as confound",
+      "url": "https://steamcommunity.com/app/1422450/discussions/0/690870129357157745/",
+      "published": "2025-12-19",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "8700K,30508GiB,24GiBRAM,1440p180Hz+1080psecondary",
+      "sample": "Oneauthorobservingbrowseron/off",
+      "evidence": "anecdote",
+      "inspection": "Fullindexedoriginalpost",
+      "findings": "The author reports that a fresh stripped OS, Process Lasso, ParkControl and registry changes did not help. Stopping secondary-monitor 1080p video reportedly changed 60–80 to 100–130 FPS; browser hardware acceleration was also changed.",
+      "limitations": "Different hardware and no capture dataset. Standardize secondary-screen video, browsers and overlays for the user's comparisons."
+    },
+    {
+      "id": "S28",
+      "category": "Steam guide",
+      "origin": "+bRKN",
+      "title": "Language-English performance workaround",
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3653519890",
+      "published": "2026-01-25",
+      "patch": "Old Gods/NewBlood",
+      "hardware": null,
+      "sample": "Oneauthor~100FPSclaim,nocaptures",
+      "evidence": "anecdote",
+      "inspection": "Originalguide",
+      "findings": "An author recommends English text or -language english for a large FPS increase on a non-English configuration.",
+      "limitations": "No locale, hardware or raw captures establish transferability. An already-English baseline would receive no change."
+    },
+    {
+      "id": "S29",
+      "category": "Steam guide",
+      "origin": "mAg0mEd,w0nxyApexlinked",
+      "title": "2024 Boost FPS legacy recipe",
+      "url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3330901415",
+      "published": "2024-09-14;comments2025",
+      "patch": "2024playtest",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Originalguide/fulllaunchstring;repositorynow404",
+      "findings": "The 2024 guide replaces entire video/autoexec templates and mixes -noassert, -convars_visible_by_default, -dev, -preload, -high and a renamed Panorama cache setting. Later comments describe crashes and stale behavior.",
+      "limitations": "No benchmark method. Diagnostic/development flags and unverified preload claims are unsuitable default release optimization."
+    },
+    {
+      "id": "S30",
+      "category": "GitHub",
+      "origin": "Skip-eo",
+      "title": "Deprecated Deadlock-Config",
+      "url": "https://github.com/Skip-eo/Deadlock-Config/tree/c97c17288d14f22b9201e83616807d0f2e6df0e0",
+      "published": "2025-04-21T22:36:06Z",
+      "patch": "2024/2025legacy",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "FreshAPI/treeandstaticautoexecREADME",
+      "findings": "The repository explicitly says Deprecated. Its autoexec begins with sv_cheats 1 and changes network, input, ragdolls, tracers and morph normals. The README suggests preload/raw-input flags while admitting uncertainty about raw-input support. It also includes VPK hit sounds and uses CC0.",
+      "limitations": "Not current no-mod FPS evidence. Preserve personal input, network and combat cues; validate actual current names and flags individually.",
+      "local_evidence": [
+        "legacy-configs-api.json",
+        "skip-autoexec.cfg"
+      ]
+    },
+    {
+      "id": "S31",
+      "category": "GitHub",
+      "origin": "B13rg",
+      "title": "deadlock-config archive",
+      "url": "https://github.com/B13rg/deadlock-config/tree/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8",
+      "published": "2024-09-18T02:35:34Z",
+      "patch": "2024playtest",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "FreshAPI/tree/readme",
+      "findings": "The repository archives old stock, bot and user configurations plus a convar list. No current performance optimizer or FPS dataset was found.",
+      "limitations": "Old examples cannot supersede the build-matched registry and native presets.",
+      "local_evidence": [
+        "legacy-configs-api.json"
+      ]
+    },
+    {
+      "id": "S32",
+      "category": "Guide",
+      "origin": "Honecommercialeditorial",
+      "title": "Current source-backed settings guide",
+      "url": "https://hone.gg/blog/deadlock-best-settings",
+      "published": "2026-10-01",
+      "patch": "Post City Never Sleeps GameTrackingSep30tooltips",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Fullarticle",
+      "findings": "The October source-backed guide explicitly says it was not benchmarked. It recommends native low shadows/fog, AO off and conditional scaling/latency/caps, explains pixel area, and favors warmed replay comparisons. It notes the Doorman cue risk.",
+      "limitations": "Commercial product promotion is not needed to use the native settings. Geometry alone cannot predict FPS, and the local baseline is already low."
+    },
+    {
+      "id": "S33",
+      "category": "Guide",
+      "origin": "Dodge.ggeditorial",
+      "title": "2026 settings guide with unsupported numeric claims",
+      "url": "https://www.dodge.gg/en-US/deadlock/news/deadlock-system-requirements-optimization-guide-2026",
+      "published": "2026-03-22",
+      "patch": "Pre City Never Sleeps",
+      "hardware": "Hardwaretierestimatesnotmeasuredrigmethod",
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Fullarticle",
+      "findings": "The guide gives numerical borderless/shadow/AO/upscaling percentages and a cap above refresh, while listing older menu options, without a per-claim capture method, scene or build.",
+      "limitations": "Do not reuse the percentages or universal cap rule as measurements. Current native menu evidence supersedes stale option lists."
+    },
+    {
+      "id": "S34",
+      "category": "Guide",
+      "origin": "IndieKingseditorial",
+      "title": "City Never Sleeps seven-fixes article",
+      "url": "https://www.indiekings.com/2026/09/how-to-fix-deadlock-fps-drops-after.html",
+      "published": "2026-09-30",
+      "patch": "City Never Sleeps",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Fullarticle",
+      "findings": "The City Never Sleeps article combines Tracker/wiki descriptions, subjective feel tests, driver/OS/network resets and reinstall advice. Several claims are explicitly labeled as needing verification.",
+      "limitations": "No quantitative benchmark or per-setting isolation. Speculative causes and graphics/cloud behavior are not established by this guide."
+    },
+    {
+      "id": "S35",
+      "category": "Guide",
+      "origin": "DramaLockeditorial",
+      "title": "Console/autoexec guide and linked community reference",
+      "url": "https://dramalock.org/guides/deadlock-console-autoexec-config-commands-guide/",
+      "published": "Indexed2026-08;exactdateunverified",
+      "patch": "Unspecified",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Fullarticleandprimarylinks",
+      "findings": "The guide explains keeping a short dated autoexec, verifying console settings and separating sandbox commands from normal personal settings. It links a community reference on Valve's forum.",
+      "limitations": "A workflow reference, not performance evidence. Hosting a community post on the official forum does not make its author Valve."
+    },
+    {
+      "id": "S36",
+      "category": "Tool website",
+      "origin": "Grimoireauthor",
+      "title": "Grimoire launch/config/mod workflow",
+      "url": "https://grimoiredeadlock.com/play/",
+      "related_urls": [
+        "https://github.com/Slush97/grimoire/releases"
+      ],
+      "published": "Currentcrawl;releaseindexed6daysago",
+      "patch": "Unspecified",
+      "hardware": null,
+      "sample": null,
+      "evidence": "editorial",
+      "inspection": "Search-indexedpagebody;dynamicfullpageempty",
+      "findings": "The indexed Grimoire workflow describes vanilla launch with mod stashing, an autoexec editor, conflict detection and OptiLock/Sqooky presets.",
+      "limitations": "No independent FPS dataset. It was not installed or run and is not required for a native-only config."
+    },
+    {
+      "id": "S37",
+      "category": "Wiki",
+      "origin": "Deadlockwiki community",
+      "title": "ConVars data index",
+      "url": "https://deadlock.wiki/Data%3AConvars.json",
+      "published": "Searchcrawl3weeksago;revisionunavailable",
+      "patch": "Unknown",
+      "hardware": null,
+      "sample": null,
+      "evidence": "discovery_only",
+      "inspection": "Search-indexedexcerpt only;fullpageblockedrobots/nonretryable",
+      "findings": "Indexed defaults fps_max 120 and fps_max_ui 0 agree with the current build registry.",
+      "limitations": "The page's full content and revision could not be inspected. A blocked wiki index does not replace build-matched evidence or establish gains."
+    },
+    {
+      "id": "S38",
+      "category": "Wiki",
+      "origin": "PCGamingWiki community",
+      "title": "Deadlock graphical/upscaler/API notes",
+      "url": "https://www.pcgamingwiki.com/wiki/Deadlock",
+      "published": "Currentindexedcrawl;revisionunavailable",
+      "patch": "Mixedhistoricalnotes",
+      "hardware": null,
+      "sample": null,
+      "evidence": "discovery_only",
+      "inspection": "Indexedexcerpt;fullpage403",
+      "findings": "Indexed notes associate FSR3 replacement with Vulkan; older indexed FPS defaults 400/120 conflict with the current registry's 120/0.",
+      "limitations": "The full page was blocked with HTTP 403. Verify active renderer/upscaler behavior in the game rather than treating the index as current compatibility proof."
+    },
+    {
+      "id": "S39",
+      "category": "Reddit othergame",
+      "origin": "CS2benchmarkauthor",
+      "title": "CS2 DX11/Vulkan benchmark citing Deadlock transition",
+      "url": "https://www.reddit.com/r/GlobalOffensive/comments/1tov7r1/benchmarking_dx11_vs_vulkan_performance_may_22/",
+      "published": "2026-05-27",
+      "patch": "CS2May22build",
+      "hardware": "CS2testedrig;notDeadlock",
+      "sample": "CS2multipletrials",
+      "evidence": "discovery_only",
+      "inspection": "Originalindexedpurpose/method",
+      "findings": "The linked DX11/Vulkan benchmark actually measures CS2, although it cites Deadlock's renderer transition as context.",
+      "limitations": "Shared engine ancestry does not make CS2 benchmark numbers a Deadlock renderer comparison."
+    },
+    {
+      "id": "S40",
+      "category": "Unavailable GitHub",
+      "origin": "w0nxyApexlegacyreference",
+      "title": "Deadlock-Tweaks-config now unavailable",
+      "url": "https://github.com/w0nxyApex/Deadlock-Tweaks-config",
+      "published": "Legacy2024links;checked2026-10-03",
+      "patch": "Unknown",
+      "hardware": null,
+      "sample": null,
+      "evidence": "discovery_only",
+      "inspection": "GitHubwebandprimaryAPI404",
+      "findings": "The legacy Deadlock-Tweaks-config link returned GitHub web/API 404 and could not be audited at a current HEAD.",
+      "limitations": "The unavailable source is documented as a limitation; derivative legacy guides do not prove the latest repository was inspected."
+    }
+  ],
+  "experiments": [
+    {
+      "id": "E01",
+      "priority": 1,
+      "settings": {
+        "setting.r_citadel_upscaling": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "setting.mat_viewportscale": 0.666667
+      },
+      "action": "Use equal native Quality ratio 0.666667 for Stretch, FSR1, FSR2 and FSR3 comparisons, with restart/readback verification. Stretch and FSR1 at 0.8 form a second matched-scale pair. Preserve the existing FSR2 0.8 baseline as a compatibility control.",
+      "rank": "Current native definitions and plausible reconstruction-cost tradeoff; no local measured winner",
+      "reason": "Temporal 0.8 is within viewport bounds but not a native temporal menu enum, so acceptance remains unproven. Equal 0.666667 avoids that ambiguity. Comparing FSR1 0.8 to temporal Quality also changes scene pixels by about 30.56%.",
+      "sources": [
+        "S25",
+        "S24",
+        "S32",
+        "Valve menu/presets"
+      ],
+      "validation": "Capture warmed dense views, busy fights, shop/Tab, scope and longer sessions. Check lateral motion, thin lines, distant targets, veils and abilities. Confirm the effective ratio and algorithm after restart.",
+      "auto_apply": false
+    },
+    {
+      "id": "E02",
+      "priority": 1,
+      "settings": {
+        "render_api": [
+          "D3D11",
+          "Vulkan"
+        ]
+      },
+      "action": "Compare D3D11 and Vulkan separately with a visual acceptance gate.",
+      "rank": "Current same-GPU anecdote plus independent CPU/worker diagnostics",
+      "reason": "The faster backend depends on hardware, driver, patch and workload. A current RX 7800 XT Vulkan corruption report is directly relevant. Linux DXVK comparisons are not native Windows D3D11 results.",
+      "sources": [
+        "S16",
+        "S17",
+        "S08",
+        "S10"
+      ],
+      "validation": "Change no other profile settings. Restart and warm each backend; retain caches between arms. Reject artifacts or crashes even if average FPS is higher.",
+      "auto_apply": false
+    },
+    {
+      "id": "E03",
+      "priority": 2,
+      "settings": {
+        "setting.r_low_latency": [
+          1,
+          0
+        ],
+        "engine_low_latency_sleep_after_client_tick": [
+          false,
+          true
+        ]
+      },
+      "action": "Compare native AMD Anti-Lag 2 on/off. Only afterward, consider the ordinary release sleep-placement setting under enabled low latency.",
+      "rank": "Current native/release validity; old reports conflict and local throughput/latency tradeoff is unmeasured",
+      "reason": "Low latency may exchange throughput for responsiveness. Enabled-plus-Boost is NVIDIA-specific. The release sleep-placement flag is a valid timing experiment, not a proven FPS improvement.",
+      "sources": [
+        "S13",
+        "S14",
+        "S30",
+        "Valve current registry"
+      ],
+      "validation": "Change one factor at a time and examine GPU/CPU busy plus frametime distribution. PresentMon alone cannot prove better input latency. Keep native low latency 1 unless the tradeoff is measured and desired.",
+      "auto_apply": false
+    },
+    {
+      "id": "E04",
+      "priority": 2,
+      "settings": {
+        "window_mode": [
+          "borderless",
+          "fullscreen"
+        ]
+      },
+      "action": "Optionally compare borderless and fullscreen while retaining resolution, refresh and gamma.",
+      "rank": "Machine-close prepatch anecdote",
+      "reason": "A 9800X3D/7900 XTX author reports less stutter after changing renderer and window mode. Modern presentation behavior and combined changes confound the result; no universal percentage follows.",
+      "sources": [
+        "S10",
+        "S33"
+      ],
+      "validation": "Record actual presentation mode, focus/alt-tab and API. Repeat warmed captures and preserve the 480 Hz display identifiers.",
+      "auto_apply": false
+    },
+    {
+      "id": "E05",
+      "priority": 2,
+      "settings": {
+        "lb_barnlight_shadowmap_scale": [
+          1,
+          0.5
+        ]
+      },
+      "action": "Keep lb_barnlight_shadowmap_scale 0.5 as a research-only challenger until ordinary release readback and shadow-cue behavior are checked.",
+      "rank": "Registered release definition plus community usage; no measured gain",
+      "reason": "The definition scales computed barnlight shadowmaps. Native shadow quality 0 means LOW and still renders shadows. Scale zero has no validated range or visual behavior.",
+      "sources": [
+        "S04",
+        "Valve current registry"
+      ],
+      "validation": "Verify accepted value, restart behavior, shadow cues, veils, lighting and dense areas; compare GPU time and frametimes. Do not unlock hidden settings or replace gameinfo.",
+      "auto_apply": false
+    },
+    {
+      "id": "E06",
+      "priority": 3,
+      "settings": {
+        "setting.r_citadel_antialiasing": [
+          0,
+          1
+        ]
+      },
+      "action": "Compare native FXAA off/on for FSR1 at a fixed algorithm and scale.",
+      "rank": "Native enum plus historical visual-test methodology",
+      "reason": "FSR1 does not supply temporal anti-aliasing. No AA can shimmer; FXAA's readability/cost tradeoff needs local observation.",
+      "sources": [
+        "S24",
+        "S32",
+        "Valve menu"
+      ],
+      "validation": "Use lateral motion, thin wires, distant targets and soul/ability outlines. No source-based percentage estimate is justified.",
+      "auto_apply": false
+    },
+    {
+      "id": "E07",
+      "priority": 3,
+      "settings": {
+        "fps_max": [
+          0,
+          "sustainable empirical cap"
+        ],
+        "fps_max_ui": "Native dashboard/menuonly cap option, test later"
+      },
+      "action": "Measure uncapped capacity first; then choose a sustainable cap from measured stability and the user's VRR/tearing preference.",
+      "rank": "Current archived FPS definition plus methodology; no universal cap",
+      "reason": "A 480 Hz display does not automatically make 477 or 490 optimal. A binding cap changes FPS statistics. The UI cap is not an in-match capacity gain.",
+      "sources": [
+        "S01",
+        "S14",
+        "S28",
+        "S32",
+        "S33"
+      ],
+      "validation": "Record effective game/driver caps and synchronization. Keep paced-play measurements separate from capacity measurements. Determine what fps_max_ui actually limits before changing it.",
+      "auto_apply": false
+    },
+    {
+      "id": "E08",
+      "priority": 4,
+      "settings": {
+        "r_smooth_morph_normals": false,
+        "enable_boneflex": false,
+        "violence_ablood": false,
+        "violence_agibs": false,
+        "violence_hblood": false,
+        "violence_hgibs": false
+      },
+      "action": "Consider individual morph-normal, boneflex and blood/gib experiments only after higher-priority trials; do not automatically bundle them.",
+      "rank": "Registered release/archive values without useful help text or independent gain proof",
+      "reason": "Potentially reduced work remains undocumented and could change mesh shading, animation or combat cues. No evidence shows these dominate this 9800X3D/Radeon workload.",
+      "sources": [
+        "S04",
+        "S30",
+        "Valve current registry"
+      ],
+      "validation": "Check complete hero/ability behavior and dense fights. Retain native values unless a reproducible benefit passes visual checks.",
+      "auto_apply": false
+    }
+  ],
+  "reject_or_defer": [
+    {
+      "settings": [
+        "cl_ragdoll_limit0",
+        "cl_ragdoll_limit1",
+        "cl_ragdoll_limit2"
+      ],
+      "decision": "Reject automatic adoption; retain native limit 20.",
+      "why": "The current author README and original Doorman report show indicator risk. Small positive caps with multiple ultimates remain unverified.",
+      "sources": [
+        "S04",
+        "S15"
+      ]
+    },
+    {
+      "settings": [
+        "cl_max_particle_pvs_aabb_edge_length100",
+        "cl_particle_fallback_base",
+        "cl_particle_fallback_multiplier",
+        "r_particle_max_detail_level",
+        "r_drawparticles0",
+        "cl_particle_simulate0"
+      ],
+      "decision": "Exclude from a normal-play profile; supported diagnostic isolation only.",
+      "why": "Particle bounds, fallback, drawing and simulation can remove ability cues. Many current flags are development-only, cheat or defensive. A Valve diagnostic request is not a normal-play FPS recommendation.",
+      "sources": [
+        "S04",
+        "S05",
+        "S06"
+      ]
+    },
+    {
+      "settings": [
+        "-high",
+        "-threadsN",
+        "thread_pool_option0/2",
+        "affinity excluding cores",
+        "ProcessLasso",
+        "ParkControl"
+      ],
+      "decision": "Do not change OS priority, thread pools or CPU affinity by default.",
+      "why": "No controlled current gain supports copied priority/thread/affinity recipes. The single-CCD 9800X3D needs no borrowed Intel E-core policy, and the original affinity experiment was unsuccessful.",
+      "sources": [
+        "S12",
+        "S18",
+        "S27",
+        "S30"
+      ]
+    },
+    {
+      "settings": [
+        "mat_async_shader_load1",
+        "cl_forcepreload1",
+        "mat_queue_mode2",
+        "-preload",
+        "-m_rawinput1"
+      ],
+      "decision": "Exclude unsupported names and unverified launch-flag claims.",
+      "why": "The first three names are absent from the current registry. Launch flags use a separate parsing path, but no reviewed primary evidence establishes a current-match benefit from these old recipes.",
+      "sources": [
+        "S07",
+        "S29",
+        "S30"
+      ]
+    },
+    {
+      "settings": [
+        "-dev",
+        "-convars_visible_by_default",
+        "-noassert",
+        "cvarunhider/tools-mode",
+        "sv_cheats1"
+      ],
+      "decision": "Exclude from the normal release no-mod profile.",
+      "why": "Development/diagnostic unlocking is unnecessary for the normal release FPS comparison and changes the supported setting path.",
+      "sources": [
+        "S29",
+        "S30"
+      ]
+    },
+    {
+      "settings": [
+        "cachedeletioneachprofile",
+        "broadallVPKdelete",
+        "shadercache=modcache",
+        "CPUdriverdeletion",
+        "Windowsreinstall",
+        "Win10downgrade",
+        "CachyOSmigration"
+      ],
+      "decision": "Reject routine compound maintenance/reset changes.",
+      "why": "Warm-cache evidence supports controlling first-load stalls. Stock VPKs, mod caches and Steam/driver shader caches are different things. Compound anecdotes do not justify cache purges, CPU-driver removal or OS migration.",
+      "sources": [
+        "S02",
+        "S07",
+        "S18",
+        "S20",
+        "S22",
+        "S26"
+      ]
+    },
+    {
+      "settings": [
+        "cl_interp_ratio0/1",
+        "cl_updaterate128",
+        "cl_poll_network_early0",
+        "cq_buffer_bloat_msecs_max120",
+        "sv_minrate98304",
+        "sv_maxunlag.5",
+        "snd_mixahead.05",
+        "SteamInput0",
+        "input/sensitivityoverrides"
+      ],
+      "decision": "Preserve native/user network, audio and input behavior.",
+      "why": "These alter unrelated network, audio or input behavior, and some values are server controlled. No reliable local FPS gain offsets the compatibility cost.",
+      "sources": [
+        "S01",
+        "S04",
+        "S30"
+      ]
+    },
+    {
+      "settings": [
+        "r_texture_stream_mip_bias4/8",
+        "r_texture_pool_size256",
+        "r_size_cull_threshold",
+        "sc_fade_distance_scale_override",
+        "meshLODextremes"
+      ],
+      "decision": "Keep native Low mip bias 2; avoid extreme pool or visibility cuts.",
+      "why": "The baseline already uses native Low mip bias 2. Extreme texture pool/mip/culling cuts lack matched measurements and can harm streaming or cue visibility on this 16 GiB GPU.",
+      "sources": [
+        "S01",
+        "S04",
+        "S05"
+      ]
+    },
+    {
+      "settings": [
+        "fixedFPSuplift%",
+        "'1000timesbetter'FPSclaim",
+        "FSR3impliesframegeneration",
+        "CS2backendnumbersasDeadlock"
+      ],
+      "decision": "Do not claim fixed or universal FPS gains.",
+      "why": "No exact 9800X3D/RX 7800 XT current-patch native-only controlled dataset was found. Lower pixel area does not imply the same FPS uplift; FSR3 menu labeling does not establish frame generation.",
+      "sources": [
+        "S01",
+        "S32",
+        "S33",
+        "S39"
+      ]
+    }
+  ],
+  "source_limits": "Each source summary is short; software is only downloaded as static GPL/CC0 research material. No remote optimization executable, no downloaded code executed, no game writes, no public messages sent.",
+  "conclusion": "New breadth produced useful current-GPU renderer risk, original CPU/worker/shader-cache measurements, fresh distribution equivalence proof, and additional ordinary release hypotheses. It did not produce a validated maximum-gain native-only configuration for this exact host. Prioritize controlled matched-scale/backend trials; current low preset is mainly baseline normalization.",
+  "local_artifacts": [
+    "community-config-static-audit.json",
+    "compare-community-configs.py",
+    "optilock-latest-api.json",
+    "optilock-gamebanana-profile.json",
+    "optilock-v5-archive.zip",
+    "optimizationlock-latest-api.json",
+    "optimizationlock-source-inventory.json",
+    "legacy-configs-api.json",
+    "skip-autoexec.cfg"
+  ],
+  "config_core_review": {
+    "path": "optimization/tools/config-core.mjs",
+    "sha256": "b11651ba8fa0d84c4d1920123dae7978999f5a4867108842ee3e46955789c605",
+    "profiles_inspected": 14,
+    "findings": [
+      "Most BASE_VIDEO values already matched the user's persisted low baseline; compatibility normalization is not a measured incremental gain.",
+      "The current 14 profiles stage FSR1 0.8/0.666667/0.6, equal-scale Stretch and temporal Quality comparisons, native resolution, FXAA and low-latency A/B candidates.",
+      "Equal 0.666667 comparisons reduce the earlier algorithm/pixel-count confound. All effective scale/backend/upscaler behavior still requires runtime readback.",
+      "The original FSR2 about-0.8 values are preserved as a compatibility control; that custom temporal scale is not a native menu preset.",
+      "Native 1.0 has 56.25% more scene pixels than 0.8, and 0.666667 has approximately 30.56% fewer; these are geometry calculations, not FPS predictions.",
+      "No newly superior release knob was verified. Barnlight scale 0.5 remains an unimplemented hypothesis requiring readback, cue checks and measured benefit."
+    ]
+  },
+  "engine_verification": {
+    "runtime_status": "Research only: the engine agent did not perform live readback.",
+    "confirmed_flags": {
+      "lb_barnlight_shadowmap_scale": "release, default 1; scales computed barnlight shadowmap size",
+      "r_smooth_morph_normals": "release, default true, no help text",
+      "enable_boneflex": "client archive, default true, no help text"
+    },
+    "temporal_ratio": "0.8 is inside mat_viewportscale bounds but is not a native temporal menu enum; no acceptance proof. Quality 0.666667 is the native temporal enum.",
+    "fps_max_ui": "Current help says the limiter operates while game UI is displayed; whether it applies to shop/Tab needs direct validation, not assumption.",
+    "source": "Parent engine agent and build-matched convars/menu files"
+  }
+}

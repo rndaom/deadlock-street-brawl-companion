@@ -1,0 +1,544 @@
+{
+  "schemaVersion": 2,
+  "audit": "Valve/update research, fresh second pass",
+  "asOfLocalDate": "2026-10-03",
+  "timezone": "America/New_York",
+  "capturedUtc": "2026-10-03T23:56:38.997Z",
+  "boundaries": "No game files, settings, driver profiles, cache, processes, OS settings, or external messages changed. Only this research report written.",
+  "confidenceDefinitions": {
+    "official": "Direct official Valve/Steam source inspected, including official Steam API.",
+    "corroboratedDeveloper": "Original Discord URL identified but inaccessible; two non-official archives agree on message ID/text/time. Cannot independently authenticate original.",
+    "primaryPlayerReport": "Original author's own observation, not Valve diagnosis, controlled benchmark on user's PC, or evidence of universal applicability.",
+    "negativeFinding": "No evidence found in named accessible scope; not proof that evidence cannot exist."
+  },
+  "whatChangedSinceFirstPass": [
+    "Resolved Rat King announcement to original Steam URL and exact Oct 2 16:59:51 EDT publication; aggregator display dates differ.",
+    "Recovered developer reply context: Oct 2 fixed-now message concerns joining matches as Rat King, not performance or camera.",
+    "Separated reported delivered gameplay hotfixes (tunnel timers, Haze interaction) from planned future performance and camera work.",
+    "Reviewed more new-map reports: persistent jitter at steady FPS, severe late-game patron/base dips, ultrawide regression, and Arc-specific Vulkan device loss.",
+    "Identified duplicated worker-profiler evidence in a larger FPS complaint thread; it must not be counted twice.",
+    "Found older laptop, VRAM, input, DLSS, and X3D renderer issues and marked them pre-update or hardware-mismatched rather than calling them fresh regressions.",
+    "OptiLock distribution listing now shows Oct 3 City Never Sleeps update, unlike the older cached material seen first pass.",
+    "Found documented config tradeoffs and the gameinfo matchmaking-warning claim in Sqooky's README, plus a March player thread retracting assumed enforcement. Current enforcement still needs installed-build validation.",
+    "Fresh depot-verified installed localization supersedes the README's older ConVars wording: the current denial token names unsupported Engine2/MaterialSystem2/NetworkSystem/Particles/RenderSystem/SceneSystem/WorldRenderer changes and Tools-mode, not ConVars. This identifies denial-message wording, not empirical enforcement coverage."
+  ],
+  "latestOfficialState": {
+    "majorUpdate": {
+      "title": "City Never Sleeps",
+      "publishedEdt": "2026-09-29T16:25:11-04:00",
+      "sources": [
+        "V01",
+        "V02"
+      ]
+    },
+    "newestOfficialAnnouncement": {
+      "title": "Rat King",
+      "publishedEdt": "2026-10-02T16:59:51-04:00",
+      "sources": [
+        "V03",
+        "V04"
+      ]
+    },
+    "hotfixAssessment": "Some client/gameplay fixes are evidenced, but no accessible official announcement or authenticated developer statement was found that a specific new-map FPS regression has been fixed. Unannounced hotfixes may exist.",
+    "releaseSensitiveBehavior": [
+      "New Source 2 and renderer changes reduce confidence in inherited undocumented settings.",
+      "Official cheaper drop shadows provide enemy-tracking information; aggressive shadow/culling changes must be checked visually.",
+      "New map/HUD/neutral artwork changes scene complexity; a previous sandbox result is insufficient.",
+      "More settings now cloud-saved; verify persisted effective values after restart and do not accidentally assume a local text file is the sole authority."
+    ],
+    "sources": [
+      "V01",
+      "V02",
+      "V03",
+      "V04",
+      "V05",
+      "V06",
+      "D01",
+      "D04",
+      "D05",
+      "D06"
+    ]
+  },
+  "modWarningProvenance": {
+    "claimedDirective": "Delete all mods, mod cache, or VPKs until mod authors update them.",
+    "verification": "Exact blanket instruction not verified.",
+    "closestCurrentEvidence": "Oct 2 Yoshi Rat King camera/mod warning, indirectly corroborated by two archives.",
+    "whatItDoesNotEstablish": [
+      "No shader-cache deletion recommendation.",
+      "No instruction to delete stock asset VPKs.",
+      "No blanket prohibition of all console or in-game configuration.",
+      "No proof of current gameinfo matchmaking enforcement."
+    ],
+    "safeScope": "For the requested mod-free baseline, inventory and quarantine only positively identified third-party add-ons/config remnants with reversible backup; preserve official VPK packages and use stock supported settings.",
+    "sources": [
+      "D02",
+      "D03",
+      "A01",
+      "A02",
+      "C01",
+      "C02",
+      "S01"
+    ]
+  },
+  "performanceFindings": [
+    {
+      "issue": "Dense-scene FPS loss",
+      "evidence": "Worker CPU time increases with dense view while main-thread time nearly unchanged; both renderers reported affected.",
+      "classification": "Primary measurement, unreplicated, Linux/Radeon hardware different from user's machine.",
+      "action": "Benchmark repeatable dense-city sightlines and late-game teamfights, using CPU/GPU busy and frame-time metrics; do not promise resolution scaling fixes CPU/scene work.",
+      "sources": [
+        "P01",
+        "P02",
+        "P04"
+      ]
+    },
+    {
+      "issue": "Steady reported FPS can coexist with visible jitter",
+      "evidence": "New-map player describes lateral/camera jitter despite a steady 40-60 FPS readout.",
+      "classification": "New-patch anecdote without hardware or confirmed root cause.",
+      "action": "Track frame times/stalls and note camera/network/animation behavior separately from averages.",
+      "sources": [
+        "P03"
+      ]
+    },
+    {
+      "issue": "Renderer-dependent crash and pacing",
+      "evidence": "Arc Vulkan crashes are reported by multiple Intel users; earlier X3D/Radeon report preferred DX11 pacing despite faster Vulkan averages.",
+      "classification": "Hardware-specific observations; earlier Radeon evidence predates CNS.",
+      "action": "Treat DX11 as current local baseline, then compare Vulkan with its own warm-up and crash/pacing checks. Do not copy Intel-specific driver workarounds.",
+      "sources": [
+        "P05",
+        "P11",
+        "L02"
+      ]
+    },
+    {
+      "issue": "Cache reset claims",
+      "evidence": "Current Arc report found cache clears ineffective; earlier instrumented report had more opening stalls after backend/cache changes.",
+      "classification": "No current Valve cache-purge recommendation found.",
+      "action": "Keep warm caches for steady-state measurement. Cache deletion is a targeted corruption troubleshooting experiment, not automatic tuning.",
+      "sources": [
+        "P05",
+        "P08",
+        "A01"
+      ]
+    },
+    {
+      "issue": "Long-session resource pressure",
+      "evidence": "Pre-CNS Linux/NVIDIA report exhibits VRAM growth and transfer pressure; local Windows audit shows substantial unrelated system commit pressure.",
+      "classification": "Two distinct concerns; neither proves current game memory leak or causal stutter.",
+      "action": "Measure session length, VRAM/RAM/commit and background workload during A/B; avoid attributing memory usage alone to FPS regression.",
+      "sources": [
+        "P07",
+        "L01",
+        "L02"
+      ]
+    }
+  ],
+  "supportedConfigApproach": [
+    {
+      "recommendation": "Start with current built-in graphics/settings UI and stock camera values; use effective cvars only after installed-build validation.",
+      "reason": "Official patch promotes settings preview/reset behavior; current warning points to camera/mod interactions.",
+      "sources": [
+        "V02",
+        "D02",
+        "D03"
+      ]
+    },
+    {
+      "recommendation": "Preserve decals, hero/trooper visibility, blast vent effects, Doorman ultimate indicators, and readable in-world text during optimization.",
+      "reason": "Config author's FAQ itself lists these gameplay failures under aggressive overrides; visual pass must accompany performance measurement.",
+      "sources": [
+        "C01",
+        "V02"
+      ]
+    },
+    {
+      "recommendation": "Keep renderer choice and scaling/graphics groups as benchmark candidates, not asserted universal winners.",
+      "reason": "Reports differ by architecture and bottleneck. User's AMD 1080p hardware is not an NVIDIA DLSS or Intel Arc machine.",
+      "sources": [
+        "P01",
+        "P05",
+        "P10",
+        "P11",
+        "L01",
+        "L02"
+      ]
+    },
+    {
+      "recommendation": "Reject or isolate gameinfo overrides that rely on protected cvars or an undocumented bypass.",
+      "reason": "Fresh installed denial wording names unsupported engine/render sections and Tools-mode, not ConVars. Avoid those engine-section rewrites; operational availability, visual correctness and matchmaking eligibility still require current-build validation.",
+      "sources": [
+        "C01",
+        "P09",
+        "V02",
+        "L03"
+      ]
+    }
+  ],
+  "negativeFindings": [
+    {
+      "scope": "Official Steam announcements, current forum changelog and date-filtered public developer archives",
+      "finding": "No published current-build numerical FPS guarantee or Valve-endorsed maximum-FPS text config found.",
+      "limit": "Private communications and unannounced hotfixes not covered."
+    },
+    {
+      "scope": "Current Sep 29-Oct 3 Observatory keyword searches",
+      "finding": "fps=0, cache=0, shader=0, vpk=0; performance=1 planned-work message; mods=3 camera-related messages; next cursor null.",
+      "limit": "Search is archive content, not authoritative complete Discord history."
+    },
+    {
+      "scope": "Original accessible forum reports",
+      "finding": "No official diagnosis explaining all observed CPU/renderer/jitter regressions; no verified single magic setting.",
+      "limit": "Individual users' measurements may be accurate for their own system without generalizing."
+    },
+    {
+      "scope": "Mod-free tuning policy",
+      "finding": "Fresh installed localization establishes current denial wording for unsupported gameinfo engine/render sections and Tools-mode, but not complete runtime enforcement or a Valve-approved bypass.",
+      "limit": "A SHA1/depot-verified localization error string is official shipped message evidence; it does not prove which checks are active, which edits trigger them, or that all ConVars are forbidden."
+    },
+    {
+      "scope": "User's installed game",
+      "finding": "This subagent did not execute cvars, launch a new match, capture FPS or apply settings.",
+      "limit": "The team needs local controlled measurements before any gain claim."
+    }
+  ],
+  "dateHandling": {
+    "cutoff": "2026-10-03 23:59:59 America/New_York",
+    "rule": "Use Unix timestamps from official Steam API/developer archive when available. Treat forum relative labels and aggregator dates as approximate.",
+    "exclusions": "Ignored later-than-cutoff wiki/update rows; did not infer October 4+ forum replies as current from relative Today labels.",
+    "limitation": "Raw forum metadata unavailable after site challenge; did not bypass access controls."
+  },
+  "sourceLedger": [
+    {
+      "id": "V01",
+      "kind": "official Valve announcement",
+      "url": "https://store.steampowered.com/news/app/1422450/view/694273194214819790",
+      "title": "City Never Sleeps",
+      "publishedEdt": "2026-09-29T16:25:11-04:00",
+      "access": "Steam API news contents and timestamp; direct link from Valve forum",
+      "finding": "Major visual/map/HUD/accessibility update. Links the official detailed feature page.",
+      "currentRelevance": "current major-update baseline"
+    },
+    {
+      "id": "V02",
+      "kind": "official Valve feature notes",
+      "url": "https://www.playdeadlock.com/cityneversleeps",
+      "title": "City Never Sleeps feature and patch notes",
+      "publishedEdt": "2026-09-29",
+      "access": "Search-indexed rendered notes and official English localization JavaScript inspected in first pass; refreshed search in round 2",
+      "finding": "Newer Source 2, improved rendering/audio/trooper performance, anticheat work, cheaper downward drop shadows; more settings cloud-saved and new built-in settings preview/reset controls.",
+      "currentRelevance": "Revalidate older overrides and preserve new gameplay indicators; official performance claims lack numerical FPS guarantees."
+    },
+    {
+      "id": "V03",
+      "kind": "official Valve announcement",
+      "url": "https://store.steampowered.com/news/app/1422450/view/703281025618281704",
+      "title": "Listen up, Crumbums! Your King is here.",
+      "publishedEdt": "2026-10-02T16:59:51-04:00",
+      "access": "Direct page failed in web tool; full contents and timestamp verified with official Steam API; original link corroborated in Yoshi archive",
+      "finding": "Rat King becomes playable. Announcement does not state a general rendering/FPS fix.",
+      "currentRelevance": "Latest official announcement found before user-date cutoff."
+    },
+    {
+      "id": "V04",
+      "kind": "official Valve API",
+      "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=1422450&count=10&maxlength=0&feeds=steam_community_announcements&format=json",
+      "title": "Deadlock Steam Community Announcements feed",
+      "publishedEdt": null,
+      "access": "Fresh read-only Invoke-RestMethod requests, count 10 and count 2",
+      "finding": "Newest entries are Oct 2 Rat King, Sep 29 City Never Sleeps, Sep 16 Minor Update. No newer explicit performance hotfix announcement in this feed.",
+      "currentRelevance": "Absence from announcement feed does not exclude unannounced client builds/hotfixes."
+    },
+    {
+      "id": "V05",
+      "kind": "official Valve forum changelog",
+      "url": "https://forums.playdeadlock.com/threads/09-29-2026.166726/",
+      "title": "09-29-2026",
+      "publishedEdt": "2026-09-29 title; posts shown as Wednesday at 2:34/3:31 PM",
+      "access": "Full public text via web tool; raw shell retrieval encountered site challenge, not bypassed",
+      "finding": "Yoshi's second post adds health-bar naming/fades/colors/stability, minimap bell ping, down-dash rebinding, and UI sound changes. It does not announce an FPS hotfix.",
+      "currentRelevance": "Health-bar options are legitimate built-in presentation controls; no proven FPS gain."
+    },
+    {
+      "id": "V06",
+      "kind": "official Valve forum index",
+      "url": "https://forums.playdeadlock.com/forums/changelog.10/",
+      "title": "Changelog index",
+      "publishedEdt": null,
+      "access": "Fresh web open",
+      "finding": "Latest visible changelog thread remains 09-29-2026 with one reply. Relative forum dates can be inconsistent with the user cutoff.",
+      "currentRelevance": "No newly published performance-fix thread discovered."
+    },
+    {
+      "id": "D01",
+      "kind": "original developer Discord link, indirectly corroborated",
+      "url": "https://discord.com/channels/1231286446472691825/1231286447131328544/1554972401014538302",
+      "title": "Yoshi performance-fix plan",
+      "publishedEdt": "2026-09-30T17:45:10.392-04:00",
+      "access": "Original Discord inaccessible; matching ID/text/time in two independent public archives",
+      "finding": "In response to whether performance fixes are planned, Yoshi describes work intended for daily updates.",
+      "currentRelevance": "A plan, not confirmation a given fix shipped."
+    },
+    {
+      "id": "D02",
+      "kind": "original developer Discord link, indirectly corroborated",
+      "url": "https://discord.com/channels/1231286446472691825/1231311070786752579/1555688504762175510",
+      "title": "Yoshi Rat King camera/mod warning",
+      "publishedEdt": "2026-10-02T17:10:42.830-04:00",
+      "access": "Original inaccessible; matching ID/text/time in Observatory and Deadvision APIs",
+      "finding": "Players with Rat King camera problems are directed to check their mods.",
+      "currentRelevance": "Supports stock camera baseline. Does not mention deleting shader cache, every VPK, or every configuration."
+    },
+    {
+      "id": "D03",
+      "kind": "original developer Discord link, indirectly corroborated",
+      "url": "https://discord.com/channels/1231286446472691825/1231311070786752579/1555694593973157969",
+      "title": "Yoshi alternate camera fix being worked on",
+      "publishedEdt": "2026-10-02T17:34:54.611-04:00",
+      "access": "Matching text in both archives; reply context in Deadvision",
+      "finding": "Yoshi replies to the camera/mod warning that an alternate fix is being worked on so settings need not be changed.",
+      "currentRelevance": "No verified delivered camera fix in this message."
+    },
+    {
+      "id": "D04",
+      "kind": "original developer Discord link, indirectly corroborated",
+      "url": "https://discord.com/channels/1231286446472691825/1231286447131328544/1555697996103155812",
+      "title": "Yoshi Rat King joining-games fix",
+      "publishedEdt": "2026-10-02T17:48:25.742-04:00",
+      "access": "Text/time in Observatory; Deadvision contains original reply subject",
+      "finding": "The short fixed-now reply is specifically to a report that Rat King cannot join games.",
+      "currentRelevance": "New round-2 clarification: cannot cite this as a camera, shader, or FPS hotfix."
+    },
+    {
+      "id": "D05",
+      "kind": "original developer Discord link, indirectly corroborated",
+      "url": "https://discord.com/channels/1231286446472691825/1231286447131328544/1554841187146408049",
+      "title": "Yoshi tunnel-box timer client fix",
+      "publishedEdt": "2026-09-30T09:03:46.568-04:00",
+      "access": "Matching archived message; original not directly accessed",
+      "finding": "Client update fixed wrong tunnel-box timers.",
+      "currentRelevance": "Evidence that some client hotfixes occurred; unrelated to FPS."
+    },
+    {
+      "id": "D06",
+      "kind": "original developer Discord link, indirectly corroborated",
+      "url": "https://discord.com/channels/1231286446472691825/1231286447131328544/1554834533721964617",
+      "title": "Yoshi Haze splitshot/metalskin fix",
+      "publishedEdt": "2026-09-30T08:37:20.268-04:00",
+      "access": "Observatory archive",
+      "finding": "A gameplay bug fix is announced.",
+      "currentRelevance": "Does not establish performance improvement."
+    },
+    {
+      "id": "A01",
+      "kind": "secondary public developer-message archive",
+      "url": "https://thedeadlockobservatory.com/api/developer-messages?q=mods&from=2026-09-29&to=2026-10-03",
+      "title": "Deadlock Observatory developer messages",
+      "publishedEdt": null,
+      "access": "Fresh API requests; search terms mods, fps, cache, shader, vpk, performance, client, settings, fix",
+      "finding": "Date-filtered cache/shader/vpk/fps searches returned zero messages; performance returned the Sep 30 plan; mods returned the Oct 2 camera warning and two chat replies.",
+      "currentRelevance": "Discovery/corroboration only. Archive coverage cannot prove no private/unarchived Valve warning exists."
+    },
+    {
+      "id": "A02",
+      "kind": "secondary public developer-message archive",
+      "url": "https://deadvision.live/api/developers/Yoshi",
+      "title": "Deadvision Yoshi archive",
+      "publishedEdt": null,
+      "access": "Fresh minimal selections of message ID/channel/text/reply/time; no account actions",
+      "finding": "Reply context disambiguates the fixed-now message as inability to join games as Rat King, and the alternate fix as camera/mod-related.",
+      "currentRelevance": "Critical context beyond first-pass announcement-only reading."
+    },
+    {
+      "id": "P01",
+      "kind": "original player diagnostic report on official forum",
+      "url": "https://forums.playdeadlock.com/threads/city-never-sleeps-severe-view-dependent-fps-regression-source-2-worker-cpu-time-54-in-dense-views-vulkan-dx11.166427/",
+      "title": "City Never Sleeps severe view-dependent FPS regression",
+      "publishedEdt": "current Sep 29-Oct 3 patch window; relative forum dates",
+      "access": "Full original report opened",
+      "finding": "13600KF/7900 XTX/Linux report: dense view about 134 FPS versus simpler view 271; accumulated worker CPU 24.00 s versus 15.58 s (+54%), nearly unchanged main-thread CPU. Low/Ultra and Vulkan/DX11 both affected.",
+      "currentRelevance": "Measured but not independently reproduced; scene-work bottleneck hypothesis, not Valve diagnosis or evidence game only uses one/two cores."
+    },
+    {
+      "id": "P02",
+      "kind": "original player bug thread on official forum",
+      "url": "https://forums.playdeadlock.com/threads/insane-fps-drop-this-update.165494/",
+      "title": "Insane FPS drop this update",
+      "publishedEdt": "current Sep 29-Oct 3 patch window; relative dates",
+      "access": "Original thread and subsequent replies opened",
+      "finding": "3440x1440 player reports 165 stable before to roughly 85 average/15 in fights. Replies report low GPU utilization and little benefit from lower graphics. Later worker-profiling reply repeats P01 from the same author.",
+      "currentRelevance": "Do not count the repost as an independent sample. No official diagnosis or ETA."
+    },
+    {
+      "id": "P03",
+      "kind": "original player bug thread on official forum",
+      "url": "https://forums.playdeadlock.com/threads/odd-jittering-on-the-new-map.165462/",
+      "title": "Odd jittering on the new map",
+      "publishedEdt": "Sep 29/30 inferred from dated attachment, exact post date unverified",
+      "access": "Original opened; attachment filename dated 2026-09-30",
+      "finding": "Steady 40-60 reported FPS but lateral-movement/camera jitter; graphics quality/API/upscaling/vsync changes reportedly do not help.",
+      "currentRelevance": "Frame pacing and animation/network jitter should be assessed separately from average FPS; no hardware or engine diagnosis."
+    },
+    {
+      "id": "P04",
+      "kind": "original player bug thread on official forum",
+      "url": "https://forums.playdeadlock.com/threads/substantial-fps-drops-in-patron-pit-base-late-game.167202/",
+      "title": "Substantial FPS drops in patron pit/base late game",
+      "publishedEdt": "Thursday in current patch window, likely Oct 1; exact unverified",
+      "access": "Original opened",
+      "finding": "Linux GTX 980/i7-4790K at low graphics/50% FSR reports ordinary 30-60 FPS dropping to about 13 during late-game base fights.",
+      "currentRelevance": "Different hardware/OS; suggests including late-game base fight in a benchmark instead of only sandbox."
+    },
+    {
+      "id": "P05",
+      "kind": "original player bug thread on official forum",
+      "url": "https://forums.playdeadlock.com/threads/intel-arc-b570-%E2%80%93-vulkan-vk_error_device_lost-when-loading-returning-to-hideout-after-latest-update.166368/",
+      "title": "Intel Arc B570 Vulkan device lost entering/returning to hideout",
+      "publishedEdt": "Wednesday in current patch window, likely Sep 30; exact unverified",
+      "access": "Original opened, later replies reviewed",
+      "finding": "Arc B570 user reports Vulkan faster but crashes loading hideout; clean driver and Windows/Steam cache clearing did not help. B580/A770 users report related Vulkan UI crashes.",
+      "currentRelevance": "Intel-specific corroborated anecdote; does not establish AMD RX 7800 XT Vulkan behavior or universal DX11 winner."
+    },
+    {
+      "id": "P06",
+      "kind": "original player bug thread on official forum",
+      "url": "https://forums.playdeadlock.com/threads/fps-caps-to-40fps-stutters-lags-rtx-5070ti-intel-core-ultra-9-275hx-32gb.165245/",
+      "title": "Random 40 FPS cap and stutter on Core Ultra/NVIDIA laptop",
+      "publishedEdt": "current patch-window post, issue reportedly predates by six months",
+      "access": "Original opened",
+      "finding": "200 FPS falls to 40 for roughly 30 seconds with freezes; multiple graphics/API/reinstall/clock changes reportedly ineffective.",
+      "currentRelevance": "Do not attribute to City Never Sleeps solely because thread posted near release."
+    },
+    {
+      "id": "P07",
+      "kind": "original player diagnostic report on official forum",
+      "url": "https://forums.playdeadlock.com/threads/linux-nvidia-persistent-performance-drop-after-about-90-minutes-of-gameplay.161478/",
+      "title": "Linux NVIDIA persistent performance drop after about 90 minutes",
+      "publishedEdt": "2026-09-10",
+      "access": "Original opened including GPU/VRAM observations",
+      "finding": "3080/Linux report traces VRAM growth toward 10 GB, increased PCIe transfers and severe persistent FPS collapse. Lobby frees several GB. Author hypothesizes VRAM/resource pressure.",
+      "currentRelevance": "Pre-major-update and different OS/GPU; resource telemetry inspiration only, not proof current Windows/16 GB AMD leak."
+    },
+    {
+      "id": "P08",
+      "kind": "original player diagnostic report on official forum",
+      "url": "https://forums.playdeadlock.com/threads/400ms-main-thread-stalls-during-gameplay-gpu-idle-both-renderers-presentmon-10-sessions.160054/",
+      "title": "400 ms main-thread stalls across both renderers",
+      "publishedEdt": "2026-09-01",
+      "access": "Original opened, search refreshed",
+      "finding": "9800X3D/5080 report clusters stalls after backend/cache changes; subsequent warm-cache sessions flatter. Removing add-on VPKs reduces but does not eliminate stalls.",
+      "currentRelevance": "Pre-update and NVIDIA. Supports treating warm-up as benchmark control; does not validate cache purge as an FPS tweak."
+    },
+    {
+      "id": "P09",
+      "kind": "original player discussion on official forum",
+      "url": "https://forums.playdeadlock.com/threads/increase-fov-option-to-120.122038/",
+      "title": "Increase FOV option to 120",
+      "publishedEdt": "2026-03-26 to 2026-03-27",
+      "access": "Original indexed complete discussion read",
+      "finding": "Initial claim that gameinfo edits prevent matches is retracted after another player demonstrates an aspect-ratio override on build 6416.",
+      "currentRelevance": "Older contradictory anecdote; neither March permissiveness nor a localization string proves October matchmaking enforcement."
+    },
+    {
+      "id": "P10",
+      "kind": "original player discussion on official forum",
+      "url": "https://forums.playdeadlock.com/threads/dlss-with-cnn-model-run-really-poorly-since-the-new-update.98349/",
+      "title": "DLSS CNN model poor performance",
+      "publishedEdt": "2026-01-22 and 2026-02-12",
+      "access": "Original opened",
+      "finding": "4070 Super user reports DLSS slower than native with possible driver model override; another user reports benefit.",
+      "currentRelevance": "Pre-update, contradictory NVIDIA-only evidence; reject automatic CNN/transformer/upscale prescriptions for AMD user's config."
+    },
+    {
+      "id": "P11",
+      "kind": "original player diagnostic discussion on official forum",
+      "url": "https://forums.playdeadlock.com/threads/stutters-every-instance-where-i-had-one.158827/",
+      "title": "Stutters, every instance where I had one",
+      "publishedEdt": "2026-08-26",
+      "access": "Original indexed discussion read",
+      "finding": "9800X3D/7900 XTX player reports higher Vulkan averages but fewer DX11/fullscreen hitches; early shop/first-use ability stutters.",
+      "currentRelevance": "Closer AMD/X3D hardware, but pre-CNS; candidate comparison rationale only."
+    },
+    {
+      "id": "C01",
+      "kind": "config author's primary project documentation, not Valve",
+      "url": "https://github.com/Sqooky/OptimizationLock",
+      "title": "OptimizationLock README",
+      "publishedEdt": null,
+      "access": "Fresh original GitHub README opened",
+      "finding": "Documents mod-enabled gameinfo installation, possible matchmaking restriction string, and visibility/camera breakage from aggressive culling/LOD/decals/camera overrides.",
+      "currentRelevance": "Author documentation exposes tradeoffs; no current Valve approval or enforcement guarantee."
+    },
+    {
+      "id": "C02",
+      "kind": "mod/config author distribution listing, not Valve",
+      "url": "https://deadlockmods.com/mod/690233",
+      "title": "OptiLock FPS Configs (City Never Sleeps Update!)",
+      "publishedEdt": "Listing updated 2026-10-03",
+      "access": "Fresh rendered listing initially opened; subsequent request returned 410",
+      "finding": "Listing now advertises a City Never Sleeps-specific update. Earlier cached description's shader-cache cleaning/reinstall advice is not an official Valve statement.",
+      "currentRelevance": "Changed from first pass; artifact/source agent must compare current release, rather than assuming older advice remains."
+    },
+    {
+      "id": "S01",
+      "kind": "official Steam support",
+      "url": "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB",
+      "title": "Verify Integrity of Game Files",
+      "publishedEdt": null,
+      "access": "Official support page identified; web extractor blank",
+      "finding": "Stock-file repair mechanism; cannot infer that Steam automatically removes unrelated extra add-on files.",
+      "currentRelevance": "Repair identified stock-file corruption with documented mechanism; no blanket VPK deletion."
+    },
+    {
+      "id": "X01",
+      "kind": "secondary raw-patch aggregator",
+      "url": "https://undeadlock.com/patches/2026-10-02-6736",
+      "title": "Rat King patch/build 6736",
+      "publishedEdt": "Route Oct 2; listing displayed Oct 3",
+      "access": "Original aggregator opened in round 2; source authority not Valve",
+      "finding": "Hero, assets/sounds/map-diff tracking. Date differs from exact Steam timestamp. No independent performance-fix proof.",
+      "currentRelevance": "Discovery only; do not date newest update from aggregator's display convention."
+    },
+    {
+      "id": "X02",
+      "kind": "secondary wiki",
+      "url": "https://deadlock.wiki/Updates",
+      "title": "Updates index",
+      "publishedEdt": null,
+      "access": "Search indexed rows; direct update pages restricted in tool",
+      "finding": "Indexed rows include entries later than user date. Those were excluded.",
+      "currentRelevance": "Useful discovery list, not current-date authoritative evidence."
+    },
+    {
+      "id": "L01",
+      "kind": "local read-only hardware audit",
+      "url": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\hardware-audit.json",
+      "title": "First-pass local hardware audit",
+      "publishedEdt": "2026-10-03",
+      "access": "Read-only file read",
+      "finding": "User has Ryzen 7 9800X3D, RX 7800 XT 16 GB, 32 GB RAM, Windows 11, 1080p/480 Hz primary.",
+      "currentRelevance": "Avoid transplanting Intel/Linux/NVIDIA-specific fixes."
+    },
+    {
+      "id": "L02",
+      "kind": "local read-only second hardware audit",
+      "url": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\round2\\hardware-audit.txt",
+      "title": "Round-2 hardware/resource audit",
+      "publishedEdt": "2026-10-03",
+      "access": "Read-only file read",
+      "finding": "DX11 loaded; roughly 2.9 GB free RAM and 90% commit in snapshot. Scene/foreground unknown and no FPS capture.",
+      "currentRelevance": "Background memory pressure is a benchmark confound, not a diagnosed cause of current stutter."
+    },
+    {
+      "id": "L03",
+      "kind": "official shipped Valve localization, verified by local audit",
+      "url": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\resource\\localization\\citadel_main\\citadel_main_english.txt",
+      "title": "Current matchmaking gameinfo denial message",
+      "publishedEdt": "2026-10-03 installed-build audit",
+      "access": "Game-install agent fresh SHA1 match to installed depot; confirmed in research/round2/game-install-audit.json installed_matchmaking_gameinfo_denial_label",
+      "finding": "Line 1678 token Citadel_StartMatchmaking_UnverifiedPGI names unsupported gameinfo Engine2, MaterialSystem2, NetworkSystem, Particles, RenderSystem, SceneSystem and WorldRenderer changes plus Tools-mode. It does not mention ConVars. SHA1 ceb5a6aa2c1113b3b05fcec8cb00d65c2b10de82.",
+      "currentRelevance": "Supersedes older third-party README wording. Shipped denial text is not empirical proof of full active enforcement or allowed values."
+    }
+  ]
+}

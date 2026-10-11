@@ -1,0 +1,434 @@
+{
+  "scope": "Official vendor and Windows research for the user's Deadlock configuration. Research only; no driver, registry, BIOS, display or OS mutation performed.",
+  "as_of_client_date": "2026-10-03",
+  "hardware_context_from_hardware_audit": {
+    "cpu": "AMD Ryzen 7 9800X3D, 8 cores / 16 threads",
+    "gpu": "AMD Radeon RX 7800 XT, nominal 16 GB GDDR6",
+    "windows": "Windows 11 Pro 25H2 build 26200.9550",
+    "graphics_driver_store": "32.0.31041.1004",
+    "graphics_driver_release": "AMD Software: Adrenalin Edition 26.8.1",
+    "memory": "32 GiB, 2 x 16 GiB DDR5 configured 6400 MT/s",
+    "hags_configured": true,
+    "game_mode_configured": true,
+    "active_power_plan": "Ultimate Performance",
+    "initial_display_observation": "Display API validated primary physical LG ULTRAGEAR+ (GSM780F), RX 7800 XT DISPLAY2, current output 1920x1080 / 480 Hz; secondary physical Acer XB273 GZ (ACR0942), DISPLAY1, portrait 1080x1920 / 240 Hz. SudoMaker virtual outputs detached. EDID preferred panel resolution, FreeSync/VRR and driver FPS caps are not established by this current-output observation.",
+    "memory_pressure_observation": "At the audit snapshot, available physical memory was about 3.7 GiB and free virtual headroom about 3.3 GiB of about 60.2 GiB total. A snapshot does not prove paging-related stutter; capture counters during the benchmark.",
+    "recording_observation": "Windows DVR capture and historical capture disabled. AMD recording service process running does not establish that Instant Replay is enabled."
+  },
+  "current_build_native_settings_from_engine_agent": {
+    "provenance": "Engine agent matched Valve resources to installed Steam build 25689475 / client 6745; confirm in final integration against its evidence.",
+    "upscaling_values": {
+      "0": "none",
+      "1": "FSR 1",
+      "2": "FSR 2",
+      "3": "FSR 3",
+      "4": "DLSS"
+    },
+    "temporal_render_scale": {
+      "native": 1,
+      "quality": 0.666667,
+      "balanced": 0.588235,
+      "performance": 0.5
+    },
+    "low_latency_values": {
+      "0": "off",
+      "1": "on",
+      "2": "boost; NVIDIA-only according to engine dump"
+    },
+    "warning": "The FSR 3 menu label is not independent evidence that a frame-generation option exists. Driver feature availability is not proof that a driver upscaler override is compatible with the game."
+  },
+  "recommended_integration": [
+    {
+      "id": "native_scaling_first",
+      "category": "real render FPS and image clarity",
+      "action": "Keep current 1920x1080 output for the first controlled comparison and measure 100% render scale against supported FSR variants. Lower internal resolution only when it materially improves sustained render FPS/frametimes and preserves target and soul readability. Distinguish current output resolution from panel-native resolution.",
+      "basis": "Inference from fewer rendered pixels and the distinction between spatial/temporal upscaling. An RX 7800 XT at 1080p can be either CPU- or GPU-limited by the actual scene; model names alone cannot establish the bottleneck.",
+      "sources": [
+        "amd-rsr",
+        "fsr1",
+        "fsr2",
+        "intel-presentmon"
+      ]
+    },
+    {
+      "id": "anti_lag_2",
+      "category": "latency, not guaranteed FPS",
+      "action": "Use the game's native AMD low-latency setting (engine-confirmed r_low_latency=1) as a candidate. Compare on/off for frametimes; enable it for responsive play if it remains stable. Do not describe Anti-Lag 2 as an FPS booster.",
+      "basis": "Official AMD lists Deadlock among Anti-Lag 2 titles. It aligns CPU/GPU work before game input polling, principally in GPU-bound workloads.",
+      "sources": [
+        "amd-al2-title",
+        "amd-al2-sdk",
+        "amd-al2-integration"
+      ]
+    },
+    {
+      "id": "no_redundant_upscaling",
+      "category": "FPS and image clarity",
+      "action": "Keep Radeon Super Resolution off while using the game's native FSR. Keep Virtual Super Resolution off for the FPS profile. Do not stack external sharpening on the first measurement pass.",
+      "basis": "AMD recommends in-game FSR where available and cautions against RSR plus FSR. VSR renders above display resolution; RIS changes sharpness.",
+      "sources": [
+        "amd-rsr",
+        "amd-vsr-ris"
+      ]
+    },
+    {
+      "id": "no_generated_frame_gains",
+      "category": "measurement validity and latency",
+      "action": "Keep AFMF and any frame-generation feature off for the real-FPS target and benchmark. Report rendered and displayed/interpolated FPS separately if frame generation is ever evaluated.",
+      "basis": "AFMF generates frames in the driver; an increased displayed count is not proof of faster game simulation or faster native render throughput.",
+      "sources": [
+        "amd-afmf"
+      ]
+    },
+    {
+      "id": "driver_profile_baseline",
+      "category": "reproducibility",
+      "action": "Use a Deadlock-specific AMD application profile if driver changes are later tested. Begin with RSR, Boost, Chill, Enhanced Sync, FRTC and additional AA overrides disabled; allow the game to control AA/filtering. Keep surface-format optimization at its documented default. Test texture filtering Performance only as a separate optional comparison.",
+      "basis": "These features respectively scale, vary resolution, regulate FPS, change synchronization or add rendering. No official source establishes a universal fastest Deadlock driver preset.",
+      "sources": [
+        "amd-driver-settings",
+        "amd-boost-chill",
+        "amd-enhanced-sync",
+        "amd-frtc"
+      ]
+    },
+    {
+      "id": "fps_cap_selection",
+      "category": "raw FPS versus frame pacing and latency",
+      "action": "Use the game limiter and VSync off for raw-FPS comparisons. Select a sustainable gameplay cap only after measuring combat frametimes and verifying the actual panel/VRR path. Avoid stacked independent limiters.",
+      "basis": "A cap intentionally limits FPS. FRTC's official documented target range is 30-200 FPS; it is unsuitable for capping near this physical 480 Hz primary. FreeSync/Enhanced Sync are presentation choices, not render-work reduction.",
+      "sources": [
+        "amd-frtc",
+        "amd-enhanced-sync"
+      ]
+    },
+    {
+      "id": "hags_game_mode",
+      "category": "OS scheduling",
+      "action": "Keep the audited HAGS and Game Mode states as baseline. Any on/off comparison must be separate from the game config comparison, with a reboot when necessary for HAGS.",
+      "basis": "HAGS support for RX 7800 series is official. Microsoft describes scheduling modernization and no guaranteed significant visible improvement. Game Mode is documented to optimize the gaming session.",
+      "sources": [
+        "amd-hags",
+        "microsoft-hags",
+        "microsoft-game-mode"
+      ]
+    },
+    {
+      "id": "power_plan",
+      "category": "power and reproducibility",
+      "action": "Keep Ultimate Performance as the first baseline because it is already active. Optionally compare Balanced later. Do not silently replace the plan or present Ultimate Performance as a proven FPS gain for this CPU.",
+      "basis": "AMD's 9800X3D launch testing used Balanced. The latest Ryzen Master guidance recommends High Performance in the context of using Ryzen Master; it is not a Deadlock comparison. Microsoft distinguishes power mode from custom plans.",
+      "sources": [
+        "amd-9800-tests",
+        "amd-ryzen-master-power",
+        "microsoft-power"
+      ]
+    },
+    {
+      "id": "driver_version",
+      "category": "compatibility and measurement",
+      "action": "Record Adrenalin 26.8.1 as baseline. Note that official 26.9.2 exists; do not install or attribute gains to an update without testing it separately.",
+      "basis": "The exact driver-store mapping is official. The 26.9.2 notes retrieved list no Deadlock-specific fix; absence from notes does not guarantee absence of an issue.",
+      "sources": [
+        "amd-driver-table",
+        "amd-2681",
+        "amd-2692"
+      ]
+    },
+    {
+      "id": "shader_cache",
+      "category": "loading and stutter",
+      "action": "Do not conflate removal of a mod cache with clearing AMD, DirectX, or Steam shader/pipeline caches. Preserve shader caches during warm repeated tests; record cold versus warm conditions.",
+      "basis": "Driver shader caching stores compiled shader work and reduces re-generation. Inference: clearing it before every run changes the workload and can mask stable performance.",
+      "sources": [
+        "amd-driver-settings",
+        "nvidia-shader-cache"
+      ]
+    },
+    {
+      "id": "recording_and_displays",
+      "category": "benchmark controls",
+      "action": "Record Instant Replay, desktop recording, live streaming, overlays and active display topology. Compare recording off/on separately if the user uses it. Hardware display API confirms the physical 480 Hz primary and detached virtual outputs; record that topology consistently.",
+      "basis": "AMD says Instant Replay continuously records, while normal recording has minimal typical FPS impact. A background service alone proves neither enablement nor a measured performance penalty.",
+      "sources": [
+        "amd-recording"
+      ]
+    },
+    {
+      "id": "memory_pressure",
+      "category": "system resource control",
+      "action": "Measure available RAM, commit usage and page reads/output while capturing the same scene. Re-test in a normal low-background-load session before calling a config ineffective. Do not disable the page file or kill unrelated apps automatically.",
+      "basis": "Low available memory or high commitment alone is insufficient to prove paging is the bottleneck; commit-limit exhaustion and sustained paging are separately observable.",
+      "sources": [
+        "microsoft-page-file",
+        "microsoft-memory"
+      ]
+    },
+    {
+      "id": "render_api",
+      "category": "real FPS and stability",
+      "action": "Treat DX11 versus Vulkan as a per-build, per-driver A/B experiment. Warm each path separately and compare median FPS, p95/p99 frame times and visible correctness. Do not assume Vulkan is always faster on Radeon.",
+      "basis": "No official universal fastest-API statement for current Deadlock was found. AMD native Anti-Lag 2 has documented Vulkan driver support beginning at 24.9.1, so the API should not be chosen merely to obtain this feature.",
+      "sources": [
+        "amd-al2-sdk",
+        "amd-driver-table",
+        "microsoft-windowed"
+      ]
+    }
+  ],
+  "nvidia_research_for_future_scope_only": {
+    "applies_to_current_machine": false,
+    "findings": [
+      "NVIDIA officially announced Deadlock Reflex support on February 27, 2025. Published percentage examples concern latency on their test hardware, not this Radeon system's FPS.",
+      "NVIDIA recommends native Reflex over driver Ultra Low Latency when both exist; Reflex overrides the latter.",
+      "Reflex Boost keeps GPU clocks higher in CPU-bound scenes and may increase power consumption. It is not applicable to this Radeon GPU.",
+      "NVIDIA's older guide recommends exclusive fullscreen. Modern Microsoft Windows 11 documentation explains compatible windowed DX10/11 promotion to flip presentation, so fullscreen claims need current presentation-path evidence."
+    ],
+    "sources": [
+      "nvidia-deadlock",
+      "nvidia-latency",
+      "nvidia-reflex",
+      "microsoft-windowed"
+    ]
+  },
+  "excluded_unsubstantiated_claims": [
+    "A 1000x FPS gain, any guaranteed numeric FPS increase, or superiority over OptiLock without a matched measurement.",
+    "All Radeon systems are faster on Vulkan, all 9800X3D systems need Ultimate Performance, or HAGS universally improves or harms frametimes.",
+    "Registry-only DXNavi, MSI-priority, timer/HPET, scheduler or memory cleaners as standard Deadlock fixes.",
+    "Turning off Windows security or uninstalling Game Bar as a necessary performance requirement.",
+    "A game FSR 3 label proving frame generation, or installed RDNA3 hardware proving a compatible FSR 4 driver override."
+  ],
+  "source_index": [
+    {
+      "id": "amd-al2-title",
+      "title": "AMD Radeon Anti-Lag Technology",
+      "url": "https://www.amd.com/en/products/software/adrenalin/radeon-software-anti-lag.html",
+      "accessed": "2026-10-03",
+      "summary": "Official page displays Deadlock among Anti-Lag 2 titles and states developer integration is required. Its old HYPR-RX headline percentages are across unrelated titles and bundled features; do not transfer them."
+    },
+    {
+      "id": "amd-al2-sdk",
+      "title": "AMD Radeon Anti-Lag 2",
+      "url": "https://gpuopen.com/anti-lag-2/",
+      "accessed": "2026-10-03",
+      "summary": "GPU-bound end-to-end latency technology. RDNA1 or newer supported. Drivers: DX11 24.6.1+, DX12 24.7.1+, Vulkan 24.9.1+. Windows 10/11. Optional frame limiter."
+    },
+    {
+      "id": "amd-al2-integration",
+      "title": "Integrating AMD Radeon Anti-Lag 2 SDK",
+      "url": "https://gpuopen.com/learn/integrating-amd-radeon-anti-lag-2-sdk-in-your-game/",
+      "accessed": "2026-10-03",
+      "summary": "AL2 delay occurs before game input polling. Built-in latency monitor: Alt+Shift+L cycles modes, Right Ctrl bypasses AL2. Grey values indicate integration/calibration issues. Monitor values are not a hardware measurement of all peripheral and display latency."
+    },
+    {
+      "id": "amd-rsr",
+      "title": "Configure Radeon Super Resolution",
+      "url": "https://www.amd.com/en/resources/support-articles/faqs/DH3-040.html",
+      "accessed": "2026-10-03",
+      "summary": "RSR is spatial driver upscaling and acts when source resolution is below native. AMD recommends native FSR if supported. RSR has mutually exclusive settings and can change desktop resolution in borderless mode."
+    },
+    {
+      "id": "amd-vsr-ris",
+      "title": "Configure Virtual Super Resolution and Radeon Image Sharpening",
+      "url": "https://www.amd.com/en/resources/support-articles/faqs/DH3-010.html",
+      "accessed": "2026-10-03",
+      "summary": "VSR renders above display resolution and downsamples; disabled by default. RIS sharpens softened visuals; also disabled by default. RIS must be enabled before game launch."
+    },
+    {
+      "id": "amd-afmf",
+      "title": "AMD Fluid Motion Frames",
+      "url": "https://www.amd.com/en/products/software/adrenalin/afmf.html",
+      "accessed": "2026-10-03",
+      "summary": "Driver-based frame generation; included in HYPR-RX. AFMF increases displayed fluidity through generated frames. It should be evaluated separately from the native-FPS config."
+    },
+    {
+      "id": "amd-boost-chill",
+      "title": "Configure Radeon Anti-Lag, Radeon Boost and Radeon Chill",
+      "url": "https://www.amd.com/en/resources/support-articles/faqs/DH3-033.html",
+      "accessed": "2026-10-03",
+      "summary": "Driver Anti-Lag changes frame timing, Boost changes resolution based on input, Chill regulates FPS based on movement. AMD says these benefit different aims; Chill cannot operate with Anti-Lag/Boost together."
+    },
+    {
+      "id": "amd-driver-settings",
+      "title": "Customize Graphics Settings with AMD Software: Adrenalin Edition",
+      "url": "https://www.amd.com/en/resources/support-articles/faqs/DH3-012.html",
+      "accessed": "2026-10-03",
+      "summary": "Per-game profiles inherit global state and can override it. Driver AA can add rendering cost. Texture filtering offers quality/performance tradeoffs. Shader caches save frequent compiled work. Surface-format optimization is recommended enabled."
+    },
+    {
+      "id": "amd-frtc",
+      "title": "AMD Frame Rate Target Control",
+      "url": "https://www.amd.com/en/products/software/adrenalin/frtc.html",
+      "accessed": "2026-10-03",
+      "summary": "Limits FPS for power/heat/noise. Official current page says 30-200 FPS, fullscreen exclusive, DX9/10/11/12 and Vulkan; changes applied outside game."
+    },
+    {
+      "id": "amd-enhanced-sync",
+      "title": "AMD Enhanced Sync Technology",
+      "url": "https://www.amd.com/en/products/software/adrenalin/software-enhancedsync.html",
+      "accessed": "2026-10-03",
+      "summary": "Presentation mode that reduces tearing above monitor refresh. Compatible with FreeSync; supports DirectX and Vulkan, not OpenGL. It is not a raw-render-FPS optimization."
+    },
+    {
+      "id": "amd-recording",
+      "title": "Configure Record Settings to Capture Desktop and Gameplay Content",
+      "url": "https://www.amd.com/en/resources/support-articles/faqs/DH3-023.html",
+      "accessed": "2026-10-03",
+      "summary": "AMD describes recording as minimally affecting typical FPS. Instant Replay continuously records gameplay. Record Desktop and Borderless Region Capture are independent settings."
+    },
+    {
+      "id": "amd-hags",
+      "title": "AMD Adrenalin Edition 23.12.1 Release Notes",
+      "url": "https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-23-12-1.html",
+      "accessed": "2026-10-03",
+      "summary": "Introduced HAGS support for Radeon RX 7900/7800/7700 on Windows 11 22H2 or newer. Historical multi-monitor improvements establish that topology is worth recording, not that this machine has that former issue."
+    },
+    {
+      "id": "microsoft-hags",
+      "title": "Hardware Accelerated GPU Scheduling",
+      "url": "https://devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/",
+      "accessed": "2026-10-03",
+      "summary": "Offloads high-frequency scheduling to GPU hardware. Microsoft expected an initially transparent transition, not significant universal performance changes."
+    },
+    {
+      "id": "microsoft-game-mode",
+      "title": "Understand and explore Windows Settings",
+      "url": "https://support.microsoft.com/en-us/accessibility/windows/understand-and-explore-windows-settings",
+      "accessed": "2026-10-03",
+      "summary": "Official support describes Gaming settings and Game Mode as optimizing performance during gaming sessions. No Deadlock-specific FPS value is provided."
+    },
+    {
+      "id": "microsoft-windowed",
+      "title": "Optimizations for windowed games in Windows 11",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/display-graphics/optimizations-for-windowed-games-in-windows-11",
+      "accessed": "2026-10-03",
+      "summary": "Compatible DX10/11 windowed and borderless games can move from blt to flip presentation, reducing frame latency and enabling VRR/Auto HDR. Not a universal Vulkan or engine optimization."
+    },
+    {
+      "id": "microsoft-power",
+      "title": "Change the power mode for your Windows PC",
+      "url": "https://support.microsoft.com/en-us/windows/change-the-power-mode-for-your-windows-pc-c2aff038-22c9-f46d-5ca0-78696fdf2de8",
+      "accessed": "2026-10-03",
+      "summary": "Power modes select efficiency/balance/performance. A custom power plan may hide the mode selector. Microsoft does not benchmark these modes for Deadlock or 9800X3D."
+    },
+    {
+      "id": "amd-9800-tests",
+      "title": "Ryzen 7 9800X3D competitive testing footnotes",
+      "url": "https://www.amd.com/content/dam/amd/en/documents/products/processors/consumer/ryzen-9800x3d-hts-competitive.pdf",
+      "accessed": "2026-10-03",
+      "summary": "AMD's October 2024 9800X3D launch comparison used the Balanced plan, 2x16 GB DDR5-6000, SAM on and VBS on. This is a test configuration, not proof Balanced wins against every plan."
+    },
+    {
+      "id": "amd-ryzen-master-power",
+      "title": "Ryzen Master Recommended Power Settings",
+      "url": "https://docs.amd.com/r/en-US/68886-ryzen-master-user-guide/Recommended-Power-Settings",
+      "accessed": "2026-10-03",
+      "summary": "Ryzen Master v3.1.0 (May 20, 2026) recommends High Performance while using Ryzen Master. Scope matters; it does not establish Ultimate Performance as best in Deadlock."
+    },
+    {
+      "id": "amd-driver-table",
+      "title": "Radeon Vulkan Drivers Version Table",
+      "url": "https://gpuopen.com/version-table/",
+      "accessed": "2026-10-03",
+      "summary": "Maps installed 32.0.31041.1004 to Adrenalin 26.8.1 / internal 26.10.41.01. Table currently lists 26.9.2 / 32.0.32015.2008 for this hardware generation."
+    },
+    {
+      "id": "amd-2681",
+      "title": "Adrenalin Edition 26.8.1 Release Notes",
+      "url": "https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-8-1.html",
+      "accessed": "2026-10-03",
+      "summary": "August 20, 2026 release; package confirms installed version and supports RX 7800 series. No Deadlock-specific issue or fix listed in retrieved notes."
+    },
+    {
+      "id": "amd-2692",
+      "title": "Adrenalin Edition 26.9.2 Optional Driver Release Notes",
+      "url": "https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-9-2.html",
+      "accessed": "2026-10-03",
+      "summary": "September 29, 2026 notes list new game support and game-specific fixes, including a recording-related War Thunder driver timeout. No Deadlock-specific fix listed. RX 7800 supported."
+    },
+    {
+      "id": "amd-7800-vram",
+      "title": "AMD Radeon RX 7800 XT and RX 7700 XT launch specifications",
+      "url": "https://ir.amd.com/news-events/press-releases/detail/1153/new-amd-radeon-rx-7800-xt-and-radeon-rx-7700-xt-graphics-cards-deliver-high-performance-visually-stunning-1440p-gaming-experiences-and-superior-performance-per-dollar",
+      "accessed": "2026-10-03",
+      "summary": "RX 7800 XT has 16 GB GDDR6. This supports correcting WMI AdapterRAM truncation but does not identify game's actual allocation or memory bandwidth limit."
+    },
+    {
+      "id": "fsr1",
+      "title": "AMD FidelityFX Super Resolution 1",
+      "url": "https://gpuopen.com/fidelityfx-superresolution/",
+      "accessed": "2026-10-03",
+      "summary": "Spatial upscaler from anti-aliased current image without motion vectors/history. Performance scale at 1080p output is 960x540 input; quality is 1280x720; ultra quality about 1477x831. Actual engine custom scale can differ."
+    },
+    {
+      "id": "fsr2",
+      "title": "AMD FidelityFX Super Resolution 2",
+      "url": "https://gpuopen.com/fidelityfx-superresolution-2/",
+      "accessed": "2026-10-03",
+      "summary": "Temporal upscaling uses game-provided data and requires game integration. Compare current game implementation for motion/readability; a menu label does not prove equivalence to a newer FSR model."
+    },
+    {
+      "id": "intel-presentmon",
+      "title": "Intel PresentMon README",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/main/README.md",
+      "accessed": "2026-10-03",
+      "summary": "Measures CPU/GPU/display frame durations and latencies across graphics APIs and vendors using ETW-based analysis. Relevant to separating render timing from presentation; not a mod."
+    },
+    {
+      "id": "microsoft-page-file",
+      "title": "Introduction to page files",
+      "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/introduction-to-the-page-file",
+      "accessed": "2026-10-03",
+      "summary": "Page files extend commit limit and help move infrequent modified pages out of RAM. Commit-limit exhaustion can prevent allocations. Measure Committed Bytes and Commit Limit; do not disable paging as a generic FPS tweak."
+    },
+    {
+      "id": "microsoft-memory",
+      "title": "RAM, virtual memory and page-file monitoring",
+      "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/ram-virtual-memory-pagefile-management",
+      "accessed": "2026-10-03",
+      "summary": "Available RAM/commit snapshots alone do not prove insufficient-RAM slowdown. Pages Output/sec helps assess paging impact. Article is historical Windows Server/32-bit context; use metric meanings, not its legacy limits."
+    },
+    {
+      "id": "nvidia-deadlock",
+      "title": "Deadlock Adds NVIDIA Reflex",
+      "url": "https://www.nvidia.com/en-us/geforce/news/reflex-deadlock/",
+      "accessed": "2026-10-03",
+      "summary": "Official February 27, 2025 announcement of Deadlock Reflex; latency test results are limited to tested NVIDIA hardware."
+    },
+    {
+      "id": "nvidia-latency",
+      "title": "NVIDIA System Latency Optimization Guide",
+      "url": "https://www.nvidia.com/en-us/geforce/guides/system-latency-optimization-guide/",
+      "accessed": "2026-10-03",
+      "summary": "Native Reflex takes precedence over driver Ultra Low Latency. Older exclusive-fullscreen advice must be reconciled with modern Windows flip-presentation support."
+    },
+    {
+      "id": "nvidia-reflex",
+      "title": "Introducing NVIDIA Reflex",
+      "url": "https://www.nvidia.com/en-us/geforce/news/reflex-low-latency-platform/",
+      "accessed": "2026-10-03",
+      "summary": "Native SDK aligns work more effectively than driver queue control. Boost raises clocks in CPU-bound scenes at higher power cost. NVIDIA-only feature."
+    },
+    {
+      "id": "nvidia-shader-cache",
+      "title": "NVIDIA Manage 3D Settings reference",
+      "url": "https://www.nvidia.com/content/Control-Panel-Help/vLatest/en-us/mergedProjects/3D%20Settings/Manage_3D_Settings_%28reference%29.htm",
+      "accessed": "2026-10-03",
+      "summary": "Shader cache stores compiles for reuse; a driver update clears the cache and initial play can stutter. Too-small cache limits can evict used entries. Mechanism is informative; settings do not apply to Radeon."
+    },
+    {
+      "id": "amd-snap",
+      "title": "Save, Restore and Reset AMD Software settings",
+      "url": "https://www.amd.com/en/resources/support-articles/faqs/DH3-003.html",
+      "accessed": "2026-10-03",
+      "summary": "AMD Snap Settings can export a ZIP of settings, available with full/minimal installation. Useful before driver-profile experiments; import can affect broad existing settings, so use per-game edits rather than factory resets."
+    }
+  ],
+  "uncertainties": [
+    "Actual faster rendering API, quality scale and combat FPS are unresolved until same-build repeated measurements.",
+    "FreeSync/VRR state remains unverified; the physical 480 Hz primary is now confirmed by display API.",
+    "Native low-latency renderer variable may need native video-settings storage rather than console execution; use engine-agent supported write path.",
+    "Recording setting state is not established by AMD service process presence.",
+    "Game's own patch-specific engine changes are assigned to Valve/update and installation agents, not inferred from driver material."
+  ]
+}

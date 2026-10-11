@@ -1,0 +1,6398 @@
+{
+  "audit_utc": "2026-10-03T23:03:36.492704+00:00",
+  "read_only_scope": "Steam installation, app 1422450 scoped configs/logs and cached depot manifests; no game or Steam files changed",
+  "steam_root": "C:\\Program Files (x86)\\Steam",
+  "install_root": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock",
+  "game_root": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game",
+  "app_id": "1422450",
+  "build_id": "25689475",
+  "target_build_id": "25689475",
+  "state_flags": "4",
+  "update_result": "0",
+  "last_updated_unix": "1790998882",
+  "size_on_disk_manifest": "38703070264",
+  "processes": [
+    {
+      "Name": "steam.exe",
+      "ExecutablePath": "C:\\Program Files (x86)\\Steam\\steam.exe",
+      "ProcessId": 38904
+    },
+    {
+      "Name": "deadlock.exe",
+      "ExecutablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\deadlock.exe",
+      "ProcessId": 13656,
+      "CommandLine": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\deadlock.exe\" -steam -console"
+    }
+  ],
+  "native_settings_path_id": "USRLOCAL",
+  "legacy_settings_path_id": "MOD",
+  "native_path_evidence": "stock citadel/gameinfo.gi: UserSettingsPathID USRLOCAL; LegacyUserSettingsPathID MOD",
+  "user_config_candidate_count": 1,
+  "active_userdata_inference": "One Deadlock userdata candidate found; ownership path is explicit in stock gameinfo.gi. Settings are persisted disk snapshots while game is running; effective runtime convars have not been queried.",
+  "launch_settings": [
+    {
+      "account": "<redacted>",
+      "settings": {}
+    }
+  ],
+  "configs": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\video.txt",
+      "bytes": 3028,
+      "modified_utc": "2026-09-14T23:07:34.145453+00:00",
+      "ownership": "legacy MOD",
+      "settings": {
+        "Version": "20",
+        "VendorID": "4098",
+        "DeviceID": "29822",
+        "setting.defaultres": "1920",
+        "setting.defaultresheight": "1080",
+        "setting.recommendedheight": "0",
+        "setting.refreshrate_numerator": "0",
+        "setting.fullscreen": "0",
+        "setting.nowindowborder": "1",
+        "setting.fullscreen_min_on_focus_loss": "0",
+        "setting.monitor_index": "0",
+        "setting.knowndevice": "1",
+        "setting.high_dpi": "0",
+        "setting.aspectratiomode": "0",
+        "setting.cpu_level": "1",
+        "setting.mem_level": "0",
+        "setting.gpu_mem_level": "0",
+        "setting.gpu_level": "0",
+        "setting.mat_vsync": "0",
+        "setting.r_low_latency": "1",
+        "setting.fps_max": "0",
+        "setting.mat_viewportscale": "1.000000",
+        "setting.r_citadel_antialiasing": "0",
+        "setting.r_citadel_upscaling": "0",
+        "setting.r_citadel_dlss_settings_mode": "0",
+        "setting.r_dlss_preset": "0",
+        "setting.r_citadel_fsr_rcas_sharpness": "0.000000",
+        "setting.r_citadel_fsr2_sharpness": "0.000000",
+        "setting.r_effects_bloom": "false",
+        "setting.r_post_bloom": "false",
+        "setting.r_depth_of_field": "false",
+        "setting.r_citadel_motion_blur": "0",
+        "setting.r_reduce_flash": "1",
+        "setting.r_shadows": "0",
+        "setting.r_citadel_shadow_quality": "0",
+        "setting.r_citadel_distancefield_shadows": "false",
+        "setting.csm_max_shadow_dist_override": "0",
+        "setting.csm_max_num_cascades_override": "0",
+        "setting.csm_viewmodel_shadows": "0",
+        "setting.lb_enable_shadow_casting": "false",
+        "setting.lb_dynamic_shadow_resolution": "false",
+        "setting.r_area_lights": "0",
+        "setting.r_arealights": "false",
+        "setting.r_citadel_ssao": "0",
+        "setting.r_citadel_ssao_quality": "0",
+        "setting.r_citadel_distancefield_ao_quality": "0",
+        "setting.r_citadel_fog_quality": "0",
+        "setting.volume_fog_width": "0",
+        "setting.volume_fog_height": "0",
+        "setting.volume_fog_depth": "0",
+        "setting.shaderquality": "0",
+        "setting.lb_shadow_texture_width_override": "0",
+        "setting.lb_shadow_texture_height_override": "0",
+        "setting.r_displacement_mapping": "0",
+        "setting.r_dashboard_render_quality": "0",
+        "setting.r_particle_max_detail_level": "0",
+        "setting.r_particle_shadows": "0",
+        "setting.r_particle_cables_cast_shadows": "0",
+        "setting.r_particle_depth_feathering": "false",
+        "setting.r_citadel_half_res_noisy_effects": "true",
+        "setting.cl_particle_fallback_base": "5",
+        "setting.cl_particle_fallback_multiplier": "5",
+        "setting.r_distancefield_enable": "false",
+        "setting.r_citadel_outlines": "1",
+        "setting.r_fullscreen_gamma": "2.200000",
+        "setting.useadvanced": "1",
+        "setting.coop_fullscreen": "1",
+        "setting.r_light_sensitivity_mode": "true",
+        "setting.refreshrate_denominator": "0",
+        "setting.r_citadel_distancefield_reflections": "false",
+        "setting.r_screen_space_shadows": "false",
+        "setting.r_render_portals": "1",
+        "setting.r_env_map_uses_height_map": "0",
+        "setting.r_citadel_mboit": "false",
+        "setting.lb_csm_override_staticgeo_cascades": "true",
+        "setting.lb_csm_override_staticgeo_cascades_value": "-1",
+        "setting.r_texture_stream_mip_bias": "4"
+      },
+      "entries": [
+        {
+          "key": "Version",
+          "value": "20",
+          "line": 3
+        },
+        {
+          "key": "VendorID",
+          "value": "4098",
+          "line": 4
+        },
+        {
+          "key": "DeviceID",
+          "value": "29822",
+          "line": 5
+        },
+        {
+          "key": "setting.defaultres",
+          "value": "1920",
+          "line": 6
+        },
+        {
+          "key": "setting.defaultresheight",
+          "value": "1080",
+          "line": 7
+        },
+        {
+          "key": "setting.recommendedheight",
+          "value": "0",
+          "line": 8
+        },
+        {
+          "key": "setting.refreshrate_numerator",
+          "value": "0",
+          "line": 9
+        },
+        {
+          "key": "setting.fullscreen",
+          "value": "0",
+          "line": 10
+        },
+        {
+          "key": "setting.nowindowborder",
+          "value": "1",
+          "line": 11
+        },
+        {
+          "key": "setting.fullscreen_min_on_focus_loss",
+          "value": "0",
+          "line": 12
+        },
+        {
+          "key": "setting.monitor_index",
+          "value": "0",
+          "line": 13
+        },
+        {
+          "key": "setting.knowndevice",
+          "value": "1",
+          "line": 14
+        },
+        {
+          "key": "setting.high_dpi",
+          "value": "0",
+          "line": 15
+        },
+        {
+          "key": "setting.aspectratiomode",
+          "value": "0",
+          "line": 16
+        },
+        {
+          "key": "setting.cpu_level",
+          "value": "1",
+          "line": 17
+        },
+        {
+          "key": "setting.mem_level",
+          "value": "0",
+          "line": 18
+        },
+        {
+          "key": "setting.gpu_mem_level",
+          "value": "0",
+          "line": 19
+        },
+        {
+          "key": "setting.gpu_level",
+          "value": "0",
+          "line": 20
+        },
+        {
+          "key": "setting.mat_vsync",
+          "value": "0",
+          "line": 21
+        },
+        {
+          "key": "setting.r_low_latency",
+          "value": "1",
+          "line": 22
+        },
+        {
+          "key": "setting.fps_max",
+          "value": "0",
+          "line": 23
+        },
+        {
+          "key": "setting.mat_viewportscale",
+          "value": "1.000000",
+          "line": 24
+        },
+        {
+          "key": "setting.r_citadel_antialiasing",
+          "value": "0",
+          "line": 25
+        },
+        {
+          "key": "setting.r_citadel_upscaling",
+          "value": "0",
+          "line": 26
+        },
+        {
+          "key": "setting.r_citadel_dlss_settings_mode",
+          "value": "0",
+          "line": 27
+        },
+        {
+          "key": "setting.r_dlss_preset",
+          "value": "0",
+          "line": 28
+        },
+        {
+          "key": "setting.r_citadel_fsr_rcas_sharpness",
+          "value": "0.000000",
+          "line": 29
+        },
+        {
+          "key": "setting.r_citadel_fsr2_sharpness",
+          "value": "0.000000",
+          "line": 30
+        },
+        {
+          "key": "setting.r_effects_bloom",
+          "value": "false",
+          "line": 31
+        },
+        {
+          "key": "setting.r_post_bloom",
+          "value": "false",
+          "line": 32
+        },
+        {
+          "key": "setting.r_depth_of_field",
+          "value": "false",
+          "line": 33
+        },
+        {
+          "key": "setting.r_citadel_motion_blur",
+          "value": "0",
+          "line": 34
+        },
+        {
+          "key": "setting.r_reduce_flash",
+          "value": "1",
+          "line": 35
+        },
+        {
+          "key": "setting.r_shadows",
+          "value": "0",
+          "line": 36
+        },
+        {
+          "key": "setting.r_citadel_shadow_quality",
+          "value": "0",
+          "line": 37
+        },
+        {
+          "key": "setting.r_citadel_distancefield_shadows",
+          "value": "false",
+          "line": 38
+        },
+        {
+          "key": "setting.csm_max_shadow_dist_override",
+          "value": "0",
+          "line": 39
+        },
+        {
+          "key": "setting.csm_max_num_cascades_override",
+          "value": "0",
+          "line": 40
+        },
+        {
+          "key": "setting.csm_viewmodel_shadows",
+          "value": "0",
+          "line": 41
+        },
+        {
+          "key": "setting.lb_enable_shadow_casting",
+          "value": "false",
+          "line": 42
+        },
+        {
+          "key": "setting.lb_dynamic_shadow_resolution",
+          "value": "false",
+          "line": 43
+        },
+        {
+          "key": "setting.r_area_lights",
+          "value": "0",
+          "line": 44
+        },
+        {
+          "key": "setting.r_arealights",
+          "value": "false",
+          "line": 45
+        },
+        {
+          "key": "setting.r_citadel_ssao",
+          "value": "0",
+          "line": 46
+        },
+        {
+          "key": "setting.r_citadel_ssao_quality",
+          "value": "0",
+          "line": 47
+        },
+        {
+          "key": "setting.r_citadel_distancefield_ao_quality",
+          "value": "0",
+          "line": 48
+        },
+        {
+          "key": "setting.r_citadel_fog_quality",
+          "value": "0",
+          "line": 49
+        },
+        {
+          "key": "setting.volume_fog_width",
+          "value": "0",
+          "line": 50
+        },
+        {
+          "key": "setting.volume_fog_height",
+          "value": "0",
+          "line": 51
+        },
+        {
+          "key": "setting.volume_fog_depth",
+          "value": "0",
+          "line": 52
+        },
+        {
+          "key": "setting.shaderquality",
+          "value": "0",
+          "line": 53
+        },
+        {
+          "key": "setting.lb_shadow_texture_width_override",
+          "value": "0",
+          "line": 54
+        },
+        {
+          "key": "setting.lb_shadow_texture_height_override",
+          "value": "0",
+          "line": 55
+        },
+        {
+          "key": "setting.r_displacement_mapping",
+          "value": "0",
+          "line": 56
+        },
+        {
+          "key": "setting.r_dashboard_render_quality",
+          "value": "0",
+          "line": 57
+        },
+        {
+          "key": "setting.r_particle_max_detail_level",
+          "value": "0",
+          "line": 58
+        },
+        {
+          "key": "setting.r_particle_shadows",
+          "value": "0",
+          "line": 59
+        },
+        {
+          "key": "setting.r_particle_max_detail_level",
+          "value": "0",
+          "line": 60
+        },
+        {
+          "key": "setting.r_particle_cables_cast_shadows",
+          "value": "0",
+          "line": 61
+        },
+        {
+          "key": "setting.r_particle_depth_feathering",
+          "value": "false",
+          "line": 62
+        },
+        {
+          "key": "setting.r_citadel_half_res_noisy_effects",
+          "value": "true",
+          "line": 63
+        },
+        {
+          "key": "setting.cl_particle_fallback_base",
+          "value": "5",
+          "line": 64
+        },
+        {
+          "key": "setting.cl_particle_fallback_multiplier",
+          "value": "5",
+          "line": 65
+        },
+        {
+          "key": "setting.r_distancefield_enable",
+          "value": "false",
+          "line": 66
+        },
+        {
+          "key": "setting.r_citadel_outlines",
+          "value": "1",
+          "line": 67
+        },
+        {
+          "key": "setting.r_fullscreen_gamma",
+          "value": "2.200000",
+          "line": 68
+        },
+        {
+          "key": "setting.useadvanced",
+          "value": "1",
+          "line": 69
+        },
+        {
+          "key": "setting.coop_fullscreen",
+          "value": "1",
+          "line": 70
+        },
+        {
+          "key": "setting.r_light_sensitivity_mode",
+          "value": "true",
+          "line": 71
+        },
+        {
+          "key": "setting.refreshrate_denominator",
+          "value": "0",
+          "line": 72
+        },
+        {
+          "key": "setting.r_citadel_distancefield_reflections",
+          "value": "false",
+          "line": 73
+        },
+        {
+          "key": "setting.r_screen_space_shadows",
+          "value": "false",
+          "line": 74
+        },
+        {
+          "key": "setting.r_render_portals",
+          "value": "1",
+          "line": 75
+        },
+        {
+          "key": "setting.r_env_map_uses_height_map",
+          "value": "0",
+          "line": 76
+        },
+        {
+          "key": "setting.r_citadel_mboit",
+          "value": "false",
+          "line": 77
+        },
+        {
+          "key": "setting.lb_csm_override_staticgeo_cascades",
+          "value": "true",
+          "line": 78
+        },
+        {
+          "key": "setting.lb_csm_override_staticgeo_cascades_value",
+          "value": "-1",
+          "line": 79
+        },
+        {
+          "key": "setting.r_texture_stream_mip_bias",
+          "value": "4",
+          "line": 80
+        }
+      ],
+      "duplicates": [
+        {
+          "key": "setting.r_particle_max_detail_level",
+          "entries": [
+            {
+              "key": "setting.r_particle_max_detail_level",
+              "value": "0",
+              "line": 58
+            },
+            {
+              "key": "setting.r_particle_max_detail_level",
+              "value": "0",
+              "line": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\machine_convars.vcfg",
+      "bytes": 9942,
+      "modified_utc": "2026-09-28T13:00:46.575713+00:00",
+      "ownership": "legacy MOD",
+      "settings": {
+        "adsp_debug": "0",
+        "ai_debug_decisionmaking": "false",
+        "ai_ignore_collision_player_noclip": "false",
+        "ai_report_task_timings_on_limit": "false",
+        "ai_select_box_alpha": "20",
+        "ai_think_limit_label": "false",
+        "automatically_open_saved_animgraph_recording": "false",
+        "battery_saver": "false",
+        "c_maxdistance": "200.000000",
+        "c_maxpitch": "90.000000",
+        "c_maxyaw": "135.000000",
+        "c_mindistance": "30.000000",
+        "c_minpitch": "0.000000",
+        "c_minyaw": "-135.000000",
+        "c_orthoheight": "100.000000",
+        "c_orthowidth": "100.000000",
+        "c_thirdpersonshoulder": "false",
+        "c_thirdpersonshoulderaimdist": "120.000000",
+        "c_thirdpersonshoulderdist": "40.000000",
+        "c_thirdpersonshoulderheight": "5.000000",
+        "c_thirdpersonshoulderoffset": "20.000000",
+        "cam_collision": "1",
+        "cam_idealdelta": "4.000000",
+        "cam_idealdist": "150.000000",
+        "cam_ideallag": "4.000000",
+        "cam_idealpitch": "0.000000",
+        "cam_idealyaw": "0.000000",
+        "cam_snapto": "false",
+        "cc_delay_time": "0.250000",
+        "cc_linger_time": "1.000000",
+        "cc_spectator_only": "false",
+        "cc_subtitles": "false",
+        "cc_vr_caption_speed": "1",
+        "cc_vr_font_size": "1",
+        "cc_vr_width": "1",
+        "citadel_ability_preview_path_debug_draw_dt": "0.075000",
+        "citadel_activate_window_on_unpause": "false",
+        "citadel_allow_ally_pings": "true",
+        "citadel_allow_ally_text": "true",
+        "citadel_allow_ally_voice": "true",
+        "citadel_allow_opponent_text": "true",
+        "citadel_allow_party_pings": "true",
+        "citadel_allow_party_text": "true",
+        "citadel_allow_party_voice": "true",
+        "citadel_allow_spectated_pings": "true",
+        "citadel_allow_spectated_text": "true",
+        "citadel_always_show_active_hud_stats": "false",
+        "citadel_auto_queue_build$1": "false",
+        "citadel_brawl_hero_roster": "64,1,13,76,67,65,25",
+        "citadel_brawl_hero_roster_random": "false",
+        "citadel_camera_hero_fov": "90.000000",
+        "citadel_camera_pitch_inverted": "false",
+        "citadel_camera_sensitivity": "1.000000",
+        "citadel_crosshair_color_b": "255",
+        "citadel_crosshair_color_g": "255",
+        "citadel_crosshair_color_r": "255",
+        "citadel_crosshair_disable_hero_specific_crosshairs": "false",
+        "citadel_crosshair_dot_opacity": "0.700000",
+        "citadel_crosshair_dot_outline_border": "2",
+        "citadel_crosshair_dot_outline_gap": "0.000000",
+        "citadel_crosshair_dot_outline_opacity": "0.700000",
+        "citadel_crosshair_dot_size": "4.000000",
+        "citadel_crosshair_hit_marker_duration": "0.100000",
+        "citadel_crosshair_outline_color_b": "0",
+        "citadel_crosshair_outline_color_g": "0",
+        "citadel_crosshair_outline_color_r": "0",
+        "citadel_crosshair_pip_gap": "4",
+        "citadel_crosshair_pip_gap_static": "false",
+        "citadel_crosshair_pip_height": "16.000000",
+        "citadel_crosshair_pip_opacity": "0.500000",
+        "citadel_crosshair_pip_outline_border": "1",
+        "citadel_crosshair_pip_outline_gap": "0.000000",
+        "citadel_crosshair_pip_outline_opacity": "0.700000",
+        "citadel_crosshair_pip_width": "2.000000",
+        "citadel_deny_text_max_distance": "4000.000000",
+        "citadel_english_hero_names": "false",
+        "citadel_english_mod_names": "false",
+        "citadel_hero_demo_enable_fast_stamina": "false",
+        "citadel_hero_demo_enable_unlimited_ammo": "false",
+        "citadel_hero_demo_hero_spawn": "hero_inferno",
+        "citadel_hero_demo_infinite_resources": "true",
+        "citadel_hero_demo_no_cooldowns$1": "false",
+        "citadel_hero_demo_no_death": "false",
+        "citadel_hero_demo_no_troopers": "false",
+        "citadel_hero_demo_persist_convars": "false",
+        "citadel_hero_demo_unlock_flex_slots": "false",
+        "citadel_hero_roster_random": "false",
+        "citadel_hideout_hero_id": "65",
+        "citadel_hideout_intro_version_seen": "1",
+        "citadel_invert_ping_type": "false",
+        "citadel_new_player_flow_visible": "true",
+        "citadel_new_player_progress": "14",
+        "citadel_observer_roaming_speed": "600.000000",
+        "citadel_per_unit_hotkeys_checked": "false",
+        "citadel_previous_umuted_audio_level": "1.000000",
+        "citadel_private_lobby_bot_difficulty": "0",
+        "citadel_private_lobby_cheats_enabled": "false",
+        "citadel_private_lobby_duplicate_heroes_enabled": "false",
+        "citadel_private_lobby_is_publicly_visible": "false",
+        "citadel_private_lobby_randomize_lanes": "false",
+        "citadel_private_lobby_server_region": "0",
+        "citadel_quickbuy_auto_buy_default$3": "false",
+        "citadel_quickbuy_enable": "true",
+        "citadel_ranked_hero_roster_random": "false",
+        "citadel_replay_manager_download_chunk_size": "1048576",
+        "citadel_replay_manager_download_simultaneous_requests": "3",
+        "citadel_secondary_language_builds": "-1",
+        "citadel_shop_default_tab": "-1",
+        "citadel_show_active_slot_popup": "false",
+        "citadel_show_all_purchase_toasts": "false",
+        "citadel_show_npe_modal": "false",
+        "citadel_show_page_reload_button": "true",
+        "citadel_streaming_mode_enabled": "false",
+        "citadel_tightcamera_alternative$2": "1.300000",
+        "citadel_use_contextual_ping_wheel_option": "true",
+        "citadel_use_shop_component_groupings$3": "false",
+        "citadel_use_ui_keybindings": "true",
+        "citadel_video_preset": "3",
+        "citadel_viewed_book_prototype": "false",
+        "cl_auto_cursor_scale": "true",
+        "cl_citadel_ability_alt_cast_hold_time": "0.150000",
+        "cl_citadel_ability_alt_cast_instant_cast_double_tap_timeout": "0.200000",
+        "cl_citadel_ability_alt_cast_mode": "2",
+        "cl_citadel_cancel_with_ability_key_enabled": "false",
+        "cl_citadel_items_quickcast_mode": "0",
+        "cl_citadel_player_voting_poster_current_hero_id": "0",
+        "cl_citadel_quickcast_ability1": "0",
+        "cl_citadel_quickcast_ability2": "0",
+        "cl_citadel_quickcast_ability3": "0",
+        "cl_citadel_quickcast_ability4": "0",
+        "cl_citadel_zoom_is_toggle": "false",
+        "cl_cursor_scale": "1.000000",
+        "cl_ent_pivot_size": "20.000000",
+        "cl_ent_text_flags_active": "-1",
+        "cl_graphics_driver_warning_ignore_timestamp": "0",
+        "cl_hud_telemetry_frametime_poor": "100.000000",
+        "cl_hud_telemetry_frametime_show": "1",
+        "cl_hud_telemetry_net_detailed": "0",
+        "cl_hud_telemetry_net_misdelivery_poor": "2.000000",
+        "cl_hud_telemetry_net_misdelivery_show": "1",
+        "cl_hud_telemetry_net_quality_graph_show": "0",
+        "cl_hud_telemetry_ping_poor": "100.000000",
+        "cl_hud_telemetry_ping_show": "1",
+        "cl_hud_telemetry_serverrecvmargin_graph_show": "0",
+        "cl_interpolate_report": "false",
+        "cl_joystick_enabled": "false",
+        "cl_latch_report": "false",
+        "cl_network_quality2": "-1",
+        "cl_ragdoll_limit": "20",
+        "cl_timeout": "30.000000",
+        "cl_updaterate": "128.000000",
+        "cl_voice_transmit_lobby": "false",
+        "closecaption": "false",
+        "commentary": "false",
+        "deadlock_chat_mode": "2",
+        "deadlock_disable_post_match_survey": "false",
+        "deadlock_early_development_warning_disabled": "true",
+        "deadlock_mm_preference": "1",
+        "debugoverlay_text_scale": "1.000000",
+        "demo_flush": "false",
+        "dsp_volume": "0.000000",
+        "enable_boneflex": "true",
+        "engine_no_focus_sleep": "20",
+        "ent_pivot_size": "20.000000",
+        "ent_text_flags_active": "-1",
+        "fov_desired": "75.000000",
+        "fps_max": "400.000000",
+        "fps_max_tools": "120.000000",
+        "fps_max_ui": "120.000000",
+        "func_break_max_pieces": "1",
+        "gameinstructor_enable": "true",
+        "hide_party_code": "false",
+        "hud_fastswitch": "0",
+        "imgui_default_font_size": "20.000000",
+        "input_filter_relative_analog_inputs": "false",
+        "joy_advanced": "false",
+        "joy_advaxisr": "0",
+        "joy_advaxisu": "0",
+        "joy_advaxisv": "0",
+        "joy_advaxisx": "0",
+        "joy_advaxisy": "0",
+        "joy_advaxisz": "0",
+        "joy_axisbutton_threshold": "0.300000",
+        "joy_display_input": "false",
+        "joy_name": "joystick",
+        "joy_sidesensitivity": "1.000000",
+        "joystick": "false",
+        "last_viewed_announce_id": "-1",
+        "mm_prefer_solo_only": "false",
+        "mobile_fps_increase_during_charging": "false",
+        "mobile_fps_increase_during_touch": "true",
+        "mobile_fps_limit": "30.000000",
+        "mouse_inverty": "false",
+        "npc_go_no_arrow": "false",
+        "panorama_debug_overlay_opacity": "0.250000",
+        "panorama_debug_overlay_opacity_max": "0.250000",
+        "panorama_debug_overlay_opacity_min": "0.010000",
+        "panorama_debugger_theme": "Light",
+        "panorama_focus_world_panels": "false",
+        "panorama_joystick_enabled": "false",
+        "panorama_toggledebugger_mode": "0",
+        "player0_using_joystick": "false",
+        "r_drawtracers_firstperson": "true",
+        "r_fullscreen_gamma": "2.200000",
+        "rate": "196608",
+        "rr_thenany_score_slop": "0.000000",
+        "scene_showfaceto": "false",
+        "scene_showmoveto": "false",
+        "sk_autoaim_mode": "1",
+        "snd_autodetect_latency": "true",
+        "snd_duckerattacktime": "0.500000",
+        "snd_duckerreleasetime": "2.500000",
+        "snd_duckerthreshold": "0.150000",
+        "snd_ducktovolume": "0.550000",
+        "snd_gain": "1.000000",
+        "snd_gamevoicevolume": "1.000000",
+        "snd_gamevolume": "0.416667",
+        "snd_mixahead": "0.001000",
+        "snd_musicvolume": "0.353334",
+        "snd_mute_losefocus": "true",
+        "snd_spatialize_lerp": "0.000000",
+        "snd_steamaudio_enable_perspective_correction": "false",
+        "snd_steamaudio_source_pathing_debug": "false",
+        "snd_toolvolume": "1.000000",
+        "snd_voipvolume": "1.000000",
+        "sound_device_override": "Source2SDLDefaultDevice",
+        "speaker_config": "0",
+        "spec_centerchasecam": "false",
+        "spec_replay_autostart": "true",
+        "splitscreen_mode": "0",
+        "steam_inputhandler_glyph_lock_mode": "0",
+        "steaminput_glyph_use_universal_face_buttons": "true",
+        "sv_log_onefile": "false",
+        "sv_logbans": "false",
+        "sv_logecho": "true",
+        "sv_logfile": "false",
+        "sv_logflush": "false",
+        "sv_logsdir": "logs",
+        "sv_noclipaccelerate": "5.000000",
+        "sv_noclipfriction": "4.000000",
+        "sv_noclipspeed": "1200.000000",
+        "sv_pause_on_console_open": "false",
+        "sv_skyname": "sky_urb01",
+        "sv_specaccelerate": "5.000000",
+        "sv_specnoclip": "true",
+        "sv_specspeed$2": "1200.000000",
+        "sv_unlockedchapters": "1",
+        "sv_unpause_on_console_close": "false",
+        "sv_usercmd_execute_warning_ms": "5.000000",
+        "sv_voiceenable": "true",
+        "team_chat_auto_join": "false",
+        "tv_nochat": "false",
+        "violence_ablood": "true",
+        "violence_agibs": "true",
+        "violence_hblood": "true",
+        "violence_hgibs": "true",
+        "voice_always_sample_mic$2": "false",
+        "voice_device_override": "#OS_Default_Device",
+        "voice_modenable": "true",
+        "voice_threshold": "-120.000000",
+        "volume": "0.176667"
+      },
+      "entries": [
+        {
+          "key": "adsp_debug",
+          "value": "0",
+          "line": 5
+        },
+        {
+          "key": "ai_debug_decisionmaking",
+          "value": "false",
+          "line": 6
+        },
+        {
+          "key": "ai_ignore_collision_player_noclip",
+          "value": "false",
+          "line": 7
+        },
+        {
+          "key": "ai_report_task_timings_on_limit",
+          "value": "false",
+          "line": 8
+        },
+        {
+          "key": "ai_select_box_alpha",
+          "value": "20",
+          "line": 9
+        },
+        {
+          "key": "ai_think_limit_label",
+          "value": "false",
+          "line": 10
+        },
+        {
+          "key": "automatically_open_saved_animgraph_recording",
+          "value": "false",
+          "line": 11
+        },
+        {
+          "key": "battery_saver",
+          "value": "false",
+          "line": 12
+        },
+        {
+          "key": "c_maxdistance",
+          "value": "200.000000",
+          "line": 13
+        },
+        {
+          "key": "c_maxpitch",
+          "value": "90.000000",
+          "line": 14
+        },
+        {
+          "key": "c_maxyaw",
+          "value": "135.000000",
+          "line": 15
+        },
+        {
+          "key": "c_mindistance",
+          "value": "30.000000",
+          "line": 16
+        },
+        {
+          "key": "c_minpitch",
+          "value": "0.000000",
+          "line": 17
+        },
+        {
+          "key": "c_minyaw",
+          "value": "-135.000000",
+          "line": 18
+        },
+        {
+          "key": "c_orthoheight",
+          "value": "100.000000",
+          "line": 19
+        },
+        {
+          "key": "c_orthowidth",
+          "value": "100.000000",
+          "line": 20
+        },
+        {
+          "key": "c_thirdpersonshoulder",
+          "value": "false",
+          "line": 21
+        },
+        {
+          "key": "c_thirdpersonshoulderaimdist",
+          "value": "120.000000",
+          "line": 22
+        },
+        {
+          "key": "c_thirdpersonshoulderdist",
+          "value": "40.000000",
+          "line": 23
+        },
+        {
+          "key": "c_thirdpersonshoulderheight",
+          "value": "5.000000",
+          "line": 24
+        },
+        {
+          "key": "c_thirdpersonshoulderoffset",
+          "value": "20.000000",
+          "line": 25
+        },
+        {
+          "key": "cam_collision",
+          "value": "1",
+          "line": 26
+        },
+        {
+          "key": "cam_idealdelta",
+          "value": "4.000000",
+          "line": 27
+        },
+        {
+          "key": "cam_idealdist",
+          "value": "150.000000",
+          "line": 28
+        },
+        {
+          "key": "cam_ideallag",
+          "value": "4.000000",
+          "line": 29
+        },
+        {
+          "key": "cam_idealpitch",
+          "value": "0.000000",
+          "line": 30
+        },
+        {
+          "key": "cam_idealyaw",
+          "value": "0.000000",
+          "line": 31
+        },
+        {
+          "key": "cam_snapto",
+          "value": "false",
+          "line": 32
+        },
+        {
+          "key": "cc_delay_time",
+          "value": "0.250000",
+          "line": 33
+        },
+        {
+          "key": "cc_linger_time",
+          "value": "1.000000",
+          "line": 34
+        },
+        {
+          "key": "cc_spectator_only",
+          "value": "false",
+          "line": 35
+        },
+        {
+          "key": "cc_subtitles",
+          "value": "false",
+          "line": 36
+        },
+        {
+          "key": "cc_vr_caption_speed",
+          "value": "1",
+          "line": 37
+        },
+        {
+          "key": "cc_vr_font_size",
+          "value": "1",
+          "line": 38
+        },
+        {
+          "key": "cc_vr_width",
+          "value": "1",
+          "line": 39
+        },
+        {
+          "key": "citadel_ability_preview_path_debug_draw_dt",
+          "value": "0.075000",
+          "line": 40
+        },
+        {
+          "key": "citadel_activate_window_on_unpause",
+          "value": "false",
+          "line": 41
+        },
+        {
+          "key": "citadel_allow_ally_pings",
+          "value": "true",
+          "line": 42
+        },
+        {
+          "key": "citadel_allow_ally_text",
+          "value": "true",
+          "line": 43
+        },
+        {
+          "key": "citadel_allow_ally_voice",
+          "value": "true",
+          "line": 44
+        },
+        {
+          "key": "citadel_allow_opponent_text",
+          "value": "true",
+          "line": 45
+        },
+        {
+          "key": "citadel_allow_party_pings",
+          "value": "true",
+          "line": 46
+        },
+        {
+          "key": "citadel_allow_party_text",
+          "value": "true",
+          "line": 47
+        },
+        {
+          "key": "citadel_allow_party_voice",
+          "value": "true",
+          "line": 48
+        },
+        {
+          "key": "citadel_allow_spectated_pings",
+          "value": "true",
+          "line": 49
+        },
+        {
+          "key": "citadel_allow_spectated_text",
+          "value": "true",
+          "line": 50
+        },
+        {
+          "key": "citadel_always_show_active_hud_stats",
+          "value": "false",
+          "line": 51
+        },
+        {
+          "key": "citadel_auto_queue_build$1",
+          "value": "false",
+          "line": 52
+        },
+        {
+          "key": "citadel_brawl_hero_roster",
+          "value": "64,1,13,76,67,65,25",
+          "line": 53
+        },
+        {
+          "key": "citadel_brawl_hero_roster_random",
+          "value": "false",
+          "line": 54
+        },
+        {
+          "key": "citadel_camera_hero_fov",
+          "value": "90.000000",
+          "line": 55
+        },
+        {
+          "key": "citadel_camera_pitch_inverted",
+          "value": "false",
+          "line": 56
+        },
+        {
+          "key": "citadel_camera_sensitivity",
+          "value": "1.000000",
+          "line": 57
+        },
+        {
+          "key": "citadel_crosshair_color_b",
+          "value": "255",
+          "line": 58
+        },
+        {
+          "key": "citadel_crosshair_color_g",
+          "value": "255",
+          "line": 59
+        },
+        {
+          "key": "citadel_crosshair_color_r",
+          "value": "255",
+          "line": 60
+        },
+        {
+          "key": "citadel_crosshair_disable_hero_specific_crosshairs",
+          "value": "false",
+          "line": 61
+        },
+        {
+          "key": "citadel_crosshair_dot_opacity",
+          "value": "0.700000",
+          "line": 62
+        },
+        {
+          "key": "citadel_crosshair_dot_outline_border",
+          "value": "2",
+          "line": 63
+        },
+        {
+          "key": "citadel_crosshair_dot_outline_gap",
+          "value": "0.000000",
+          "line": 64
+        },
+        {
+          "key": "citadel_crosshair_dot_outline_opacity",
+          "value": "0.700000",
+          "line": 65
+        },
+        {
+          "key": "citadel_crosshair_dot_size",
+          "value": "4.000000",
+          "line": 66
+        },
+        {
+          "key": "citadel_crosshair_hit_marker_duration",
+          "value": "0.100000",
+          "line": 67
+        },
+        {
+          "key": "citadel_crosshair_outline_color_b",
+          "value": "0",
+          "line": 68
+        },
+        {
+          "key": "citadel_crosshair_outline_color_g",
+          "value": "0",
+          "line": 69
+        },
+        {
+          "key": "citadel_crosshair_outline_color_r",
+          "value": "0",
+          "line": 70
+        },
+        {
+          "key": "citadel_crosshair_pip_gap",
+          "value": "4",
+          "line": 71
+        },
+        {
+          "key": "citadel_crosshair_pip_gap_static",
+          "value": "false",
+          "line": 72
+        },
+        {
+          "key": "citadel_crosshair_pip_height",
+          "value": "16.000000",
+          "line": 73
+        },
+        {
+          "key": "citadel_crosshair_pip_opacity",
+          "value": "0.500000",
+          "line": 74
+        },
+        {
+          "key": "citadel_crosshair_pip_outline_border",
+          "value": "1",
+          "line": 75
+        },
+        {
+          "key": "citadel_crosshair_pip_outline_gap",
+          "value": "0.000000",
+          "line": 76
+        },
+        {
+          "key": "citadel_crosshair_pip_outline_opacity",
+          "value": "0.700000",
+          "line": 77
+        },
+        {
+          "key": "citadel_crosshair_pip_width",
+          "value": "2.000000",
+          "line": 78
+        },
+        {
+          "key": "citadel_deny_text_max_distance",
+          "value": "4000.000000",
+          "line": 79
+        },
+        {
+          "key": "citadel_english_hero_names",
+          "value": "false",
+          "line": 80
+        },
+        {
+          "key": "citadel_english_mod_names",
+          "value": "false",
+          "line": 81
+        },
+        {
+          "key": "citadel_hero_demo_enable_fast_stamina",
+          "value": "false",
+          "line": 82
+        },
+        {
+          "key": "citadel_hero_demo_enable_unlimited_ammo",
+          "value": "false",
+          "line": 83
+        },
+        {
+          "key": "citadel_hero_demo_hero_spawn",
+          "value": "hero_inferno",
+          "line": 84
+        },
+        {
+          "key": "citadel_hero_demo_infinite_resources",
+          "value": "true",
+          "line": 85
+        },
+        {
+          "key": "citadel_hero_demo_no_cooldowns$1",
+          "value": "false",
+          "line": 86
+        },
+        {
+          "key": "citadel_hero_demo_no_death",
+          "value": "false",
+          "line": 87
+        },
+        {
+          "key": "citadel_hero_demo_no_troopers",
+          "value": "false",
+          "line": 88
+        },
+        {
+          "key": "citadel_hero_demo_persist_convars",
+          "value": "false",
+          "line": 89
+        },
+        {
+          "key": "citadel_hero_demo_unlock_flex_slots",
+          "value": "false",
+          "line": 90
+        },
+        {
+          "key": "citadel_hero_roster_random",
+          "value": "false",
+          "line": 91
+        },
+        {
+          "key": "citadel_hideout_hero_id",
+          "value": "65",
+          "line": 92
+        },
+        {
+          "key": "citadel_hideout_intro_version_seen",
+          "value": "1",
+          "line": 93
+        },
+        {
+          "key": "citadel_invert_ping_type",
+          "value": "false",
+          "line": 94
+        },
+        {
+          "key": "citadel_new_player_flow_visible",
+          "value": "true",
+          "line": 95
+        },
+        {
+          "key": "citadel_new_player_progress",
+          "value": "14",
+          "line": 96
+        },
+        {
+          "key": "citadel_observer_roaming_speed",
+          "value": "600.000000",
+          "line": 97
+        },
+        {
+          "key": "citadel_per_unit_hotkeys_checked",
+          "value": "false",
+          "line": 98
+        },
+        {
+          "key": "citadel_previous_umuted_audio_level",
+          "value": "1.000000",
+          "line": 99
+        },
+        {
+          "key": "citadel_private_lobby_bot_difficulty",
+          "value": "0",
+          "line": 100
+        },
+        {
+          "key": "citadel_private_lobby_cheats_enabled",
+          "value": "false",
+          "line": 101
+        },
+        {
+          "key": "citadel_private_lobby_duplicate_heroes_enabled",
+          "value": "false",
+          "line": 102
+        },
+        {
+          "key": "citadel_private_lobby_is_publicly_visible",
+          "value": "false",
+          "line": 103
+        },
+        {
+          "key": "citadel_private_lobby_randomize_lanes",
+          "value": "false",
+          "line": 104
+        },
+        {
+          "key": "citadel_private_lobby_server_region",
+          "value": "0",
+          "line": 105
+        },
+        {
+          "key": "citadel_quickbuy_auto_buy_default$3",
+          "value": "false",
+          "line": 106
+        },
+        {
+          "key": "citadel_quickbuy_enable",
+          "value": "true",
+          "line": 107
+        },
+        {
+          "key": "citadel_ranked_hero_roster_random",
+          "value": "false",
+          "line": 108
+        },
+        {
+          "key": "citadel_replay_manager_download_chunk_size",
+          "value": "1048576",
+          "line": 109
+        },
+        {
+          "key": "citadel_replay_manager_download_simultaneous_requests",
+          "value": "3",
+          "line": 110
+        },
+        {
+          "key": "citadel_secondary_language_builds",
+          "value": "-1",
+          "line": 111
+        },
+        {
+          "key": "citadel_shop_default_tab",
+          "value": "-1",
+          "line": 112
+        },
+        {
+          "key": "citadel_show_active_slot_popup",
+          "value": "false",
+          "line": 113
+        },
+        {
+          "key": "citadel_show_all_purchase_toasts",
+          "value": "false",
+          "line": 114
+        },
+        {
+          "key": "citadel_show_npe_modal",
+          "value": "false",
+          "line": 115
+        },
+        {
+          "key": "citadel_show_page_reload_button",
+          "value": "true",
+          "line": 116
+        },
+        {
+          "key": "citadel_streaming_mode_enabled",
+          "value": "false",
+          "line": 117
+        },
+        {
+          "key": "citadel_tightcamera_alternative$2",
+          "value": "1.300000",
+          "line": 118
+        },
+        {
+          "key": "citadel_use_contextual_ping_wheel_option",
+          "value": "true",
+          "line": 119
+        },
+        {
+          "key": "citadel_use_shop_component_groupings$3",
+          "value": "false",
+          "line": 120
+        },
+        {
+          "key": "citadel_use_ui_keybindings",
+          "value": "true",
+          "line": 121
+        },
+        {
+          "key": "citadel_video_preset",
+          "value": "3",
+          "line": 122
+        },
+        {
+          "key": "citadel_viewed_book_prototype",
+          "value": "false",
+          "line": 123
+        },
+        {
+          "key": "cl_auto_cursor_scale",
+          "value": "true",
+          "line": 124
+        },
+        {
+          "key": "cl_citadel_ability_alt_cast_hold_time",
+          "value": "0.150000",
+          "line": 125
+        },
+        {
+          "key": "cl_citadel_ability_alt_cast_instant_cast_double_tap_timeout",
+          "value": "0.200000",
+          "line": 126
+        },
+        {
+          "key": "cl_citadel_ability_alt_cast_mode",
+          "value": "2",
+          "line": 127
+        },
+        {
+          "key": "cl_citadel_cancel_with_ability_key_enabled",
+          "value": "false",
+          "line": 128
+        },
+        {
+          "key": "cl_citadel_items_quickcast_mode",
+          "value": "0",
+          "line": 129
+        },
+        {
+          "key": "cl_citadel_player_voting_poster_current_hero_id",
+          "value": "0",
+          "line": 130
+        },
+        {
+          "key": "cl_citadel_quickcast_ability1",
+          "value": "0",
+          "line": 131
+        },
+        {
+          "key": "cl_citadel_quickcast_ability2",
+          "value": "0",
+          "line": 132
+        },
+        {
+          "key": "cl_citadel_quickcast_ability3",
+          "value": "0",
+          "line": 133
+        },
+        {
+          "key": "cl_citadel_quickcast_ability4",
+          "value": "0",
+          "line": 134
+        },
+        {
+          "key": "cl_citadel_zoom_is_toggle",
+          "value": "false",
+          "line": 135
+        },
+        {
+          "key": "cl_cursor_scale",
+          "value": "1.000000",
+          "line": 136
+        },
+        {
+          "key": "cl_ent_pivot_size",
+          "value": "20.000000",
+          "line": 137
+        },
+        {
+          "key": "cl_ent_text_flags_active",
+          "value": "-1",
+          "line": 138
+        },
+        {
+          "key": "cl_graphics_driver_warning_ignore_timestamp",
+          "value": "0",
+          "line": 139
+        },
+        {
+          "key": "cl_hud_telemetry_frametime_poor",
+          "value": "100.000000",
+          "line": 140
+        },
+        {
+          "key": "cl_hud_telemetry_frametime_show",
+          "value": "1",
+          "line": 141
+        },
+        {
+          "key": "cl_hud_telemetry_net_detailed",
+          "value": "0",
+          "line": 142
+        },
+        {
+          "key": "cl_hud_telemetry_net_misdelivery_poor",
+          "value": "2.000000",
+          "line": 143
+        },
+        {
+          "key": "cl_hud_telemetry_net_misdelivery_show",
+          "value": "1",
+          "line": 144
+        },
+        {
+          "key": "cl_hud_telemetry_net_quality_graph_show",
+          "value": "0",
+          "line": 145
+        },
+        {
+          "key": "cl_hud_telemetry_ping_poor",
+          "value": "100.000000",
+          "line": 146
+        },
+        {
+          "key": "cl_hud_telemetry_ping_show",
+          "value": "1",
+          "line": 147
+        },
+        {
+          "key": "cl_hud_telemetry_serverrecvmargin_graph_show",
+          "value": "0",
+          "line": 148
+        },
+        {
+          "key": "cl_interpolate_report",
+          "value": "false",
+          "line": 149
+        },
+        {
+          "key": "cl_joystick_enabled",
+          "value": "false",
+          "line": 150
+        },
+        {
+          "key": "cl_latch_report",
+          "value": "false",
+          "line": 151
+        },
+        {
+          "key": "cl_network_quality2",
+          "value": "-1",
+          "line": 152
+        },
+        {
+          "key": "cl_ragdoll_limit",
+          "value": "20",
+          "line": 153
+        },
+        {
+          "key": "cl_timeout",
+          "value": "30.000000",
+          "line": 154
+        },
+        {
+          "key": "cl_updaterate",
+          "value": "128.000000",
+          "line": 155
+        },
+        {
+          "key": "cl_voice_transmit_lobby",
+          "value": "false",
+          "line": 156
+        },
+        {
+          "key": "closecaption",
+          "value": "false",
+          "line": 157
+        },
+        {
+          "key": "commentary",
+          "value": "false",
+          "line": 158
+        },
+        {
+          "key": "deadlock_chat_mode",
+          "value": "2",
+          "line": 159
+        },
+        {
+          "key": "deadlock_disable_post_match_survey",
+          "value": "false",
+          "line": 160
+        },
+        {
+          "key": "deadlock_early_development_warning_disabled",
+          "value": "true",
+          "line": 161
+        },
+        {
+          "key": "deadlock_mm_preference",
+          "value": "1",
+          "line": 162
+        },
+        {
+          "key": "debugoverlay_text_scale",
+          "value": "1.000000",
+          "line": 163
+        },
+        {
+          "key": "demo_flush",
+          "value": "false",
+          "line": 164
+        },
+        {
+          "key": "dsp_volume",
+          "value": "0.000000",
+          "line": 165
+        },
+        {
+          "key": "enable_boneflex",
+          "value": "true",
+          "line": 166
+        },
+        {
+          "key": "engine_no_focus_sleep",
+          "value": "20",
+          "line": 167
+        },
+        {
+          "key": "ent_pivot_size",
+          "value": "20.000000",
+          "line": 168
+        },
+        {
+          "key": "ent_text_flags_active",
+          "value": "-1",
+          "line": 169
+        },
+        {
+          "key": "fov_desired",
+          "value": "75.000000",
+          "line": 170
+        },
+        {
+          "key": "fps_max",
+          "value": "400.000000",
+          "line": 171
+        },
+        {
+          "key": "fps_max_tools",
+          "value": "120.000000",
+          "line": 172
+        },
+        {
+          "key": "fps_max_ui",
+          "value": "120.000000",
+          "line": 173
+        },
+        {
+          "key": "func_break_max_pieces",
+          "value": "1",
+          "line": 174
+        },
+        {
+          "key": "gameinstructor_enable",
+          "value": "true",
+          "line": 175
+        },
+        {
+          "key": "hide_party_code",
+          "value": "false",
+          "line": 176
+        },
+        {
+          "key": "hud_fastswitch",
+          "value": "0",
+          "line": 177
+        },
+        {
+          "key": "imgui_default_font_size",
+          "value": "20.000000",
+          "line": 178
+        },
+        {
+          "key": "input_filter_relative_analog_inputs",
+          "value": "false",
+          "line": 179
+        },
+        {
+          "key": "joy_advanced",
+          "value": "false",
+          "line": 180
+        },
+        {
+          "key": "joy_advaxisr",
+          "value": "0",
+          "line": 181
+        },
+        {
+          "key": "joy_advaxisu",
+          "value": "0",
+          "line": 182
+        },
+        {
+          "key": "joy_advaxisv",
+          "value": "0",
+          "line": 183
+        },
+        {
+          "key": "joy_advaxisx",
+          "value": "0",
+          "line": 184
+        },
+        {
+          "key": "joy_advaxisy",
+          "value": "0",
+          "line": 185
+        },
+        {
+          "key": "joy_advaxisz",
+          "value": "0",
+          "line": 186
+        },
+        {
+          "key": "joy_axisbutton_threshold",
+          "value": "0.300000",
+          "line": 187
+        },
+        {
+          "key": "joy_display_input",
+          "value": "false",
+          "line": 188
+        },
+        {
+          "key": "joy_name",
+          "value": "joystick",
+          "line": 189
+        },
+        {
+          "key": "joy_sidesensitivity",
+          "value": "1.000000",
+          "line": 190
+        },
+        {
+          "key": "joystick",
+          "value": "false",
+          "line": 191
+        },
+        {
+          "key": "last_viewed_announce_id",
+          "value": "-1",
+          "line": 192
+        },
+        {
+          "key": "mm_prefer_solo_only",
+          "value": "false",
+          "line": 193
+        },
+        {
+          "key": "mobile_fps_increase_during_charging",
+          "value": "false",
+          "line": 194
+        },
+        {
+          "key": "mobile_fps_increase_during_touch",
+          "value": "true",
+          "line": 195
+        },
+        {
+          "key": "mobile_fps_limit",
+          "value": "30.000000",
+          "line": 196
+        },
+        {
+          "key": "mouse_inverty",
+          "value": "false",
+          "line": 197
+        },
+        {
+          "key": "npc_go_no_arrow",
+          "value": "false",
+          "line": 198
+        },
+        {
+          "key": "panorama_debug_overlay_opacity",
+          "value": "0.250000",
+          "line": 199
+        },
+        {
+          "key": "panorama_debug_overlay_opacity_max",
+          "value": "0.250000",
+          "line": 200
+        },
+        {
+          "key": "panorama_debug_overlay_opacity_min",
+          "value": "0.010000",
+          "line": 201
+        },
+        {
+          "key": "panorama_debugger_theme",
+          "value": "Light",
+          "line": 202
+        },
+        {
+          "key": "panorama_focus_world_panels",
+          "value": "false",
+          "line": 203
+        },
+        {
+          "key": "panorama_joystick_enabled",
+          "value": "false",
+          "line": 204
+        },
+        {
+          "key": "panorama_toggledebugger_mode",
+          "value": "0",
+          "line": 205
+        },
+        {
+          "key": "player0_using_joystick",
+          "value": "false",
+          "line": 206
+        },
+        {
+          "key": "r_drawtracers_firstperson",
+          "value": "true",
+          "line": 207
+        },
+        {
+          "key": "r_fullscreen_gamma",
+          "value": "2.200000",
+          "line": 208
+        },
+        {
+          "key": "rate",
+          "value": "196608",
+          "line": 209
+        },
+        {
+          "key": "rr_thenany_score_slop",
+          "value": "0.000000",
+          "line": 210
+        },
+        {
+          "key": "scene_showfaceto",
+          "value": "false",
+          "line": 211
+        },
+        {
+          "key": "scene_showmoveto",
+          "value": "false",
+          "line": 212
+        },
+        {
+          "key": "sk_autoaim_mode",
+          "value": "1",
+          "line": 213
+        },
+        {
+          "key": "snd_autodetect_latency",
+          "value": "true",
+          "line": 214
+        },
+        {
+          "key": "snd_duckerattacktime",
+          "value": "0.500000",
+          "line": 215
+        },
+        {
+          "key": "snd_duckerreleasetime",
+          "value": "2.500000",
+          "line": 216
+        },
+        {
+          "key": "snd_duckerthreshold",
+          "value": "0.150000",
+          "line": 217
+        },
+        {
+          "key": "snd_ducktovolume",
+          "value": "0.550000",
+          "line": 218
+        },
+        {
+          "key": "snd_gain",
+          "value": "1.000000",
+          "line": 219
+        },
+        {
+          "key": "snd_gamevoicevolume",
+          "value": "1.000000",
+          "line": 220
+        },
+        {
+          "key": "snd_gamevolume",
+          "value": "0.416667",
+          "line": 221
+        },
+        {
+          "key": "snd_mixahead",
+          "value": "0.001000",
+          "line": 222
+        },
+        {
+          "key": "snd_musicvolume",
+          "value": "0.353334",
+          "line": 223
+        },
+        {
+          "key": "snd_mute_losefocus",
+          "value": "true",
+          "line": 224
+        },
+        {
+          "key": "snd_spatialize_lerp",
+          "value": "0.000000",
+          "line": 225
+        },
+        {
+          "key": "snd_steamaudio_enable_perspective_correction",
+          "value": "false",
+          "line": 226
+        },
+        {
+          "key": "snd_steamaudio_source_pathing_debug",
+          "value": "false",
+          "line": 227
+        },
+        {
+          "key": "snd_toolvolume",
+          "value": "1.000000",
+          "line": 228
+        },
+        {
+          "key": "snd_voipvolume",
+          "value": "1.000000",
+          "line": 229
+        },
+        {
+          "key": "sound_device_override",
+          "value": "Source2SDLDefaultDevice",
+          "line": 230
+        },
+        {
+          "key": "speaker_config",
+          "value": "0",
+          "line": 231
+        },
+        {
+          "key": "spec_centerchasecam",
+          "value": "false",
+          "line": 232
+        },
+        {
+          "key": "spec_replay_autostart",
+          "value": "true",
+          "line": 233
+        },
+        {
+          "key": "splitscreen_mode",
+          "value": "0",
+          "line": 234
+        },
+        {
+          "key": "steam_inputhandler_glyph_lock_mode",
+          "value": "0",
+          "line": 235
+        },
+        {
+          "key": "steaminput_glyph_use_universal_face_buttons",
+          "value": "true",
+          "line": 236
+        },
+        {
+          "key": "sv_log_onefile",
+          "value": "false",
+          "line": 237
+        },
+        {
+          "key": "sv_logbans",
+          "value": "false",
+          "line": 238
+        },
+        {
+          "key": "sv_logecho",
+          "value": "true",
+          "line": 239
+        },
+        {
+          "key": "sv_logfile",
+          "value": "false",
+          "line": 240
+        },
+        {
+          "key": "sv_logflush",
+          "value": "false",
+          "line": 241
+        },
+        {
+          "key": "sv_logsdir",
+          "value": "logs",
+          "line": 242
+        },
+        {
+          "key": "sv_noclipaccelerate",
+          "value": "5.000000",
+          "line": 243
+        },
+        {
+          "key": "sv_noclipfriction",
+          "value": "4.000000",
+          "line": 244
+        },
+        {
+          "key": "sv_noclipspeed",
+          "value": "1200.000000",
+          "line": 245
+        },
+        {
+          "key": "sv_pause_on_console_open",
+          "value": "false",
+          "line": 246
+        },
+        {
+          "key": "sv_skyname",
+          "value": "sky_urb01",
+          "line": 247
+        },
+        {
+          "key": "sv_specaccelerate",
+          "value": "5.000000",
+          "line": 248
+        },
+        {
+          "key": "sv_specnoclip",
+          "value": "true",
+          "line": 249
+        },
+        {
+          "key": "sv_specspeed$2",
+          "value": "1200.000000",
+          "line": 250
+        },
+        {
+          "key": "sv_unlockedchapters",
+          "value": "1",
+          "line": 251
+        },
+        {
+          "key": "sv_unpause_on_console_close",
+          "value": "false",
+          "line": 252
+        },
+        {
+          "key": "sv_usercmd_execute_warning_ms",
+          "value": "5.000000",
+          "line": 253
+        },
+        {
+          "key": "sv_voiceenable",
+          "value": "true",
+          "line": 254
+        },
+        {
+          "key": "team_chat_auto_join",
+          "value": "false",
+          "line": 255
+        },
+        {
+          "key": "tv_nochat",
+          "value": "false",
+          "line": 256
+        },
+        {
+          "key": "violence_ablood",
+          "value": "true",
+          "line": 257
+        },
+        {
+          "key": "violence_agibs",
+          "value": "true",
+          "line": 258
+        },
+        {
+          "key": "violence_hblood",
+          "value": "true",
+          "line": 259
+        },
+        {
+          "key": "violence_hgibs",
+          "value": "true",
+          "line": 260
+        },
+        {
+          "key": "voice_always_sample_mic$2",
+          "value": "false",
+          "line": 261
+        },
+        {
+          "key": "voice_device_override",
+          "value": "#OS_Default_Device",
+          "line": 262
+        },
+        {
+          "key": "voice_modenable",
+          "value": "true",
+          "line": 263
+        },
+        {
+          "key": "voice_threshold",
+          "value": "-120.000000",
+          "line": 264
+        },
+        {
+          "key": "volume",
+          "value": "0.176667",
+          "line": 265
+        }
+      ],
+      "duplicates": []
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_convars_0_slot0.vcfg",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.531124+00:00",
+      "ownership": "legacy MOD",
+      "settings": {
+        "con_enable": "false",
+        "input_button_code_is_scan_code_scd": "true",
+        "joy_axisr_deadzone": "0.150000",
+        "joy_axisr_relative": "false",
+        "joy_axisu_deadzone": "0.150000",
+        "joy_axisu_relative": "false",
+        "joy_axisv_deadzone": "0.150000",
+        "joy_axisv_relative": "false",
+        "joy_axisx_deadzone": "0.150000",
+        "joy_axisx_relative": "false",
+        "joy_axisy_deadzone": "0.150000",
+        "joy_axisy_relative": "false",
+        "joy_axisz_deadzone": "0.150000",
+        "joy_axisz_relative": "false",
+        "joy_circle_correct_mode": "1",
+        "joy_circle_correct_mode_vehicle": "2",
+        "joy_forward_sensitivity": "1.000000",
+        "joy_movement_stick": "false",
+        "joy_pitch_sensitivity": "3.000000",
+        "joy_pitchsensitivity": "1.000000",
+        "joy_response_look": "0",
+        "joy_response_move": "9",
+        "joy_side_sensitivity": "1.000000",
+        "joy_yaw_sensitivity": "3.000000",
+        "joy_yawsensitivity": "-1.000000",
+        "m_pitch": "0.022000",
+        "m_yaw": "0.022000",
+        "name": "rndaom",
+        "option_duck_method": "false",
+        "ping_wheel_phrase_0": "1",
+        "ping_wheel_phrase_1": "2",
+        "ping_wheel_phrase_2": "4",
+        "ping_wheel_phrase_3": "34",
+        "ping_wheel_phrase_4": "18",
+        "ping_wheel_phrase_5": "5",
+        "ping_wheel_phrase_6": "42",
+        "ping_wheel_phrase_7": "6",
+        "sensitivity": "1.250000",
+        "sensitivity_y_scale": "1.000000",
+        "skill": "1",
+        "voice_vox": "0",
+        "zoom_sensitivity_ratio": "1.000000"
+      },
+      "entries": [
+        {
+          "key": "con_enable",
+          "value": "false",
+          "line": 5
+        },
+        {
+          "key": "input_button_code_is_scan_code_scd",
+          "value": "true",
+          "line": 6
+        },
+        {
+          "key": "joy_axisr_deadzone",
+          "value": "0.150000",
+          "line": 7
+        },
+        {
+          "key": "joy_axisr_relative",
+          "value": "false",
+          "line": 8
+        },
+        {
+          "key": "joy_axisu_deadzone",
+          "value": "0.150000",
+          "line": 9
+        },
+        {
+          "key": "joy_axisu_relative",
+          "value": "false",
+          "line": 10
+        },
+        {
+          "key": "joy_axisv_deadzone",
+          "value": "0.150000",
+          "line": 11
+        },
+        {
+          "key": "joy_axisv_relative",
+          "value": "false",
+          "line": 12
+        },
+        {
+          "key": "joy_axisx_deadzone",
+          "value": "0.150000",
+          "line": 13
+        },
+        {
+          "key": "joy_axisx_relative",
+          "value": "false",
+          "line": 14
+        },
+        {
+          "key": "joy_axisy_deadzone",
+          "value": "0.150000",
+          "line": 15
+        },
+        {
+          "key": "joy_axisy_relative",
+          "value": "false",
+          "line": 16
+        },
+        {
+          "key": "joy_axisz_deadzone",
+          "value": "0.150000",
+          "line": 17
+        },
+        {
+          "key": "joy_axisz_relative",
+          "value": "false",
+          "line": 18
+        },
+        {
+          "key": "joy_circle_correct_mode",
+          "value": "1",
+          "line": 19
+        },
+        {
+          "key": "joy_circle_correct_mode_vehicle",
+          "value": "2",
+          "line": 20
+        },
+        {
+          "key": "joy_forward_sensitivity",
+          "value": "1.000000",
+          "line": 21
+        },
+        {
+          "key": "joy_movement_stick",
+          "value": "false",
+          "line": 22
+        },
+        {
+          "key": "joy_pitch_sensitivity",
+          "value": "3.000000",
+          "line": 23
+        },
+        {
+          "key": "joy_pitchsensitivity",
+          "value": "1.000000",
+          "line": 24
+        },
+        {
+          "key": "joy_response_look",
+          "value": "0",
+          "line": 25
+        },
+        {
+          "key": "joy_response_move",
+          "value": "9",
+          "line": 26
+        },
+        {
+          "key": "joy_side_sensitivity",
+          "value": "1.000000",
+          "line": 27
+        },
+        {
+          "key": "joy_yaw_sensitivity",
+          "value": "3.000000",
+          "line": 28
+        },
+        {
+          "key": "joy_yawsensitivity",
+          "value": "-1.000000",
+          "line": 29
+        },
+        {
+          "key": "m_pitch",
+          "value": "0.022000",
+          "line": 30
+        },
+        {
+          "key": "m_yaw",
+          "value": "0.022000",
+          "line": 31
+        },
+        {
+          "key": "name",
+          "value": "rndaom",
+          "line": 32
+        },
+        {
+          "key": "option_duck_method",
+          "value": "false",
+          "line": 33
+        },
+        {
+          "key": "ping_wheel_phrase_0",
+          "value": "1",
+          "line": 34
+        },
+        {
+          "key": "ping_wheel_phrase_1",
+          "value": "2",
+          "line": 35
+        },
+        {
+          "key": "ping_wheel_phrase_2",
+          "value": "4",
+          "line": 36
+        },
+        {
+          "key": "ping_wheel_phrase_3",
+          "value": "34",
+          "line": 37
+        },
+        {
+          "key": "ping_wheel_phrase_4",
+          "value": "18",
+          "line": 38
+        },
+        {
+          "key": "ping_wheel_phrase_5",
+          "value": "5",
+          "line": 39
+        },
+        {
+          "key": "ping_wheel_phrase_6",
+          "value": "42",
+          "line": 40
+        },
+        {
+          "key": "ping_wheel_phrase_7",
+          "value": "6",
+          "line": 41
+        },
+        {
+          "key": "sensitivity",
+          "value": "1.250000",
+          "line": 42
+        },
+        {
+          "key": "sensitivity_y_scale",
+          "value": "1.000000",
+          "line": 43
+        },
+        {
+          "key": "skill",
+          "value": "1",
+          "line": 44
+        },
+        {
+          "key": "voice_vox",
+          "value": "0",
+          "line": 45
+        },
+        {
+          "key": "zoom_sensitivity_ratio",
+          "value": "1.000000",
+          "line": 46
+        }
+      ],
+      "duplicates": []
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\video.txt",
+      "bytes": 3011,
+      "modified_utc": "2026-10-01T01:06:39.449984+00:00",
+      "ownership": "USRLOCAL",
+      "settings": {
+        "Version": "20",
+        "VendorID": "4098",
+        "DeviceID": "29822",
+        "setting.defaultres": "1920",
+        "setting.defaultresheight": "1080",
+        "setting.recommendedheight": "0",
+        "setting.refreshrate_numerator": "0",
+        "setting.fullscreen": "0",
+        "setting.nowindowborder": "1",
+        "setting.fullscreen_min_on_focus_loss": "0",
+        "setting.monitor_index": "0",
+        "setting.knowndevice": "1",
+        "setting.high_dpi": "0",
+        "setting.aspectratiomode": "0",
+        "setting.cpu_level": "1",
+        "setting.mem_level": "0",
+        "setting.gpu_mem_level": "0",
+        "setting.gpu_level": "0",
+        "setting.mat_vsync": "0",
+        "setting.r_low_latency": "1",
+        "setting.fps_max": "0",
+        "setting.mat_viewportscale": "0.79999995",
+        "setting.r_citadel_antialiasing": "0",
+        "setting.r_citadel_upscaling": "2",
+        "setting.r_citadel_dlss_settings_mode": "0",
+        "setting.r_dlss_preset": "0",
+        "setting.r_citadel_fsr_rcas_sharpness": "0",
+        "setting.r_citadel_fsr2_sharpness": "0",
+        "setting.r_effects_bloom": "false",
+        "setting.r_post_bloom": "false",
+        "setting.r_depth_of_field": "false",
+        "setting.r_citadel_motion_blur": "0",
+        "setting.r_reduce_flash": "1",
+        "setting.r_shadows": "0",
+        "setting.r_citadel_shadow_quality": "0",
+        "setting.r_citadel_distancefield_shadows": "false",
+        "setting.csm_max_shadow_dist_override": "0",
+        "setting.csm_max_num_cascades_override": "0",
+        "setting.csm_viewmodel_shadows": "0",
+        "setting.lb_enable_shadow_casting": "false",
+        "setting.lb_dynamic_shadow_resolution": "false",
+        "setting.r_area_lights": "0",
+        "setting.r_arealights": "false",
+        "setting.r_citadel_ssao": "0",
+        "setting.r_citadel_ssao_quality": "0",
+        "setting.r_citadel_distancefield_ao_quality": "0",
+        "setting.r_citadel_fog_quality": "0",
+        "setting.volume_fog_width": "0",
+        "setting.volume_fog_height": "0",
+        "setting.volume_fog_depth": "0",
+        "setting.shaderquality": "0",
+        "setting.lb_shadow_texture_width_override": "0",
+        "setting.lb_shadow_texture_height_override": "0",
+        "setting.r_displacement_mapping": "0",
+        "setting.r_dashboard_render_quality": "0",
+        "setting.r_particle_max_detail_level": "0",
+        "setting.r_particle_shadows": "0",
+        "setting.r_particle_cables_cast_shadows": "0",
+        "setting.r_particle_depth_feathering": "false",
+        "setting.r_citadel_half_res_noisy_effects": "true",
+        "setting.cl_particle_fallback_base": "5",
+        "setting.cl_particle_fallback_multiplier": "5",
+        "setting.r_distancefield_enable": "false",
+        "setting.r_citadel_outlines": "1",
+        "setting.r_fullscreen_gamma": "2.2",
+        "setting.useadvanced": "1",
+        "setting.coop_fullscreen": "1",
+        "setting.r_light_sensitivity_mode": "true",
+        "setting.refreshrate_denominator": "0",
+        "setting.r_citadel_distancefield_reflections": "false",
+        "setting.r_screen_space_shadows": "false",
+        "setting.r_render_portals": "1",
+        "setting.r_env_map_uses_height_map": "0",
+        "setting.r_citadel_mboit": "false",
+        "setting.lb_csm_override_staticgeo_cascades": "true",
+        "setting.lb_csm_override_staticgeo_cascades_value": "-1",
+        "setting.r_texture_stream_mip_bias": "2"
+      },
+      "entries": [
+        {
+          "key": "Version",
+          "value": "20",
+          "line": 3
+        },
+        {
+          "key": "VendorID",
+          "value": "4098",
+          "line": 4
+        },
+        {
+          "key": "DeviceID",
+          "value": "29822",
+          "line": 5
+        },
+        {
+          "key": "setting.defaultres",
+          "value": "1920",
+          "line": 6
+        },
+        {
+          "key": "setting.defaultresheight",
+          "value": "1080",
+          "line": 7
+        },
+        {
+          "key": "setting.recommendedheight",
+          "value": "0",
+          "line": 8
+        },
+        {
+          "key": "setting.refreshrate_numerator",
+          "value": "0",
+          "line": 9
+        },
+        {
+          "key": "setting.fullscreen",
+          "value": "0",
+          "line": 10
+        },
+        {
+          "key": "setting.nowindowborder",
+          "value": "1",
+          "line": 11
+        },
+        {
+          "key": "setting.fullscreen_min_on_focus_loss",
+          "value": "0",
+          "line": 12
+        },
+        {
+          "key": "setting.monitor_index",
+          "value": "0",
+          "line": 13
+        },
+        {
+          "key": "setting.knowndevice",
+          "value": "1",
+          "line": 14
+        },
+        {
+          "key": "setting.high_dpi",
+          "value": "0",
+          "line": 15
+        },
+        {
+          "key": "setting.aspectratiomode",
+          "value": "0",
+          "line": 16
+        },
+        {
+          "key": "setting.cpu_level",
+          "value": "1",
+          "line": 17
+        },
+        {
+          "key": "setting.mem_level",
+          "value": "0",
+          "line": 18
+        },
+        {
+          "key": "setting.gpu_mem_level",
+          "value": "0",
+          "line": 19
+        },
+        {
+          "key": "setting.gpu_level",
+          "value": "0",
+          "line": 20
+        },
+        {
+          "key": "setting.mat_vsync",
+          "value": "0",
+          "line": 21
+        },
+        {
+          "key": "setting.r_low_latency",
+          "value": "1",
+          "line": 22
+        },
+        {
+          "key": "setting.fps_max",
+          "value": "0",
+          "line": 23
+        },
+        {
+          "key": "setting.mat_viewportscale",
+          "value": "0.79999995",
+          "line": 24
+        },
+        {
+          "key": "setting.r_citadel_antialiasing",
+          "value": "0",
+          "line": 25
+        },
+        {
+          "key": "setting.r_citadel_upscaling",
+          "value": "2",
+          "line": 26
+        },
+        {
+          "key": "setting.r_citadel_dlss_settings_mode",
+          "value": "0",
+          "line": 27
+        },
+        {
+          "key": "setting.r_dlss_preset",
+          "value": "0",
+          "line": 28
+        },
+        {
+          "key": "setting.r_citadel_fsr_rcas_sharpness",
+          "value": "0",
+          "line": 29
+        },
+        {
+          "key": "setting.r_citadel_fsr2_sharpness",
+          "value": "0",
+          "line": 30
+        },
+        {
+          "key": "setting.r_effects_bloom",
+          "value": "false",
+          "line": 31
+        },
+        {
+          "key": "setting.r_post_bloom",
+          "value": "false",
+          "line": 32
+        },
+        {
+          "key": "setting.r_depth_of_field",
+          "value": "false",
+          "line": 33
+        },
+        {
+          "key": "setting.r_citadel_motion_blur",
+          "value": "0",
+          "line": 34
+        },
+        {
+          "key": "setting.r_reduce_flash",
+          "value": "1",
+          "line": 35
+        },
+        {
+          "key": "setting.r_shadows",
+          "value": "0",
+          "line": 36
+        },
+        {
+          "key": "setting.r_citadel_shadow_quality",
+          "value": "0",
+          "line": 37
+        },
+        {
+          "key": "setting.r_citadel_distancefield_shadows",
+          "value": "false",
+          "line": 38
+        },
+        {
+          "key": "setting.csm_max_shadow_dist_override",
+          "value": "0",
+          "line": 39
+        },
+        {
+          "key": "setting.csm_max_num_cascades_override",
+          "value": "0",
+          "line": 40
+        },
+        {
+          "key": "setting.csm_viewmodel_shadows",
+          "value": "0",
+          "line": 41
+        },
+        {
+          "key": "setting.lb_enable_shadow_casting",
+          "value": "false",
+          "line": 42
+        },
+        {
+          "key": "setting.lb_dynamic_shadow_resolution",
+          "value": "false",
+          "line": 43
+        },
+        {
+          "key": "setting.r_area_lights",
+          "value": "0",
+          "line": 44
+        },
+        {
+          "key": "setting.r_arealights",
+          "value": "false",
+          "line": 45
+        },
+        {
+          "key": "setting.r_citadel_ssao",
+          "value": "0",
+          "line": 46
+        },
+        {
+          "key": "setting.r_citadel_ssao_quality",
+          "value": "0",
+          "line": 47
+        },
+        {
+          "key": "setting.r_citadel_distancefield_ao_quality",
+          "value": "0",
+          "line": 48
+        },
+        {
+          "key": "setting.r_citadel_fog_quality",
+          "value": "0",
+          "line": 49
+        },
+        {
+          "key": "setting.volume_fog_width",
+          "value": "0",
+          "line": 50
+        },
+        {
+          "key": "setting.volume_fog_height",
+          "value": "0",
+          "line": 51
+        },
+        {
+          "key": "setting.volume_fog_depth",
+          "value": "0",
+          "line": 52
+        },
+        {
+          "key": "setting.shaderquality",
+          "value": "0",
+          "line": 53
+        },
+        {
+          "key": "setting.lb_shadow_texture_width_override",
+          "value": "0",
+          "line": 54
+        },
+        {
+          "key": "setting.lb_shadow_texture_height_override",
+          "value": "0",
+          "line": 55
+        },
+        {
+          "key": "setting.r_displacement_mapping",
+          "value": "0",
+          "line": 56
+        },
+        {
+          "key": "setting.r_dashboard_render_quality",
+          "value": "0",
+          "line": 57
+        },
+        {
+          "key": "setting.r_particle_max_detail_level",
+          "value": "0",
+          "line": 58
+        },
+        {
+          "key": "setting.r_particle_shadows",
+          "value": "0",
+          "line": 59
+        },
+        {
+          "key": "setting.r_particle_max_detail_level",
+          "value": "0",
+          "line": 60
+        },
+        {
+          "key": "setting.r_particle_cables_cast_shadows",
+          "value": "0",
+          "line": 61
+        },
+        {
+          "key": "setting.r_particle_depth_feathering",
+          "value": "false",
+          "line": 62
+        },
+        {
+          "key": "setting.r_citadel_half_res_noisy_effects",
+          "value": "true",
+          "line": 63
+        },
+        {
+          "key": "setting.cl_particle_fallback_base",
+          "value": "5",
+          "line": 64
+        },
+        {
+          "key": "setting.cl_particle_fallback_multiplier",
+          "value": "5",
+          "line": 65
+        },
+        {
+          "key": "setting.r_distancefield_enable",
+          "value": "false",
+          "line": 66
+        },
+        {
+          "key": "setting.r_citadel_outlines",
+          "value": "1",
+          "line": 67
+        },
+        {
+          "key": "setting.r_fullscreen_gamma",
+          "value": "2.2",
+          "line": 68
+        },
+        {
+          "key": "setting.useadvanced",
+          "value": "1",
+          "line": 69
+        },
+        {
+          "key": "setting.coop_fullscreen",
+          "value": "1",
+          "line": 70
+        },
+        {
+          "key": "setting.r_light_sensitivity_mode",
+          "value": "true",
+          "line": 71
+        },
+        {
+          "key": "setting.refreshrate_denominator",
+          "value": "0",
+          "line": 72
+        },
+        {
+          "key": "setting.r_citadel_distancefield_reflections",
+          "value": "false",
+          "line": 73
+        },
+        {
+          "key": "setting.r_screen_space_shadows",
+          "value": "false",
+          "line": 74
+        },
+        {
+          "key": "setting.r_render_portals",
+          "value": "1",
+          "line": 75
+        },
+        {
+          "key": "setting.r_env_map_uses_height_map",
+          "value": "0",
+          "line": 76
+        },
+        {
+          "key": "setting.r_citadel_mboit",
+          "value": "false",
+          "line": 77
+        },
+        {
+          "key": "setting.lb_csm_override_staticgeo_cascades",
+          "value": "true",
+          "line": 78
+        },
+        {
+          "key": "setting.lb_csm_override_staticgeo_cascades_value",
+          "value": "-1",
+          "line": 79
+        },
+        {
+          "key": "setting.r_texture_stream_mip_bias",
+          "value": "2",
+          "line": 80
+        }
+      ],
+      "duplicates": [
+        {
+          "key": "setting.r_particle_max_detail_level",
+          "entries": [
+            {
+              "key": "setting.r_particle_max_detail_level",
+              "value": "0",
+              "line": 58
+            },
+            {
+              "key": "setting.r_particle_max_detail_level",
+              "value": "0",
+              "line": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\machine_convars.vcfg",
+      "bytes": 9598,
+      "modified_utc": "2026-10-03T21:27:25.466646+00:00",
+      "ownership": "USRLOCAL",
+      "settings": {
+        "adsp_debug": "0",
+        "ai_debug_decisionmaking": "false",
+        "ai_ignore_collision_player_noclip": "false",
+        "ai_report_task_timings_on_limit": "false",
+        "ai_select_box_alpha": "20",
+        "ai_think_limit_label": "false",
+        "c_maxdistance": "200",
+        "c_maxpitch": "90",
+        "c_maxyaw": "135",
+        "c_mindistance": "30",
+        "c_minpitch": "0",
+        "c_minyaw": "-135",
+        "c_orthoheight": "100",
+        "c_orthowidth": "100",
+        "c_thirdpersonshoulder": "false",
+        "c_thirdpersonshoulderaimdist": "120",
+        "c_thirdpersonshoulderdist": "40",
+        "c_thirdpersonshoulderheight": "5",
+        "c_thirdpersonshoulderoffset": "20",
+        "cam_collision": "1",
+        "cam_idealdelta": "4",
+        "cam_idealdist": "150",
+        "cam_ideallag": "4",
+        "cam_idealpitch": "0",
+        "cam_idealyaw": "0",
+        "cam_snapto": "false",
+        "cc_delay_time": "0.25",
+        "cc_linger_time": "1",
+        "cc_spectator_only": "false",
+        "cc_subtitles": "false",
+        "cc_vr_caption_speed": "1",
+        "cc_vr_font_size": "1",
+        "cc_vr_width": "1",
+        "citadel_ability_preview_path_debug_draw_dt": "0.075",
+        "citadel_always_show_active_hud_stats": "false",
+        "citadel_auto_queue_build$1": "false",
+        "citadel_brawl_hero_roster": "1,25",
+        "citadel_brawl_hero_roster_banned": "8",
+        "citadel_brawl_hero_roster_high_priority": "84",
+        "citadel_brawl_hero_roster_preferred": "13,76,67,2",
+        "citadel_brawl_hero_roster_random": "false",
+        "citadel_camera_fade_other_far_dist": "100",
+        "citadel_camera_fade_other_near_dist": "20",
+        "citadel_camera_fade_other_near_opacity": "0.4",
+        "citadel_camera_fade_viewed_far_dist": "50",
+        "citadel_camera_fade_viewed_near_dist": "20",
+        "citadel_camera_fade_viewed_near_opacity": "0.4",
+        "citadel_camera_override_ads_fov": "45",
+        "citadel_camera_override_ads_x_offset": "-110",
+        "citadel_camera_override_ads_y_offset": "-34",
+        "citadel_camera_override_ads_z_offset": "0",
+        "citadel_camera_override_fov": "90",
+        "citadel_camera_override_pivot_x_offset": "0",
+        "citadel_camera_override_pivot_x_offset_crouching": "0",
+        "citadel_camera_override_pivot_y_offset": "0",
+        "citadel_camera_override_pivot_y_offset_crouching": "0",
+        "citadel_camera_override_pivot_z_offset": "86",
+        "citadel_camera_override_pivot_z_offset_crouching": "55",
+        "citadel_camera_override_x_offset": "-135",
+        "citadel_camera_override_x_worst_case_offset": "-10",
+        "citadel_camera_override_y_offset": "-34",
+        "citadel_camera_override_y_worst_case_offset": "-10",
+        "citadel_camera_override_z_offset": "0",
+        "citadel_camera_override_z_worst_case_offset": "10",
+        "citadel_camera_overrides_enabled": "false",
+        "citadel_camera_sensitivity": "1",
+        "citadel_camera_spectator_auto_target_view": "true",
+        "citadel_combat_log_compress": "true",
+        "citadel_combat_log_show_abilities": "false",
+        "citadel_combat_log_show_damage": "true",
+        "citadel_combat_log_show_deaths": "false",
+        "citadel_combat_log_show_healing": "false",
+        "citadel_combat_log_show_health_deltas": "false",
+        "citadel_combat_log_show_hidden_modifiers": "false",
+        "citadel_combat_log_show_items": "false",
+        "citadel_combat_log_show_modifiers": "false",
+        "citadel_crosshair_hit_marker_duration": "0.1",
+        "citadel_damage_text_cumulative_mode": "0",
+        "citadel_deny_text_max_distance": "4000",
+        "citadel_hero_builds_confirm_discard_edits": "true",
+        "citadel_hero_demo_hero_spawn": "hero_inferno",
+        "citadel_hero_demo_no_troopers": "false",
+        "citadel_hero_distance_guides": "false",
+        "citadel_hero_falloff_guides": "false",
+        "citadel_hero_testing_expanded": "true",
+        "citadel_hideout_hero_id": "84",
+        "citadel_hideout_intro_version_seen": "1",
+        "citadel_hud_active_stats_always_show_details": "false",
+        "citadel_last_reporter_updates_check_games": "186",
+        "citadel_new_player_flow_visible": "true",
+        "citadel_new_player_progress": "14",
+        "citadel_observer_roaming_speed": "600",
+        "citadel_previous_umuted_audio_level": "1",
+        "citadel_private_lobby_bot_difficulty": "0",
+        "citadel_private_lobby_cheats_enabled": "false",
+        "citadel_private_lobby_corrupted_item_shop_spawn_minutes": "30",
+        "citadel_private_lobby_duplicate_heroes_enabled": "false",
+        "citadel_private_lobby_is_publicly_visible": "false",
+        "citadel_private_lobby_randomize_lanes": "false",
+        "citadel_private_lobby_server_region": "0",
+        "citadel_quickbuy_auto_buy_default$3": "false",
+        "citadel_quickbuy_enable": "true",
+        "citadel_ranked_hero_roster_random": "false",
+        "citadel_replay_manager_download_chunk_size": "1048576",
+        "citadel_replay_manager_download_simultaneous_requests": "3",
+        "citadel_settings_active_settings_section_read_only": "3",
+        "citadel_settings_active_settings_subsection_read_only": "1",
+        "citadel_settings_last_scrollbar_position_read_only": "9392",
+        "citadel_settings_scroll_panel_height_read_only": "17966",
+        "citadel_shop_always_show_names$3": "true",
+        "citadel_shop_default_tab$3": "1",
+        "citadel_shop_filters_and_mode": "false",
+        "citadel_shop_hide_empty_tiers": "true",
+        "citadel_shop_open_focus_search": "false",
+        "citadel_shop_scroll_snap_threshold": "5",
+        "citadel_shop_scroll_snap_to_tiers": "true",
+        "citadel_shop_search_use_name_only$2": "false",
+        "citadel_show_all_purchase_toasts": "false",
+        "citadel_show_chat_wheel_time": "0.23",
+        "citadel_show_npe_modal": "false",
+        "citadel_show_page_reload_button": "true",
+        "citadel_tightcamera_alternative$2": "1.3",
+        "citadel_unit_status_show_critical_state": "true",
+        "citadel_unit_status_show_health_value": "true",
+        "citadel_use_ui_keybindings": "true",
+        "citadel_video_preset": "3",
+        "citadel_viewed_book_prototype": "false",
+        "cl_auto_cursor_scale": "true",
+        "cl_citadel_items_quickcast_mode": "0",
+        "cl_citadel_player_voting_poster_current_hero_id": "88",
+        "cl_citadel_quickcast_ability1": "0",
+        "cl_citadel_quickcast_ability2": "0",
+        "cl_citadel_quickcast_ability3": "0",
+        "cl_citadel_quickcast_ability4": "0",
+        "cl_cursor_scale": "1",
+        "cl_ent_pivot_size": "20",
+        "cl_ent_text_flags_active": "-1",
+        "cl_graphics_driver_warning_ignore_timestamp": "0",
+        "cl_hud_telemetry_frametime_poor": "100",
+        "cl_hud_telemetry_frametime_show": "1",
+        "cl_hud_telemetry_net_detailed": "0",
+        "cl_hud_telemetry_net_misdelivery_poor": "2",
+        "cl_hud_telemetry_net_misdelivery_show": "1",
+        "cl_hud_telemetry_net_quality_graph_show": "0",
+        "cl_hud_telemetry_ping_poor": "100",
+        "cl_hud_telemetry_ping_show": "1",
+        "cl_hud_telemetry_serverrecvmargin_graph_show": "0",
+        "cl_interpolate_report": "false",
+        "cl_joystick_enabled": "false",
+        "cl_latch_report": "false",
+        "cl_ragdoll_limit": "20",
+        "cl_timeout": "30",
+        "cl_updaterate": "128",
+        "cl_voice_transmit_lobby": "false",
+        "commentary": "false",
+        "deadlock_chat_mode": "2",
+        "deadlock_disable_post_match_survey": "false",
+        "deadlock_early_development_warning_disabled": "true",
+        "deadlock_hero_debuts_seen": "84",
+        "deadlock_mm_preference": "1",
+        "debugoverlay_text_scale": "1",
+        "demo_flush": "false",
+        "dsp_volume": "0.8",
+        "enable_boneflex": "true",
+        "engine_no_focus_sleep": "20",
+        "ent_pivot_size": "20",
+        "ent_text_flags_active": "-1",
+        "fov_desired": "75",
+        "fps_max": "400",
+        "fps_max_tools": "120",
+        "fps_max_ui": "120",
+        "func_break_max_pieces": "15",
+        "gameinstructor_enable": "true",
+        "hide_party_code": "false",
+        "hud_fastswitch": "0",
+        "imgui_default_font_size": "20",
+        "input_filter_relative_analog_inputs": "false",
+        "joy_advanced": "false",
+        "joy_advaxisr": "0",
+        "joy_advaxisu": "0",
+        "joy_advaxisv": "0",
+        "joy_advaxisx": "0",
+        "joy_advaxisy": "0",
+        "joy_advaxisz": "0",
+        "joy_axisbutton_threshold": "0.3",
+        "joy_display_input": "false",
+        "joy_name": "joystick",
+        "joy_sidesensitivity": "1",
+        "joystick": "false",
+        "mm_prefer_solo_only": "false",
+        "mouse_inverty": "false",
+        "npc_go_no_arrow": "false",
+        "panorama_debug_overlay_opacity": "0.25",
+        "panorama_debug_overlay_opacity_max": "0.25",
+        "panorama_debug_overlay_opacity_min": "0.01",
+        "panorama_debugger_theme": "Light",
+        "panorama_focus_world_panels": "false",
+        "panorama_joystick_enabled": "false",
+        "panorama_toggledebugger_mode": "0",
+        "player0_using_joystick": "false",
+        "r_drawtracers_firstperson": "true",
+        "r_fullscreen_gamma": "2.2",
+        "rate": "196608",
+        "rr_thenany_score_slop": "0",
+        "scene_showfaceto": "false",
+        "sk_autoaim_mode": "1",
+        "snd_autodetect_latency": "true",
+        "snd_duckerattacktime": "0.5",
+        "snd_duckerreleasetime": "2.5",
+        "snd_duckerthreshold": "0.15",
+        "snd_ducktovolume": "0.55",
+        "snd_gain": "1",
+        "snd_gamevoicevolume": "1",
+        "snd_gamevolume": "0.42",
+        "snd_mixahead": "0.001",
+        "snd_musicvolume": "0.35",
+        "snd_mute_losefocus": "true",
+        "snd_sos_capture_soundevent_overwrites": "true",
+        "snd_spatialize_lerp": "0",
+        "snd_steamaudio_enable_perspective_correction": "false",
+        "snd_steamaudio_source_pathing_debug": "false",
+        "snd_toolvolume": "1",
+        "snd_voipvolume": "1",
+        "speaker_config": "0",
+        "spec_centerchasecam": "false",
+        "spec_replay_autostart": "true",
+        "splitscreen_mode": "0",
+        "sv_log_onefile": "false",
+        "sv_logbans": "false",
+        "sv_logecho": "true",
+        "sv_logfile": "false",
+        "sv_logflush": "false",
+        "sv_logsdir": "logs",
+        "sv_noclipaccelerate": "5",
+        "sv_noclipfriction": "4",
+        "sv_noclipspeed": "1200",
+        "sv_noclipspeedscaleonshift": "0.5",
+        "sv_pause_on_console_open": "false",
+        "sv_skyname": "sky_urb01",
+        "sv_specaccelerate": "5",
+        "sv_specnoclip": "true",
+        "sv_specspeed$2": "1200",
+        "sv_unlockedchapters": "1",
+        "sv_unpause_on_console_close": "false",
+        "sv_usercmd_execute_warning_ms": "5",
+        "sv_voiceenable": "true",
+        "team_chat_auto_join": "false",
+        "tv_nochat": "false",
+        "violence_ablood": "true",
+        "violence_agibs": "true",
+        "violence_hblood": "true",
+        "violence_hgibs": "true",
+        "voice_always_sample_mic$2": "false",
+        "voice_device_override": "#OS_Default_Device",
+        "voice_modenable": "true",
+        "voice_threshold": "-120",
+        "volume": "0.18"
+      },
+      "entries": [
+        {
+          "key": "adsp_debug",
+          "value": "0",
+          "line": 5
+        },
+        {
+          "key": "ai_debug_decisionmaking",
+          "value": "false",
+          "line": 6
+        },
+        {
+          "key": "ai_ignore_collision_player_noclip",
+          "value": "false",
+          "line": 7
+        },
+        {
+          "key": "ai_report_task_timings_on_limit",
+          "value": "false",
+          "line": 8
+        },
+        {
+          "key": "ai_select_box_alpha",
+          "value": "20",
+          "line": 9
+        },
+        {
+          "key": "ai_think_limit_label",
+          "value": "false",
+          "line": 10
+        },
+        {
+          "key": "c_maxdistance",
+          "value": "200",
+          "line": 11
+        },
+        {
+          "key": "c_maxpitch",
+          "value": "90",
+          "line": 12
+        },
+        {
+          "key": "c_maxyaw",
+          "value": "135",
+          "line": 13
+        },
+        {
+          "key": "c_mindistance",
+          "value": "30",
+          "line": 14
+        },
+        {
+          "key": "c_minpitch",
+          "value": "0",
+          "line": 15
+        },
+        {
+          "key": "c_minyaw",
+          "value": "-135",
+          "line": 16
+        },
+        {
+          "key": "c_orthoheight",
+          "value": "100",
+          "line": 17
+        },
+        {
+          "key": "c_orthowidth",
+          "value": "100",
+          "line": 18
+        },
+        {
+          "key": "c_thirdpersonshoulder",
+          "value": "false",
+          "line": 19
+        },
+        {
+          "key": "c_thirdpersonshoulderaimdist",
+          "value": "120",
+          "line": 20
+        },
+        {
+          "key": "c_thirdpersonshoulderdist",
+          "value": "40",
+          "line": 21
+        },
+        {
+          "key": "c_thirdpersonshoulderheight",
+          "value": "5",
+          "line": 22
+        },
+        {
+          "key": "c_thirdpersonshoulderoffset",
+          "value": "20",
+          "line": 23
+        },
+        {
+          "key": "cam_collision",
+          "value": "1",
+          "line": 24
+        },
+        {
+          "key": "cam_idealdelta",
+          "value": "4",
+          "line": 25
+        },
+        {
+          "key": "cam_idealdist",
+          "value": "150",
+          "line": 26
+        },
+        {
+          "key": "cam_ideallag",
+          "value": "4",
+          "line": 27
+        },
+        {
+          "key": "cam_idealpitch",
+          "value": "0",
+          "line": 28
+        },
+        {
+          "key": "cam_idealyaw",
+          "value": "0",
+          "line": 29
+        },
+        {
+          "key": "cam_snapto",
+          "value": "false",
+          "line": 30
+        },
+        {
+          "key": "cc_delay_time",
+          "value": "0.25",
+          "line": 31
+        },
+        {
+          "key": "cc_linger_time",
+          "value": "1",
+          "line": 32
+        },
+        {
+          "key": "cc_spectator_only",
+          "value": "false",
+          "line": 33
+        },
+        {
+          "key": "cc_subtitles",
+          "value": "false",
+          "line": 34
+        },
+        {
+          "key": "cc_vr_caption_speed",
+          "value": "1",
+          "line": 35
+        },
+        {
+          "key": "cc_vr_font_size",
+          "value": "1",
+          "line": 36
+        },
+        {
+          "key": "cc_vr_width",
+          "value": "1",
+          "line": 37
+        },
+        {
+          "key": "citadel_ability_preview_path_debug_draw_dt",
+          "value": "0.075",
+          "line": 38
+        },
+        {
+          "key": "citadel_always_show_active_hud_stats",
+          "value": "false",
+          "line": 39
+        },
+        {
+          "key": "citadel_auto_queue_build$1",
+          "value": "false",
+          "line": 40
+        },
+        {
+          "key": "citadel_brawl_hero_roster",
+          "value": "1,25",
+          "line": 41
+        },
+        {
+          "key": "citadel_brawl_hero_roster_banned",
+          "value": "8",
+          "line": 42
+        },
+        {
+          "key": "citadel_brawl_hero_roster_high_priority",
+          "value": "84",
+          "line": 43
+        },
+        {
+          "key": "citadel_brawl_hero_roster_preferred",
+          "value": "13,76,67,2",
+          "line": 44
+        },
+        {
+          "key": "citadel_brawl_hero_roster_random",
+          "value": "false",
+          "line": 45
+        },
+        {
+          "key": "citadel_camera_fade_other_far_dist",
+          "value": "100",
+          "line": 46
+        },
+        {
+          "key": "citadel_camera_fade_other_near_dist",
+          "value": "20",
+          "line": 47
+        },
+        {
+          "key": "citadel_camera_fade_other_near_opacity",
+          "value": "0.4",
+          "line": 48
+        },
+        {
+          "key": "citadel_camera_fade_viewed_far_dist",
+          "value": "50",
+          "line": 49
+        },
+        {
+          "key": "citadel_camera_fade_viewed_near_dist",
+          "value": "20",
+          "line": 50
+        },
+        {
+          "key": "citadel_camera_fade_viewed_near_opacity",
+          "value": "0.4",
+          "line": 51
+        },
+        {
+          "key": "citadel_camera_override_ads_fov",
+          "value": "45",
+          "line": 52
+        },
+        {
+          "key": "citadel_camera_override_ads_x_offset",
+          "value": "-110",
+          "line": 53
+        },
+        {
+          "key": "citadel_camera_override_ads_y_offset",
+          "value": "-34",
+          "line": 54
+        },
+        {
+          "key": "citadel_camera_override_ads_z_offset",
+          "value": "0",
+          "line": 55
+        },
+        {
+          "key": "citadel_camera_override_fov",
+          "value": "90",
+          "line": 56
+        },
+        {
+          "key": "citadel_camera_override_pivot_x_offset",
+          "value": "0",
+          "line": 57
+        },
+        {
+          "key": "citadel_camera_override_pivot_x_offset_crouching",
+          "value": "0",
+          "line": 58
+        },
+        {
+          "key": "citadel_camera_override_pivot_y_offset",
+          "value": "0",
+          "line": 59
+        },
+        {
+          "key": "citadel_camera_override_pivot_y_offset_crouching",
+          "value": "0",
+          "line": 60
+        },
+        {
+          "key": "citadel_camera_override_pivot_z_offset",
+          "value": "86",
+          "line": 61
+        },
+        {
+          "key": "citadel_camera_override_pivot_z_offset_crouching",
+          "value": "55",
+          "line": 62
+        },
+        {
+          "key": "citadel_camera_override_x_offset",
+          "value": "-135",
+          "line": 63
+        },
+        {
+          "key": "citadel_camera_override_x_worst_case_offset",
+          "value": "-10",
+          "line": 64
+        },
+        {
+          "key": "citadel_camera_override_y_offset",
+          "value": "-34",
+          "line": 65
+        },
+        {
+          "key": "citadel_camera_override_y_worst_case_offset",
+          "value": "-10",
+          "line": 66
+        },
+        {
+          "key": "citadel_camera_override_z_offset",
+          "value": "0",
+          "line": 67
+        },
+        {
+          "key": "citadel_camera_override_z_worst_case_offset",
+          "value": "10",
+          "line": 68
+        },
+        {
+          "key": "citadel_camera_overrides_enabled",
+          "value": "false",
+          "line": 69
+        },
+        {
+          "key": "citadel_camera_sensitivity",
+          "value": "1",
+          "line": 70
+        },
+        {
+          "key": "citadel_camera_spectator_auto_target_view",
+          "value": "true",
+          "line": 71
+        },
+        {
+          "key": "citadel_combat_log_compress",
+          "value": "true",
+          "line": 72
+        },
+        {
+          "key": "citadel_combat_log_show_abilities",
+          "value": "false",
+          "line": 73
+        },
+        {
+          "key": "citadel_combat_log_show_damage",
+          "value": "true",
+          "line": 74
+        },
+        {
+          "key": "citadel_combat_log_show_deaths",
+          "value": "false",
+          "line": 75
+        },
+        {
+          "key": "citadel_combat_log_show_healing",
+          "value": "false",
+          "line": 76
+        },
+        {
+          "key": "citadel_combat_log_show_health_deltas",
+          "value": "false",
+          "line": 77
+        },
+        {
+          "key": "citadel_combat_log_show_hidden_modifiers",
+          "value": "false",
+          "line": 78
+        },
+        {
+          "key": "citadel_combat_log_show_items",
+          "value": "false",
+          "line": 79
+        },
+        {
+          "key": "citadel_combat_log_show_modifiers",
+          "value": "false",
+          "line": 80
+        },
+        {
+          "key": "citadel_crosshair_hit_marker_duration",
+          "value": "0.1",
+          "line": 81
+        },
+        {
+          "key": "citadel_damage_text_cumulative_mode",
+          "value": "0",
+          "line": 82
+        },
+        {
+          "key": "citadel_deny_text_max_distance",
+          "value": "4000",
+          "line": 83
+        },
+        {
+          "key": "citadel_hero_builds_confirm_discard_edits",
+          "value": "true",
+          "line": 84
+        },
+        {
+          "key": "citadel_hero_demo_hero_spawn",
+          "value": "hero_inferno",
+          "line": 85
+        },
+        {
+          "key": "citadel_hero_demo_no_troopers",
+          "value": "false",
+          "line": 86
+        },
+        {
+          "key": "citadel_hero_distance_guides",
+          "value": "false",
+          "line": 87
+        },
+        {
+          "key": "citadel_hero_falloff_guides",
+          "value": "false",
+          "line": 88
+        },
+        {
+          "key": "citadel_hero_testing_expanded",
+          "value": "true",
+          "line": 89
+        },
+        {
+          "key": "citadel_hideout_hero_id",
+          "value": "84",
+          "line": 90
+        },
+        {
+          "key": "citadel_hideout_intro_version_seen",
+          "value": "1",
+          "line": 91
+        },
+        {
+          "key": "citadel_hud_active_stats_always_show_details",
+          "value": "false",
+          "line": 92
+        },
+        {
+          "key": "citadel_last_reporter_updates_check_games",
+          "value": "186",
+          "line": 93
+        },
+        {
+          "key": "citadel_new_player_flow_visible",
+          "value": "true",
+          "line": 94
+        },
+        {
+          "key": "citadel_new_player_progress",
+          "value": "14",
+          "line": 95
+        },
+        {
+          "key": "citadel_observer_roaming_speed",
+          "value": "600",
+          "line": 96
+        },
+        {
+          "key": "citadel_previous_umuted_audio_level",
+          "value": "1",
+          "line": 97
+        },
+        {
+          "key": "citadel_private_lobby_bot_difficulty",
+          "value": "0",
+          "line": 98
+        },
+        {
+          "key": "citadel_private_lobby_cheats_enabled",
+          "value": "false",
+          "line": 99
+        },
+        {
+          "key": "citadel_private_lobby_corrupted_item_shop_spawn_minutes",
+          "value": "30",
+          "line": 100
+        },
+        {
+          "key": "citadel_private_lobby_duplicate_heroes_enabled",
+          "value": "false",
+          "line": 101
+        },
+        {
+          "key": "citadel_private_lobby_is_publicly_visible",
+          "value": "false",
+          "line": 102
+        },
+        {
+          "key": "citadel_private_lobby_randomize_lanes",
+          "value": "false",
+          "line": 103
+        },
+        {
+          "key": "citadel_private_lobby_server_region",
+          "value": "0",
+          "line": 104
+        },
+        {
+          "key": "citadel_quickbuy_auto_buy_default$3",
+          "value": "false",
+          "line": 105
+        },
+        {
+          "key": "citadel_quickbuy_enable",
+          "value": "true",
+          "line": 106
+        },
+        {
+          "key": "citadel_ranked_hero_roster_random",
+          "value": "false",
+          "line": 107
+        },
+        {
+          "key": "citadel_replay_manager_download_chunk_size",
+          "value": "1048576",
+          "line": 108
+        },
+        {
+          "key": "citadel_replay_manager_download_simultaneous_requests",
+          "value": "3",
+          "line": 109
+        },
+        {
+          "key": "citadel_settings_active_settings_section_read_only",
+          "value": "3",
+          "line": 110
+        },
+        {
+          "key": "citadel_settings_active_settings_subsection_read_only",
+          "value": "1",
+          "line": 111
+        },
+        {
+          "key": "citadel_settings_last_scrollbar_position_read_only",
+          "value": "9392",
+          "line": 112
+        },
+        {
+          "key": "citadel_settings_scroll_panel_height_read_only",
+          "value": "17966",
+          "line": 113
+        },
+        {
+          "key": "citadel_shop_always_show_names$3",
+          "value": "true",
+          "line": 114
+        },
+        {
+          "key": "citadel_shop_default_tab$3",
+          "value": "1",
+          "line": 115
+        },
+        {
+          "key": "citadel_shop_filters_and_mode",
+          "value": "false",
+          "line": 116
+        },
+        {
+          "key": "citadel_shop_hide_empty_tiers",
+          "value": "true",
+          "line": 117
+        },
+        {
+          "key": "citadel_shop_open_focus_search",
+          "value": "false",
+          "line": 118
+        },
+        {
+          "key": "citadel_shop_scroll_snap_threshold",
+          "value": "5",
+          "line": 119
+        },
+        {
+          "key": "citadel_shop_scroll_snap_to_tiers",
+          "value": "true",
+          "line": 120
+        },
+        {
+          "key": "citadel_shop_search_use_name_only$2",
+          "value": "false",
+          "line": 121
+        },
+        {
+          "key": "citadel_show_all_purchase_toasts",
+          "value": "false",
+          "line": 122
+        },
+        {
+          "key": "citadel_show_chat_wheel_time",
+          "value": "0.23",
+          "line": 123
+        },
+        {
+          "key": "citadel_show_npe_modal",
+          "value": "false",
+          "line": 124
+        },
+        {
+          "key": "citadel_show_page_reload_button",
+          "value": "true",
+          "line": 125
+        },
+        {
+          "key": "citadel_tightcamera_alternative$2",
+          "value": "1.3",
+          "line": 126
+        },
+        {
+          "key": "citadel_unit_status_show_critical_state",
+          "value": "true",
+          "line": 127
+        },
+        {
+          "key": "citadel_unit_status_show_health_value",
+          "value": "true",
+          "line": 128
+        },
+        {
+          "key": "citadel_use_ui_keybindings",
+          "value": "true",
+          "line": 129
+        },
+        {
+          "key": "citadel_video_preset",
+          "value": "3",
+          "line": 130
+        },
+        {
+          "key": "citadel_viewed_book_prototype",
+          "value": "false",
+          "line": 131
+        },
+        {
+          "key": "cl_auto_cursor_scale",
+          "value": "true",
+          "line": 132
+        },
+        {
+          "key": "cl_citadel_items_quickcast_mode",
+          "value": "0",
+          "line": 133
+        },
+        {
+          "key": "cl_citadel_player_voting_poster_current_hero_id",
+          "value": "88",
+          "line": 134
+        },
+        {
+          "key": "cl_citadel_quickcast_ability1",
+          "value": "0",
+          "line": 135
+        },
+        {
+          "key": "cl_citadel_quickcast_ability2",
+          "value": "0",
+          "line": 136
+        },
+        {
+          "key": "cl_citadel_quickcast_ability3",
+          "value": "0",
+          "line": 137
+        },
+        {
+          "key": "cl_citadel_quickcast_ability4",
+          "value": "0",
+          "line": 138
+        },
+        {
+          "key": "cl_cursor_scale",
+          "value": "1",
+          "line": 139
+        },
+        {
+          "key": "cl_ent_pivot_size",
+          "value": "20",
+          "line": 140
+        },
+        {
+          "key": "cl_ent_text_flags_active",
+          "value": "-1",
+          "line": 141
+        },
+        {
+          "key": "cl_graphics_driver_warning_ignore_timestamp",
+          "value": "0",
+          "line": 142
+        },
+        {
+          "key": "cl_hud_telemetry_frametime_poor",
+          "value": "100",
+          "line": 143
+        },
+        {
+          "key": "cl_hud_telemetry_frametime_show",
+          "value": "1",
+          "line": 144
+        },
+        {
+          "key": "cl_hud_telemetry_net_detailed",
+          "value": "0",
+          "line": 145
+        },
+        {
+          "key": "cl_hud_telemetry_net_misdelivery_poor",
+          "value": "2",
+          "line": 146
+        },
+        {
+          "key": "cl_hud_telemetry_net_misdelivery_show",
+          "value": "1",
+          "line": 147
+        },
+        {
+          "key": "cl_hud_telemetry_net_quality_graph_show",
+          "value": "0",
+          "line": 148
+        },
+        {
+          "key": "cl_hud_telemetry_ping_poor",
+          "value": "100",
+          "line": 149
+        },
+        {
+          "key": "cl_hud_telemetry_ping_show",
+          "value": "1",
+          "line": 150
+        },
+        {
+          "key": "cl_hud_telemetry_serverrecvmargin_graph_show",
+          "value": "0",
+          "line": 151
+        },
+        {
+          "key": "cl_interpolate_report",
+          "value": "false",
+          "line": 152
+        },
+        {
+          "key": "cl_joystick_enabled",
+          "value": "false",
+          "line": 153
+        },
+        {
+          "key": "cl_latch_report",
+          "value": "false",
+          "line": 154
+        },
+        {
+          "key": "cl_ragdoll_limit",
+          "value": "20",
+          "line": 155
+        },
+        {
+          "key": "cl_timeout",
+          "value": "30",
+          "line": 156
+        },
+        {
+          "key": "cl_updaterate",
+          "value": "128",
+          "line": 157
+        },
+        {
+          "key": "cl_voice_transmit_lobby",
+          "value": "false",
+          "line": 158
+        },
+        {
+          "key": "commentary",
+          "value": "false",
+          "line": 159
+        },
+        {
+          "key": "deadlock_chat_mode",
+          "value": "2",
+          "line": 160
+        },
+        {
+          "key": "deadlock_disable_post_match_survey",
+          "value": "false",
+          "line": 161
+        },
+        {
+          "key": "deadlock_early_development_warning_disabled",
+          "value": "true",
+          "line": 162
+        },
+        {
+          "key": "deadlock_hero_debuts_seen",
+          "value": "84",
+          "line": 163
+        },
+        {
+          "key": "deadlock_mm_preference",
+          "value": "1",
+          "line": 164
+        },
+        {
+          "key": "debugoverlay_text_scale",
+          "value": "1",
+          "line": 165
+        },
+        {
+          "key": "demo_flush",
+          "value": "false",
+          "line": 166
+        },
+        {
+          "key": "dsp_volume",
+          "value": "0.8",
+          "line": 167
+        },
+        {
+          "key": "enable_boneflex",
+          "value": "true",
+          "line": 168
+        },
+        {
+          "key": "engine_no_focus_sleep",
+          "value": "20",
+          "line": 169
+        },
+        {
+          "key": "ent_pivot_size",
+          "value": "20",
+          "line": 170
+        },
+        {
+          "key": "ent_text_flags_active",
+          "value": "-1",
+          "line": 171
+        },
+        {
+          "key": "fov_desired",
+          "value": "75",
+          "line": 172
+        },
+        {
+          "key": "fps_max",
+          "value": "400",
+          "line": 173
+        },
+        {
+          "key": "fps_max_tools",
+          "value": "120",
+          "line": 174
+        },
+        {
+          "key": "fps_max_ui",
+          "value": "120",
+          "line": 175
+        },
+        {
+          "key": "func_break_max_pieces",
+          "value": "15",
+          "line": 176
+        },
+        {
+          "key": "gameinstructor_enable",
+          "value": "true",
+          "line": 177
+        },
+        {
+          "key": "hide_party_code",
+          "value": "false",
+          "line": 178
+        },
+        {
+          "key": "hud_fastswitch",
+          "value": "0",
+          "line": 179
+        },
+        {
+          "key": "imgui_default_font_size",
+          "value": "20",
+          "line": 180
+        },
+        {
+          "key": "input_filter_relative_analog_inputs",
+          "value": "false",
+          "line": 181
+        },
+        {
+          "key": "joy_advanced",
+          "value": "false",
+          "line": 182
+        },
+        {
+          "key": "joy_advaxisr",
+          "value": "0",
+          "line": 183
+        },
+        {
+          "key": "joy_advaxisu",
+          "value": "0",
+          "line": 184
+        },
+        {
+          "key": "joy_advaxisv",
+          "value": "0",
+          "line": 185
+        },
+        {
+          "key": "joy_advaxisx",
+          "value": "0",
+          "line": 186
+        },
+        {
+          "key": "joy_advaxisy",
+          "value": "0",
+          "line": 187
+        },
+        {
+          "key": "joy_advaxisz",
+          "value": "0",
+          "line": 188
+        },
+        {
+          "key": "joy_axisbutton_threshold",
+          "value": "0.3",
+          "line": 189
+        },
+        {
+          "key": "joy_display_input",
+          "value": "false",
+          "line": 190
+        },
+        {
+          "key": "joy_name",
+          "value": "joystick",
+          "line": 191
+        },
+        {
+          "key": "joy_sidesensitivity",
+          "value": "1",
+          "line": 192
+        },
+        {
+          "key": "joystick",
+          "value": "false",
+          "line": 193
+        },
+        {
+          "key": "mm_prefer_solo_only",
+          "value": "false",
+          "line": 194
+        },
+        {
+          "key": "mouse_inverty",
+          "value": "false",
+          "line": 195
+        },
+        {
+          "key": "npc_go_no_arrow",
+          "value": "false",
+          "line": 196
+        },
+        {
+          "key": "panorama_debug_overlay_opacity",
+          "value": "0.25",
+          "line": 197
+        },
+        {
+          "key": "panorama_debug_overlay_opacity_max",
+          "value": "0.25",
+          "line": 198
+        },
+        {
+          "key": "panorama_debug_overlay_opacity_min",
+          "value": "0.01",
+          "line": 199
+        },
+        {
+          "key": "panorama_debugger_theme",
+          "value": "Light",
+          "line": 200
+        },
+        {
+          "key": "panorama_focus_world_panels",
+          "value": "false",
+          "line": 201
+        },
+        {
+          "key": "panorama_joystick_enabled",
+          "value": "false",
+          "line": 202
+        },
+        {
+          "key": "panorama_toggledebugger_mode",
+          "value": "0",
+          "line": 203
+        },
+        {
+          "key": "player0_using_joystick",
+          "value": "false",
+          "line": 204
+        },
+        {
+          "key": "r_drawtracers_firstperson",
+          "value": "true",
+          "line": 205
+        },
+        {
+          "key": "r_fullscreen_gamma",
+          "value": "2.2",
+          "line": 206
+        },
+        {
+          "key": "rate",
+          "value": "196608",
+          "line": 207
+        },
+        {
+          "key": "rr_thenany_score_slop",
+          "value": "0",
+          "line": 208
+        },
+        {
+          "key": "scene_showfaceto",
+          "value": "false",
+          "line": 209
+        },
+        {
+          "key": "sk_autoaim_mode",
+          "value": "1",
+          "line": 210
+        },
+        {
+          "key": "snd_autodetect_latency",
+          "value": "true",
+          "line": 211
+        },
+        {
+          "key": "snd_duckerattacktime",
+          "value": "0.5",
+          "line": 212
+        },
+        {
+          "key": "snd_duckerreleasetime",
+          "value": "2.5",
+          "line": 213
+        },
+        {
+          "key": "snd_duckerthreshold",
+          "value": "0.15",
+          "line": 214
+        },
+        {
+          "key": "snd_ducktovolume",
+          "value": "0.55",
+          "line": 215
+        },
+        {
+          "key": "snd_gain",
+          "value": "1",
+          "line": 216
+        },
+        {
+          "key": "snd_gamevoicevolume",
+          "value": "1",
+          "line": 217
+        },
+        {
+          "key": "snd_gamevolume",
+          "value": "0.42",
+          "line": 218
+        },
+        {
+          "key": "snd_mixahead",
+          "value": "0.001",
+          "line": 219
+        },
+        {
+          "key": "snd_musicvolume",
+          "value": "0.35",
+          "line": 220
+        },
+        {
+          "key": "snd_mute_losefocus",
+          "value": "true",
+          "line": 221
+        },
+        {
+          "key": "snd_sos_capture_soundevent_overwrites",
+          "value": "true",
+          "line": 222
+        },
+        {
+          "key": "snd_spatialize_lerp",
+          "value": "0",
+          "line": 223
+        },
+        {
+          "key": "snd_steamaudio_enable_perspective_correction",
+          "value": "false",
+          "line": 224
+        },
+        {
+          "key": "snd_steamaudio_source_pathing_debug",
+          "value": "false",
+          "line": 225
+        },
+        {
+          "key": "snd_toolvolume",
+          "value": "1",
+          "line": 226
+        },
+        {
+          "key": "snd_voipvolume",
+          "value": "1",
+          "line": 227
+        },
+        {
+          "key": "speaker_config",
+          "value": "0",
+          "line": 228
+        },
+        {
+          "key": "spec_centerchasecam",
+          "value": "false",
+          "line": 229
+        },
+        {
+          "key": "spec_replay_autostart",
+          "value": "true",
+          "line": 230
+        },
+        {
+          "key": "splitscreen_mode",
+          "value": "0",
+          "line": 231
+        },
+        {
+          "key": "sv_log_onefile",
+          "value": "false",
+          "line": 232
+        },
+        {
+          "key": "sv_logbans",
+          "value": "false",
+          "line": 233
+        },
+        {
+          "key": "sv_logecho",
+          "value": "true",
+          "line": 234
+        },
+        {
+          "key": "sv_logfile",
+          "value": "false",
+          "line": 235
+        },
+        {
+          "key": "sv_logflush",
+          "value": "false",
+          "line": 236
+        },
+        {
+          "key": "sv_logsdir",
+          "value": "logs",
+          "line": 237
+        },
+        {
+          "key": "sv_noclipaccelerate",
+          "value": "5",
+          "line": 238
+        },
+        {
+          "key": "sv_noclipfriction",
+          "value": "4",
+          "line": 239
+        },
+        {
+          "key": "sv_noclipspeed",
+          "value": "1200",
+          "line": 240
+        },
+        {
+          "key": "sv_noclipspeedscaleonshift",
+          "value": "0.5",
+          "line": 241
+        },
+        {
+          "key": "sv_pause_on_console_open",
+          "value": "false",
+          "line": 242
+        },
+        {
+          "key": "sv_skyname",
+          "value": "sky_urb01",
+          "line": 243
+        },
+        {
+          "key": "sv_specaccelerate",
+          "value": "5",
+          "line": 244
+        },
+        {
+          "key": "sv_specnoclip",
+          "value": "true",
+          "line": 245
+        },
+        {
+          "key": "sv_specspeed$2",
+          "value": "1200",
+          "line": 246
+        },
+        {
+          "key": "sv_unlockedchapters",
+          "value": "1",
+          "line": 247
+        },
+        {
+          "key": "sv_unpause_on_console_close",
+          "value": "false",
+          "line": 248
+        },
+        {
+          "key": "sv_usercmd_execute_warning_ms",
+          "value": "5",
+          "line": 249
+        },
+        {
+          "key": "sv_voiceenable",
+          "value": "true",
+          "line": 250
+        },
+        {
+          "key": "team_chat_auto_join",
+          "value": "false",
+          "line": 251
+        },
+        {
+          "key": "tv_nochat",
+          "value": "false",
+          "line": 252
+        },
+        {
+          "key": "violence_ablood",
+          "value": "true",
+          "line": 253
+        },
+        {
+          "key": "violence_agibs",
+          "value": "true",
+          "line": 254
+        },
+        {
+          "key": "violence_hblood",
+          "value": "true",
+          "line": 255
+        },
+        {
+          "key": "violence_hgibs",
+          "value": "true",
+          "line": 256
+        },
+        {
+          "key": "voice_always_sample_mic$2",
+          "value": "false",
+          "line": 257
+        },
+        {
+          "key": "voice_device_override",
+          "value": "#OS_Default_Device",
+          "line": 258
+        },
+        {
+          "key": "voice_modenable",
+          "value": "true",
+          "line": 259
+        },
+        {
+          "key": "voice_threshold",
+          "value": "-120",
+          "line": 260
+        },
+        {
+          "key": "volume",
+          "value": "0.18",
+          "line": 261
+        }
+      ],
+      "duplicates": []
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_convars_0_slot0.vcfg",
+      "bytes": 4863,
+      "modified_utc": "2026-10-03T21:27:25.472391+00:00",
+      "ownership": "USRLOCAL",
+      "settings": {
+        "citadel_21x9_clamp_hud": "true",
+        "citadel_activate_window_on_unpause": "false",
+        "citadel_allow_ally_pings": "true",
+        "citadel_allow_ally_text": "true",
+        "citadel_allow_ally_voice": "true",
+        "citadel_allow_opponent_text": "true",
+        "citadel_allow_party_pings": "true",
+        "citadel_allow_party_text": "true",
+        "citadel_allow_party_voice": "true",
+        "citadel_allow_spectated_pings": "true",
+        "citadel_allow_spectated_text": "true",
+        "citadel_camera_hero_fov": "90",
+        "citadel_camera_pitch_inverted": "false",
+        "citadel_custom_ui_colors": "false",
+        "citadel_enemy_damage_delta_color_b": "91",
+        "citadel_enemy_damage_delta_color_g": "229",
+        "citadel_enemy_damage_delta_color_r": "255",
+        "citadel_enemy_ui_color_b": "50",
+        "citadel_enemy_ui_color_g": "50",
+        "citadel_enemy_ui_color_r": "215",
+        "citadel_enemy_zipline_color_b": "38",
+        "citadel_enemy_zipline_color_g": "55",
+        "citadel_enemy_zipline_color_r": "140",
+        "citadel_english_hero_names": "false",
+        "citadel_english_mod_names": "false",
+        "citadel_hero_roster_random": "false",
+        "citadel_mouse_cursor_scale": "1",
+        "citadel_per_unit_hotkeys_checked": "false",
+        "citadel_preview_video_settings_changes": "true",
+        "citadel_preview_video_settings_duration": "2",
+        "citadel_reduce_camera_shake": "false",
+        "citadel_secondary_language_builds": "-1",
+        "citadel_settings_always_show_all_settings": "true",
+        "citadel_settings_default_view": "0",
+        "citadel_settings_hide_hero_specific_disabled_notice": "false",
+        "citadel_settings_hide_hero_specific_enabled_notice": "false",
+        "citadel_settings_hide_keybind_delete_confirm": "false",
+        "citadel_settings_hide_row_reset_confirm": "false",
+        "citadel_settings_hide_show_all_settings_off_notice": "false",
+        "citadel_settings_remember_selected_hero": "true",
+        "citadel_settings_seen_new_settings": "20,11,15,7,21,17,6,8,23,24,10,14,13,12,19,9,22,18,16,",
+        "citadel_settings_selected_base_settings": "false",
+        "citadel_settings_selected_hero_read_only": "84",
+        "citadel_show_active_slot_popup": "false",
+        "citadel_show_telemetry_settings": "false",
+        "citadel_streaming_mode_enabled": "false",
+        "citadel_subtitles_all_caps": "false",
+        "citadel_subtitles_background_color_b": "0",
+        "citadel_subtitles_background_color_g": "0",
+        "citadel_subtitles_background_color_r": "0",
+        "citadel_subtitles_background_opacity": "93",
+        "citadel_subtitles_background_style": "0",
+        "citadel_subtitles_bold_font": "true",
+        "citadel_subtitles_custom_style": "false",
+        "citadel_subtitles_font": "0",
+        "citadel_subtitles_font_size": "16",
+        "citadel_subtitles_outline_thickness": "2",
+        "citadel_subtitles_text_color_b": "198",
+        "citadel_subtitles_text_color_g": "198",
+        "citadel_subtitles_text_color_r": "198",
+        "citadel_unit_status_hero_name_mode": "0",
+        "citadel_unit_status_show_ally_health_value": "false",
+        "citadel_use_contextual_ping_wheel_option": "true",
+        "cl_citadel_ability_alt_cast_hold_time": "0.15",
+        "cl_citadel_ability_alt_cast_instant_cast_double_tap_timeout": "0.2",
+        "cl_citadel_auto_fire": "false",
+        "cl_citadel_auto_mantle_backward": "false",
+        "cl_citadel_auto_mantle_forward": "false",
+        "cl_citadel_auto_mantle_in_air": "false",
+        "cl_citadel_auto_move": "false",
+        "cl_citadel_auto_move_double_tap_time": "0.3",
+        "cl_citadel_zoom_is_toggle": "false",
+        "closecaption": "false",
+        "con_enable": "false",
+        "input_button_code_is_scan_code_scd": "true",
+        "joy_axisr_deadzone": "0.15",
+        "joy_axisr_relative": "false",
+        "joy_axisu_deadzone": "0.15",
+        "joy_axisu_relative": "false",
+        "joy_axisv_deadzone": "0.15",
+        "joy_axisv_relative": "false",
+        "joy_axisx_deadzone": "0.15",
+        "joy_axisx_relative": "false",
+        "joy_axisy_deadzone": "0.15",
+        "joy_axisy_relative": "false",
+        "joy_axisz_deadzone": "0.15",
+        "joy_axisz_relative": "false",
+        "joy_circle_correct_mode": "1",
+        "joy_circle_correct_mode_vehicle": "2",
+        "joy_forward_sensitivity": "1",
+        "joy_movement_stick": "false",
+        "joy_pitch_sensitivity": "3",
+        "joy_pitchsensitivity": "1",
+        "joy_response_look": "0",
+        "joy_response_move": "9",
+        "joy_side_sensitivity": "1",
+        "joy_yaw_sensitivity": "3",
+        "joy_yawsensitivity": "-1",
+        "m_pitch": "0.022",
+        "m_yaw": "0.022",
+        "name": "rndaom",
+        "option_duck_method": "false",
+        "ping_wheel_phrase_0": "1",
+        "ping_wheel_phrase_1": "2",
+        "ping_wheel_phrase_2": "4",
+        "ping_wheel_phrase_3": "34",
+        "ping_wheel_phrase_4": "18",
+        "ping_wheel_phrase_5": "5",
+        "ping_wheel_phrase_6": "42",
+        "ping_wheel_phrase_7": "6",
+        "player_ping_indicator_enabled": "true",
+        "r_light_sensitivity_mode": "true",
+        "sensitivity": "1.25",
+        "sensitivity_y_scale": "1",
+        "skill": "1",
+        "speedometer_ui_enable": "false",
+        "steam_inputhandler_glyph_lock_mode": "0",
+        "steaminput_glyph_use_universal_face_buttons": "true",
+        "voice_vox": "0",
+        "zoom_sensitivity_ratio": "1"
+      },
+      "entries": [
+        {
+          "key": "citadel_21x9_clamp_hud",
+          "value": "true",
+          "line": 5
+        },
+        {
+          "key": "citadel_activate_window_on_unpause",
+          "value": "false",
+          "line": 6
+        },
+        {
+          "key": "citadel_allow_ally_pings",
+          "value": "true",
+          "line": 7
+        },
+        {
+          "key": "citadel_allow_ally_text",
+          "value": "true",
+          "line": 8
+        },
+        {
+          "key": "citadel_allow_ally_voice",
+          "value": "true",
+          "line": 9
+        },
+        {
+          "key": "citadel_allow_opponent_text",
+          "value": "true",
+          "line": 10
+        },
+        {
+          "key": "citadel_allow_party_pings",
+          "value": "true",
+          "line": 11
+        },
+        {
+          "key": "citadel_allow_party_text",
+          "value": "true",
+          "line": 12
+        },
+        {
+          "key": "citadel_allow_party_voice",
+          "value": "true",
+          "line": 13
+        },
+        {
+          "key": "citadel_allow_spectated_pings",
+          "value": "true",
+          "line": 14
+        },
+        {
+          "key": "citadel_allow_spectated_text",
+          "value": "true",
+          "line": 15
+        },
+        {
+          "key": "citadel_camera_hero_fov",
+          "value": "90",
+          "line": 16
+        },
+        {
+          "key": "citadel_camera_pitch_inverted",
+          "value": "false",
+          "line": 17
+        },
+        {
+          "key": "citadel_custom_ui_colors",
+          "value": "false",
+          "line": 18
+        },
+        {
+          "key": "citadel_enemy_damage_delta_color_b",
+          "value": "91",
+          "line": 19
+        },
+        {
+          "key": "citadel_enemy_damage_delta_color_g",
+          "value": "229",
+          "line": 20
+        },
+        {
+          "key": "citadel_enemy_damage_delta_color_r",
+          "value": "255",
+          "line": 21
+        },
+        {
+          "key": "citadel_enemy_ui_color_b",
+          "value": "50",
+          "line": 22
+        },
+        {
+          "key": "citadel_enemy_ui_color_g",
+          "value": "50",
+          "line": 23
+        },
+        {
+          "key": "citadel_enemy_ui_color_r",
+          "value": "215",
+          "line": 24
+        },
+        {
+          "key": "citadel_enemy_zipline_color_b",
+          "value": "38",
+          "line": 25
+        },
+        {
+          "key": "citadel_enemy_zipline_color_g",
+          "value": "55",
+          "line": 26
+        },
+        {
+          "key": "citadel_enemy_zipline_color_r",
+          "value": "140",
+          "line": 27
+        },
+        {
+          "key": "citadel_english_hero_names",
+          "value": "false",
+          "line": 28
+        },
+        {
+          "key": "citadel_english_mod_names",
+          "value": "false",
+          "line": 29
+        },
+        {
+          "key": "citadel_hero_roster_random",
+          "value": "false",
+          "line": 30
+        },
+        {
+          "key": "citadel_mouse_cursor_scale",
+          "value": "1",
+          "line": 31
+        },
+        {
+          "key": "citadel_per_unit_hotkeys_checked",
+          "value": "false",
+          "line": 32
+        },
+        {
+          "key": "citadel_preview_video_settings_changes",
+          "value": "true",
+          "line": 33
+        },
+        {
+          "key": "citadel_preview_video_settings_duration",
+          "value": "2",
+          "line": 34
+        },
+        {
+          "key": "citadel_reduce_camera_shake",
+          "value": "false",
+          "line": 35
+        },
+        {
+          "key": "citadel_secondary_language_builds",
+          "value": "-1",
+          "line": 36
+        },
+        {
+          "key": "citadel_settings_always_show_all_settings",
+          "value": "true",
+          "line": 37
+        },
+        {
+          "key": "citadel_settings_default_view",
+          "value": "0",
+          "line": 38
+        },
+        {
+          "key": "citadel_settings_hide_hero_specific_disabled_notice",
+          "value": "false",
+          "line": 39
+        },
+        {
+          "key": "citadel_settings_hide_hero_specific_enabled_notice",
+          "value": "false",
+          "line": 40
+        },
+        {
+          "key": "citadel_settings_hide_keybind_delete_confirm",
+          "value": "false",
+          "line": 41
+        },
+        {
+          "key": "citadel_settings_hide_row_reset_confirm",
+          "value": "false",
+          "line": 42
+        },
+        {
+          "key": "citadel_settings_hide_show_all_settings_off_notice",
+          "value": "false",
+          "line": 43
+        },
+        {
+          "key": "citadel_settings_remember_selected_hero",
+          "value": "true",
+          "line": 44
+        },
+        {
+          "key": "citadel_settings_seen_new_settings",
+          "value": "20,11,15,7,21,17,6,8,23,24,10,14,13,12,19,9,22,18,16,",
+          "line": 45
+        },
+        {
+          "key": "citadel_settings_selected_base_settings",
+          "value": "false",
+          "line": 46
+        },
+        {
+          "key": "citadel_settings_selected_hero_read_only",
+          "value": "84",
+          "line": 47
+        },
+        {
+          "key": "citadel_show_active_slot_popup",
+          "value": "false",
+          "line": 48
+        },
+        {
+          "key": "citadel_show_telemetry_settings",
+          "value": "false",
+          "line": 49
+        },
+        {
+          "key": "citadel_streaming_mode_enabled",
+          "value": "false",
+          "line": 50
+        },
+        {
+          "key": "citadel_subtitles_all_caps",
+          "value": "false",
+          "line": 51
+        },
+        {
+          "key": "citadel_subtitles_background_color_b",
+          "value": "0",
+          "line": 52
+        },
+        {
+          "key": "citadel_subtitles_background_color_g",
+          "value": "0",
+          "line": 53
+        },
+        {
+          "key": "citadel_subtitles_background_color_r",
+          "value": "0",
+          "line": 54
+        },
+        {
+          "key": "citadel_subtitles_background_opacity",
+          "value": "93",
+          "line": 55
+        },
+        {
+          "key": "citadel_subtitles_background_style",
+          "value": "0",
+          "line": 56
+        },
+        {
+          "key": "citadel_subtitles_bold_font",
+          "value": "true",
+          "line": 57
+        },
+        {
+          "key": "citadel_subtitles_custom_style",
+          "value": "false",
+          "line": 58
+        },
+        {
+          "key": "citadel_subtitles_font",
+          "value": "0",
+          "line": 59
+        },
+        {
+          "key": "citadel_subtitles_font_size",
+          "value": "16",
+          "line": 60
+        },
+        {
+          "key": "citadel_subtitles_outline_thickness",
+          "value": "2",
+          "line": 61
+        },
+        {
+          "key": "citadel_subtitles_text_color_b",
+          "value": "198",
+          "line": 62
+        },
+        {
+          "key": "citadel_subtitles_text_color_g",
+          "value": "198",
+          "line": 63
+        },
+        {
+          "key": "citadel_subtitles_text_color_r",
+          "value": "198",
+          "line": 64
+        },
+        {
+          "key": "citadel_unit_status_hero_name_mode",
+          "value": "0",
+          "line": 65
+        },
+        {
+          "key": "citadel_unit_status_show_ally_health_value",
+          "value": "false",
+          "line": 66
+        },
+        {
+          "key": "citadel_use_contextual_ping_wheel_option",
+          "value": "true",
+          "line": 67
+        },
+        {
+          "key": "cl_citadel_ability_alt_cast_hold_time",
+          "value": "0.15",
+          "line": 68
+        },
+        {
+          "key": "cl_citadel_ability_alt_cast_instant_cast_double_tap_timeout",
+          "value": "0.2",
+          "line": 69
+        },
+        {
+          "key": "cl_citadel_auto_fire",
+          "value": "false",
+          "line": 70
+        },
+        {
+          "key": "cl_citadel_auto_mantle_backward",
+          "value": "false",
+          "line": 71
+        },
+        {
+          "key": "cl_citadel_auto_mantle_forward",
+          "value": "false",
+          "line": 72
+        },
+        {
+          "key": "cl_citadel_auto_mantle_in_air",
+          "value": "false",
+          "line": 73
+        },
+        {
+          "key": "cl_citadel_auto_move",
+          "value": "false",
+          "line": 74
+        },
+        {
+          "key": "cl_citadel_auto_move_double_tap_time",
+          "value": "0.3",
+          "line": 75
+        },
+        {
+          "key": "cl_citadel_zoom_is_toggle",
+          "value": "false",
+          "line": 76
+        },
+        {
+          "key": "closecaption",
+          "value": "false",
+          "line": 77
+        },
+        {
+          "key": "con_enable",
+          "value": "false",
+          "line": 78
+        },
+        {
+          "key": "input_button_code_is_scan_code_scd",
+          "value": "true",
+          "line": 79
+        },
+        {
+          "key": "joy_axisr_deadzone",
+          "value": "0.15",
+          "line": 80
+        },
+        {
+          "key": "joy_axisr_relative",
+          "value": "false",
+          "line": 81
+        },
+        {
+          "key": "joy_axisu_deadzone",
+          "value": "0.15",
+          "line": 82
+        },
+        {
+          "key": "joy_axisu_relative",
+          "value": "false",
+          "line": 83
+        },
+        {
+          "key": "joy_axisv_deadzone",
+          "value": "0.15",
+          "line": 84
+        },
+        {
+          "key": "joy_axisv_relative",
+          "value": "false",
+          "line": 85
+        },
+        {
+          "key": "joy_axisx_deadzone",
+          "value": "0.15",
+          "line": 86
+        },
+        {
+          "key": "joy_axisx_relative",
+          "value": "false",
+          "line": 87
+        },
+        {
+          "key": "joy_axisy_deadzone",
+          "value": "0.15",
+          "line": 88
+        },
+        {
+          "key": "joy_axisy_relative",
+          "value": "false",
+          "line": 89
+        },
+        {
+          "key": "joy_axisz_deadzone",
+          "value": "0.15",
+          "line": 90
+        },
+        {
+          "key": "joy_axisz_relative",
+          "value": "false",
+          "line": 91
+        },
+        {
+          "key": "joy_circle_correct_mode",
+          "value": "1",
+          "line": 92
+        },
+        {
+          "key": "joy_circle_correct_mode_vehicle",
+          "value": "2",
+          "line": 93
+        },
+        {
+          "key": "joy_forward_sensitivity",
+          "value": "1",
+          "line": 94
+        },
+        {
+          "key": "joy_movement_stick",
+          "value": "false",
+          "line": 95
+        },
+        {
+          "key": "joy_pitch_sensitivity",
+          "value": "3",
+          "line": 96
+        },
+        {
+          "key": "joy_pitchsensitivity",
+          "value": "1",
+          "line": 97
+        },
+        {
+          "key": "joy_response_look",
+          "value": "0",
+          "line": 98
+        },
+        {
+          "key": "joy_response_move",
+          "value": "9",
+          "line": 99
+        },
+        {
+          "key": "joy_side_sensitivity",
+          "value": "1",
+          "line": 100
+        },
+        {
+          "key": "joy_yaw_sensitivity",
+          "value": "3",
+          "line": 101
+        },
+        {
+          "key": "joy_yawsensitivity",
+          "value": "-1",
+          "line": 102
+        },
+        {
+          "key": "m_pitch",
+          "value": "0.022",
+          "line": 103
+        },
+        {
+          "key": "m_yaw",
+          "value": "0.022",
+          "line": 104
+        },
+        {
+          "key": "name",
+          "value": "rndaom",
+          "line": 105
+        },
+        {
+          "key": "option_duck_method",
+          "value": "false",
+          "line": 106
+        },
+        {
+          "key": "ping_wheel_phrase_0",
+          "value": "1",
+          "line": 107
+        },
+        {
+          "key": "ping_wheel_phrase_1",
+          "value": "2",
+          "line": 108
+        },
+        {
+          "key": "ping_wheel_phrase_2",
+          "value": "4",
+          "line": 109
+        },
+        {
+          "key": "ping_wheel_phrase_3",
+          "value": "34",
+          "line": 110
+        },
+        {
+          "key": "ping_wheel_phrase_4",
+          "value": "18",
+          "line": 111
+        },
+        {
+          "key": "ping_wheel_phrase_5",
+          "value": "5",
+          "line": 112
+        },
+        {
+          "key": "ping_wheel_phrase_6",
+          "value": "42",
+          "line": 113
+        },
+        {
+          "key": "ping_wheel_phrase_7",
+          "value": "6",
+          "line": 114
+        },
+        {
+          "key": "player_ping_indicator_enabled",
+          "value": "true",
+          "line": 115
+        },
+        {
+          "key": "r_light_sensitivity_mode",
+          "value": "true",
+          "line": 116
+        },
+        {
+          "key": "sensitivity",
+          "value": "1.25",
+          "line": 117
+        },
+        {
+          "key": "sensitivity_y_scale",
+          "value": "1",
+          "line": 118
+        },
+        {
+          "key": "skill",
+          "value": "1",
+          "line": 119
+        },
+        {
+          "key": "speedometer_ui_enable",
+          "value": "false",
+          "line": 120
+        },
+        {
+          "key": "steam_inputhandler_glyph_lock_mode",
+          "value": "0",
+          "line": 121
+        },
+        {
+          "key": "steaminput_glyph_use_universal_face_buttons",
+          "value": "true",
+          "line": 122
+        },
+        {
+          "key": "voice_vox",
+          "value": "0",
+          "line": 123
+        },
+        {
+          "key": "zoom_sensitivity_ratio",
+          "value": "1",
+          "line": 124
+        }
+      ],
+      "duplicates": []
+    }
+  ],
+  "active_vs_legacy_video_differences": [
+    {
+      "key": "setting.mat_viewportscale",
+      "usr_local": "0.79999995",
+      "legacy_mod": "1.000000"
+    },
+    {
+      "key": "setting.r_citadel_fsr2_sharpness",
+      "usr_local": "0",
+      "legacy_mod": "0.000000"
+    },
+    {
+      "key": "setting.r_citadel_fsr_rcas_sharpness",
+      "usr_local": "0",
+      "legacy_mod": "0.000000"
+    },
+    {
+      "key": "setting.r_citadel_upscaling",
+      "usr_local": "2",
+      "legacy_mod": "0"
+    },
+    {
+      "key": "setting.r_fullscreen_gamma",
+      "usr_local": "2.2",
+      "legacy_mod": "2.200000"
+    },
+    {
+      "key": "setting.r_texture_stream_mip_bias",
+      "usr_local": "2",
+      "legacy_mod": "4"
+    }
+  ],
+  "installed_video_reference_lineage": {
+    "reference": "https://github.com/dacooderr/OptiLock",
+    "commit": "7f7a54a1b8237d9b66348067d09f93174c47d303",
+    "template": "OptiLock Potato Config/video.txt",
+    "template_unique_setting_count": 74,
+    "comparisons": [
+      {
+        "ownership": "legacy MOD",
+        "same_unique_setting_key_set": true,
+        "installed_unique_setting_count": 74,
+        "semantic_value_differences": [
+          {
+            "key": "setting.defaultres",
+            "installed": "1920",
+            "optilock_potato": "-1"
+          },
+          {
+            "key": "setting.defaultresheight",
+            "installed": "1080",
+            "optilock_potato": "-1"
+          }
+        ]
+      },
+      {
+        "ownership": "USRLOCAL",
+        "same_unique_setting_key_set": true,
+        "installed_unique_setting_count": 74,
+        "semantic_value_differences": [
+          {
+            "key": "setting.defaultres",
+            "installed": "1920",
+            "optilock_potato": "-1"
+          },
+          {
+            "key": "setting.defaultresheight",
+            "installed": "1080",
+            "optilock_potato": "-1"
+          },
+          {
+            "key": "setting.mat_viewportscale",
+            "installed": "0.79999995",
+            "optilock_potato": "1.000000"
+          },
+          {
+            "key": "setting.r_citadel_upscaling",
+            "installed": "2",
+            "optilock_potato": "0"
+          },
+          {
+            "key": "setting.r_texture_stream_mip_bias",
+            "installed": "2",
+            "optilock_potato": "4"
+          }
+        ]
+      }
+    ],
+    "interpretation": "Installed video files strongly match the OptiLock Potato template key/value pattern. The existing baseline is already heavily reduced; neither provenance nor stored values proves current-build key effectiveness."
+  },
+  "native_video_preset_comparison": {
+    "build_id": "25689475",
+    "sources": [
+      {
+        "file": "evidence/valve-build-25689475/installed-vpk/citadel/cfg/video_defaults_0.txt",
+        "sha256": "d7a1f987c4da334533e9a92f196814eb3d4e0923e3e1d558bbfc32bc0cc8de0d",
+        "settings": {
+          "setting.mat_vsync": "0",
+          "setting.r_citadel_ssao_quality": "0",
+          "setting.r_effects_bloom": "false",
+          "setting.r_post_bloom": "false",
+          "setting.r_citadel_antialiasing": "0",
+          "setting.r_citadel_upscaling": "0",
+          "setting.r_citadel_dlss_settings_mode": "0",
+          "setting.r_dlss_preset": "6",
+          "setting.r_depth_of_field": "false",
+          "setting.r_arealights": "false",
+          "setting.r_texture_stream_mip_bias": "2",
+          "setting.r_dashboard_render_quality": "0",
+          "setting.r_particle_depth_feathering": "false",
+          "setting.shaderquality": "0",
+          "setting.recommendedheight": "720",
+          "setting.r_citadel_fog_quality": "0",
+          "setting.r_citadel_motion_blur": "0",
+          "setting.r_citadel_shadow_quality": "0"
+        }
+      },
+      {
+        "file": "evidence/valve-build-25689475/installed-vpk/citadel/cfg/video_defaults_1.txt",
+        "sha256": "7ef678e7c21f2ca32374834d8c898a83326770512a8463e43e8a6525a9f8807b",
+        "settings": {
+          "setting.mat_vsync": "0",
+          "setting.r_citadel_ssao_quality": "0",
+          "setting.r_effects_bloom": "false",
+          "setting.r_post_bloom": "true",
+          "setting.r_citadel_antialiasing": "1",
+          "setting.r_citadel_upscaling": "4",
+          "setting.r_citadel_dlss_settings_mode": "0",
+          "setting.r_dlss_preset": "6",
+          "setting.r_depth_of_field": "false",
+          "setting.r_arealights": "false",
+          "setting.r_texture_stream_mip_bias": "1",
+          "setting.r_dashboard_render_quality": "0",
+          "setting.r_particle_depth_feathering": "false",
+          "setting.shaderquality": "1",
+          "setting.recommendedheight": "720",
+          "setting.r_citadel_fog_quality": "0",
+          "setting.r_citadel_motion_blur": "1",
+          "setting.r_citadel_shadow_quality": "1"
+        }
+      },
+      {
+        "file": "evidence/valve-build-25689475/installed-vpk/citadel/cfg/video_defaults_2.txt",
+        "sha256": "16ff9880470092b76722851bb840c3c05bcf1741ad0c25ec4e8490d18d42ab84",
+        "settings": {
+          "setting.mat_vsync": "0",
+          "setting.r_citadel_ssao_quality": "3",
+          "setting.r_effects_bloom": "true",
+          "setting.r_post_bloom": "true",
+          "setting.r_citadel_antialiasing": "1",
+          "setting.r_citadel_upscaling": "4",
+          "setting.r_citadel_dlss_settings_mode": "0",
+          "setting.r_dlss_preset": "6",
+          "setting.r_depth_of_field": "true",
+          "setting.r_arealights": "true",
+          "setting.r_texture_stream_mip_bias": "0",
+          "setting.r_dashboard_render_quality": "1",
+          "setting.r_particle_depth_feathering": "true",
+          "setting.shaderquality": "1",
+          "setting.recommendedheight": "1080",
+          "setting.r_citadel_fog_quality": "1",
+          "setting.r_citadel_motion_blur": "1",
+          "setting.r_citadel_shadow_quality": "2"
+        }
+      },
+      {
+        "file": "evidence/valve-build-25689475/installed-vpk/citadel/cfg/video_defaults_3.txt",
+        "sha256": "dff9d39949ce2c4988dcfcfab71e2cdf939825b89d089ad0c341a023629fe278",
+        "settings": {
+          "setting.mat_vsync": "0",
+          "setting.r_citadel_ssao_quality": "4",
+          "setting.r_effects_bloom": "true",
+          "setting.r_post_bloom": "true",
+          "setting.r_citadel_antialiasing": "1",
+          "setting.r_citadel_upscaling": "4",
+          "setting.r_citadel_dlss_settings_mode": "0",
+          "setting.r_dlss_preset": "6",
+          "setting.r_depth_of_field": "true",
+          "setting.r_arealights": "true",
+          "setting.r_texture_stream_mip_bias": "0",
+          "setting.r_dashboard_render_quality": "1",
+          "setting.r_particle_depth_feathering": "true",
+          "setting.shaderquality": "1",
+          "setting.recommendedheight": "0",
+          "setting.r_citadel_fog_quality": "1",
+          "setting.r_citadel_motion_blur": "1",
+          "setting.r_citadel_shadow_quality": "3"
+        }
+      }
+    ],
+    "unique_active_native_preset_keys": [
+      "setting.mat_vsync",
+      "setting.r_arealights",
+      "setting.r_citadel_antialiasing",
+      "setting.r_citadel_dlss_settings_mode",
+      "setting.r_citadel_fog_quality",
+      "setting.r_citadel_motion_blur",
+      "setting.r_citadel_shadow_quality",
+      "setting.r_citadel_ssao_quality",
+      "setting.r_citadel_upscaling",
+      "setting.r_dashboard_render_quality",
+      "setting.r_depth_of_field",
+      "setting.r_dlss_preset",
+      "setting.r_effects_bloom",
+      "setting.r_particle_depth_feathering",
+      "setting.r_post_bloom",
+      "setting.r_texture_stream_mip_bias",
+      "setting.recommendedheight",
+      "setting.shaderquality"
+    ],
+    "comparisons": [
+      {
+        "ownership": "legacy MOD",
+        "extra_keys_not_in_any_native_preset": [
+          {
+            "key": "setting.aspectratiomode",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.cl_particle_fallback_base",
+            "stored": "5",
+            "dumped_convar": {
+              "dump_default": "0",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.cl_particle_fallback_multiplier",
+            "stored": "5",
+            "dumped_convar": {
+              "dump_default": "0",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.coop_fullscreen",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.cpu_level",
+            "stored": "1",
+            "dumped_convar": {
+              "dump_default": "2",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.csm_max_num_cascades_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.csm_max_shadow_dist_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.csm_viewmodel_shadows",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "false",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.defaultres",
+            "stored": "1920",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.defaultresheight",
+            "stored": "1080",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.fps_max",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "120",
+              "dump_flags": "archive release"
+            }
+          },
+          {
+            "key": "setting.fullscreen",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.fullscreen_min_on_focus_loss",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.gpu_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "3",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.gpu_mem_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "2",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.high_dpi",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.knowndevice",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.lb_csm_override_staticgeo_cascades",
+            "stored": "true",
+            "dumped_convar": {
+              "dump_default": "false",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_csm_override_staticgeo_cascades_value",
+            "stored": "-1",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_dynamic_shadow_resolution",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_enable_shadow_casting",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_shadow_texture_height_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_shadow_texture_width_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.mat_viewportscale",
+            "stored": "1.000000",
+            "dumped_convar": {
+              "dump_default": "1",
+              "dump_flags": "min: 0.001563, max: 1, developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.mem_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "2",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.monitor_index",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.nowindowborder",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_area_lights",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_distancefield_ao_quality",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "0",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_distancefield_reflections",
+            "stored": "false",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_distancefield_shadows",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_fsr2_sharpness",
+            "stored": "0.000000",
+            "dumped_convar": {
+              "dump_default": "0.5",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_fsr_rcas_sharpness",
+            "stored": "0.000000",
+            "dumped_convar": {
+              "dump_default": "0.25",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_half_res_noisy_effects",
+            "stored": "true",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_mboit",
+            "stored": "false",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_outlines",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_ssao",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_displacement_mapping",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_distancefield_enable",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_env_map_uses_height_map",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_fullscreen_gamma",
+            "stored": "2.200000",
+            "dumped_convar": {
+              "dump_default": "2.2",
+              "dump_flags": "min: 1, max: 4, archive snapshot_ignored"
+            }
+          },
+          {
+            "key": "setting.r_light_sensitivity_mode",
+            "stored": "true",
+            "dumped_convar": {
+              "dump_default": "false",
+              "dump_flags": "clientdll archive per_user"
+            }
+          },
+          {
+            "key": "setting.r_low_latency",
+            "stored": "1",
+            "dumped_convar": {
+              "dump_default": "1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.r_particle_cables_cast_shadows",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly defensive gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.r_particle_max_detail_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "3",
+              "dump_flags": "developmentonly defensive gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.r_particle_shadows",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_reduce_flash",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_render_portals",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_screen_space_shadows",
+            "stored": "false",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_shadows",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "cheat gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.refreshrate_denominator",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.refreshrate_numerator",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.useadvanced",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.volume_fog_depth",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "128",
+              "dump_flags": "min: 48, max: 1024, developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.volume_fog_height",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "160",
+              "dump_flags": "min: 64, max: 1024, developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.volume_fog_width",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "240",
+              "dump_flags": "min: 64, max: 1024, developmentonly defensive"
+            }
+          }
+        ],
+        "different_values_for_keys_also_in_native_low": [
+          {
+            "key": "setting.r_dlss_preset",
+            "stored": "0",
+            "native_low": "6"
+          },
+          {
+            "key": "setting.r_texture_stream_mip_bias",
+            "stored": "4",
+            "native_low": "2"
+          },
+          {
+            "key": "setting.recommendedheight",
+            "stored": "0",
+            "native_low": "720"
+          }
+        ]
+      },
+      {
+        "ownership": "USRLOCAL",
+        "extra_keys_not_in_any_native_preset": [
+          {
+            "key": "setting.aspectratiomode",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.cl_particle_fallback_base",
+            "stored": "5",
+            "dumped_convar": {
+              "dump_default": "0",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.cl_particle_fallback_multiplier",
+            "stored": "5",
+            "dumped_convar": {
+              "dump_default": "0",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.coop_fullscreen",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.cpu_level",
+            "stored": "1",
+            "dumped_convar": {
+              "dump_default": "2",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.csm_max_num_cascades_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.csm_max_shadow_dist_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.csm_viewmodel_shadows",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "false",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.defaultres",
+            "stored": "1920",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.defaultresheight",
+            "stored": "1080",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.fps_max",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "120",
+              "dump_flags": "archive release"
+            }
+          },
+          {
+            "key": "setting.fullscreen",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.fullscreen_min_on_focus_loss",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.gpu_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "3",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.gpu_mem_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "2",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.high_dpi",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.knowndevice",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.lb_csm_override_staticgeo_cascades",
+            "stored": "true",
+            "dumped_convar": {
+              "dump_default": "false",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_csm_override_staticgeo_cascades_value",
+            "stored": "-1",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_dynamic_shadow_resolution",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_enable_shadow_casting",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_shadow_texture_height_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.lb_shadow_texture_width_override",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "-1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.mat_viewportscale",
+            "stored": "0.79999995",
+            "dumped_convar": {
+              "dump_default": "1",
+              "dump_flags": "min: 0.001563, max: 1, developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.mem_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "2",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.monitor_index",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.nowindowborder",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_area_lights",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_distancefield_ao_quality",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "0",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_distancefield_reflections",
+            "stored": "false",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_distancefield_shadows",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_fsr2_sharpness",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "0.5",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_fsr_rcas_sharpness",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "0.25",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_citadel_half_res_noisy_effects",
+            "stored": "true",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_mboit",
+            "stored": "false",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_outlines",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_citadel_ssao",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_displacement_mapping",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_distancefield_enable",
+            "stored": "false",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly clientdll defensive"
+            }
+          },
+          {
+            "key": "setting.r_env_map_uses_height_map",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_fullscreen_gamma",
+            "stored": "2.2",
+            "dumped_convar": {
+              "dump_default": "2.2",
+              "dump_flags": "min: 1, max: 4, archive snapshot_ignored"
+            }
+          },
+          {
+            "key": "setting.r_light_sensitivity_mode",
+            "stored": "true",
+            "dumped_convar": {
+              "dump_default": "false",
+              "dump_flags": "clientdll archive per_user"
+            }
+          },
+          {
+            "key": "setting.r_low_latency",
+            "stored": "1",
+            "dumped_convar": {
+              "dump_default": "1",
+              "dump_flags": "developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.r_particle_cables_cast_shadows",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "developmentonly defensive gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.r_particle_max_detail_level",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "3",
+              "dump_flags": "developmentonly defensive gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.r_particle_shadows",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_reduce_flash",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_render_portals",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_screen_space_shadows",
+            "stored": "false",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.r_shadows",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "true",
+              "dump_flags": "cheat gameinfo_cannot_override"
+            }
+          },
+          {
+            "key": "setting.refreshrate_denominator",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.refreshrate_numerator",
+            "stored": "0",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.useadvanced",
+            "stored": "1",
+            "dumped_convar": null
+          },
+          {
+            "key": "setting.volume_fog_depth",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "128",
+              "dump_flags": "min: 48, max: 1024, developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.volume_fog_height",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "160",
+              "dump_flags": "min: 64, max: 1024, developmentonly defensive"
+            }
+          },
+          {
+            "key": "setting.volume_fog_width",
+            "stored": "0",
+            "dumped_convar": {
+              "dump_default": "240",
+              "dump_flags": "min: 64, max: 1024, developmentonly defensive"
+            }
+          }
+        ],
+        "different_values_for_keys_also_in_native_low": [
+          {
+            "key": "setting.r_citadel_upscaling",
+            "stored": "2",
+            "native_low": "0"
+          },
+          {
+            "key": "setting.r_dlss_preset",
+            "stored": "0",
+            "native_low": "6"
+          },
+          {
+            "key": "setting.recommendedheight",
+            "stored": "0",
+            "native_low": "720"
+          }
+        ]
+      }
+    ],
+    "interpretation": "Not appearing in a preset is not proof of invalidity: display, device, menu-owned latency, and custom controls are also outside these preset files. Dump flags indicate console restrictions, not whether the engine's native video loader accepts a storage key. Convar dump evidence is a mirrored build source; stock preset files are CRC-checked installed VPK extractions."
+  },
+  "gameinfo_searchpaths": [
+    "Game_UILanguage\t\tcitadel_*LANGUAGE*",
+    "Game_LowViolence\tcitadel_lv",
+    "Game\t\t\t\tcitadel",
+    "Game\t\t\t\tcore"
+  ],
+  "gameinfo_sha1_checks": [
+    {
+      "relative_path": "game/citadel/gameinfo.gi",
+      "sha1": "3fc6e3a1a728b88b593cf09e218212e8aee5a751",
+      "expected_sha1": "3fc6e3a1a728b88b593cf09e218212e8aee5a751",
+      "matches_depot_sha1": true,
+      "depot": "1422456"
+    },
+    {
+      "relative_path": "game/citadel/gameinfo_branchspecific.gi",
+      "sha1": "5b4c901975382eba153222f52e2e3be8b241bfd4",
+      "expected_sha1": "5b4c901975382eba153222f52e2e3be8b241bfd4",
+      "matches_depot_sha1": true,
+      "depot": "1422456"
+    },
+    {
+      "relative_path": "game/bin/win64/deadlock.exe",
+      "sha1": "bf447eb0e0584a2b1772002b65a45a5512e01f8e",
+      "expected_sha1": "bf447eb0e0584a2b1772002b65a45a5512e01f8e",
+      "matches_depot_sha1": true,
+      "depot": "1422452"
+    },
+    {
+      "relative_path": "game/bin/win64/engine2.dll",
+      "sha1": "8fc08149d1d1af79d305a952f65f4ff9d5ffce62",
+      "expected_sha1": "8fc08149d1d1af79d305a952f65f4ff9d5ffce62",
+      "matches_depot_sha1": true,
+      "depot": "1422452"
+    },
+    {
+      "relative_path": "game/bin/win64/rendersystemdx11.dll",
+      "sha1": "db932139cd5e9b9deb46ad73fba7fcf46b128a98",
+      "expected_sha1": "db932139cd5e9b9deb46ad73fba7fcf46b128a98",
+      "matches_depot_sha1": true,
+      "depot": "1422452"
+    },
+    {
+      "relative_path": "game/bin/win64/rendersystemvulkan.dll",
+      "sha1": "c623acc1b838fe16ad8a334a19153e9e45db9021",
+      "expected_sha1": "c623acc1b838fe16ad8a334a19153e9e45db9021",
+      "matches_depot_sha1": true,
+      "depot": "1422452"
+    },
+    {
+      "relative_path": "game/citadel/bin/win64/client.dll",
+      "sha1": "e772b1506c627da783673627ed79392edf492df0",
+      "expected_sha1": "e772b1506c627da783673627ed79392edf492df0",
+      "matches_depot_sha1": true,
+      "depot": "1422452"
+    }
+  ],
+  "installed_file_count": 3878,
+  "installed_file_bytes": 38703088471,
+  "installed_depot_manifest_evidence": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\depotcache\\1422451_4300122820396050444.manifest",
+      "bytes": 31665,
+      "modified_utc": "2026-10-03T01:00:09.208991+00:00",
+      "mapping_count": 96,
+      "manifest_id": "4300122820396050444",
+      "depot": "1422451"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\depotcache\\1422452_4733596665444981065.manifest",
+      "bytes": 40306,
+      "modified_utc": "2026-10-03T01:00:09.208991+00:00",
+      "mapping_count": 107,
+      "manifest_id": "4733596665444981065",
+      "depot": "1422452"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\depotcache\\1422456_1164962827516637351.manifest",
+      "bytes": 2114093,
+      "modified_utc": "2026-10-03T01:00:09.228007+00:00",
+      "mapping_count": 3659,
+      "manifest_id": "1164962827516637351",
+      "depot": "1422456"
+    }
+  ],
+  "all_vpk_count": 517,
+  "vpk_files_in_depots": 517,
+  "vpk_files_not_in_depots": [],
+  "addon_or_mod_directory_candidates": [],
+  "steam_app_scoped_cache_paths": [
+    {
+      "path": "steamapps/workshop/appworkshop_1422450.acf",
+      "exists": false,
+      "file_count": 0
+    },
+    {
+      "path": "steamapps/workshop/content/1422450",
+      "exists": false,
+      "file_count": 0
+    },
+    {
+      "path": "steamapps/shadercache/1422450",
+      "exists": true,
+      "file_count": 0
+    },
+    {
+      "path": "steamapps/downloading/1422450",
+      "exists": false,
+      "file_count": 0
+    }
+  ],
+  "extra_files_not_in_depots": [
+    {
+      "relative_path": "game/citadel/account_<account>.stats",
+      "bytes": 32,
+      "modified_utc": "2026-10-03T21:32:52.900587+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cache_<account>.soc",
+      "bytes": 794,
+      "modified_utc": "2026-10-03T18:10:11.153437+00:00"
+    },
+    {
+      "relative_path": "game/citadel/reconnect.dat",
+      "bytes": 32,
+      "modified_utc": "2026-10-03T22:55:25.586219+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/boot.vcfg",
+      "bytes": 64,
+      "modified_utc": "2026-10-03T18:10:11.103809+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/citadel_hero_settings.lst",
+      "bytes": 986,
+      "modified_utc": "2026-10-03T18:10:11.151436+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/machine_convars.vcfg",
+      "bytes": 9942,
+      "modified_utc": "2026-09-28T13:00:46.575713+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_convars_0_slot0.vcfg",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.531124+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_convars_0_slot0.vcfg_lastclouded",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.532127+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_keys_0_slot0.vcfg",
+      "bytes": 62,
+      "modified_utc": "2026-09-28T13:00:46.564666+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_keys_0_slot0.vcfg_lastclouded",
+      "bytes": 62,
+      "modified_utc": "2026-09-28T13:00:46.564666+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_keys_0_slot1.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.567169+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_keys_0_slot2.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.571703+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/user_keys_0_slot3.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.574710+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/video.txt",
+      "bytes": 3028,
+      "modified_utc": "2026-09-14T23:07:34.145453+00:00"
+    },
+    {
+      "relative_path": "game/citadel/cfg/video.txt.bak",
+      "bytes": 340,
+      "modified_utc": "2026-09-14T22:56:01.187835+00:00"
+    },
+    {
+      "relative_path": "game/bin/win64/steam_appid.txt",
+      "bytes": 9,
+      "modified_utc": "2026-10-03T20:47:26.347625+00:00"
+    }
+  ],
+  "extra_dll_exe_vpk_not_in_depots": [],
+  "missing_depot_files": [],
+  "depot_size_mismatches": [],
+  "game_log_file_count": 0,
+  "config_error_log_lines": [],
+  "trustedlaunch_metadata": [
+    {
+      "file": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\trustedlaunch.cfg",
+      "content": "2,2,41644,0x1dd513c,0xd8fb8e20\n2,2,27336,0x1dd51a9,0xf9a0c1ff\n2,2,34152,0x1dd51f5,0xb98e8b23\n2,2,42268,0x1dd51f6,0x22a74564\n2,2,5832,0x1dd520a,0x3e4d00c1\n2,2,3216,0x1dd52c1,0x554d9392\n2,2,41248,0x1dd535f,0x565ee2ac\n2,2,13656,0x1dd5378,0x63b5e299\n"
+    }
+  ],
+  "steam_content_log_recent_app_events": [
+    "[2026-10-03 13:49:10] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 13:54:10 2026)",
+    "[2026-10-03 13:49:10] AppID 1422450 state changed : Fully Installed,App Running,Updated Disabled by app,",
+    "[2026-10-03 13:55:10] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 14:00:10 2026)",
+    "[2026-10-03 14:01:10] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 14:06:10 2026)",
+    "[2026-10-03 14:07:10] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 14:12:10 2026)",
+    "[2026-10-03 14:09:28] App 1422450 updates now enabled",
+    "[2026-10-03 14:09:28] AppID 1422450 state changed : Fully Installed,App Running,",
+    "[2026-10-03 14:10:14] AppID 1422450 state changed : Fully Installed,",
+    "[2026-10-03 16:47:22] AppID 1422450 state changed : Fully Installed,App Running,",
+    "[2026-10-03 17:07:42] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 17:12:42 2026)",
+    "[2026-10-03 17:07:42] AppID 1422450 state changed : Fully Installed,App Running,Updated Disabled by app,",
+    "[2026-10-03 17:09:31] App 1422450 updates now enabled",
+    "[2026-10-03 17:09:31] AppID 1422450 state changed : Fully Installed,App Running,",
+    "[2026-10-03 17:11:46] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 17:16:46 2026)",
+    "[2026-10-03 17:11:46] AppID 1422450 state changed : Fully Installed,App Running,Updated Disabled by app,",
+    "[2026-10-03 17:17:46] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 17:22:46 2026)",
+    "[2026-10-03 17:20:09] App 1422450 updates now enabled",
+    "[2026-10-03 17:20:09] AppID 1422450 state changed : Fully Installed,App Running,",
+    "[2026-10-03 17:28:20] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 17:33:20 2026)",
+    "[2026-10-03 17:28:20] AppID 1422450 state changed : Fully Installed,App Running,Updated Disabled by app,",
+    "[2026-10-03 17:32:53] App 1422450 updates now enabled",
+    "[2026-10-03 17:32:53] AppID 1422450 state changed : Fully Installed,App Running,",
+    "[2026-10-03 17:36:54] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 17:41:54 2026)",
+    "[2026-10-03 17:36:54] AppID 1422450 state changed : Fully Installed,App Running,Updated Disabled by app,",
+    "[2026-10-03 17:42:54] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 17:47:54 2026)",
+    "[2026-10-03 17:46:09] App 1422450 updates now enabled",
+    "[2026-10-03 17:46:09] AppID 1422450 state changed : Fully Installed,App Running,",
+    "[2026-10-03 18:55:25] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 19:00:25 2026)",
+    "[2026-10-03 18:55:25] AppID 1422450 state changed : Fully Installed,App Running,Updated Disabled by app,",
+    "[2026-10-03 19:01:25] App 1422450 updates disabled for 300 seconds (until Sat Oct  3 19:06:25 2026)"
+  ],
+  "limits": [
+    "No exhaustive 38 GB content hash verification was run; all file names and sizes were compared to currently installed cached Steam depot manifests, and critical stock executable/DLL/gameinfo SHA1 hashes were checked.",
+    "No runtime console command executed, no game restart, no gameplay benchmark, and no mod removal.",
+    "Persisted settings cannot prove live effective values; old/manual video keys must be checked against native current-build defaults before reuse.",
+    "Ordinary game shaders/map/UI/locale VPKs are required Valve content and must not be deleted as mod cleanup."
+  ]
+}

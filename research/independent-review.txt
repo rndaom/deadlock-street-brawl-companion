@@ -1,0 +1,53 @@
+Independent correctness and safety review
+Reviewer: /root/independent_review
+Reviewed: 2026-10-03, America/New_York task context
+Scope: read-only workspace and installed game inspection; no runtime changes.
+
+Existing architecture
+- This workspace is an Electron/React Street Brawl companion with a separate .NET Windows OCR helper. It is not an existing FPS tuner.
+- All project files were untracked at the initial git-status inspection. Preserve this independent project while adding the optimizer.
+- The OCR helper uses GDI capture, Windows OCR, BelowNormal priority, and one logical processor. Electron and capture can still compete with the game.
+- The idle resource sample is explicitly not active-capture or game-FPS evidence. Do not use its 0.0000% CPU observation as proof of zero overhead or FPS gain.
+- No optimizer installer, registry tweak, VPK deletion, cache purge, gameinfo edit, or game-priority change was found in the original application code/scripts.
+
+Installed facts independently observed
+- Install: C:\Program Files (x86)\Steam\steamapps\common\Deadlock.
+- Steam app 1422450, build 25689475; installed steam.inf: client/server 6745, source revision 11078118, Oct 02 2026 17:45:04.
+- game/citadel/cfg/video.txt is already strongly reduced: 1920x1080, scale 1.0, AA/upscaling/VSync disabled, shadows/AO/fog/effects mostly disabled, particle fallback base/multiplier 5, mip bias 4.
+- video.txt contains a duplicate r_particle_max_detail_level key. machine_convars.vcfg archives fps_max 400 while video.txt says setting.fps_max 0. Text inspection does not establish runtime precedence.
+- gameinfo.gi looks like the stock 18,438-byte game description but has not been compared to an authenticated current depot manifest by this reviewer. Do not call it verified vanilla from appearance alone.
+- gameinfo.gi explicitly disables asynchronous user-command sending because early prediction is unsupported. It already enables several particle and interpolation optimizations.
+- pak01_000.vpk through pak01_322.vpk, pak01_dir.vpk, and pc/vulkan shader VPKs are installed assets. A wildcard *.vpk deletion would break the game.
+- video.txt.bak is a minimal old 1024x768 windowed file, not a trustworthy performance baseline or full current-game default file.
+
+OptiLock reference findings
+- Upstream describes itself as replacing gameinfo.gi and including a modded VPK. These mechanisms do not meet the requested config-only direction.
+- The upstream recommended preset already contains large graphics reductions and claims FPS/1% low gains without this machine's matched measurements.
+- Do not inherit its guessed rendering/threading/network settings merely because they exist in its reference cvar list.
+- Particular exclusions: visibility/FOV/distance manipulation, hidden/cheat cvar bypass, turning off cloak refraction or blur, removed tracers/impacts/overlays, ragdoll suppression that may affect abilities, changing tick simulation limits, altered networking/interpolation/snapshot behavior, guessed thread caps, and forced I/O/concurrency policies.
+- Upstream warns mip bias above 4 needs an accompanying lighting-fix mod. A config-only profile must avoid relying on that workaround; bias 4 already deserves visibility review on this PC.
+- There are conflicting duplicate cvars, including cl_async_usercmd_send true earlier and false later. No reliable gain follows from the earlier line.
+- Upstream LICENSE.md is GPLv3. Prefer original short settings and original scripts with provenance; copying substantive upstream implementation requires observing that license.
+
+Acceptance checks for the concrete candidate
+1. Preserve gameinfo.gi, official assets, all standard VPKs, saves, bindings, and account/cloud data. Do not purge driver or shader caches as a default optimization: cache coldness must be accounted for in measurements.
+2. Restrict installed writes to explicit native user config files and an additive cfg, with exact backups, hashes, timestamps, and a usable restore action. Abort while the game is running and re-check hashes immediately before writes.
+3. Resolve absolute targets and check path containment before any recursive mutation. Use literal PowerShell paths; reject reparse-point/escaping targets. Prefer reversible quarantine only for specifically identified custom packages, if needed.
+4. Use keys evidenced by the installed settings/menu or current readable normal-editable runtime cvar flags. A binary string or old community cvar dump establishes existence at most, not mutability, acceptable ranges, or performance benefit.
+5. Preserve VendorID/DeviceID and resolution/display fields unless a profile explicitly changes those. Do not use an OptiLock video.txt fragment as a complete replacement for user config metadata.
+6. Treat native-resolution, lower-render-scale, Vulkan/DX11, and latency/cap choices as separate candidates. A cap or lower-resolution profile is not evidence of a faster engine; record real rendered frames and image quality.
+7. Warm shaders and use matched replay/sandbox scenes with repeated alternating A/B runs. Keep refresh/resolution/API, companion, overlays, game state, and CPU/GPU background load comparable.
+8. Measure average FPS plus p95/p99 frame time and slow-frame counts. Do not infer 1% lows from a single counter screenshot. Distinguish displayed frame-generation FPS from real rendered frames.
+9. Remove any guessed launch options (-threads, -high, -noassert, legacy preload flags) from the recommended path until current acceptance and repeated improvement are demonstrated.
+10. Do not claim best, optimal, guaranteed, 1000x, zero overhead, or an FPS percentage without matching installed-build measurements. The existing video config is already aggressive, so the true remaining margin may be small or CPU-bound.
+
+Primary-source checks
+- Valve forum newest listed changelog: https://forums.playdeadlock.com/threads/09-29-2026.166726/ (Yoshi, Valve Developer; links to City Never Sleeps; follow-up describes HUD improvements).
+- Valve City Never Sleeps Steam announcement: https://store.steampowered.com/news/app/1422450/view/694273194214819790.
+- Valve official news API, inspected for steam_community_announcements: https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=1422450&count=5&maxlength=0&format=json&feeds=steam_community_announcements. Contains City Never Sleeps and subsequent Rat King release.
+- The checked posts do not verify the reported exact Yoshi advice to delete mods and mod cache. Keep that attribution unresolved until an exact primary post is located.
+- Microsoft process scheduling: https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities. HIGH priority can starve other threads; REALTIME can interrupt input and disk-flush system threads. Raising game priority or cutting affinity is not a universal optimization.
+- Steam integrity support: https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB. The English page yielded no usable text in the browser fetch, so do not claim a specific automatic mod-removal guarantee from it.
+
+Candidate review status
+Pending: parent will supply generated machine profile and installer for independent review. No profile has been approved, installed, or benchmarked by this reviewer.

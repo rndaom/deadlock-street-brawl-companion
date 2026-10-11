@@ -1,0 +1,571 @@
+{
+  "SchemaVersion": 1,
+  "CapturedUtc": "2026-10-03T22:59:35.2190695Z",
+  "Method": "Read-only CIM, registry reads, Win32 display APIs, powercfg query, process resource sample; no machine/game/driver settings changed",
+  "CPU": {
+    "Name": "AMD Ryzen 7 9800X3D 8-Core Processor",
+    "NumberOfCores": 8,
+    "NumberOfLogicalProcessors": 16,
+    "MaxClockSpeed": 4700,
+    "LoadPercentage": 34
+  },
+  "MemoryModules": [
+    {
+      "Capacity": 17179869184,
+      "ConfiguredClockSpeed": 6400,
+      "Speed": 6400,
+      "Manufacturer": "Unknown",
+      "PartNumber": "CMH32GX5M2B6400C36",
+      "DeviceLocator": "DIMMA2"
+    },
+    {
+      "Capacity": 17179869184,
+      "ConfiguredClockSpeed": 6400,
+      "Speed": 6400,
+      "Manufacturer": "Unknown",
+      "PartNumber": "CMH32GX5M2B6400C36",
+      "DeviceLocator": "DIMMB2"
+    }
+  ],
+  "PhysicalMemoryBytes": 34359738368.0,
+  "OS": {
+    "Caption": "Microsoft Windows 11 Pro",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "OSArchitecture": "64-bit",
+    "TotalVisibleMemorySize": 32380252,
+    "FreePhysicalMemory": 4873920,
+    "LastBootUpTime": "2026-09-23T03:51:20.724766-04:00"
+  },
+  "GPUs": [
+    {
+      "Description": "AMD Radeon RX 7800 XT",
+      "Provider": "Advanced Micro Devices, Inc.",
+      "DriverVersion": "32.0.31041.1004",
+      "DriverDate": "8-17-2026",
+      "DedicatedMemoryBytes": 17163091968
+    },
+    {
+      "Description": "AMD Radeon(TM) Graphics",
+      "Provider": "Advanced Micro Devices, Inc.",
+      "DriverVersion": "32.0.21045.5002",
+      "DriverDate": "8-17-2026",
+      "DedicatedMemoryBytes": null
+    },
+    {
+      "Description": "SudoMaker Virtual Display Adapter",
+      "Provider": "SudoMaker",
+      "DriverVersion": "1.10.9.289",
+      "DriverDate": "7-14-2025",
+      "DedicatedMemoryBytes": null
+    }
+  ],
+  "WmiGpuDisplayFields": [
+    {
+      "Name": "AMD Radeon(TM) Graphics",
+      "DriverVersion": "32.0.21045.5002",
+      "DriverDate": "2026-08-16T20:00:00-04:00",
+      "CurrentHorizontalResolution": null,
+      "CurrentVerticalResolution": null,
+      "CurrentRefreshRate": null
+    },
+    {
+      "Name": "AMD Radeon RX 7800 XT",
+      "DriverVersion": "32.0.31041.1004",
+      "DriverDate": "2026-08-16T20:00:00-04:00",
+      "CurrentHorizontalResolution": 1920,
+      "CurrentVerticalResolution": 1080,
+      "CurrentRefreshRate": 240
+    },
+    {
+      "Name": "SudoMaker Virtual Display Adapter",
+      "DriverVersion": "1.10.9.289",
+      "DriverDate": "2025-07-13T20:00:00-04:00",
+      "CurrentHorizontalResolution": 1920,
+      "CurrentVerticalResolution": 1080,
+      "CurrentRefreshRate": 480
+    }
+  ],
+  "ActiveDisplays": [
+    {
+      "Device": "\\\\.\\DISPLAY1",
+      "Adapter": "AMD Radeon RX 7800 XT",
+      "Primary": false,
+      "Width": 1080,
+      "Height": 1920,
+      "RefreshHz": 240,
+      "PositionX": -1080,
+      "PositionY": -696,
+      "Orientation": 1,
+      "FriendlyName": "XB273 GZ",
+      "HardwareModelId": "ACR0942",
+      "Source": "EnumDisplayDevices / EnumDisplaySettings + WmiMonitorID model mapping"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY2",
+      "Adapter": "AMD Radeon RX 7800 XT",
+      "Primary": true,
+      "Width": 1920,
+      "Height": 1080,
+      "RefreshHz": 480,
+      "PositionX": 0,
+      "PositionY": 0,
+      "Orientation": 0,
+      "FriendlyName": "LG ULTRAGEAR+",
+      "HardwareModelId": "GSM780F",
+      "Source": "EnumDisplayDevices / EnumDisplaySettings + WmiMonitorID model mapping"
+    }
+  ],
+  "DetachedVirtualDisplayOutputs": [
+    {
+      "Device": "\\\\.\\DISPLAY6",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY7",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY8",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY9",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY10",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY11",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY12",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY13",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY14",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    },
+    {
+      "Device": "\\\\.\\DISPLAY15",
+      "Adapter": "SudoMaker Virtual Display Adapter"
+    }
+  ],
+  "Monitors": [
+    {
+      "Active": true,
+      "Manufacturer": "ACR",
+      "FriendlyName": "XB273 GZ",
+      "HardwareModelId": "ACR0942"
+    },
+    {
+      "Active": true,
+      "Manufacturer": "GSM",
+      "FriendlyName": "LG ULTRAGEAR+",
+      "HardwareModelId": "GSM780F"
+    }
+  ],
+  "PowerPlan": "Power Scheme GUID: 7c5a1b2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d  (Ultimate Performance)",
+  "RegistryStates": [
+    {
+      "Path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers",
+      "Name": "HwSchMode",
+      "Present": true,
+      "Value": 2
+    },
+    {
+      "Path": "HKCU:\\Software\\Microsoft\\GameBar",
+      "Name": "AutoGameModeEnabled",
+      "Present": true,
+      "Value": 1
+    },
+    {
+      "Path": "HKCU:\\Software\\Microsoft\\GameBar",
+      "Name": "AllowAutoGameMode",
+      "Present": false,
+      "Value": null
+    },
+    {
+      "Path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+      "Name": "AppCaptureEnabled",
+      "Present": true,
+      "Value": 0
+    },
+    {
+      "Path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+      "Name": "HistoricalCaptureEnabled",
+      "Present": true,
+      "Value": 0
+    },
+    {
+      "Path": "HKCU:\\System\\GameConfigStore",
+      "Name": "GameDVR_Enabled",
+      "Present": true,
+      "Value": 0
+    },
+    {
+      "Path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR",
+      "Name": "AllowGameDVR",
+      "Present": false,
+      "Value": null
+    },
+    {
+      "Path": "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+      "Name": "DisplayVersion",
+      "Present": true,
+      "Value": "25H2"
+    },
+    {
+      "Path": "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+      "Name": "UBR",
+      "Present": true,
+      "Value": 9550
+    },
+    {
+      "Path": "HKLM:\\SOFTWARE\\AMD\\CN",
+      "Name": "CNVersion",
+      "Present": true,
+      "Value": "26.10.41.01"
+    },
+    {
+      "Path": "HKLM:\\SOFTWARE\\AMD\\CN",
+      "Name": "DriverVersion",
+      "Present": true,
+      "Value": "32.0.31041.1004"
+    }
+  ],
+  "GameStorage": [
+    {
+      "InstallDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock",
+      "Volume": "C:",
+      "FileSystem": "NTFS",
+      "CapacityGiB": 464.7,
+      "FreeGiB": 162.0,
+      "PhysicalDisk": {
+        "Number": 3,
+        "FriendlyName": "MKNSSDHT500GB-D8",
+        "BusType": "NVMe",
+        "Size": 500107862016,
+        "PartitionStyle": "GPT",
+        "HealthStatus": "Healthy",
+        "OperationalStatus": "Online"
+      }
+    }
+  ],
+  "RunningGame": [
+    {
+      "Name": "deadlock",
+      "Id": 13656,
+      "PriorityClass": "Normal",
+      "AffinityMask": 65535
+    }
+  ],
+  "ResourceSample": {
+    "SampleStartedUtc": "2026-10-03T22:59:30.4200267Z",
+    "SampleSeconds": 3.006,
+    "MemoryCounters": {
+      "AvailableMBytes": 4720,
+      "CommittedBytes": 59550453760,
+      "CommitLimit": 64631578624,
+      "PercentCommittedBytesInUse": 92,
+      "PagesInputPersec": 61,
+      "PageReadsPersec": 3
+    },
+    "Pagefiles": [
+      {
+        "Name": "C:\\pagefile.sys",
+        "AllocatedBaseSize": 30016,
+        "CurrentUsage": 1400,
+        "PeakUsage": 23367
+      }
+    ],
+    "TopProcessesByPrivateBytes": [
+      {
+        "Name": "deadlock",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 3639.4,
+        "PrivateMiB": 12012.4,
+        "CPUPercent": 33.3
+      },
+      {
+        "Name": "claude",
+        "ProcessCount": 32,
+        "WorkingSetMiB": 2974.4,
+        "PrivateMiB": 10422.0,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "RobloxStudioBeta",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 581.3,
+        "PrivateMiB": 4475.3,
+        "CPUPercent": 2.1
+      },
+      {
+        "Name": "chrome",
+        "ProcessCount": 18,
+        "WorkingSetMiB": 2926.6,
+        "PrivateMiB": 2930.5,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "ChatGPT",
+        "ProcessCount": 14,
+        "WorkingSetMiB": 2108.7,
+        "PrivateMiB": 2345.6,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "steamwebhelper",
+        "ProcessCount": 6,
+        "WorkingSetMiB": 666.4,
+        "PrivateMiB": 1539.4,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "node",
+        "ProcessCount": 27,
+        "WorkingSetMiB": 1396.5,
+        "PrivateMiB": 1473.6,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "powershell",
+        "ProcessCount": 16,
+        "WorkingSetMiB": 132.5,
+        "PrivateMiB": 1050.5,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "codex",
+        "ProcessCount": 2,
+        "WorkingSetMiB": 810.6,
+        "PrivateMiB": 869.5,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "opencode-cli",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 299.5,
+        "PrivateMiB": 785.7,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "Discord",
+        "ProcessCount": 6,
+        "WorkingSetMiB": 599.7,
+        "PrivateMiB": 690.5,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "dwm",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 274.5,
+        "PrivateMiB": 661.9,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "svchost",
+        "ProcessCount": 94,
+        "WorkingSetMiB": 810.3,
+        "PrivateMiB": 632.5,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "msedgewebview2",
+        "ProcessCount": 12,
+        "WorkingSetMiB": 289.6,
+        "PrivateMiB": 588.7,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "MsMpEng",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 452.0,
+        "PrivateMiB": 555.8,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "SnippingTool",
+        "ProcessCount": 3,
+        "WorkingSetMiB": 44.0,
+        "PrivateMiB": 453.2,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "explorer",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 222.3,
+        "PrivateMiB": 436.8,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "RadeonSoftware",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 20.0,
+        "PrivateMiB": 286.8,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "StartMenuExperienceHost",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 72.7,
+        "PrivateMiB": 237.4,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "python",
+        "ProcessCount": 10,
+        "WorkingSetMiB": 195.7,
+        "PrivateMiB": 224.5,
+        "CPUPercent": 0.0
+      }
+    ],
+    "TopProcessesByCPU": [
+      {
+        "Name": "deadlock",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 3639.4,
+        "PrivateMiB": 12012.4,
+        "CPUPercent": 33.3
+      },
+      {
+        "Name": "RobloxStudioBeta",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 581.3,
+        "PrivateMiB": 4475.3,
+        "CPUPercent": 2.1
+      },
+      {
+        "Name": "pwsh",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 183.3,
+        "PrivateMiB": 86.5,
+        "CPUPercent": 2.1
+      },
+      {
+        "Name": "AggregatorHost",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 7.1,
+        "PrivateMiB": 4.6,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "Secure System",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 133.5,
+        "PrivateMiB": 0.2,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "SearchIndexer",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 29.8,
+        "PrivateMiB": 49.6,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "SearchHost",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 63.5,
+        "PrivateMiB": 97.7,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "RuntimeBroker",
+        "ProcessCount": 6,
+        "WorkingSetMiB": 61.8,
+        "PrivateMiB": 36.8,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "rojo",
+        "ProcessCount": 2,
+        "WorkingSetMiB": 2.8,
+        "PrivateMiB": 103.9,
+        "CPUPercent": 0.0
+      },
+      {
+        "Name": "RobloxCrashHandler",
+        "ProcessCount": 1,
+        "WorkingSetMiB": 0.9,
+        "PrivateMiB": 13.0,
+        "CPUPercent": 0.0
+      }
+    ],
+    "GamingCaptureProcessNames": [
+      {
+        "Name": "amdfendrsr",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "AMDInstallManager",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "amdow",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "AmdPpkgSvc",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "AMDRSServ",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "AMDRSSrcExt",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "deadlock",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "gameoverlayui64",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "RadeonSoftware",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "steam",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "steamservice",
+        "ProcessCount": 1
+      },
+      {
+        "Name": "steamwebhelper",
+        "ProcessCount": 6
+      }
+    ]
+  },
+  "Interpretation": {
+    "HAGS": "Registry configured enabled (HwSchMode=2); runtime activation after reboot not independently confirmed",
+    "GameMode": "Configured enabled (AutoGameModeEnabled=1)",
+    "WindowsCapture": "AppCaptureEnabled=0, HistoricalCaptureEnabled=0, GameDVR_Enabled=0",
+    "GPUVideoMemory": "Registry qwMemorySize reports approximately 16 GiB; legacy WMI AdapterRAM is truncated and deliberately excluded",
+    "ProcessMemory": "Private bytes approximate per-process committed private virtual memory. Working sets include shared pages and are not additive physical-memory accounting.",
+    "CPU": "Three-second process CPU deltas divided by all logical CPUs; transient sample affected by game activity and collection overhead",
+    "BackgroundPressure": "Current workload can materially confound FPS and frame-time comparisons. Page-input counters are a snapshot, not a measured causal diagnosis of stutter."
+  },
+  "Unverified": [
+    "FreeSync/VRR enabled state",
+    "AMD Chill/FRTC/Boost/Anti-Lag/Enhanced Sync profile settings",
+    "AMD Instant Replay enabled state",
+    "GPU clock/voltage/temperature/power limits",
+    "CPU memory-controller clock and timings",
+    "Rendering bottleneck and measured FPS gains"
+  ]
+}

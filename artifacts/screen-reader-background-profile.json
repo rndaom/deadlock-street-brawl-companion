@@ -1,0 +1,16 @@
+{
+  "SchemaVersion": 1,
+  "MeasuredAtUtc": "2026-10-03T22:50:17.2445692Z",
+  "Scope": "Already-running companion and ScreenReader processes in this workspace; no game frame-rate measurement.",
+  "DurationSeconds": 20.04,
+  "LogicalProcessors": 16,
+  "CompanionProcessCount": 5,
+  "ProcessSetStable": true,
+  "DeadlockRunningThroughout": true,
+  "AverageTotalCpuPercent": 0.0,
+  "PeakSampledWorkingSetSumMB": 561.8,
+  "PeakSampledPrivateCommittedSumMB": 376.9,
+  "MemoryNote": "Working-set sums may double-count shared pages. Private committed memory is not resident physical RAM.",
+  "GameFrameRateMeasured": false,
+  "ReaderProcessPresent": true
+}

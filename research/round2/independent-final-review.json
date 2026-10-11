@@ -1,0 +1,196 @@
+{
+  "format": 1,
+  "reviewer": "/root/independent_review",
+  "reviewedAt": "2026-10-04T00:16:23Z",
+  "taskLocalDate": "2026-10-03",
+  "stage": "Round 2 native profile, installer and measurement admission review completed; no measured profile winner",
+  "nativeProfileReviewPassed": true,
+  "installerReviewPassed": true,
+  "performanceComparisonAdmissionPassed": true,
+  "performanceWinner": null,
+  "measuredFpsGainPercent": null,
+  "runtimeValuesVerified": false,
+  "parentSuppliedRuntimeEvidence": {
+    "source": "Root's native UI and ordinary console observation, communicated to reviewer; reviewer performed no game input",
+    "currentProfile": "aggressive",
+    "fsrRenderScalePercent": 80,
+    "uiSharpnessPercent": 20,
+    "ssao": "Off",
+    "shadowFogTexture": "Low",
+    "rendererSelection": "DirectX 11",
+    "latencyMenuSelection": "Anti-Lag 2 Enabled",
+    "output": "Borderless 1920x1080 at 480 Hz",
+    "ordinaryConsoleFpsMax": 0,
+    "ordinaryConsoleFpsMaxUi": 120,
+    "ordinaryConsoleRagdollLimit": 20,
+    "grayMenuMaxFpsDisplay": 60,
+    "grayMenuDisplayInterpretation": "Unresolved menu clamp/display behavior; does not override the ordinary console runtime value",
+    "comprehensiveRuntimeReadback": false,
+    "performanceWinnerEstablished": false
+  },
+  "scope": {
+    "parentCodeModified": false,
+    "installedFilesModified": false,
+    "gameInput": false,
+    "consoleQuery": false,
+    "gameCapture": false,
+    "processTerminated": false,
+    "cacheOrVpkDeleted": false,
+    "offlineFixturesOnly": true
+  },
+  "profiles": {
+    "count": 14,
+    "exportsMatch": true,
+    "realSourcesPatchedOnlyInMemory": 2,
+    "totalPatchCases": 28,
+    "unrelatedValuesPreserved": true,
+    "idempotent": true,
+    "normalizationOnlyLegacyOccurrences": 32,
+    "normalizationUniqueKeys": 31,
+    "pairs": [
+      {
+        "left": "fsr1control",
+        "right": "fpsfirst",
+        "differingKey": "setting.mat_viewportscale",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fsr1control",
+        "right": "fsr160",
+        "differingKey": "setting.mat_viewportscale",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fsr1control",
+        "right": "stretch80",
+        "differingKey": "setting.r_citadel_upscaling",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fsr1control",
+        "right": "fsr1fxaa",
+        "differingKey": "setting.r_citadel_antialiasing",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fsr1control",
+        "right": "throughput80",
+        "differingKey": "setting.r_low_latency",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fpsfirst",
+        "right": "stretch67",
+        "differingKey": "setting.r_citadel_upscaling",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fpsfirst",
+        "right": "fsr2equal67",
+        "differingKey": "setting.r_citadel_upscaling",
+        "actualPatchedMapsVerified": true
+      },
+      {
+        "left": "fpsfirst",
+        "right": "fsr3equal67",
+        "differingKey": "setting.r_citadel_upscaling",
+        "actualPatchedMapsVerified": true
+      }
+    ]
+  },
+  "actualReadOnlyVerify": {
+    "profile": "aggressive",
+    "build": "25689475",
+    "diskSettingsMatch": true,
+    "runtimeVerified": false,
+    "gameRunning": true,
+    "mismatches": []
+  },
+  "preservedCurrentMachineValues": {
+    "fps_max": "0",
+    "fps_max_ui": "120",
+    "cl_ragdoll_limit": "20"
+  },
+  "checks": {
+    "configNodeTests": 13,
+    "presentMonNodeTests": 26,
+    "totalNodeTests": 39,
+    "powerShellOfflineChecks": 21,
+    "allPassed": true,
+    "collectorExecutedByReviewer": false
+  },
+  "findings": [
+    {
+      "id": "IR2F-01",
+      "priority": 2,
+      "status": "resolved",
+      "title": "Launcher error could select restore",
+      "evidence": "Microsoft choice returns 255 on errors and 0 on cancellation; revised dispatch excludes both.",
+      "validation": "Static dispatch reviewed; no interactive launcher run."
+    },
+    {
+      "id": "IR2F-02",
+      "priority": 1,
+      "status": "resolved",
+      "title": "v2 timestamp default unit mismatch",
+      "evidence": "Pinned CommandLine.cpp defaults MilliSeconds and CsvOutput.cpp emits v2 CPUStartTime in ms.",
+      "validation": "Analyzer 1.1.1 and wrapper ms metadata verified; official source checked independently."
+    },
+    {
+      "id": "IR2F-03",
+      "priority": 1,
+      "status": "resolved",
+      "title": "Unknown loss counters entered comparisons",
+      "evidence": "Both gates now require known-zero ETW loss; negative/fractional CSV counts reject and final overflow warnings override zero status.",
+      "validation": "Node and PowerShell offline checks pass."
+    },
+    {
+      "id": "IR2F-04",
+      "priority": 2,
+      "status": "resolved",
+      "title": "Short capture printed incompatible minimum",
+      "evidence": "Printed minimum is min(declared duration, 60), retaining a 30-second floor and full coverage guards.",
+      "validation": "Offline short-window and command-wiring checks pass."
+    },
+    {
+      "id": "IR2F-05",
+      "priority": 2,
+      "status": "resolved",
+      "title": "Collector wait lacked deadline",
+      "evidence": "Bounded delay + duration + 30 second deadline; only returned collector PID/start time/executable can be terminated.",
+      "validation": "Source, AST and identity guards reviewed; no process started or terminated by reviewer."
+    },
+    {
+      "id": "IR2F-06",
+      "priority": 1,
+      "status": "resolved",
+      "title": "Concrete comparison context admission",
+      "evidence": "Analyzer 1.2.0 requires known machine/build/driver/scenario/backend/camera/background text, positive numeric output size and refresh, nonnegative numeric runtime cap (zero permitted), and explicit replay identity/ticks/speed or native-scene map/procedure/state. Unknown, empty and placeholder context remains exploratory. Comparator independently revalidates context instead of trusting stale eligibility flags and requires exact matching context.",
+      "validation": "Independently reran 39 Node tests including 26 analyzer checks, plus 21 offline PowerShell checks. Unknown cap/camera/output, incomplete routes, stale flags and mismatched concrete context reject; native-scene conclusions are no longer mislabeled replay conclusions.",
+      "remainingLimit": "Structural completeness verifies recorded declarations, not physical runtime readback, foreground continuity between 500 ms observations, camera/scene reproduction or a profile winner."
+    }
+  ],
+  "sourceSha256": {
+    "optimization/tools/config-core.mjs": "b11651ba8fa0d84c4d1920123dae7978999f5a4867108842ee3e46955789c605",
+    "optimization/tools/optimizer.mjs": "cdc270f5e8bb69fa6782b4ebff8d93baa7e7527c3dce97e0d8be6f6bcbcfb565",
+    "optimization/tools/transaction.mjs": "17b8753ee5a5af4bbaa71ffd7eb6b39c2109e14f63a3e8c2289ee5f1e6e065c1",
+    "optimization/tools/export-profiles.mjs": "5c59fb4329846a2eedb20031d1b1eb821ba8b06ea7e884eee156cddd867a4f0c",
+    "optimization/tools/analyze-presentmon.mjs": "84195cbf41f94dd7098342508e5c4d557921c0dcd0dcb9cd308bd4c407876ae6",
+    "optimization/tools/Capture-PresentMon.ps1": "c128589440e9d40eee1cb20163e7dcc4501e6cfaed9723d59a836563c0af2efb",
+    "optimization/Deadlock FPS.cmd": "b65ace16987ad08862269344c1a6c3690a5528f17a5808484e8042f8a2e6eab8",
+    "optimization/README.md": "2f7bb1196564d00c7c2e12ee2e92781b45a4b118acd1cee0f6fe0d8698916168",
+    "optimization/tests/config.test.mjs": "e945f84406b28dbe4b83c6d0d3347972e192a16999d649253cc3f2f9167734da",
+    "optimization/tests/presentmon.test.mjs": "91a574dfb16b7506bb756228d0d9e03f29d73f5f876507e1ba29f7e9de15091e",
+    "optimization/tests/capture-wrapper.test.ps1": "b7d0138a669a28ee776b6730c8728c19cc747582539a47b56948bb45082c9c64",
+    "optimization/benchmark-context.example.json": "a60508f1d85900ecb68cb2a894f8171190cbee2d046d05e19e2d90afa1bf081e"
+  },
+  "humanReport": "research/round2/independent-final-review.txt",
+  "sourceUrls": [
+    "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/choice",
+    "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CommandLine.cpp",
+    "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CsvOutput.cpp",
+    "https://gpuopen.com/manuals/fidelityfx_sdk/reference_documentation/structs/ffx_fsr1_dispatch_description/",
+    "https://gpuopen.com/fidelityfx-super-resolution-3/",
+    "https://github.com/SteamTracking/GameTracking-Deadlock/tree/4c6431ccdb816d2911bbbaa4335169cc34140386"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "evidenceType": "metadata-template-not-performance-evidence",
+  "comparisonContext": {
+    "machineId": "9800x3d-rx7800xt-local",
+    "gameBuildId": "25689475",
+    "driverVersion": "32.0.31041.1004",
+    "scenarioId": null,
+    "scenarioType": null,
+    "renderer": "DirectX 11",
+    "outputWidth": 1920,
+    "outputHeight": 1080,
+    "outputRefreshHz": 480,
+    "fpsMaxRuntime": null,
+    "replaySha256": null,
+    "replayId": null,
+    "startTick": null,
+    "endTick": null,
+    "playbackSpeed": 1,
+    "camera": null,
+    "backgroundWorkload": null,
+    "sceneMap": null,
+    "sceneProcedure": null,
+    "sceneStateId": null
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 7 9800X3D",
+    "gpu": "AMD Radeon RX 7800 XT",
+    "ramGiB": 32,
+    "vramGiB": 16
+  },
+  "environment": {
+    "hags": true,
+    "gameMode": true,
+    "vrr": null,
+    "overlays": null,
+    "driverFrameCap": null,
+    "driverRsr": null,
+    "driverChill": null,
+    "driverBoost": null
+  },
+  "collector": {
+    "timestampUnit": "milliseconds"
+  },
+  "scenario": {
+    "id": null,
+    "description": "Fill actual runtime declarations: renderer, output, numeric fpsMaxRuntime (0 is uncapped), camera and backgroundWorkload. Choose scenarioType replay with replaySha256 or replayId, exact ordered integer ticks and playbackSpeed; or native-scene with sceneMap, reproducible sceneProcedure and sceneStateId. Nulls remain honest exploratory input and cannot establish a comparison winner. This is a template, not measured evidence or runtime readback proof."
+  }
+}

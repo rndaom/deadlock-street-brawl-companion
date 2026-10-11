@@ -1,0 +1,2257 @@
+{
+  "audit_started_utc": "2026-10-03T23:55:21.148045+00:00",
+  "audit_finished_utc": "2026-10-03T23:55:22.311044+00:00",
+  "client_timezone": "America/New_York",
+  "read_only_game_and_steam": true,
+  "steam_root": "C:\\Program Files (x86)\\Steam",
+  "install_root": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock",
+  "game_root": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game",
+  "appmanifest_guard_before": {
+    "appid": "1422450",
+    "buildid": "25689475",
+    "target_buildid": "25689475",
+    "state_flags": "4",
+    "update_result": "0",
+    "last_updated_unix": "1790998882",
+    "size_on_disk_manifest": "38703070264",
+    "depots": {
+      "1422451": "4300122820396050444",
+      "1422452": "4733596665444981065",
+      "1422456": "1164962827516637351"
+    },
+    "appmanifest_modified_utc": "2026-10-03T23:41:50.991716+00:00"
+  },
+  "appmanifest_guard_after": {
+    "appid": "1422450",
+    "buildid": "25689475",
+    "target_buildid": "25689475",
+    "state_flags": "4",
+    "update_result": "0",
+    "last_updated_unix": "1790998882",
+    "size_on_disk_manifest": "38703070264",
+    "depots": {
+      "1422451": "4300122820396050444",
+      "1422452": "4733596665444981065",
+      "1422456": "1164962827516637351"
+    },
+    "appmanifest_modified_utc": "2026-10-03T23:41:50.991716+00:00"
+  },
+  "build_and_depot_guard_stable": true,
+  "matches_first_audit_build": true,
+  "processes": [
+    {
+      "Name": "steam.exe",
+      "ExecutablePath": "C:\\Program Files (x86)\\Steam\\steam.exe",
+      "ProcessId": 38904,
+      "CreatedUtc": "2026-10-01T22:14:38.5167140Z",
+      "CommandLine": null
+    },
+    {
+      "Name": "deadlock.exe",
+      "ExecutablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\deadlock.exe",
+      "ProcessId": 13948,
+      "CreatedUtc": "2026-10-03T23:41:45.4736160Z",
+      "CommandLine": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\deadlock.exe\" -steam -console"
+    }
+  ],
+  "relevant_loaded_modules": [
+    {
+      "ModuleName": "gameoverlayrenderer64.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\gameoverlayrenderer64.dll",
+      "Version": "10.96.30.42"
+    },
+    {
+      "ModuleName": "engine2.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\engine2.dll",
+      "Version": null
+    },
+    {
+      "ModuleName": "steamclient64.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamclient64.dll",
+      "Version": "10.96.30.42"
+    },
+    {
+      "ModuleName": "DXGI.DLL",
+      "FileName": "C:\\WINDOWS\\SYSTEM32\\DXGI.DLL",
+      "Version": "10.0.26100.9549 (WinBuild.160101.0800)"
+    },
+    {
+      "ModuleName": "filesystem_stdio.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\filesystem_stdio.dll",
+      "Version": null
+    },
+    {
+      "ModuleName": "inputsystem.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\inputsystem.dll",
+      "Version": null
+    },
+    {
+      "ModuleName": "rendersystemdx11.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\rendersystemdx11.dll",
+      "Version": null
+    },
+    {
+      "ModuleName": "amd_ags_x64.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\amd_ags_x64.dll",
+      "Version": "6.0.2.0"
+    },
+    {
+      "ModuleName": "d3d11.dll",
+      "FileName": "C:\\WINDOWS\\SYSTEM32\\d3d11.dll",
+      "Version": "10.0.26100.9549 (WinBuild.160101.0800)"
+    },
+    {
+      "ModuleName": "d3d9.dll",
+      "FileName": "C:\\WINDOWS\\SYSTEM32\\d3d9.dll",
+      "Version": "10.0.26100.9549 (WinBuild.160101.0800)"
+    },
+    {
+      "ModuleName": "D3DCOMPILER_47.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\D3DCOMPILER_47.dll",
+      "Version": "10.0.17134.12 (WinBuild.160101.0800)"
+    },
+    {
+      "ModuleName": "AMDXN64.DLL",
+      "FileName": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\u0203304.inf_amd64_a6e5a337568ce3f0\\B026373\\AMDXN64.DLL",
+      "Version": "9.17.11.0287"
+    },
+    {
+      "ModuleName": "amdihk64.dll",
+      "FileName": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\u0203304.inf_amd64_a6e5a337568ce3f0\\B026373\\amdihk64.dll",
+      "Version": "2,00,00,1788"
+    },
+    {
+      "ModuleName": "atiadlxx.dll",
+      "FileName": "C:\\WINDOWS\\SYSTEM32\\atiadlxx.dll",
+      "Version": "7.26.10.1609"
+    },
+    {
+      "ModuleName": "atidxx64.dll",
+      "FileName": "C:\\WINDOWS\\SYSTEM32\\atidxx64.dll",
+      "Version": "9.17.11.0082"
+    },
+    {
+      "ModuleName": "AMDXX64.DLL",
+      "FileName": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\u0203304.inf_amd64_a6e5a337568ce3f0\\B026373\\AMDXX64.DLL",
+      "Version": "9.17.11.0088"
+    },
+    {
+      "ModuleName": "amdenc64.dll",
+      "FileName": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\u0203304.inf_amd64_a6e5a337568ce3f0\\B026373\\amdenc64.dll",
+      "Version": ""
+    },
+    {
+      "ModuleName": "materialsystem2.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\materialsystem2.dll",
+      "Version": null
+    },
+    {
+      "ModuleName": "animationsystem.dll",
+      "FileName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\animationsystem.dll",
+      "Version": null
+    }
+  ],
+  "renderer_inference": "DX11 renderer module and d3d11/DXGI loaded; Vulkan renderer absent from selected module list. This supports currently using DX11, not live graphics setting values or a FPS result.",
+  "gameinfo_searchpaths": [
+    "Game_UILanguage\t\tcitadel_*LANGUAGE*",
+    "Game_LowViolence\tcitadel_lv",
+    "Game\t\t\t\tcitadel",
+    "Game\t\t\t\tcore"
+  ],
+  "native_settings_path_id": "USRLOCAL",
+  "legacy_settings_path_id": "MOD",
+  "critical_files_fresh_sha1_vs_depot": [
+    {
+      "relative_path": "game/citadel/gameinfo.gi",
+      "sha1": "3fc6e3a1a728b88b593cf09e218212e8aee5a751",
+      "expected_sha1": "3fc6e3a1a728b88b593cf09e218212e8aee5a751",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    },
+    {
+      "relative_path": "game/citadel/gameinfo_branchspecific.gi",
+      "sha1": "5b4c901975382eba153222f52e2e3be8b241bfd4",
+      "expected_sha1": "5b4c901975382eba153222f52e2e3be8b241bfd4",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    },
+    {
+      "relative_path": "game/bin/win64/deadlock.exe",
+      "sha1": "bf447eb0e0584a2b1772002b65a45a5512e01f8e",
+      "expected_sha1": "bf447eb0e0584a2b1772002b65a45a5512e01f8e",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    },
+    {
+      "relative_path": "game/bin/win64/engine2.dll",
+      "sha1": "8fc08149d1d1af79d305a952f65f4ff9d5ffce62",
+      "expected_sha1": "8fc08149d1d1af79d305a952f65f4ff9d5ffce62",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    },
+    {
+      "relative_path": "game/bin/win64/rendersystemdx11.dll",
+      "sha1": "db932139cd5e9b9deb46ad73fba7fcf46b128a98",
+      "expected_sha1": "db932139cd5e9b9deb46ad73fba7fcf46b128a98",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    },
+    {
+      "relative_path": "game/bin/win64/rendersystemvulkan.dll",
+      "sha1": "c623acc1b838fe16ad8a334a19153e9e45db9021",
+      "expected_sha1": "c623acc1b838fe16ad8a334a19153e9e45db9021",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    },
+    {
+      "relative_path": "game/citadel/bin/win64/client.dll",
+      "sha1": "e772b1506c627da783673627ed79392edf492df0",
+      "expected_sha1": "e772b1506c627da783673627ed79392edf492df0",
+      "matches_depot_sha1": true,
+      "matches_first_audit_sha1": true
+    }
+  ],
+  "cached_depot_manifest_evidence": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\depotcache\\1422451_4300122820396050444.manifest",
+      "bytes": 31665,
+      "modified_utc": "2026-10-03T01:00:09.208991+00:00",
+      "stable_during_read": true,
+      "sha256": "4edb9589a894b36a32452a772a09dd88d3c193479c98af82475cb1632725d161",
+      "depot": "1422451",
+      "manifest_id": "4300122820396050444",
+      "mapping_count": 96
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\depotcache\\1422452_4733596665444981065.manifest",
+      "bytes": 40306,
+      "modified_utc": "2026-10-03T01:00:09.208991+00:00",
+      "stable_during_read": true,
+      "sha256": "28e474b533f7b6bac0d2e2322a8b6959d654d5af64b95646040c68e15de56b9b",
+      "depot": "1422452",
+      "manifest_id": "4733596665444981065",
+      "mapping_count": 107
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\depotcache\\1422456_1164962827516637351.manifest",
+      "bytes": 2114093,
+      "modified_utc": "2026-10-03T01:00:09.228007+00:00",
+      "stable_during_read": true,
+      "sha256": "d70c266407cbf95c4dbd20b8e9f836d6c6349ad0d73cc8fcfc9ca61f7a6b8dc6",
+      "depot": "1422456",
+      "manifest_id": "1164962827516637351",
+      "mapping_count": 3659
+    }
+  ],
+  "installed_file_count": 3877,
+  "vpk_file_count": 517,
+  "vpk_files_in_installed_depots": 517,
+  "vpk_metadata_unchanged_since_first_audit_count": 517,
+  "missing_installed_depot_files": [],
+  "depot_size_mismatches": [],
+  "extra_dll_exe_vpk_files": [],
+  "extra_game_files_not_in_depots": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\account_<account>.stats",
+      "bytes": 32,
+      "modified_utc": "2026-10-03T23:21:48.634553+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/account_<account>.stats"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cache_<account>.soc",
+      "bytes": 807,
+      "modified_utc": "2026-10-03T23:38:30.767443+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cache_<account>.soc"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\boot.vcfg",
+      "bytes": 64,
+      "modified_utc": "2026-10-03T23:38:30.652502+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/boot.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_hero_settings.lst",
+      "bytes": 986,
+      "modified_utc": "2026-10-03T23:38:30.763285+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/citadel_hero_settings.lst"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\machine_convars.vcfg",
+      "bytes": 9942,
+      "modified_utc": "2026-09-28T13:00:46.575713+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/machine_convars.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_convars_0_slot0.vcfg",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.531124+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_convars_0_slot0.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_convars_0_slot0.vcfg_lastclouded",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.532127+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_convars_0_slot0.vcfg_lastclouded"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot0.vcfg",
+      "bytes": 62,
+      "modified_utc": "2026-09-28T13:00:46.564666+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_keys_0_slot0.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot0.vcfg_lastclouded",
+      "bytes": 62,
+      "modified_utc": "2026-09-28T13:00:46.564666+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_keys_0_slot0.vcfg_lastclouded"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot1.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.567169+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_keys_0_slot1.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot2.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.571703+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_keys_0_slot2.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot3.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.574710+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/user_keys_0_slot3.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\video.txt",
+      "bytes": 3028,
+      "modified_utc": "2026-09-14T23:07:34.145453+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/video.txt"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\video.txt.bak",
+      "bytes": 340,
+      "modified_utc": "2026-09-14T22:56:01.187835+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/citadel/cfg/video.txt.bak"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\steam_appid.txt",
+      "bytes": 9,
+      "modified_utc": "2026-10-03T23:41:50.412518+00:00",
+      "stable_during_read": true,
+      "relative_path": "game/bin/win64/steam_appid.txt"
+    }
+  ],
+  "mod_addon_cache_directory_candidates": [],
+  "app_scoped_library_cache_inventory": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\appworkshop_1422450.acf",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\shadercache\\1422450",
+      "exists": true,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\downloading\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "G:\\SteamLibrary\\steamapps\\workshop\\appworkshop_1422450.acf",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "G:\\SteamLibrary\\steamapps\\workshop\\content\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "G:\\SteamLibrary\\steamapps\\shadercache\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "G:\\SteamLibrary\\steamapps\\downloading\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "H:\\SteamLibrary\\steamapps\\workshop\\appworkshop_1422450.acf",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "H:\\SteamLibrary\\steamapps\\workshop\\content\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "H:\\SteamLibrary\\steamapps\\shadercache\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    },
+    {
+      "path": "H:\\SteamLibrary\\steamapps\\downloading\\1422450",
+      "exists": false,
+      "file_count": 0,
+      "bytes": 0
+    }
+  ],
+  "every_loose_game_config_inventory": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\core\\cfg\\sfm_default_animation_groups.vcfg",
+      "bytes": 51357,
+      "modified_utc": "2026-09-30T00:59:52.853619+00:00",
+      "stable_during_read": true,
+      "sha256": "8f47123d3b5188e294d61cabbbdff2c7dddb47ed8766e92f701438e0439f6cd2",
+      "relative_path": "game/core/cfg/sfm_default_animation_groups.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\core\\cfg\\user_keys_default.vcfg",
+      "bytes": 2270,
+      "modified_utc": "2026-09-14T00:45:05.163714+00:00",
+      "stable_during_read": true,
+      "sha256": "8eda9f2c1b2b7f5c5f02f331f63f69b76aa759c42b4f3b5d23983d74ee4bccd1",
+      "relative_path": "game/core/cfg/user_keys_default.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\boot.vcfg",
+      "bytes": 64,
+      "modified_utc": "2026-10-03T23:38:30.652502+00:00",
+      "stable_during_read": true,
+      "sha256": "666e50112b0f79a11304c69a628eb35a99dd9423f3f296a81f9114f7919c6c4a",
+      "relative_path": "game/citadel/cfg/boot.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_1v1_match.cfg",
+      "bytes": 153,
+      "modified_utc": "2026-09-14T00:37:50.296356+00:00",
+      "stable_during_read": true,
+      "sha256": "8bf7a24b20354b22632d488212f1fa992e5d05e1bedba590df5856f8cecb9616",
+      "relative_path": "game/citadel/cfg/citadel_1v1_match.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_audio.cfg",
+      "bytes": 1012,
+      "modified_utc": "2026-09-14T00:37:50.296356+00:00",
+      "stable_during_read": true,
+      "sha256": "7e876796b5fa37294ec7717be727dcc17f2f0d3bcb29786b5c349214b611339d",
+      "relative_path": "game/citadel/cfg/citadel_audio.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_2v2_test.cfg",
+      "bytes": 148,
+      "modified_utc": "2026-09-14T00:37:50.379633+00:00",
+      "stable_during_read": true,
+      "sha256": "20a3dba868c3ab8f8d441d971997a936961a2487e4e4bc7972b2a67641961afb",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_2v2_test.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_6v6_spectator.cfg",
+      "bytes": 201,
+      "modified_utc": "2026-09-14T00:37:50.296356+00:00",
+      "stable_during_read": true,
+      "sha256": "7118d7b4a8e0181f2d73a26a40503dc3921769306943510a9e4c91d8b75cd082",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_6v6_spectator.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_build_test.cfg",
+      "bytes": 148,
+      "modified_utc": "2026-09-30T00:53:46.257839+00:00",
+      "stable_during_read": true,
+      "sha256": "d6d24758ee9f9fd3545b5ad022f837e6e598e91880206f93c313ca097b858292",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_build_test.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_player_vs_bot.cfg",
+      "bytes": 117,
+      "modified_utc": "2026-09-14T00:37:50.384139+00:00",
+      "stable_during_read": true,
+      "sha256": "e7b250a2b14afb79ad0921858c8f2026fce81fd86686343f9942a02df51cbe23",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_player_vs_bot.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_practice_1v1.cfg",
+      "bytes": 117,
+      "modified_utc": "2026-09-14T00:37:50.379633+00:00",
+      "stable_during_read": true,
+      "sha256": "e7b250a2b14afb79ad0921858c8f2026fce81fd86686343f9942a02df51cbe23",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_practice_1v1.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_practice_2v2_guided.cfg",
+      "bytes": 585,
+      "modified_utc": "2026-09-14T00:37:50.383137+00:00",
+      "stable_during_read": true,
+      "sha256": "7d4eade94cbd2259752b3211988f35c858b40a92d99b155d72ea45e1ee5a10d1",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_practice_2v2_guided.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_practice_6v6.cfg",
+      "bytes": 224,
+      "modified_utc": "2026-09-14T00:37:50.384139+00:00",
+      "stable_during_read": true,
+      "sha256": "bf6411f11d2adbf4b8b7a8c7b45a40f7421f8163317ff5c08a20bc7771313968",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_practice_6v6.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_botmatch_test.cfg",
+      "bytes": 617,
+      "modified_utc": "2026-09-14T00:37:50.296356+00:00",
+      "stable_during_read": true,
+      "sha256": "583d1f5aa723b67795567473b1fa5575286852e009e46cc47531127f0a0f8ae1",
+      "relative_path": "game/citadel/cfg/citadel_botmatch_test.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_dev_intro_test.cfg",
+      "bytes": 379,
+      "modified_utc": "2026-09-14T00:37:50.272755+00:00",
+      "stable_during_read": true,
+      "sha256": "871ae082be7230e2968b679c415549d1a59c5a7169c0b82958f01147e1ce8bc6",
+      "relative_path": "game/citadel/cfg/citadel_dev_intro_test.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_hero_settings.lst",
+      "bytes": 986,
+      "modified_utc": "2026-10-03T23:38:30.763285+00:00",
+      "stable_during_read": true,
+      "sha256": "13a51df0b8eabe8d415ce87e7720f08e05ec966e134dd53fad4457f79db351ae",
+      "relative_path": "game/citadel/cfg/citadel_hero_settings.lst",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_hideout.cfg",
+      "bytes": 49,
+      "modified_utc": "2026-09-14T00:37:50.296356+00:00",
+      "stable_during_read": true,
+      "sha256": "eff9eaa4288980aaa927b688e5b64cc987ce24930e4912c68ed45ed8b78a90b7",
+      "relative_path": "game/citadel/cfg/citadel_hideout.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_local_botmatch.cfg",
+      "bytes": 535,
+      "modified_utc": "2026-09-30T00:53:46.257839+00:00",
+      "stable_during_read": true,
+      "sha256": "0389f09fbeb1c152a34f1c2875017a4c690d144c66e41d8d2c189aed90d9aa3c",
+      "relative_path": "game/citadel/cfg/citadel_local_botmatch.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_sandbox_match.cfg",
+      "bytes": 149,
+      "modified_utc": "2026-09-14T00:37:50.218890+00:00",
+      "stable_during_read": true,
+      "sha256": "09bca679377d0211baa49e0cc913dc7906119949cac0eeed77d267b93b26186e",
+      "relative_path": "game/citadel/cfg/citadel_sandbox_match.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\citadel_server.cfg",
+      "bytes": 541,
+      "modified_utc": "2026-09-30T00:53:46.196481+00:00",
+      "stable_during_read": true,
+      "sha256": "88bf013ba485f9b48951b0960d9bd97634f76c10b34298e77fc7b42653102ca7",
+      "relative_path": "game/citadel/cfg/citadel_server.cfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\configdefaults.linux.vcfg",
+      "bytes": 18,
+      "modified_utc": "2026-09-14T00:37:50.218890+00:00",
+      "stable_during_read": true,
+      "sha256": "fa60b2d30c0c8de3c994396c000f92dd3676445a138350acce96a7c767c51e20",
+      "relative_path": "game/citadel/cfg/configdefaults.linux.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\configdefaults.osx.vcfg",
+      "bytes": 18,
+      "modified_utc": "2026-09-14T00:37:50.218890+00:00",
+      "stable_during_read": true,
+      "sha256": "fa60b2d30c0c8de3c994396c000f92dd3676445a138350acce96a7c767c51e20",
+      "relative_path": "game/citadel/cfg/configdefaults.osx.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\configdefaults.pc.vcfg",
+      "bytes": 18,
+      "modified_utc": "2026-09-14T00:37:50.218890+00:00",
+      "stable_during_read": true,
+      "sha256": "fa60b2d30c0c8de3c994396c000f92dd3676445a138350acce96a7c767c51e20",
+      "relative_path": "game/citadel/cfg/configdefaults.pc.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\configschema.vcfg",
+      "bytes": 73,
+      "modified_utc": "2026-09-14T00:37:50.297356+00:00",
+      "stable_during_read": true,
+      "sha256": "aff963336c173c85e0584010f8338298435c8ebd9a358872de2b9985962396e7",
+      "relative_path": "game/citadel/cfg/configschema.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\machine_convars.vcfg",
+      "bytes": 9942,
+      "modified_utc": "2026-09-28T13:00:46.575713+00:00",
+      "stable_during_read": true,
+      "sha256": "02846301a6eaf8f2ef1df6a8c4005df87c2b3fad64b004ca1ff3ff39228e9dbe",
+      "relative_path": "game/citadel/cfg/machine_convars.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\machine_convars_default.vcfg",
+      "bytes": 313,
+      "modified_utc": "2026-09-30T00:53:46.257839+00:00",
+      "stable_during_read": true,
+      "sha256": "10e8c6d9d81c95a70c93b7adc79a8bd0da32004c198821778b4bba614726ccdf",
+      "relative_path": "game/citadel/cfg/machine_convars_default.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\ps5_controller_mapping.vdf",
+      "bytes": 65322,
+      "modified_utc": "2026-09-30T00:53:46.075901+00:00",
+      "stable_during_read": true,
+      "sha256": "f7a4f8bfea4968034bc37d385493c72ace2e00f8920196e3a50b19ea8c8c2e14",
+      "relative_path": "game/citadel/cfg/ps5_controller_mapping.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\ps5_controller_mapping_gyro.vdf",
+      "bytes": 65307,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "dfbdb079b635d4e7393aef37f916a1ed1c91aa66159d7bbfb299ad2a86df6ca4",
+      "relative_path": "game/citadel/cfg/ps5_controller_mapping_gyro.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\ps5_controller_mapping_gyro_flickstick.vdf",
+      "bytes": 65925,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "8c3f547559c9bfa87869e68212c7a1bb9672dfb77d9d9b113a453926163d2196",
+      "relative_path": "game/citadel/cfg/ps5_controller_mapping_gyro_flickstick.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\steamdeck_mapping.vdf",
+      "bytes": 65395,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "df89be34ea71fe0fcc305418fc48a983934e8e8ffa060e667952c8c20c992e31",
+      "relative_path": "game/citadel/cfg/steamdeck_mapping.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\steamdeck_mapping_gyro.vdf",
+      "bytes": 65378,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "c4023c0ce980fb93ea4adac06b67e49b2aec6c3e180cbe7c7d60177a008c0a5d",
+      "relative_path": "game/citadel/cfg/steamdeck_mapping_gyro.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\steamdeck_mapping_gyro_flickstick.vdf",
+      "bytes": 65997,
+      "modified_utc": "2026-09-30T00:53:46.075901+00:00",
+      "stable_during_read": true,
+      "sha256": "312bf30dba6f22f9becc24b782d5a63afdd3ae8d73e4fc1fb75d59a07db37856",
+      "relative_path": "game/citadel/cfg/steamdeck_mapping_gyro_flickstick.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\steam_input_manifest.vdf",
+      "bytes": 15207,
+      "modified_utc": "2026-10-01T00:34:32.622440+00:00",
+      "stable_during_read": true,
+      "sha256": "49ba324f71ef0e70da556e82268e8fc240df59e635ce508b38b62d1a136f7729",
+      "relative_path": "game/citadel/cfg/steam_input_manifest.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\switch_pro_mapping.vdf",
+      "bytes": 64720,
+      "modified_utc": "2026-09-30T00:53:46.075901+00:00",
+      "stable_during_read": true,
+      "sha256": "6d5fda504b52b6bf76470f66878acbcf3d38d3507c4d9e6ce4708ace2e15694a",
+      "relative_path": "game/citadel/cfg/switch_pro_mapping.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\switch_pro_mapping_gyro.vdf",
+      "bytes": 64705,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "9a3e486aac22fe6441cf1dc457a75c2580f55cb3f530eb5dece91fe511f54cc6",
+      "relative_path": "game/citadel/cfg/switch_pro_mapping_gyro.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\switch_pro_mapping_gyro_flickstick.vdf",
+      "bytes": 65321,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "6ad3979241a674f1e868b31a0bcc606d84350a6570cf3cdd3c6ebba241f60af0",
+      "relative_path": "game/citadel/cfg/switch_pro_mapping_gyro_flickstick.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_convars_0_slot0.vcfg",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.531124+00:00",
+      "stable_during_read": true,
+      "sha256": "8ac3489b5ae7f443f98a06246b005e6e9ab259796466c251edefd33020dc0723",
+      "relative_path": "game/citadel/cfg/user_convars_0_slot0.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_convars_0_slot0.vcfg_lastclouded",
+      "bytes": 1404,
+      "modified_utc": "2026-09-28T13:00:46.532127+00:00",
+      "stable_during_read": true,
+      "sha256": "8ac3489b5ae7f443f98a06246b005e6e9ab259796466c251edefd33020dc0723",
+      "relative_path": "game/citadel/cfg/user_convars_0_slot0.vcfg_lastclouded",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot0.vcfg",
+      "bytes": 62,
+      "modified_utc": "2026-09-28T13:00:46.564666+00:00",
+      "stable_during_read": true,
+      "sha256": "3be6497df0d1c17622e0fc7b614d15891d534bb9912fbe0ba3e873b06b69c9d2",
+      "relative_path": "game/citadel/cfg/user_keys_0_slot0.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot0.vcfg_lastclouded",
+      "bytes": 62,
+      "modified_utc": "2026-09-28T13:00:46.564666+00:00",
+      "stable_during_read": true,
+      "sha256": "3be6497df0d1c17622e0fc7b614d15891d534bb9912fbe0ba3e873b06b69c9d2",
+      "relative_path": "game/citadel/cfg/user_keys_0_slot0.vcfg_lastclouded",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot1.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.567169+00:00",
+      "stable_during_read": true,
+      "sha256": "148354379596cb5ee66600eb3c4660bb1d42507d70411d14a12ee90a281e5f75",
+      "relative_path": "game/citadel/cfg/user_keys_0_slot1.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot2.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.571703+00:00",
+      "stable_during_read": true,
+      "sha256": "148354379596cb5ee66600eb3c4660bb1d42507d70411d14a12ee90a281e5f75",
+      "relative_path": "game/citadel/cfg/user_keys_0_slot2.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_0_slot3.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-09-28T13:00:46.574710+00:00",
+      "stable_during_read": true,
+      "sha256": "148354379596cb5ee66600eb3c4660bb1d42507d70411d14a12ee90a281e5f75",
+      "relative_path": "game/citadel/cfg/user_keys_0_slot3.vcfg",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_default.vcfg",
+      "bytes": 818,
+      "modified_utc": "2026-09-14T00:37:50.383137+00:00",
+      "stable_during_read": true,
+      "sha256": "df2bfef74ebb433cbcd58259f029436a9c33f371f0833c107f105a0b1e04340b",
+      "relative_path": "game/citadel/cfg/user_keys_default.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\user_keys_dev_default.vcfg",
+      "bytes": 999,
+      "modified_utc": "2026-09-14T00:37:50.272755+00:00",
+      "stable_during_read": true,
+      "sha256": "2599decffaf3193b55e9c91fab40bb3c8b6b8162a06cc89f55169577a972a830",
+      "relative_path": "game/citadel/cfg/user_keys_dev_default.vcfg",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\video.txt",
+      "bytes": 3028,
+      "modified_utc": "2026-09-14T23:07:34.145453+00:00",
+      "stable_during_read": true,
+      "sha256": "4b787bdd7d004ced02dcf5dc05dfd595fac4c9705f8cd786722792f867685384",
+      "relative_path": "game/citadel/cfg/video.txt",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\video.txt.bak",
+      "bytes": 340,
+      "modified_utc": "2026-09-14T22:56:01.187835+00:00",
+      "stable_during_read": true,
+      "sha256": "687ebd47f9bc5aa2309e9514bd340f4d1018a51f365a945b6022afe9320b9742",
+      "relative_path": "game/citadel/cfg/video.txt.bak",
+      "ownership": "user-generated/legacy local config"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\xbox_360_mapping.vdf",
+      "bytes": 64717,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "a2a874c650274b51c5033f29d568b8ceab5ccc56d73e32cb68605a1ac92a7266",
+      "relative_path": "game/citadel/cfg/xbox_360_mapping.vdf",
+      "ownership": "Valve depot file"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\cfg\\xbox_one_mapping.vdf",
+      "bytes": 64717,
+      "modified_utc": "2026-09-30T00:53:46.122776+00:00",
+      "stable_during_read": true,
+      "sha256": "99ddf5e28ee9214586d5f5ba3110924db4a914a7d206eefb3b54403ffacb72c1",
+      "relative_path": "game/citadel/cfg/xbox_one_mapping.vdf",
+      "ownership": "Valve depot file"
+    }
+  ],
+  "every_packed_cfg_resource_inventory": [
+    {
+      "path": "cfg/valve_builds.kv3",
+      "crc32": "f7121dd7",
+      "archive": 306,
+      "offset": 69459152,
+      "bytes": 110079,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/citadel_keys.lst",
+      "crc32": "1b96b980",
+      "archive": 319,
+      "offset": 51137056,
+      "bytes": 30927,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/moddefaults.txt",
+      "crc32": "6e155bab",
+      "archive": 43,
+      "offset": 103583712,
+      "bytes": 315699,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/video_defaults_0.txt",
+      "crc32": "d10b9389",
+      "archive": 317,
+      "offset": 44174736,
+      "bytes": 834,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/video_defaults_1.txt",
+      "crc32": "857e0a22",
+      "archive": 317,
+      "offset": 44175584,
+      "bytes": 833,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/video_defaults_2.txt",
+      "crc32": "43be704b",
+      "archive": 317,
+      "offset": 44176432,
+      "bytes": 830,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/video_defaults_3.txt",
+      "crc32": "5e01ac0d",
+      "archive": 317,
+      "offset": 44177264,
+      "bytes": 865,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    },
+    {
+      "path": "cfg/video_version.txt",
+      "crc32": "1263d5ca",
+      "archive": 317,
+      "offset": 44178144,
+      "bytes": 197,
+      "mount": "citadel",
+      "ownership": "packed Valve resource"
+    }
+  ],
+  "steam_userdata_app_file_inventory": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remotecache.vdf",
+      "bytes": 1889,
+      "modified_utc": "2026-10-03T23:42:02.241899+00:00",
+      "stable_during_read": true,
+      "sha256": "2ff022ac60027f6e99b01b47b17444013cebb2168f7fba9d98616cddabc8129e",
+      "app_relative_path": "remotecache.vdf"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\user_convars.vcfg",
+      "bytes": 4737,
+      "modified_utc": "2026-10-03T23:42:02.232847+00:00",
+      "stable_during_read": true,
+      "sha256": "9e13cbd014fb1d96b099f33d98fd8df29141d9f23cde372a97eb3f3489119f25",
+      "app_relative_path": "remote/user_convars.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\user_keys.vcfg",
+      "bytes": 55,
+      "modified_utc": "2026-10-03T23:42:02.222038+00:00",
+      "stable_during_read": true,
+      "sha256": "1adaac6b6f6fc91cce3b5948144f4eb74ed5dc0df194178dbc2f29b074341427",
+      "app_relative_path": "remote/user_keys.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\voice_ban.dt",
+      "bytes": 177,
+      "modified_utc": "2024-10-13T01:46:42+00:00",
+      "stable_during_read": true,
+      "app_relative_path": "remote/voice_ban.dt"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\cfg\\cached_hero_builds.kv3",
+      "bytes": 5622,
+      "modified_utc": "2026-10-03T17:48:22.375987+00:00",
+      "stable_during_read": true,
+      "app_relative_path": "remote/cfg/cached_hero_builds.kv3"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\cfg\\citadelkeys_personal.lst",
+      "bytes": 7519,
+      "modified_utc": "2026-10-01T00:36:23.605846+00:00",
+      "stable_during_read": true,
+      "app_relative_path": "remote/cfg/citadelkeys_personal.lst"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\cfg\\citadel_hero_settings.lst",
+      "bytes": 954,
+      "modified_utc": "2026-09-30T21:38:34.310817+00:00",
+      "stable_during_read": true,
+      "app_relative_path": "remote/cfg/citadel_hero_settings.lst"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\remote\\cfg\\pending_replay_requests.lst",
+      "bytes": 28,
+      "modified_utc": "2024-10-13T01:46:42+00:00",
+      "stable_during_read": true,
+      "app_relative_path": "remote/cfg/pending_replay_requests.lst"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\machine_convars.vcfg",
+      "bytes": 9593,
+      "modified_utc": "2026-10-03T23:42:02.232847+00:00",
+      "stable_during_read": true,
+      "sha256": "f00183428726e7d8e186bda0075d8901d7075d96d72f6dce7d70b83b63288226",
+      "app_relative_path": "local/cfg/machine_convars.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\trustedlaunch.cfg",
+      "bytes": 277,
+      "modified_utc": "2026-10-03T23:41:46.633811+00:00",
+      "stable_during_read": true,
+      "sha256": "a3fafbd34e6248583dbfacd97d71d8fff16f5af1059c30d51cdf7f30ad160e07",
+      "app_relative_path": "local/cfg/trustedlaunch.cfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_convars_0_slot0.vcfg",
+      "bytes": 4863,
+      "modified_utc": "2026-10-03T23:42:02.237391+00:00",
+      "stable_during_read": true,
+      "sha256": "655019a2f6b1cc9c7c0f59a747ed6e7afd229bb46efe2599c0cfc4381a156acd",
+      "app_relative_path": "local/cfg/user_convars_0_slot0.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_convars_0_slot0.vcfg_lastclouded",
+      "bytes": 4863,
+      "modified_utc": "2026-10-03T23:42:02.238396+00:00",
+      "stable_during_read": true,
+      "sha256": "655019a2f6b1cc9c7c0f59a747ed6e7afd229bb46efe2599c0cfc4381a156acd",
+      "app_relative_path": "local/cfg/user_convars_0_slot0.vcfg_lastclouded"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_keys_0_slot0.vcfg",
+      "bytes": 62,
+      "modified_utc": "2026-10-03T23:42:02.231332+00:00",
+      "stable_during_read": true,
+      "sha256": "3be6497df0d1c17622e0fc7b614d15891d534bb9912fbe0ba3e873b06b69c9d2",
+      "app_relative_path": "local/cfg/user_keys_0_slot0.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_keys_0_slot0.vcfg_lastclouded",
+      "bytes": 62,
+      "modified_utc": "2026-10-03T23:42:02.232340+00:00",
+      "stable_during_read": true,
+      "sha256": "3be6497df0d1c17622e0fc7b614d15891d534bb9912fbe0ba3e873b06b69c9d2",
+      "app_relative_path": "local/cfg/user_keys_0_slot0.vcfg_lastclouded"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_keys_0_slot1.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-10-03T23:38:30.650974+00:00",
+      "stable_during_read": true,
+      "sha256": "148354379596cb5ee66600eb3c4660bb1d42507d70411d14a12ee90a281e5f75",
+      "app_relative_path": "local/cfg/user_keys_0_slot1.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_keys_0_slot2.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-10-03T23:38:30.650974+00:00",
+      "stable_during_read": true,
+      "sha256": "148354379596cb5ee66600eb3c4660bb1d42507d70411d14a12ee90a281e5f75",
+      "app_relative_path": "local/cfg/user_keys_0_slot2.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_keys_0_slot3.vcfg",
+      "bytes": 16,
+      "modified_utc": "2026-10-03T23:38:30.652502+00:00",
+      "stable_during_read": true,
+      "sha256": "148354379596cb5ee66600eb3c4660bb1d42507d70411d14a12ee90a281e5f75",
+      "app_relative_path": "local/cfg/user_keys_0_slot3.vcfg"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\video.txt",
+      "bytes": 1717,
+      "modified_utc": "2026-10-03T23:39:46.474830+00:00",
+      "stable_during_read": true,
+      "sha256": "13c69edc16a1373f337495e608853d8b9c4757b93415957d932b8478c48e58eb",
+      "app_relative_path": "local/cfg/video.txt"
+    }
+  ],
+  "native_configs": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\video.txt",
+      "bytes": 1717,
+      "modified_utc": "2026-10-03T23:39:46.474830+00:00",
+      "stable_during_read": true,
+      "sha256": "13c69edc16a1373f337495e608853d8b9c4757b93415957d932b8478c48e58eb",
+      "ownership": "USRLOCAL",
+      "settings": {
+        "Version": "20",
+        "VendorID": "4098",
+        "DeviceID": "29822",
+        "setting.defaultres": "1920",
+        "setting.defaultresheight": "1080",
+        "setting.recommendedheight": "0",
+        "setting.refreshrate_numerator": "0",
+        "setting.fullscreen": "0",
+        "setting.nowindowborder": "1",
+        "setting.fullscreen_min_on_focus_loss": "0",
+        "setting.monitor_index": "0",
+        "setting.knowndevice": "1",
+        "setting.high_dpi": "0",
+        "setting.aspectratiomode": "0",
+        "setting.cpu_level": "1",
+        "setting.mem_level": "0",
+        "setting.gpu_mem_level": "0",
+        "setting.gpu_level": "0",
+        "setting.mat_vsync": "0",
+        "setting.r_low_latency": "1",
+        "setting.fps_max": "0",
+        "setting.mat_viewportscale": "0.800000",
+        "setting.r_citadel_antialiasing": "0",
+        "setting.r_citadel_upscaling": "1",
+        "setting.r_citadel_dlss_settings_mode": "0",
+        "setting.r_dlss_preset": "0",
+        "setting.r_citadel_fsr_rcas_sharpness": "0.200000",
+        "setting.r_citadel_fsr2_sharpness": "0",
+        "setting.r_effects_bloom": "false",
+        "setting.r_post_bloom": "false",
+        "setting.r_depth_of_field": "false",
+        "setting.r_citadel_motion_blur": "0",
+        "setting.r_reduce_flash": "1",
+        "setting.r_citadel_shadow_quality": "0",
+        "setting.r_arealights": "false",
+        "setting.r_citadel_ssao_quality": "0",
+        "setting.r_citadel_fog_quality": "0",
+        "setting.shaderquality": "0",
+        "setting.r_dashboard_render_quality": "0",
+        "setting.r_particle_depth_feathering": "false",
+        "setting.r_fullscreen_gamma": "2.2",
+        "setting.useadvanced": "1",
+        "setting.coop_fullscreen": "1",
+        "setting.r_light_sensitivity_mode": "true",
+        "setting.refreshrate_denominator": "0",
+        "setting.r_texture_stream_mip_bias": "2"
+      },
+      "duplicates": []
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\machine_convars.vcfg",
+      "bytes": 9593,
+      "modified_utc": "2026-10-03T23:42:02.232847+00:00",
+      "stable_during_read": true,
+      "sha256": "f00183428726e7d8e186bda0075d8901d7075d96d72f6dce7d70b83b63288226",
+      "ownership": "USRLOCAL",
+      "settings": {
+        "adsp_debug": "0",
+        "ai_debug_decisionmaking": "false",
+        "ai_ignore_collision_player_noclip": "false",
+        "ai_report_task_timings_on_limit": "false",
+        "ai_select_box_alpha": "20",
+        "ai_think_limit_label": "false",
+        "c_maxdistance": "200",
+        "c_maxpitch": "90",
+        "c_maxyaw": "135",
+        "c_mindistance": "30",
+        "c_minpitch": "0",
+        "c_minyaw": "-135",
+        "c_orthoheight": "100",
+        "c_orthowidth": "100",
+        "c_thirdpersonshoulder": "false",
+        "c_thirdpersonshoulderaimdist": "120",
+        "c_thirdpersonshoulderdist": "40",
+        "c_thirdpersonshoulderheight": "5",
+        "c_thirdpersonshoulderoffset": "20",
+        "cam_collision": "1",
+        "cam_idealdelta": "4",
+        "cam_idealdist": "150",
+        "cam_ideallag": "4",
+        "cam_idealpitch": "0",
+        "cam_idealyaw": "0",
+        "cam_snapto": "false",
+        "cc_delay_time": "0.25",
+        "cc_linger_time": "1",
+        "cc_spectator_only": "false",
+        "cc_subtitles": "false",
+        "cc_vr_caption_speed": "1",
+        "cc_vr_font_size": "1",
+        "cc_vr_width": "1",
+        "citadel_ability_preview_path_debug_draw_dt": "0.075",
+        "citadel_always_show_active_hud_stats": "false",
+        "citadel_auto_queue_build$1": "false",
+        "citadel_brawl_hero_roster": "1,25",
+        "citadel_brawl_hero_roster_banned": "8",
+        "citadel_brawl_hero_roster_high_priority": "84",
+        "citadel_brawl_hero_roster_preferred": "76,67,2",
+        "citadel_brawl_hero_roster_random": "false",
+        "citadel_camera_fade_other_far_dist": "100",
+        "citadel_camera_fade_other_near_dist": "20",
+        "citadel_camera_fade_other_near_opacity": "0.4",
+        "citadel_camera_fade_viewed_far_dist": "50",
+        "citadel_camera_fade_viewed_near_dist": "20",
+        "citadel_camera_fade_viewed_near_opacity": "0.4",
+        "citadel_camera_override_ads_fov": "45",
+        "citadel_camera_override_ads_x_offset": "-110",
+        "citadel_camera_override_ads_y_offset": "-34",
+        "citadel_camera_override_ads_z_offset": "0",
+        "citadel_camera_override_fov": "90",
+        "citadel_camera_override_pivot_x_offset": "0",
+        "citadel_camera_override_pivot_x_offset_crouching": "0",
+        "citadel_camera_override_pivot_y_offset": "0",
+        "citadel_camera_override_pivot_y_offset_crouching": "0",
+        "citadel_camera_override_pivot_z_offset": "86",
+        "citadel_camera_override_pivot_z_offset_crouching": "55",
+        "citadel_camera_override_x_offset": "-135",
+        "citadel_camera_override_x_worst_case_offset": "-10",
+        "citadel_camera_override_y_offset": "-34",
+        "citadel_camera_override_y_worst_case_offset": "-10",
+        "citadel_camera_override_z_offset": "0",
+        "citadel_camera_override_z_worst_case_offset": "10",
+        "citadel_camera_overrides_enabled": "false",
+        "citadel_camera_sensitivity": "1",
+        "citadel_camera_spectator_auto_target_view": "true",
+        "citadel_combat_log_compress": "true",
+        "citadel_combat_log_show_abilities": "false",
+        "citadel_combat_log_show_damage": "true",
+        "citadel_combat_log_show_deaths": "false",
+        "citadel_combat_log_show_healing": "false",
+        "citadel_combat_log_show_health_deltas": "false",
+        "citadel_combat_log_show_hidden_modifiers": "false",
+        "citadel_combat_log_show_items": "false",
+        "citadel_combat_log_show_modifiers": "false",
+        "citadel_crosshair_hit_marker_duration": "0.1",
+        "citadel_damage_text_cumulative_mode": "0",
+        "citadel_deny_text_max_distance": "4000",
+        "citadel_hero_builds_confirm_discard_edits": "true",
+        "citadel_hero_demo_hero_spawn": "hero_inferno",
+        "citadel_hero_demo_no_troopers": "false",
+        "citadel_hero_distance_guides": "false",
+        "citadel_hero_falloff_guides": "false",
+        "citadel_hero_testing_expanded": "true",
+        "citadel_hideout_hero_id": "13",
+        "citadel_hideout_intro_version_seen": "1",
+        "citadel_hud_active_stats_always_show_details": "false",
+        "citadel_last_reporter_updates_check_games": "186",
+        "citadel_new_player_flow_visible": "true",
+        "citadel_new_player_progress": "14",
+        "citadel_observer_roaming_speed": "600",
+        "citadel_previous_umuted_audio_level": "1",
+        "citadel_private_lobby_bot_difficulty": "0",
+        "citadel_private_lobby_cheats_enabled": "false",
+        "citadel_private_lobby_corrupted_item_shop_spawn_minutes": "30",
+        "citadel_private_lobby_duplicate_heroes_enabled": "false",
+        "citadel_private_lobby_is_publicly_visible": "false",
+        "citadel_private_lobby_randomize_lanes": "false",
+        "citadel_private_lobby_server_region": "0",
+        "citadel_quickbuy_auto_buy_default$3": "false",
+        "citadel_quickbuy_enable": "true",
+        "citadel_ranked_hero_roster_random": "false",
+        "citadel_replay_manager_download_chunk_size": "1048576",
+        "citadel_replay_manager_download_simultaneous_requests": "3",
+        "citadel_settings_active_settings_section_read_only": "3",
+        "citadel_settings_active_settings_subsection_read_only": "1",
+        "citadel_settings_last_scrollbar_position_read_only": "9392",
+        "citadel_settings_scroll_panel_height_read_only": "17966",
+        "citadel_shop_always_show_names$3": "true",
+        "citadel_shop_default_tab$3": "1",
+        "citadel_shop_filters_and_mode": "false",
+        "citadel_shop_hide_empty_tiers": "true",
+        "citadel_shop_open_focus_search": "false",
+        "citadel_shop_scroll_snap_threshold": "5",
+        "citadel_shop_scroll_snap_to_tiers": "true",
+        "citadel_shop_search_use_name_only$2": "false",
+        "citadel_show_all_purchase_toasts": "false",
+        "citadel_show_chat_wheel_time": "0.23",
+        "citadel_show_npe_modal": "false",
+        "citadel_show_page_reload_button": "true",
+        "citadel_tightcamera_alternative$2": "1.3",
+        "citadel_unit_status_show_critical_state": "true",
+        "citadel_unit_status_show_health_value": "true",
+        "citadel_use_ui_keybindings": "true",
+        "citadel_video_preset": "3",
+        "citadel_viewed_book_prototype": "false",
+        "cl_auto_cursor_scale": "true",
+        "cl_citadel_items_quickcast_mode": "0",
+        "cl_citadel_player_voting_poster_current_hero_id": "88",
+        "cl_citadel_quickcast_ability1": "0",
+        "cl_citadel_quickcast_ability2": "0",
+        "cl_citadel_quickcast_ability3": "0",
+        "cl_citadel_quickcast_ability4": "0",
+        "cl_cursor_scale": "1",
+        "cl_ent_pivot_size": "20",
+        "cl_ent_text_flags_active": "-1",
+        "cl_graphics_driver_warning_ignore_timestamp": "0",
+        "cl_hud_telemetry_frametime_poor": "100",
+        "cl_hud_telemetry_frametime_show": "1",
+        "cl_hud_telemetry_net_detailed": "0",
+        "cl_hud_telemetry_net_misdelivery_poor": "2",
+        "cl_hud_telemetry_net_misdelivery_show": "1",
+        "cl_hud_telemetry_net_quality_graph_show": "0",
+        "cl_hud_telemetry_ping_poor": "100",
+        "cl_hud_telemetry_ping_show": "1",
+        "cl_hud_telemetry_serverrecvmargin_graph_show": "0",
+        "cl_interpolate_report": "false",
+        "cl_joystick_enabled": "false",
+        "cl_latch_report": "false",
+        "cl_ragdoll_limit": "20",
+        "cl_timeout": "30",
+        "cl_updaterate": "128",
+        "cl_voice_transmit_lobby": "false",
+        "commentary": "false",
+        "deadlock_chat_mode": "2",
+        "deadlock_disable_post_match_survey": "false",
+        "deadlock_early_development_warning_disabled": "true",
+        "deadlock_hero_debuts_seen": "84",
+        "deadlock_mm_preference": "1",
+        "debugoverlay_text_scale": "1",
+        "demo_flush": "false",
+        "dsp_volume": "0.8",
+        "enable_boneflex": "true",
+        "engine_no_focus_sleep": "20",
+        "ent_pivot_size": "20",
+        "ent_text_flags_active": "-1",
+        "fov_desired": "75",
+        "fps_max": "0",
+        "fps_max_tools": "120",
+        "fps_max_ui": "120",
+        "func_break_max_pieces": "15",
+        "gameinstructor_enable": "true",
+        "hide_party_code": "false",
+        "hud_fastswitch": "0",
+        "imgui_default_font_size": "20",
+        "input_filter_relative_analog_inputs": "false",
+        "joy_advanced": "false",
+        "joy_advaxisr": "0",
+        "joy_advaxisu": "0",
+        "joy_advaxisv": "0",
+        "joy_advaxisx": "0",
+        "joy_advaxisy": "0",
+        "joy_advaxisz": "0",
+        "joy_axisbutton_threshold": "0.3",
+        "joy_display_input": "false",
+        "joy_name": "joystick",
+        "joy_sidesensitivity": "1",
+        "joystick": "false",
+        "mm_prefer_solo_only": "false",
+        "mouse_inverty": "false",
+        "npc_go_no_arrow": "false",
+        "panorama_debug_overlay_opacity": "0.25",
+        "panorama_debug_overlay_opacity_max": "0.25",
+        "panorama_debug_overlay_opacity_min": "0.01",
+        "panorama_debugger_theme": "Light",
+        "panorama_focus_world_panels": "false",
+        "panorama_joystick_enabled": "false",
+        "panorama_toggledebugger_mode": "0",
+        "player0_using_joystick": "false",
+        "r_drawtracers_firstperson": "true",
+        "r_fullscreen_gamma": "2.2",
+        "rate": "196608",
+        "rr_thenany_score_slop": "0",
+        "scene_showfaceto": "false",
+        "sk_autoaim_mode": "1",
+        "snd_autodetect_latency": "true",
+        "snd_duckerattacktime": "0.5",
+        "snd_duckerreleasetime": "2.5",
+        "snd_duckerthreshold": "0.15",
+        "snd_ducktovolume": "0.55",
+        "snd_gain": "1",
+        "snd_gamevoicevolume": "1",
+        "snd_gamevolume": "0.42",
+        "snd_mixahead": "0.001",
+        "snd_musicvolume": "0.35",
+        "snd_mute_losefocus": "true",
+        "snd_sos_capture_soundevent_overwrites": "true",
+        "snd_spatialize_lerp": "0",
+        "snd_steamaudio_enable_perspective_correction": "false",
+        "snd_steamaudio_source_pathing_debug": "false",
+        "snd_toolvolume": "1",
+        "snd_voipvolume": "1",
+        "speaker_config": "0",
+        "spec_centerchasecam": "false",
+        "spec_replay_autostart": "true",
+        "splitscreen_mode": "0",
+        "sv_log_onefile": "false",
+        "sv_logbans": "false",
+        "sv_logecho": "true",
+        "sv_logfile": "false",
+        "sv_logflush": "false",
+        "sv_logsdir": "logs",
+        "sv_noclipaccelerate": "5",
+        "sv_noclipfriction": "4",
+        "sv_noclipspeed": "1200",
+        "sv_noclipspeedscaleonshift": "0.5",
+        "sv_pause_on_console_open": "false",
+        "sv_skyname": "sky_urb01",
+        "sv_specaccelerate": "5",
+        "sv_specnoclip": "true",
+        "sv_specspeed$2": "1200",
+        "sv_unlockedchapters": "1",
+        "sv_unpause_on_console_close": "false",
+        "sv_usercmd_execute_warning_ms": "5",
+        "sv_voiceenable": "true",
+        "team_chat_auto_join": "false",
+        "tv_nochat": "false",
+        "violence_ablood": "true",
+        "violence_agibs": "true",
+        "violence_hblood": "true",
+        "violence_hgibs": "true",
+        "voice_always_sample_mic$2": "false",
+        "voice_device_override": "#OS_Default_Device",
+        "voice_modenable": "true",
+        "voice_threshold": "-120",
+        "volume": "0.18"
+      },
+      "duplicates": []
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\userdata\\<account>\\1422450\\local\\cfg\\user_convars_0_slot0.vcfg",
+      "bytes": 4863,
+      "modified_utc": "2026-10-03T23:42:02.237391+00:00",
+      "stable_during_read": true,
+      "sha256": "655019a2f6b1cc9c7c0f59a747ed6e7afd229bb46efe2599c0cfc4381a156acd",
+      "ownership": "USRLOCAL",
+      "settings": {
+        "citadel_21x9_clamp_hud": "true",
+        "citadel_activate_window_on_unpause": "false",
+        "citadel_allow_ally_pings": "true",
+        "citadel_allow_ally_text": "true",
+        "citadel_allow_ally_voice": "true",
+        "citadel_allow_opponent_text": "true",
+        "citadel_allow_party_pings": "true",
+        "citadel_allow_party_text": "true",
+        "citadel_allow_party_voice": "true",
+        "citadel_allow_spectated_pings": "true",
+        "citadel_allow_spectated_text": "true",
+        "citadel_camera_hero_fov": "90",
+        "citadel_camera_pitch_inverted": "false",
+        "citadel_custom_ui_colors": "false",
+        "citadel_enemy_damage_delta_color_b": "91",
+        "citadel_enemy_damage_delta_color_g": "229",
+        "citadel_enemy_damage_delta_color_r": "255",
+        "citadel_enemy_ui_color_b": "50",
+        "citadel_enemy_ui_color_g": "50",
+        "citadel_enemy_ui_color_r": "215",
+        "citadel_enemy_zipline_color_b": "38",
+        "citadel_enemy_zipline_color_g": "55",
+        "citadel_enemy_zipline_color_r": "140",
+        "citadel_english_hero_names": "false",
+        "citadel_english_mod_names": "false",
+        "citadel_hero_roster_random": "false",
+        "citadel_mouse_cursor_scale": "1",
+        "citadel_per_unit_hotkeys_checked": "false",
+        "citadel_preview_video_settings_changes": "true",
+        "citadel_preview_video_settings_duration": "2",
+        "citadel_reduce_camera_shake": "false",
+        "citadel_secondary_language_builds": "-1",
+        "citadel_settings_always_show_all_settings": "true",
+        "citadel_settings_default_view": "0",
+        "citadel_settings_hide_hero_specific_disabled_notice": "false",
+        "citadel_settings_hide_hero_specific_enabled_notice": "false",
+        "citadel_settings_hide_keybind_delete_confirm": "false",
+        "citadel_settings_hide_row_reset_confirm": "false",
+        "citadel_settings_hide_show_all_settings_off_notice": "false",
+        "citadel_settings_remember_selected_hero": "true",
+        "citadel_settings_seen_new_settings": "20,11,15,7,21,17,6,8,23,24,10,14,13,12,19,9,22,18,16,",
+        "citadel_settings_selected_base_settings": "false",
+        "citadel_settings_selected_hero_read_only": "13",
+        "citadel_show_active_slot_popup": "false",
+        "citadel_show_telemetry_settings": "false",
+        "citadel_streaming_mode_enabled": "false",
+        "citadel_subtitles_all_caps": "false",
+        "citadel_subtitles_background_color_b": "0",
+        "citadel_subtitles_background_color_g": "0",
+        "citadel_subtitles_background_color_r": "0",
+        "citadel_subtitles_background_opacity": "93",
+        "citadel_subtitles_background_style": "0",
+        "citadel_subtitles_bold_font": "true",
+        "citadel_subtitles_custom_style": "false",
+        "citadel_subtitles_font": "0",
+        "citadel_subtitles_font_size": "16",
+        "citadel_subtitles_outline_thickness": "2",
+        "citadel_subtitles_text_color_b": "198",
+        "citadel_subtitles_text_color_g": "198",
+        "citadel_subtitles_text_color_r": "198",
+        "citadel_unit_status_hero_name_mode": "0",
+        "citadel_unit_status_show_ally_health_value": "false",
+        "citadel_use_contextual_ping_wheel_option": "true",
+        "cl_citadel_ability_alt_cast_hold_time": "0.15",
+        "cl_citadel_ability_alt_cast_instant_cast_double_tap_timeout": "0.2",
+        "cl_citadel_auto_fire": "false",
+        "cl_citadel_auto_mantle_backward": "false",
+        "cl_citadel_auto_mantle_forward": "false",
+        "cl_citadel_auto_mantle_in_air": "false",
+        "cl_citadel_auto_move": "false",
+        "cl_citadel_auto_move_double_tap_time": "0.3",
+        "cl_citadel_zoom_is_toggle": "false",
+        "closecaption": "false",
+        "con_enable": "false",
+        "input_button_code_is_scan_code_scd": "true",
+        "joy_axisr_deadzone": "0.15",
+        "joy_axisr_relative": "false",
+        "joy_axisu_deadzone": "0.15",
+        "joy_axisu_relative": "false",
+        "joy_axisv_deadzone": "0.15",
+        "joy_axisv_relative": "false",
+        "joy_axisx_deadzone": "0.15",
+        "joy_axisx_relative": "false",
+        "joy_axisy_deadzone": "0.15",
+        "joy_axisy_relative": "false",
+        "joy_axisz_deadzone": "0.15",
+        "joy_axisz_relative": "false",
+        "joy_circle_correct_mode": "1",
+        "joy_circle_correct_mode_vehicle": "2",
+        "joy_forward_sensitivity": "1",
+        "joy_movement_stick": "false",
+        "joy_pitch_sensitivity": "3",
+        "joy_pitchsensitivity": "1",
+        "joy_response_look": "0",
+        "joy_response_move": "9",
+        "joy_side_sensitivity": "1",
+        "joy_yaw_sensitivity": "3",
+        "joy_yawsensitivity": "-1",
+        "m_pitch": "0.022",
+        "m_yaw": "0.022",
+        "name": "rndaom",
+        "option_duck_method": "false",
+        "ping_wheel_phrase_0": "1",
+        "ping_wheel_phrase_1": "2",
+        "ping_wheel_phrase_2": "4",
+        "ping_wheel_phrase_3": "34",
+        "ping_wheel_phrase_4": "18",
+        "ping_wheel_phrase_5": "5",
+        "ping_wheel_phrase_6": "42",
+        "ping_wheel_phrase_7": "6",
+        "player_ping_indicator_enabled": "true",
+        "r_light_sensitivity_mode": "true",
+        "sensitivity": "1.25",
+        "sensitivity_y_scale": "1",
+        "skill": "1",
+        "speedometer_ui_enable": "false",
+        "steam_inputhandler_glyph_lock_mode": "0",
+        "steaminput_glyph_use_universal_face_buttons": "true",
+        "voice_vox": "0",
+        "zoom_sensitivity_ratio": "1"
+      },
+      "duplicates": []
+    }
+  ],
+  "current_video_changes_from_first_audit": [
+    {
+      "key": "setting.cl_particle_fallback_base",
+      "before": "5",
+      "now": null
+    },
+    {
+      "key": "setting.cl_particle_fallback_multiplier",
+      "before": "5",
+      "now": null
+    },
+    {
+      "key": "setting.csm_max_num_cascades_override",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.csm_max_shadow_dist_override",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.csm_viewmodel_shadows",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.lb_csm_override_staticgeo_cascades",
+      "before": "true",
+      "now": null
+    },
+    {
+      "key": "setting.lb_csm_override_staticgeo_cascades_value",
+      "before": "-1",
+      "now": null
+    },
+    {
+      "key": "setting.lb_dynamic_shadow_resolution",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.lb_enable_shadow_casting",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.lb_shadow_texture_height_override",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.lb_shadow_texture_width_override",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.mat_viewportscale",
+      "before": "0.79999995",
+      "now": "0.800000"
+    },
+    {
+      "key": "setting.r_area_lights",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_distancefield_ao_quality",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_distancefield_reflections",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_distancefield_shadows",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_fsr_rcas_sharpness",
+      "before": "0",
+      "now": "0.200000"
+    },
+    {
+      "key": "setting.r_citadel_half_res_noisy_effects",
+      "before": "true",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_mboit",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_outlines",
+      "before": "1",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_ssao",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_citadel_upscaling",
+      "before": "2",
+      "now": "1"
+    },
+    {
+      "key": "setting.r_displacement_mapping",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_distancefield_enable",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.r_env_map_uses_height_map",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_particle_cables_cast_shadows",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_particle_max_detail_level",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_particle_shadows",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.r_render_portals",
+      "before": "1",
+      "now": null
+    },
+    {
+      "key": "setting.r_screen_space_shadows",
+      "before": "false",
+      "now": null
+    },
+    {
+      "key": "setting.r_shadows",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.volume_fog_depth",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.volume_fog_height",
+      "before": "0",
+      "now": null
+    },
+    {
+      "key": "setting.volume_fog_width",
+      "before": "0",
+      "now": null
+    }
+  ],
+  "current_machine_changes_from_first_audit": [
+    {
+      "key": "citadel_brawl_hero_roster_preferred",
+      "before": "13,76,67,2",
+      "now": "76,67,2"
+    },
+    {
+      "key": "citadel_hideout_hero_id",
+      "before": "84",
+      "now": "13"
+    },
+    {
+      "key": "fps_max",
+      "before": "400",
+      "now": "0"
+    }
+  ],
+  "stored_video_differences_from_native_low_preset": [
+    {
+      "key": "setting.r_citadel_upscaling",
+      "native_low": "0",
+      "stored": "1"
+    },
+    {
+      "key": "setting.r_dlss_preset",
+      "native_low": "6",
+      "stored": "0"
+    },
+    {
+      "key": "setting.recommendedheight",
+      "native_low": "720",
+      "stored": "0"
+    }
+  ],
+  "video_last_write_utc": "2026-10-03T23:39:46.474830+00:00",
+  "machine_last_write_utc": "2026-10-03T23:42:02.232847+00:00",
+  "profile_still_present_after_observed_relaunch_on_disk": true,
+  "launch_options_scoped_persistent_values": [
+    {
+      "scope": "userdata/<account>/config/localconfig.vdf apps/1422450",
+      "values": {},
+      "interpretation": "Absent LaunchOptions is absence in this scoped persistent block; observed process launch arguments are separate evidence."
+    }
+  ],
+  "steam_cloud_remote_cache": [
+    {
+      "metadata": {
+        "ChangeNumber": "26",
+        "OSType": "0",
+        "cfg/cached_hero_builds.kv3": {
+          "root": "0",
+          "size": "5622",
+          "localtime": "1791049702",
+          "time": "1791049704",
+          "remotetime": "1791049704",
+          "sha": "599646fe51466c819b2ca34879b14173d2d430b4",
+          "syncstate": "1",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        },
+        "cfg/citadelkeys_personal.lst": {
+          "root": "0",
+          "size": "7519",
+          "localtime": "1790814983",
+          "time": "1790814983",
+          "remotetime": "1790814983",
+          "sha": "8a3c43946415195cbbff4527a5334bf02e0639d4",
+          "syncstate": "1",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        },
+        "cfg/pending_replay_requests.lst": {
+          "root": "0",
+          "size": "28",
+          "localtime": "1728784002",
+          "time": "1728784001",
+          "remotetime": "1728784001",
+          "sha": "f3729c42d2e8b8161024ac4e30276a2362ff6585",
+          "syncstate": "1",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        },
+        "user_convars.vcfg": {
+          "root": "0",
+          "size": "4737",
+          "localtime": "1791070922",
+          "time": "1791070924",
+          "remotetime": "1791070712",
+          "sha": "21b2d9cb4ab70390d1488633ca658150a8b82bdb",
+          "syncstate": "3",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        },
+        "user_keys.vcfg": {
+          "root": "0",
+          "size": "55",
+          "localtime": "1791070922",
+          "time": "1791070924",
+          "remotetime": "1728784001",
+          "sha": "dcc513247c62fda46eff47e8d4284ceffb5ad9f8",
+          "syncstate": "3",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        },
+        "voice_ban.dt": {
+          "root": "0",
+          "size": "177",
+          "localtime": "1728784002",
+          "time": "1728784001",
+          "remotetime": "1728784001",
+          "sha": "da4aa4d7304021401a1e7e1b1cd148e856ef3143",
+          "syncstate": "1",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        },
+        "cfg/citadel_hero_settings.lst": {
+          "root": "0",
+          "size": "954",
+          "localtime": "1790804314",
+          "time": "1790804313",
+          "remotetime": "1790804313",
+          "sha": "8cf1aa4dbf355b2fe9279434ed4d2586a14cd366",
+          "syncstate": "1",
+          "persiststate": "0",
+          "platformstosync2": "-1"
+        }
+      },
+      "performance_files_listed": [],
+      "interpretation": "The scoped remote cache does not list video.txt or machine_convars.vcfg when performance_files_listed is empty. User preferences and binds are separately cloud tracked. Numeric syncstate is recorded without assuming its undocumented meaning."
+    }
+  ],
+  "steam_cloud_user_config_comparisons": [
+    {
+      "kind": "user_convars",
+      "local_matches_lastclouded_bytes": true,
+      "local_vs_remote_semantic_differences": [],
+      "interpretation": "Different byte hashes can reflect format and slot serialization; compare semantic entries. This is disk/Steam-cache evidence, not proof of live graphics values or cloud server state."
+    }
+  ],
+  "steam_cloud_latest_app_scoped_events": [
+    "[2026-10-03 17:06:33] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:06:34] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:06:35] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:06:36] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:17] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:18] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:18] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:18] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:19] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:20] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:20] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:21] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:21] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:07:23] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 17:27:25] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 19:36:39] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 19:38:30] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 19:38:30] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 19:38:34] [AppID 1422450] Starting sync (up,AC Exit,)",
+    "[2026-10-03 19:38:34] [AppID 1422450] Running AutoCloud on exit. Looking for new and updated files",
+    "[2026-10-03 19:38:34] [AppID 1422450] AutoCloud complete",
+    "[2026-10-03 19:38:34] [AppID 1422450] Currently already synced to global change number '25', should be nothing to download",
+    "[2026-10-03 19:38:34] [AppID 1422450] Need to upload file user_convars.vcfg",
+    "[2026-10-03 19:38:35] [AppID 1422450] Upload OK for file user_convars.vcfg",
+    "[2026-10-03 19:38:36] [AppID 1422450] Upload complete, result OK",
+    "[2026-10-03 19:38:36] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 19:41:44] [AppID 1422450] Starting sync (AC Launch,down,)",
+    "[2026-10-03 19:41:44] [AppID 1422450] AutoCloud checking local state for user <account>",
+    "[2026-10-03 19:41:44] [AppID 1422450] Currently already synced to global change number '26', should be nothing to download",
+    "[2026-10-03 19:41:44] [AppID 1422450] Download complete in build list",
+    "[2026-10-03 19:41:44] [AppID 1422450] Successfully synced to ChangeNumber 0",
+    "[2026-10-03 19:41:44] [AppID 1422450] Running AutoCloud on launch. Looking for existing files to watch:",
+    "[2026-10-03 19:41:44] [AppID 1422450] AutoCloud done. Watching 0 files",
+    "[2026-10-03 19:41:44] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'",
+    "[2026-10-03 19:42:02] [AppID 1422450] YldWriteCacheDirectoryToFile - saved to 'C:\\Program Files (x86)\\Steam/userdata/<account>/1422450/remotecache.vdf'"
+  ],
+  "existing_game_console_log_inventory": [],
+  "unknown_ignored_cheat_setting_log_lines": [],
+  "native_vpk_evidence_freshness": [
+    {
+      "directory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\pak01_dir.vpk",
+      "tree_sha256": "c6a95bc545140f99f66c40ab4558e013618d223055372acc12d589cdf31fb71f",
+      "tree_matches_first_audit": true,
+      "resources": 140885,
+      "missing_archives": [],
+      "fresh_extracted_resources": [
+        {
+          "path": "cfg/moddefaults.txt",
+          "bytes": 315699,
+          "crc32": "6e155bab",
+          "crc_verified": true,
+          "sha256": "3883cf6c5e85d772616a06383d7fd16b99da008fb9efccc39a6815624ef38b2a",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "cfg/video_defaults_0.txt",
+          "bytes": 834,
+          "crc32": "d10b9389",
+          "crc_verified": true,
+          "sha256": "d7a1f987c4da334533e9a92f196814eb3d4e0923e3e1d558bbfc32bc0cc8de0d",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "cfg/video_defaults_1.txt",
+          "bytes": 833,
+          "crc32": "857e0a22",
+          "crc_verified": true,
+          "sha256": "7ef678e7c21f2ca32374834d8c898a83326770512a8463e43e8a6525a9f8807b",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "cfg/video_defaults_2.txt",
+          "bytes": 830,
+          "crc32": "43be704b",
+          "crc_verified": true,
+          "sha256": "16ff9880470092b76722851bb840c3c05bcf1741ad0c25ec4e8490d18d42ab84",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "cfg/video_defaults_3.txt",
+          "bytes": 865,
+          "crc32": "5e01ac0d",
+          "crc_verified": true,
+          "sha256": "dff9d39949ce2c4988dcfcfab71e2cdf939825b89d089ad0c341a023629fe278",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "cfg/video_version.txt",
+          "bytes": 197,
+          "crc32": "1263d5ca",
+          "crc_verified": true,
+          "sha256": "71221263e4448ad9eaeac8492df3033e69b827f4d909c5d1c542a5c2b6e6e2f0",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/settings_enemy_healthbar_preview.vcss_c",
+          "bytes": 1279,
+          "crc32": "5fed3aae",
+          "crc_verified": true,
+          "sha256": "8a0f0bb243db47aa9d091f5e40996102541fac71b1e69a0fd730abf76b1017fb",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/settings_keybinder.vcss_c",
+          "bytes": 27182,
+          "crc32": "5ff9040a",
+          "crc_verified": true,
+          "sha256": "c342c4f807f87a8220954f0ec6b6064806e1c405690512b29a57ce54b4f06c8a",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/popup_hero_settings_notice.vcss_c",
+          "bytes": 7516,
+          "crc32": "4ea00868",
+          "crc_verified": true,
+          "sha256": "aa519013723fb46ba0cdbdbdb5a2734837f76b1e6a1a091cd8da54433a951f8e",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings.vcss_c",
+          "bytes": 170681,
+          "crc32": "042703c3",
+          "crc_verified": true,
+          "sha256": "cad0838dd6a615d4a76027416d2ecd0043b96c95264dd40d0b290cd7f7015799",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings_reset.vcss_c",
+          "bytes": 9082,
+          "crc32": "c51fd55b",
+          "crc_verified": true,
+          "sha256": "6bb70013e4da3b084c26a49262477bd41ba50c33cbfa2a6b8f83b68c88a4fc07",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings_share.vcss_c",
+          "bytes": 20813,
+          "crc32": "647e31a3",
+          "crc_verified": true,
+          "sha256": "1f965517ed9a1dfc4a0ce50f529b7a37e127719ff8786116fd2109774f6b1165",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings_share_preview.vcss_c",
+          "bytes": 11105,
+          "crc32": "2248e81d",
+          "crc_verified": true,
+          "sha256": "c7e30bd4b180cc53489292a2a888ab811c24d1cd442bf3badcbb277848b0431d",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/settings_color_slider.vcss_c",
+          "bytes": 10815,
+          "crc32": "00cf3286",
+          "crc_verified": true,
+          "sha256": "0b4a1a9b1533f6595b492bc365ced3e46f326d0b9122bdd5dffb2dc66dc0db6b",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/settings_enum.vcss_c",
+          "bytes": 2167,
+          "crc32": "31fd0d78",
+          "crc_verified": true,
+          "sha256": "756c515d90e59b4bfc6aea9aab2e059e7e980652bfccf9a506271e334bcec90a",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/settings_slider.vcss_c",
+          "bytes": 6899,
+          "crc32": "7b8fa6ed",
+          "crc_verified": true,
+          "sha256": "5ccb0189d553a8f261c7d3ce797c450dc6125e87fbd5cfb17ae9734ba6b971e7",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/styles/popups/settings_toggle.vcss_c",
+          "bytes": 2528,
+          "crc32": "9dd35308",
+          "crc_verified": true,
+          "sha256": "c05ce9b4c67223ad3e011767dee1eca56bc6cd5c54ae563eaee9f2709c1f73b6",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/images/control_icons/24px/settings_options.vsvg_c",
+          "bytes": 3436,
+          "crc32": "97e8a820",
+          "crc_verified": true,
+          "sha256": "d289578beccc84ae3522394ddcb91270eaf045b3e2333505f57ecc4593f6d95e",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/images/icons/icon_party_settings.vsvg_c",
+          "bytes": 3971,
+          "crc32": "1022dff7",
+          "crc_verified": true,
+          "sha256": "54f82fb5e3a173db65efed53c8c8fe023e2e65b2e2246f590205e0f482981181",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/images/icons/settings_global.vsvg_c",
+          "bytes": 2324,
+          "crc32": "1fd1aa27",
+          "crc_verified": true,
+          "sha256": "f4f501e494ac4f78c12e1e40ada9dac2041a8b5d253f937c0c30fb7bf1e5c066",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/images/icons/settings_reset.vsvg_c",
+          "bytes": 3223,
+          "crc32": "b4082133",
+          "crc_verified": true,
+          "sha256": "ae1f45d6efd9488ed0ff6c7f7f48ad485bcc980eba00306ec61969df3480494d",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/images/icons/settings_shortcut.vsvg_c",
+          "bytes": 2005,
+          "crc32": "cad7c28d",
+          "crc_verified": true,
+          "sha256": "a90c1d7389be81bdc156d0e6aa548eb1f3045ec571a88dd74daef35acb20bfbc",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/images/chat_wheel/settings_chatwheel_png.vtex_c",
+          "bytes": 15111,
+          "crc32": "4ce00780",
+          "crc_verified": true,
+          "sha256": "9e3dc0b286adab8e49b96a511b28d17e737436324502c469dd7f04e30033bfc8",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/settings_enemy_healthbar_preview.vxml_c",
+          "bytes": 1899,
+          "crc32": "c3144da4",
+          "crc_verified": true,
+          "sha256": "ed1eeb40c8bd74cdc2d5c1b555d1c306d94aab4b8b320acfb12e39fb7bb3acd4",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/settings_keybinder.vxml_c",
+          "bytes": 2659,
+          "crc32": "cba9024b",
+          "crc_verified": true,
+          "sha256": "9a6766cd306c9292afc55a6ef44c177a70827a283d6c9a4150e759e7e5759b49",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/popup_hero_settings_notice.vxml_c",
+          "bytes": 2423,
+          "crc32": "b296b3ad",
+          "crc_verified": true,
+          "sha256": "2d221e866590d4d34578b1e2b504bd707dc2354e22a9f4991ef6c8889e0809a8",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings.vxml_c",
+          "bytes": 32094,
+          "crc32": "3895611e",
+          "crc_verified": true,
+          "sha256": "5d1bdc0e192fef226c2c2bf3030d5486e04ec3e5b561261ab6c1a35f6124e4ef",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings_reset.vxml_c",
+          "bytes": 2631,
+          "crc32": "139aea2d",
+          "crc_verified": true,
+          "sha256": "85de94f58c9620936113c5497b153133cc8681b030bf5b5bd269937654f0bdf6",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings_share.vxml_c",
+          "bytes": 4607,
+          "crc32": "6a016830",
+          "crc_verified": true,
+          "sha256": "6301343583e9c6cd4ca16d45b4811edc7fed07da2ec8b889433d34075e9de51c",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings_share_preview.vxml_c",
+          "bytes": 3611,
+          "crc32": "07660557",
+          "crc_verified": true,
+          "sha256": "a9adc8313f8f4ea1d973eaca0f218390cc6e0439b4079512a52f186345596625",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/settings_color_slider.vxml_c",
+          "bytes": 1869,
+          "crc32": "15c84505",
+          "crc_verified": true,
+          "sha256": "1eb3ff768cebdf3af49aa28d9aa2433d560646ba00c126d95b83ff04613885fc",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/settings_enum.vxml_c",
+          "bytes": 1542,
+          "crc32": "1093d593",
+          "crc_verified": true,
+          "sha256": "f054234ae8486fed5a2d6498f91eb1d1be985e6c243decf4085062947d8481f4",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/settings_slider.vxml_c",
+          "bytes": 1756,
+          "crc32": "c9ff49ea",
+          "crc_verified": true,
+          "sha256": "c6bd04bfe66dc2a80a98ab6dfb37d3e673465a0ab7ba7d15bc54967d5dee7f80",
+          "matches_first_audit_sha256": true
+        },
+        {
+          "path": "panorama/layout/popups/settings_toggle.vxml_c",
+          "bytes": 1533,
+          "crc32": "baed3424",
+          "crc_verified": true,
+          "sha256": "9fbb8951d8d0c9c211ab51a2ed7733a0f0883fc9f91860c9f6ebe22d1ec8069e",
+          "matches_first_audit_sha256": true
+        }
+      ]
+    },
+    {
+      "directory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\core\\pak01_dir.vpk",
+      "tree_sha256": "3a0168e2366c190b3ba27603c340842a5256d051034ed9211eb953011b625e01",
+      "tree_matches_first_audit": true,
+      "resources": 1450,
+      "missing_archives": [],
+      "fresh_extracted_resources": []
+    }
+  ],
+  "native_label_localization_fresh_hash": {
+    "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\resource\\localization\\citadel_main\\citadel_main_english.txt",
+    "bytes": 412691,
+    "modified_utc": "2026-10-02T22:53:38.865074+00:00",
+    "stable_during_read": true,
+    "sha256": "9f0cd8e970ca6e819c59d1a5270c9bfff88831aa3cd8f1833bd12c7ce94eab3c",
+    "sha1": "ceb5a6aa2c1113b3b05fcec8cb00d65c2b10de82",
+    "expected_sha1": "ceb5a6aa2c1113b3b05fcec8cb00d65c2b10de82",
+    "matches_depot_sha1": true
+  },
+  "installed_matchmaking_gameinfo_denial_label": {
+    "file": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\resource\\localization\\citadel_main\\citadel_main_english.txt",
+    "line": 1678,
+    "token": "Citadel_StartMatchmaking_UnverifiedPGI",
+    "installed_text": "Unable to enter matchmaking while any party member is running Tools-mode, or has unsupported changes to the following sections of their 'gameinfo.gi': Engine2, MaterialSystem2, NetworkSystem, Particles, RenderSystem, SceneSystem, WorldRenderer",
+    "mentions_convars": false,
+    "listed_sections": [
+      "Engine2",
+      "MaterialSystem2",
+      "NetworkSystem",
+      "Particles",
+      "RenderSystem",
+      "SceneSystem",
+      "WorldRenderer"
+    ],
+    "interpretation": "Current installed localized matchmaking-denial text and a verified depot content hash. A localized message does not empirically prove all enforcement conditions or identify every supported/unsupported override."
+  },
+  "installed_file_paths_removed_since_first_audit": [
+    "game/citadel/reconnect.dat"
+  ],
+  "stored_fps_controls": {
+    "video_fps_max": "0",
+    "machine_fps_max": "0",
+    "machine_fps_max_ui": "120",
+    "machine_cl_ragdoll_limit": "20"
+  },
+  "actionable_discrepancies": [
+    {
+      "id": "runtime-unverified",
+      "severity": "validation required",
+      "finding": "Persisted native settings contain FSR1=1, render scale=0.8, sharpening=0.2, fps_max=0 and machine fps_max_ui=120. The existing game logs contain no live convar output because no console/condump log is present.",
+      "action": "Confirm effective settings with the included ordinary-console read-only queries/condump when the user chooses to interact with the game, then benchmark repeatable gameplay. Do not claim a measured FPS improvement from files or module enumeration."
+    },
+    {
+      "id": "legacy-config-divergence",
+      "severity": "documentation",
+      "finding": "game/citadel/cfg/video.txt and machine_convars.vcfg remain legacy copies containing the previous Potato renderer overrides and previous FPS limits; stock gameinfo identifies USRLOCAL as native ownership.",
+      "action": "Point users and tooling to Steam userdata/<account>/1422450/local/cfg. Preserve legacy copies and avoid interpreting them as active performance settings."
+    },
+    {
+      "id": "cloud-scope",
+      "severity": "validation boundary",
+      "finding": "Scoped Steam remote cache tracks user preferences/bindings, not video.txt or machine_convars.vcfg. The performance patch remains present after the observed relaunch; graphics live values and future cloud behavior remain separate questions.",
+      "action": "Do not disable Steam Cloud or rewrite remote personal files. Recheck the native files after a normal later exit/relaunch if persistence becomes a concern."
+    },
+    {
+      "id": "unsupported-knobs",
+      "severity": "scope",
+      "finding": "The remaining native video and legacy copies contain keys outside stock preset files. Preset absence and missing public console registration cannot independently prove that native storage aliases are inert.",
+      "action": "Use current-build menu/preset evidence for graphics changes and preserve accessibility/display/preferences. Describe cleanup as resetting unvalidated manual overrides, not as proven speed gains."
+    },
+    {
+      "id": "ragdoll-candidate",
+      "severity": "optional benchmark candidate",
+      "finding": "Active machine file currently stores cl_ragdoll_limit=20; it remains at its original stored value. No runtime query or gameplay impact was observed.",
+      "action": "If the separate current-build registry audit confirms ordinary-console support, evaluate a lower limit as a clearly labeled comparison with runtime readback and dense-combat frame-time measurements; do not make it an unmeasured default."
+    }
+  ],
+  "limits": [
+    "Fresh file-name and byte-size checks cover all installed game files against currently installed cached depot manifests. Seven critical binary/gameinfo files and main English localization were freshly SHA1 verified against depot content hashes.",
+    "Current core/citadel VPK directory trees were reread and selected config/UI resources freshly CRC checked. Every VPK payload was not hashed; matching filenames, sizes, timestamps, tree hashes and selected resource CRCs do not constitute complete archive content verification.",
+    "Disk snapshots and loaded renderer modules do not directly establish live convar values, FPS gains, anti-cheat behavior, or absence of every external software overlay.",
+    "No game console command executed, no FPS benchmark taken, no process changed, no Steam Cloud setting changed, and no game/cache/VPK file written or removed."
+  ]
+}

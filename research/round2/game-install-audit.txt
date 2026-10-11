@@ -1,0 +1,43 @@
+Fresh audit UTC: 2026-10-03T23:55:21.148045+00:00 through 2026-10-03T23:55:22.311044+00:00.
+
+Installed build/target 25689475/25689475; installed depot guards stable during audit: True.
+
+Game root: C:\Program Files (x86)\Steam\steamapps\common\Deadlock\game; native config ownership: USRLOCAL; legacy config ownership: MOD.
+
+Running game: [{"Name": "deadlock.exe", "ExecutablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\deadlock.exe", "ProcessId": 13948, "CreatedUtc": "2026-10-03T23:41:45.4736160Z", "CommandLine": "\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\bin\\win64\\deadlock.exe\" -steam -console"}]
+
+DX11 renderer module and d3d11/DXGI loaded; Vulkan renderer absent from selected module list. This supports currently using DX11, not live graphics setting values or a FPS result.
+
+Installed files 3877; VPKs 517, all in current installed depot manifests; missing depot files 0; size mismatches 0; additional DLL/EXE/VPK 0.
+
+Fresh critical hashes: [{"relative_path": "game/citadel/gameinfo.gi", "sha1": "3fc6e3a1a728b88b593cf09e218212e8aee5a751", "expected_sha1": "3fc6e3a1a728b88b593cf09e218212e8aee5a751", "matches_depot_sha1": true, "matches_first_audit_sha1": true}, {"relative_path": "game/citadel/gameinfo_branchspecific.gi", "sha1": "5b4c901975382eba153222f52e2e3be8b241bfd4", "expected_sha1": "5b4c901975382eba153222f52e2e3be8b241bfd4", "matches_depot_sha1": true, "matches_first_audit_sha1": true}, {"relative_path": "game/bin/win64/deadlock.exe", "sha1": "bf447eb0e0584a2b1772002b65a45a5512e01f8e", "expected_sha1": "bf447eb0e0584a2b1772002b65a45a5512e01f8e", "matches_depot_sha1": true, "matches_first_audit_sha1": true}, {"relative_path": "game/bin/win64/engine2.dll", "sha1": "8fc08149d1d1af79d305a952f65f4ff9d5ffce62", "expected_sha1": "8fc08149d1d1af79d305a952f65f4ff9d5ffce62", "matches_depot_sha1": true, "matches_first_audit_sha1": true}, {"relative_path": "game/bin/win64/rendersystemdx11.dll", "sha1": "db932139cd5e9b9deb46ad73fba7fcf46b128a98", "expected_sha1": "db932139cd5e9b9deb46ad73fba7fcf46b128a98", "matches_depot_sha1": true, "matches_first_audit_sha1": true}, {"relative_path": "game/bin/win64/rendersystemvulkan.dll", "sha1": "c623acc1b838fe16ad8a334a19153e9e45db9021", "expected_sha1": "c623acc1b838fe16ad8a334a19153e9e45db9021", "matches_depot_sha1": true, "matches_first_audit_sha1": true}, {"relative_path": "game/citadel/bin/win64/client.dll", "sha1": "e772b1506c627da783673627ed79392edf492df0", "expected_sha1": "e772b1506c627da783673627ed79392edf492df0", "matches_depot_sha1": true, "matches_first_audit_sha1": true}]
+
+VPK metadata unchanged from first audit: 517/517. Selected current config/UI resource CRCs were rechecked; no full VPK payload hashing.
+
+Native video values now: FSR1=1, render scale 0.800000, sharpening 0.200000, mip bias 2, VSync0, low-latency1, FPS cap0, 1920x1080 borderless.
+
+Video last write 2026-10-03T23:39:46.474830+00:00; machine last write 2026-10-03T23:42:02.232847+00:00. The patch remains on disk after this observed relaunch; effective runtime values remain unqueried.
+
+Machine stored changes: [{"key": "citadel_brawl_hero_roster_preferred", "before": "13,76,67,2", "now": "76,67,2"}, {"key": "citadel_hideout_hero_id", "before": "84", "now": "13"}, {"key": "fps_max", "before": "400", "now": "0"}]
+
+Stored FPS controls: game0, UI120 (preserved original); cl_ragdoll_limit20 (unchanged). These are disk values.
+
+Current installed matchmaking-denial label: {"file": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\resource\\localization\\citadel_main\\citadel_main_english.txt", "line": 1678, "token": "Citadel_StartMatchmaking_UnverifiedPGI", "installed_text": "Unable to enter matchmaking while any party member is running Tools-mode, or has unsupported changes to the following sections of their 'gameinfo.gi': Engine2, MaterialSystem2, NetworkSystem, Particles, RenderSystem, SceneSystem, WorldRenderer", "mentions_convars": false, "listed_sections": ["Engine2", "MaterialSystem2", "NetworkSystem", "Particles", "RenderSystem", "SceneSystem", "WorldRenderer"], "interpretation": "Current installed localized matchmaking-denial text and a verified depot content hash. A localized message does not empirically prove all enforcement conditions or identify every supported/unsupported override."}
+
+Game console/condump/log count 0; detected unknown/ignored/cheat-setting log lines 0. With no legitimate game logs, error absence is not runtime validation.
+
+Steam Cloud remote cache lists user preferences/bindings; it does not list performance video or machine files. Public evidence redacts account paths/IDs; exact paths are only in ignored research/private/round2-game-install-paths.json.
+
+Actionable discrepancies:
+
+runtime-unverified (validation required): Persisted native settings contain FSR1=1, render scale=0.8, sharpening=0.2, fps_max=0 and machine fps_max_ui=120. The existing game logs contain no live convar output because no console/condump log is present. Action: Confirm effective settings with the included ordinary-console read-only queries/condump when the user chooses to interact with the game, then benchmark repeatable gameplay. Do not claim a measured FPS improvement from files or module enumeration.
+
+legacy-config-divergence (documentation): game/citadel/cfg/video.txt and machine_convars.vcfg remain legacy copies containing the previous Potato renderer overrides and previous FPS limits; stock gameinfo identifies USRLOCAL as native ownership. Action: Point users and tooling to Steam userdata/<account>/1422450/local/cfg. Preserve legacy copies and avoid interpreting them as active performance settings.
+
+cloud-scope (validation boundary): Scoped Steam remote cache tracks user preferences/bindings, not video.txt or machine_convars.vcfg. The performance patch remains present after the observed relaunch; graphics live values and future cloud behavior remain separate questions. Action: Do not disable Steam Cloud or rewrite remote personal files. Recheck the native files after a normal later exit/relaunch if persistence becomes a concern.
+
+unsupported-knobs (scope): The remaining native video and legacy copies contain keys outside stock preset files. Preset absence and missing public console registration cannot independently prove that native storage aliases are inert. Action: Use current-build menu/preset evidence for graphics changes and preserve accessibility/display/preferences. Describe cleanup as resetting unvalidated manual overrides, not as proven speed gains.
+
+ragdoll-candidate (optional benchmark candidate): Active machine file currently stores cl_ragdoll_limit=20; it remains at its original stored value. No runtime query or gameplay impact was observed. Action: If the separate current-build registry audit confirms ordinary-console support, evaluate a lower limit as a clearly labeled comparison with runtime readback and dense-combat frame-time measurements; do not make it an unmeasured default.
+
+Limits: Fresh file-name and byte-size checks cover all installed game files against currently installed cached depot manifests. Seven critical binary/gameinfo files and main English localization were freshly SHA1 verified against depot content hashes. Current core/citadel VPK directory trees were reread and selected config/UI resources freshly CRC checked. Every VPK payload was not hashed; matching filenames, sizes, timestamps, tree hashes and selected resource CRCs do not constitute complete archive content verification. Disk snapshots and loaded renderer modules do not directly establish live convar values, FPS gains, anti-cheat behavior, or absence of every external software overlay. No game console command executed, no FPS benchmark taken, no process changed, no Steam Cloud setting changed, and no game/cache/VPK file written or removed.

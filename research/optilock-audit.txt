@@ -1,0 +1,52 @@
+OptiLock reference audit and current profile review
+
+OptiLock commit: 7f7a54a1b8237d9b66348067d09f93174c47d303, October 2, 2026, 00:33 EDT.
+Current build: 25689475 / client 6745. SteamTracking mirror: 4c6431ccdb816d2911bbbaa4335169cc34140386, October 2, 2026, 20:53 EDT. The engine agent matched installed native presets and settings-menu resource to that mirror.
+Scope: static source, current registry/menu comparison and read-only VPK indexes. No optimizer executed, installed game writes or FPS measurements. Per-key metadata, file hashes and source provenance are in optilock-audit.json.
+
+Reference comparison
+OptiLock provides three manually installed gameinfo.gi/video.txt presets and four optional VPKs, under GPL-3.0. The recommended preset has 634 scalar assignments, 544 unique names and 90 duplicated names. Against the current registry, 69 names are not ConVars (four are commands), 31 prohibit gameinfo overrides, 332 are development-only and 116 are cheat flagged; 15 assigned names also appear in the native graphics menu. These categories overlap.
+
+Potato has 616 assignments / 526 names / 90 duplicates; current counts are 68 non-ConVars (three commands), 31 prohibit gameinfo overrides, 333 development-only and 99 cheat flagged. Testing matches the recommended headline counts. A development-only variable exposed by the native video menu can be a legitimate setting; this does not establish normal console access.
+
+The author claims approximately 40% average FPS and 30% 1% low improvement. The repository contains no reproducible scenes, hardware tables, raw frame captures or harness. It has no launch-options recipe, executable installer, hardware detection, backup/rollback or runtime readback. The whole engine-project replacement and creator-specific addon mount are unsuitable for the requested config-only design.
+
+Concrete issues
+- cl_async_usercmd_send is defined true then false. Texture mip bias is 8 in gameinfo versus 4 in video; the author requires a Sinner light replacement asset above 4. A forced 256 MB streaming pool ignores this machine's memory budget.
+- Current r_shadows is cheat flagged and gameinfo_cannot_override. Native shadow quality 0 means LOW, not OFF. Native texture mip bias 2 / 1 / 0 means Low / Medium / High.
+- Particle timescale 1.1, fallback threshold 0 and suppressed effects may change combat cues. FOV 100 / aspect ratio 2.15 changes camera preference and scene load. Audio mixahead .05 versus the nominal .001 is a buffering tradeoff. Guessed audio, AI, physics and network edits lack trace evidence.
+- Several purported wins are obsolete names or unchanged defaults. mat_set_shader_quality and enable_priority_boost are command names written as ConVars.
+- Four VPKs replace 42 compiled resources. McGinnis and Sinner packages supply different versions of the same global mask; combined behavior depends on mount order. These are replacement game assets. Asset/mod caches and shader caches are different; no shader-cache purge was performed or recommended.
+
+Preexisting machine baseline
+Both installed video files use the exact 74 unique Potato template keys, with no extras and the same repeated particle-detail key. Legacy matches 72 / 74 values: only its fixed 1920 x 1080 differs from the template. Active matches 69 / 74 after numeric formatting normalization: two resolution keys, FSR2 mode 2, scale approximately .8 and mip bias 2. Most native quality reductions are already configured. No additional native-low gain is source-supported.
+
+Current config-core.mjs review
+No blocking source mapping issue found in the four profiles; all base values are current-menu or shipped-low-preset settings. Review SHA-256: 211F2DF218846E3FB82C9964EAD5A0BDD68E8B8DA5C6140D258E95CCC6BEFBC5.
+- Aggressive, FSR1 at .8: the strongest targeted new challenger. It keeps the prior FSR2 baseline's 1536 x 864 scene pixels and changes reconstruction method. Measure throughput and distant-target clarity before selecting it.
+- Native at 1.0: 56.25% more internal pixels than .8, with no upscaler. A clarity / CPU-bound comparator; it is not necessarily faster.
+- FSR2 Quality at .666667: approximately 30.56% fewer internal pixels than .8. This is a real pixel workload reduction, with conditional GPU benefit and no predicted FPS multiplier.
+- FSR3 Quality at .666667: same internal pixel count as FSR2 Quality with another temporal reconstruction mode; compare actual throughput and readability, with no frame-generation claim.
+- Sharpening .2 is a readability choice, not established speed gain. Native low-latency mode 1 is already active; the current core preserves the prior UI cap.
+- Removing 31 old overrides is compatibility normalization. Some registered non-menu entries might have been honored by the video loader, so restoring defaults can improve or regress performance/appearance. Preserve exact original settings as a fourth comparator and capture them before any write.
+
+The JSON ranks each knob separately for setting validity, conditional workload impact and measured performance evidence. No setting here justifies a 1000x or specific FPS promise. Hidden Panorama controls, guessed threading, particle timing/caps and AI/network/audio edits remain excluded.
+
+Native compatibility
+Current upscalers: 0 None, 1 FSR, 2 FSR2, 3 FSR3, 4 DLSS. FSR2 native ratios: 1, .666667, .588235, .5; the separate scaling slider spans .4 to 1.0. The RX 7800 XT excludes DLSS and NVIDIA-only low-latency boost mode 2.
+
+Twelve old video keys lack current registry/menu/preset evidence: r_reduce_flash, r_area_lights, r_citadel_ssao, r_displacement_mapping, r_particle_shadows, r_citadel_half_res_noisy_effects, r_citadel_outlines, r_citadel_distancefield_reflections, r_screen_space_shadows, r_render_portals, r_env_map_uses_height_map and r_citadel_mboit. Deleting them has no established FPS benefit. Motion blur and particle depth feathering keys remain in shipped presets despite lacking same-named ConVars; treat them as native legacy fields or aliases.
+
+Primary and inspectable source links
+latestCommit: https://github.com/dacooderr/OptiLock/commit/7f7a54a1b8237d9b66348067d09f93174c47d303
+recommendedGameinfo: https://github.com/dacooderr/OptiLock/blob/7f7a54a1b8237d9b66348067d09f93174c47d303/OptiLock%20FPS%20Config%20(Recommended)/gameinfo.gi
+recommendedVideo: https://github.com/dacooderr/OptiLock/blob/7f7a54a1b8237d9b66348067d09f93174c47d303/OptiLock%20FPS%20Config%20(Recommended)/video.txt
+readme: https://github.com/dacooderr/OptiLock/blob/7f7a54a1b8237d9b66348067d09f93174c47d303/README.md
+license: https://github.com/dacooderr/OptiLock/blob/7f7a54a1b8237d9b66348067d09f93174c47d303/LICENSE.md
+currentRegistry: https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/convars.txt
+currentMenu: https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml
+currentLowPreset: https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_0.txt
+controllerReport: https://github.com/dacooderr/OptiLock/issues/9
+sinnersReport: https://github.com/dacooderr/OptiLock/issues/7
+keyboardRemapReport: https://github.com/dacooderr/OptiLock/issues/10
+

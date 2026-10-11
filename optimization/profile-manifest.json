@@ -1,0 +1,71 @@
+{
+  "name": "Deadlock FPS — audited machine profile",
+  "status": "installed and disk-verified; runtime acceptance and FPS unmeasured",
+  "performanceWinner": null,
+  "measuredFpsGainPercent": null,
+  "machine": {
+    "cpu": "AMD Ryzen 7 9800X3D",
+    "gpu": "AMD Radeon RX 7800 XT",
+    "vramGiB": 16,
+    "ramGiB": 32,
+    "ramConfiguredMtPerSecond": 6400,
+    "os": "Windows 11 Pro 25H2 build 26200.9550",
+    "driver": "32.0.31041.1004 / Adrenalin 26.8.1",
+    "primaryOutput": "1920x1080 at 480 Hz",
+    "vrrState": "unverified"
+  },
+  "game": {
+    "appId": "1422450",
+    "buildId": "25689475",
+    "clientVersion": "6745",
+    "sourceRevision": "11078118",
+    "videoVersion": "20",
+    "observedRenderer": "DirectX 11",
+    "currentLaunchArguments": "-steam -console",
+    "settingsOwnership": "USRLOCAL: active Steam user's 1422450/local/cfg",
+    "stockVpkCount": 517,
+    "installedFilesInventoried": 3878,
+    "missingDepotFiles": 0,
+    "depotSizeMismatches": 0,
+    "extraDllExeVpkFiles": 0,
+    "criticalSha1Matches": 7,
+    "indexedCoreCitadelResources": 142335,
+    "crcCheckedExtractedResources": 34,
+    "fullArchiveIntegrityHashed": false
+  },
+  "baseline": {
+    "lineage": "OptiLock Potato-shaped video file, 74 unique setting keys",
+    "renderScale": 0.8,
+    "upscaler": "FSR2",
+    "textureMipBias": 2,
+    "storedVideoFpsMax": 0,
+    "storedMachineFpsMax": 400,
+    "storedMachineUiFpsMax": 120,
+    "runtimeValuesVerified": false
+  },
+  "candidateProfiles": [
+    "aggressive",
+    "native",
+    "fsr2quality",
+    "fsr3quality"
+  ],
+  "candidateDefault": "aggressive",
+  "writeScope": [
+    "Steam-user video.txt",
+    "Steam-user machine_convars.vcfg fps_max only"
+  ],
+  "backupAndRecovery": "Verified byte-for-byte copies, individual atomic replacements, guarded error rollback; not a power-loss-atomic two-file transaction",
+  "sources": {
+    "valveUpdate": "https://www.playdeadlock.com/cityneversleeps",
+    "valveForum": "https://forums.playdeadlock.com/threads/09-29-2026.166726/",
+    "valveMirrorCommit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "valveMirror": "https://github.com/SteamTracking/GameTracking-Deadlock/tree/4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "optilockCommit": "7f7a54a1b8237d9b66348067d09f93174c47d303",
+    "optilock": "https://github.com/dacooderr/OptiLock/tree/7f7a54a1b8237d9b66348067d09f93174c47d303",
+    "amdAntiLag2": "https://gpuopen.com/anti-lag-2/",
+    "presentmon": "https://github.com/GameTechDev/PresentMon/tree/v2.6.0"
+  },
+  "appliedProfile": "aggressive",
+  "appliedAtUtc": "2026-10-03T23:39:48.002Z",
+  "backupDirectory": "backups/2026-10-03T23-39-43-399Z-36559c46"
+}

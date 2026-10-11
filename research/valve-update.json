@@ -1,0 +1,114 @@
+{
+  "audit_context": {
+    "user_date": "2026-10-03",
+    "user_timezone": "America/New_York",
+    "scope": "Read-only web research into Valve update guidance, compatibility and performance; no game files or machine settings modified.",
+    "date_handling": "Converted Unix timestamps to EDT. Forum relative date labels and tracker display timezones were not used as absolute dates."
+  },
+  "official_release": {
+    "title": "City Never Sleeps",
+    "published_utc": "2026-09-29T20:25:11Z",
+    "published_user_time": "2026-09-29T16:25:11-04:00",
+    "announcement_url": "https://store.steampowered.com/news/app/1422450/view/694273194214819790",
+    "official_update_url": "https://www.playdeadlock.com/cityneversleeps",
+    "official_forum_url": "https://forums.playdeadlock.com/threads/09-29-2026.166726/",
+    "retrieval": "Verified the landing page using web search and fetched its English localization JavaScript from Valve's official host. Verified announcement date with Steam's public news API.",
+    "official_localization_url": "https://www.playdeadlock.com/public/javascript/react/414.js?contenthash=272d1d6072d261c17d87&l=english&_cdn=fastly",
+    "steam_news_api": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=1422450&count=3&maxlength=0&feeds=steam_community_announcements&format=json",
+    "confirmed_changes": [
+      "The map and neutral creatures received a substantial visual update.",
+      "The engine moved to a newer Source 2 version, with anti-cheat and network prediction work.",
+      "Valve describes rendering, audio and trooper performance improvements.",
+      "Hero drop shadows now point directly downward; Valve says this improves performance and tracking.",
+      "More player settings now persist in the cloud and separate players sharing a PC can retain different settings.",
+      "New settings preview/reset tools and configurable health bar displays are available."
+    ],
+    "performance_claim_limit": "Valve does not quantify FPS gains or provide hardware-specific benchmark results in these update notes."
+  },
+  "subsequent_official_updates": [
+    {
+      "title": "Forum hotfix after City Never Sleeps",
+      "url": "https://forums.playdeadlock.com/threads/09-29-2026.166726/post-316496",
+      "observations": "The latest public reply documents health bar position/name/color changes, bell minimap ping, Down Dash rebind and UI audio adjustments. It does not document a rendering performance fix."
+    },
+    {
+      "title": "Listen up, Crumbums! Your King is here.",
+      "published_utc": "2026-10-02T20:59:51Z",
+      "published_user_time": "2026-10-02T16:59:51-04:00",
+      "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1845383656387709",
+      "observations": "Steam's official announcement feed confirms Rat King availability. This announcement contains no cache deletion or FPS tuning directive."
+    }
+  ],
+  "yoshi_guidance": {
+    "direct_discord_access": "Original Discord message pages were inaccessible through web.run. Content below is corroborated by two independent community archives, not independently read while logged into the official Discord.",
+    "archives": [
+      "https://thedeadlockobservatory.com/api/developer-messages?q=mods",
+      "https://thedeadlockobservatory.com/api/developer-messages?q=performance",
+      "https://deadvision.live/api/developers/Yoshi"
+    ],
+    "messages": [
+      {
+        "date_utc": "2026-09-30T21:45:10.392Z",
+        "date_user_time": "2026-09-30T17:45:10.392-04:00",
+        "summary": "Yoshi said performance fixes were planned for daily updates.",
+        "original_url": "https://discord.com/channels/1231286446472691825/1231286447131328544/1554972401014538302",
+        "status": "Corroborated archive evidence; future work, not proof an FPS fix already shipped."
+      },
+      {
+        "date_utc": "2026-10-02T21:10:42.830Z",
+        "date_user_time": "2026-10-02T17:10:42.830-04:00",
+        "summary": "Yoshi directed users with Rat King camera issues to check their mods.",
+        "original_url": "https://discord.com/channels/1231286446472691825/1231311070786752579/1555688504762175510",
+        "context": "Nearby replies in the second archive concern incorrect camera/FOV behavior.",
+        "status": "Corroborated archive evidence."
+      },
+      {
+        "date_utc": "2026-10-02T21:34:54.611Z",
+        "date_user_time": "2026-10-02T17:34:54.611-04:00",
+        "summary": "In a reply to the camera/mod announcement, Yoshi said an alternate fix was being worked on so users would not need to change settings.",
+        "original_url": "https://discord.com/channels/1231286446472691825/1231311070786752579/1555694593973157969",
+        "status": "Observed in DeadVision archive; not a claim the fix already shipped."
+      }
+    ],
+    "exact_delete_all_mods_cache_vpk_claim": {
+      "status": "Not verified",
+      "searched": "Official public forums, Steam announcements, and developer-message archive queries for mods, cache, vpk and remove.",
+      "result": "No exact Valve/Yoshi directive to delete all mods, mod cache or VPK files was found. Searches cannot prove no such message exists. The user still explicitly requested a configuration without additional mods."
+    },
+    "formal_mod_policy": "No current primary-source blanket policy endorsing all configuration changes or guaranteeing anti-cheat acceptance was found. Public notes confirm improved anti-cheat but do not specify every relevant restriction."
+  },
+  "performance_regression_evidence": [
+    {
+      "type": "Original player bug report; not a Valve diagnosis",
+      "url": "https://forums.playdeadlock.com/threads/city-never-sleeps-severe-view-dependent-fps-regression-source-2-worker-cpu-time-54-in-dense-views-vulkan-dx11.166427/",
+      "hardware": "Intel i5-13600KF, AMD RX 7900 XTX, 32 GB RAM, NixOS/Linux",
+      "observations": "Author reports about 134 FPS facing dense city geometry versus 271 FPS facing a simpler view, with similar GPU power. Aggregate Source 2 worker CPU time rose about 54%. Low versus Ultra barely affected dense views, and the effect reproduced with Vulkan and DX11 through DXVK.",
+      "limits": "Author identifies no specific engine subsystem. Results were not independently reproduced and may not transfer to this Windows machine.",
+      "design_implication": "Benchmark dense city directions and combat separately from empty sandbox views; resolution and shader-quality changes alone may leave a CPU-side ceiling."
+    },
+    {
+      "type": "Original player bug report predating City Never Sleeps",
+      "url": "https://forums.playdeadlock.com/threads/400ms-main-thread-stalls-during-gameplay-gpu-idle-both-renderers-presentmon-10-sessions.160054/",
+      "date": "2026-09-01",
+      "observations": "Author describes 200-560 ms CPU stalls with an idle GPU, opening-session clustering after backend/cache changes, and partial improvement after removing add-on VPKs. Async shader loading reportedly helped early-session hitches but barely changed steady-state behavior.",
+      "limits": "Pre-update, one-system evidence. Proposed pipeline-compilation cause and async setting benefits are hypotheses requiring current-build tests.",
+      "design_implication": "Record warm-cache and cold-start behavior separately; automatic routine shader-cache deletion is not a demonstrated FPS optimization."
+    }
+  ],
+  "implementation_recommendations": [
+    "Respect the requested mod-free scope: ordinary user video settings and accessible configuration variables, without add-on VPKs, DLL injection, launch-time plugin loaders or modified search paths.",
+    "Keep the current game's stock camera/FOV settings while Rat King camera compatibility is unresolved.",
+    "Classify candidate variables using the installed current build and live console output. Do not treat an old internet cvar list as proof that a variable exists or is writable now.",
+    "Preserve official VPK asset packages. Any cleanup should identify user add-ons specifically and quarantine them reversibly; deleting every VPK would remove game assets.",
+    "Keep rendering features that communicate combat state unless measured gains justify the readability tradeoff.",
+    "Backup settings and restore them with the game closed; verify new per-player/cloud persistence behavior rather than assuming old video.txt locations remain authoritative.",
+    "Use Steam's documented file verification if a stock file is suspected corrupt; verification is not evidence all extra mod files disappeared.",
+    "Measure FPS, frame-time percentiles and hitches in repeated current-build runs before calling this faster than OptiLock."
+  ],
+  "steam_repair_primary_reference": "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB",
+  "remaining_uncertainties": [
+    "The exact user-recalled delete/mod-cache directive cannot be confirmed without an original accessible message.",
+    "Public patch notes may omit daily client hotfixes; installed build identity and current behavior must govern tests.",
+    "No research alone can establish a fastest configuration or numerical advantage for the user's machine."
+  ]
+}

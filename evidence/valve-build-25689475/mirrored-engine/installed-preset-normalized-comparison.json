@@ -1,0 +1,37 @@
+[
+  {
+    "name": "video_defaults_0.txt",
+    "installed_bytes": 834,
+    "mirror_bytes": 812,
+    "equal_after_crlf_to_lf": true,
+    "normalized_sha256": "685c52027115ab7f62c05426261dab76dd253fced5ab3629a15a13937054f693"
+  },
+  {
+    "name": "video_defaults_1.txt",
+    "installed_bytes": 833,
+    "mirror_bytes": 811,
+    "equal_after_crlf_to_lf": true,
+    "normalized_sha256": "484fbaec2f94e7c5d38f98c5b6b7b45ad0a7f9a3fe273351a5a09b684db285b5"
+  },
+  {
+    "name": "video_defaults_2.txt",
+    "installed_bytes": 830,
+    "mirror_bytes": 808,
+    "equal_after_crlf_to_lf": true,
+    "normalized_sha256": "23db42ee44e9f008669e655d847a7845c0a8ec30b7b0f19d7e5856a30884daf7"
+  },
+  {
+    "name": "video_defaults_3.txt",
+    "installed_bytes": 865,
+    "mirror_bytes": 843,
+    "equal_after_crlf_to_lf": true,
+    "normalized_sha256": "454ccd1198d84cfb7762bac7664938569f9072a93e8e5435383b7398cb8f6cf4"
+  },
+  {
+    "name": "video_version.txt",
+    "installed_bytes": 197,
+    "mirror_bytes": 192,
+    "equal_after_crlf_to_lf": true,
+    "normalized_sha256": "7f6484da0e15cd428e7fb5d232ae97039b6530a0660dcfe42d186716b5d1efe0"
+  }
+]

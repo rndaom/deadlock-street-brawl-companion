@@ -1,0 +1,3074 @@
+{
+  "schema": 2,
+  "client_date": "2026-10-03",
+  "scope": "Fresh research-only second pass requested by user. No project code/game/system changes, process instrumentation, remote console connections or automated gameplay input. Only own research files written.",
+  "machine_scope": {
+    "cpu": "AMD Ryzen 7 9800X3D",
+    "gpu": "AMD Radeon RX7800XT",
+    "output": [
+      1920,
+      1080
+    ],
+    "current_api": "DX11, independently refreshed by game-install-audit agent; not queried from game by this agent"
+  },
+  "installed_build": {
+    "steam_build_id": 25689475,
+    "client_version": 6745,
+    "server_version": 6745,
+    "source_revision": 11078118,
+    "version_date": "Oct02 2026",
+    "version_time": "17:45:04"
+  },
+  "provenance": {
+    "current_tracking_head": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "head_checked_live": true,
+    "head_commit_time_utc": "2026-10-03T00:53:23Z",
+    "registry_sha256": "d592bfd9a42752435c62090d23ff452710d335c1fae76d92fe935d83b4130582",
+    "registry_entries": 4865,
+    "graphics_family_screen": {
+      "total": 686,
+      "developmentonly": 487,
+      "cheat": 264,
+      "release": 19
+    },
+    "counts_overlap": true,
+    "registry_limit": "Third-party current binary-derived Valve metadata, not official optimization recommendations or runtime readback.",
+    "fresh_extraction": "research/round2/installed-vpk/vpk-audit.json",
+    "fresh_hashes": [
+      {
+        "Path": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\round2\\installed-vpk\\citadel\\cfg\\video_defaults_0.txt",
+        "Hash": "D7A1F987C4DA334533E9A92F196814EB3D4E0923E3E1D558BBFC32BC0CC8DE0D"
+      },
+      {
+        "Path": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\round2\\installed-vpk\\citadel\\cfg\\video_defaults_1.txt",
+        "Hash": "7EF678E7C21F2CA32374834D8C898A83326770512A8463E43E8A6525A9F8807B"
+      },
+      {
+        "Path": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\round2\\installed-vpk\\citadel\\cfg\\video_defaults_2.txt",
+        "Hash": "16FF9880470092B76722851BB840C3C05BCF1741AD0C25EC4E8490D18D42AB84"
+      },
+      {
+        "Path": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\round2\\installed-vpk\\citadel\\cfg\\video_defaults_3.txt",
+        "Hash": "DFF9D39949CE2C4988DCFCFAB71E2CDF939825B89D089AD0C341A023629FE278"
+      },
+      {
+        "Path": "C:\\Users\\Random\\Documents\\ChatGPT\\Deadlock\\research\\round2\\installed-vpk\\citadel\\panorama\\layout\\popups\\popup_settings.vxml_c",
+        "Hash": "5D1BDC0E192FEF226C2C2BF3030D5486E04EC3E5B561261AB6C1A35F6124E4EF"
+      }
+    ],
+    "moddefaults_sha256": "3883cf6c5e85d772616a06383d7fd16b99da008fb9efccc39a6815624ef38b2a",
+    "fresh_installed_localization_sha256": "9f0cd8e970ca6e819c59d1a5270c9bfff88831aa3cd8f1833bd12c7ce94eab3c",
+    "fresh_depot_localization_sha1": "ceb5a6aa2c1113b3b05fcec8cb00d65c2b10de82",
+    "fresh_ui_match": "Freshpopup_settings.vxml_cSHA2565d1bdc0e192fef226c2c2bf3030d5486e04ec3e5b561261ab6c1a35f6124e4ef matches earlier extraction; all four presets also match earlier hashes. Reused pinnedmenu reconstruction is justified by unchanged compiledresource, not a newly run decompiler."
+  },
+  "conclusions": [
+    "The currentBASE already covers exposed performance-relevant nativeLow/Off controls. No missing active nativeparticlequality or anisotropy slider was found.",
+    "Strongest remaining normal-setting candidates on the observed DX11 UI are lower render scale, matched-scale Stretch/FSR1/FSR2, native FXAA clarity comparison and native Anti-Lag On/Off throughput-versus-latency test. FSR3 is present in shipped generic XML but absent from the observed DX11 selector, so remains experimental and is not a default recommendation.",
+    "NativeShadowquality0 isLow. The full lower-levelcallback behavior is not published in available sources; do not equate it with globalr_shadows0.",
+    "A restrainedrelease shadowmap-scale0.5 experiment is plausible but needs currentreadback+shadowcue+performance validation. It is not a defaultrecommendation.",
+    "Ragdoll/blood/morph/particlebound controls are not automatically visually safe because they lackcheatflags. Doormanindicator counterevidence blocks a recommendedragdoll reduction.",
+    "31manual-key removal is justified for restoring source-backed nativeconfiguration and compatibility, not as proof ofFPSgain. Some prior hidden overrides may have saved renderwork if they were actually honored.",
+    "Hardwarebucket policy is now source-backed; actual CPU/GPU/memory-tier sideeffects still are not. Preserving them for thesecomparisonprofiles prevents thatunknown from confounding results.",
+    "No measuredwinner or thousandfoldgain can be claimed. Game-runtime values and matched representative fights/replays remain required."
+  ],
+  "local_paths": {
+    "workspace": "C:/Users/Random/Documents/ChatGPT/Deadlock",
+    "registry": "C:/Users/Random/Documents/ChatGPT/Deadlock/evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+    "menu_reconstruction": "C:/Users/Random/Documents/ChatGPT/Deadlock/evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+    "native_low": "C:/Users/Random/Documents/ChatGPT/Deadlock/research/round2/installed-vpk/citadel/cfg/video_defaults_0.txt",
+    "moddefaults": "C:/Users/Random/Documents/ChatGPT/Deadlock/research/round2/installed-vpk/citadel/cfg/moddefaults.txt",
+    "installed_localization": "C:/Program Files (x86)/Steam/steamapps/common/Deadlock/game/citadel/resource/localization/citadel_main/citadel_main_english.txt",
+    "core_review": "C:/Users/Random/Documents/ChatGPT/Deadlock/optimization/tools/config-core.mjs"
+  },
+  "native_controls": [
+    {
+      "key": "r_fullscreen_gamma",
+      "type": "CitadelSettingsSlider",
+      "minimum": "1.6",
+      "maximum": "2.6",
+      "values": [],
+      "menu_lines": [
+        773
+      ]
+    },
+    {
+      "key": "citadel_video_preset",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "menu_lines": [
+        786
+      ]
+    },
+    {
+      "key": "r_citadel_upscaling",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "menu_lines": [
+        795
+      ]
+    },
+    {
+      "key": "mat_viewportscale",
+      "type": "CitadelSettingsSlider",
+      "minimum": "0.4",
+      "maximum": "1.0",
+      "values": [],
+      "menu_lines": [
+        804,
+        807
+      ]
+    },
+    {
+      "key": "mat_viewportscale",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "1.000000",
+        "0.666667",
+        "0.588235",
+        "0.500000"
+      ],
+      "menu_lines": [
+        804,
+        807
+      ]
+    },
+    {
+      "key": "r_citadel_dlss_settings_mode",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "4",
+        "3",
+        "2",
+        "1",
+        "0"
+      ],
+      "menu_lines": [
+        815
+      ]
+    },
+    {
+      "key": "r_dlss_preset",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "6",
+        "10"
+      ],
+      "menu_lines": [
+        824
+      ]
+    },
+    {
+      "key": "r_citadel_fsr_rcas_sharpness",
+      "type": "CitadelSettingsSlider",
+      "minimum": "0.0",
+      "maximum": "1.0",
+      "values": [],
+      "menu_lines": [
+        830
+      ]
+    },
+    {
+      "key": "r_citadel_fsr2_sharpness",
+      "type": "CitadelSettingsSlider",
+      "minimum": "0.0",
+      "maximum": "1.0",
+      "values": [],
+      "menu_lines": [
+        833
+      ]
+    },
+    {
+      "key": "r_citadel_antialiasing",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1"
+      ],
+      "menu_lines": [
+        836
+      ]
+    },
+    {
+      "key": "r_citadel_ssao_quality",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "menu_lines": [
+        842
+      ]
+    },
+    {
+      "key": "r_citadel_shadow_quality",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "menu_lines": [
+        851
+      ]
+    },
+    {
+      "key": "r_citadel_fog_quality",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1"
+      ],
+      "menu_lines": [
+        859
+      ]
+    },
+    {
+      "key": "r_texture_stream_mip_bias",
+      "type": "CitadelSettingsEnum",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "2",
+        "1",
+        "0"
+      ],
+      "menu_lines": [
+        865
+      ]
+    },
+    {
+      "key": "r_post_bloom",
+      "type": "CitadelSettingsToggle",
+      "minimum": "",
+      "maximum": "",
+      "values": [],
+      "menu_lines": [
+        872
+      ]
+    },
+    {
+      "key": "r_effects_bloom",
+      "type": "CitadelSettingsToggle",
+      "minimum": "",
+      "maximum": "",
+      "values": [],
+      "menu_lines": [
+        875
+      ]
+    },
+    {
+      "key": "r_arealights",
+      "type": "CitadelSettingsToggle",
+      "minimum": "",
+      "maximum": "",
+      "values": [],
+      "menu_lines": [
+        881
+      ]
+    },
+    {
+      "key": "r_depth_of_field",
+      "type": "CitadelSettingsToggle",
+      "minimum": "",
+      "maximum": "",
+      "values": [],
+      "menu_lines": [
+        884
+      ]
+    },
+    {
+      "key": "fps_max",
+      "type": "CitadelSettingsSlider",
+      "minimum": "60",
+      "maximum": "1000",
+      "values": [],
+      "menu_lines": [
+        887
+      ]
+    },
+    {
+      "key": "r_low_latency",
+      "type": "CitadelEnumDropDown",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2"
+      ],
+      "menu_lines": [
+        899
+      ]
+    },
+    {
+      "key": "citadel_21x9_clamp_hud",
+      "type": "CitadelSettingsToggle",
+      "minimum": "",
+      "maximum": "",
+      "values": [],
+      "menu_lines": [
+        910
+      ]
+    },
+    {
+      "key": "citadel_preview_video_settings_changes",
+      "type": "CitadelSettingsToggle",
+      "minimum": "",
+      "maximum": "",
+      "values": [],
+      "menu_lines": [
+        916
+      ]
+    },
+    {
+      "key": "citadel_preview_video_settings_duration",
+      "type": "CitadelSettingsSlider",
+      "minimum": "2",
+      "maximum": "10.0",
+      "values": [],
+      "menu_lines": [
+        920
+      ]
+    },
+    {
+      "key": "fps_max_ui",
+      "type": "CitadelSettingsSlider",
+      "minimum": "60",
+      "maximum": "1000",
+      "values": [],
+      "menu_lines": [
+        924
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_frametime_show",
+      "type": "CitadelEnumDropDown",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2"
+      ],
+      "menu_lines": [
+        930
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_frametime_poor",
+      "type": "CitadelSettingsSlider",
+      "minimum": "1",
+      "maximum": "100",
+      "values": [],
+      "menu_lines": [
+        937
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_ping_show",
+      "type": "CitadelEnumDropDown",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2"
+      ],
+      "menu_lines": [
+        941
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_net_misdelivery_show",
+      "type": "CitadelEnumDropDown",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2"
+      ],
+      "menu_lines": [
+        949
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_net_misdelivery_poor",
+      "type": "CitadelSettingsSlider",
+      "minimum": "0",
+      "maximum": "2",
+      "values": [],
+      "menu_lines": [
+        956
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_net_quality_graph_show",
+      "type": "CitadelEnumDropDown",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2"
+      ],
+      "menu_lines": [
+        960
+      ]
+    },
+    {
+      "key": "cl_hud_telemetry_net_detailed",
+      "type": "CitadelEnumDropDown",
+      "minimum": "",
+      "maximum": "",
+      "values": [
+        "0",
+        "1",
+        "2"
+      ],
+      "menu_lines": [
+        968
+      ]
+    }
+  ],
+  "current_base": [
+    {
+      "storage_key": "setting.mat_vsync",
+      "desired": "0",
+      "metadata": null,
+      "local_evidence": []
+    },
+    {
+      "storage_key": "setting.r_citadel_ssao_quality",
+      "desired": "0",
+      "metadata": {
+        "key": "r_citadel_ssao_quality",
+        "initial_default": "3",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10705
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10705
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 842
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_effects_bloom",
+      "desired": "false",
+      "metadata": {
+        "key": "r_effects_bloom",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10855
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10855
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 875
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_post_bloom",
+      "desired": "false",
+      "metadata": {
+        "key": "r_post_bloom",
+        "initial_default": "false",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 11308
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11308
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 872
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_citadel_antialiasing",
+      "desired": "0",
+      "metadata": {
+        "key": "r_citadel_antialiasing",
+        "initial_default": "1",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10492
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10492
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 836
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_depth_of_field",
+      "desired": "false",
+      "metadata": {
+        "key": "r_depth_of_field",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10762
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10762
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 884
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_arealights",
+      "desired": "false",
+      "metadata": {
+        "key": "r_arealights",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10462
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10462
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 881
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_texture_stream_mip_bias",
+      "desired": "2",
+      "metadata": {
+        "key": "r_texture_stream_mip_bias",
+        "initial_default": "0",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "Biases the mip level the texture streaming system choses to stream for each texture.",
+        "line": 11443
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11443
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 865
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_dashboard_render_quality",
+      "desired": "0",
+      "metadata": {
+        "key": "r_dashboard_render_quality",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll snapshot_ignored defensive",
+        "help": "<no description>",
+        "line": 10735
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10735
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_particle_depth_feathering",
+      "desired": "false",
+      "metadata": null,
+      "local_evidence": []
+    },
+    {
+      "storage_key": "setting.shaderquality",
+      "desired": "0",
+      "metadata": null,
+      "local_evidence": []
+    },
+    {
+      "storage_key": "setting.r_citadel_fog_quality",
+      "desired": "0",
+      "metadata": {
+        "key": "r_citadel_fog_quality",
+        "initial_default": "1",
+        "flags_and_bounds": "min: 0, max: 1, developmentonly clientdll defensive",
+        "help": "Fog Quality",
+        "line": 10612
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10612
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 859
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_citadel_motion_blur",
+      "desired": "0",
+      "metadata": null,
+      "local_evidence": []
+    },
+    {
+      "storage_key": "setting.r_citadel_shadow_quality",
+      "desired": "0",
+      "metadata": {
+        "key": "r_citadel_shadow_quality",
+        "initial_default": "1",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "Shadow Quality",
+        "line": 10699
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10699
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 851
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.r_low_latency",
+      "desired": "1",
+      "metadata": {
+        "key": "r_low_latency",
+        "initial_default": "1",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "NVIDIA Low Latency/AMD Anti-Lag 2 (0 = off, 1 = on, 2 = NV-only, on + boost)",
+        "line": 11101
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11101
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 899
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.fps_max",
+      "desired": "0",
+      "metadata": {
+        "key": "fps_max",
+        "initial_default": "120",
+        "flags_and_bounds": "archive release",
+        "help": "Frame rate limiter.  0=no limit.  Does not apply to dedicated server.",
+        "line": 7276
+      },
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7276
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 887
+        }
+      ]
+    },
+    {
+      "storage_key": "setting.useadvanced",
+      "desired": "1",
+      "metadata": null,
+      "local_evidence": []
+    }
+  ],
+  "candidate_decision_table": [
+    {
+      "keys": [
+        "mat_viewportscale",
+        "r_citadel_upscaling"
+      ],
+      "status": "benchmark_native",
+      "candidate_values": "FSR1 scale0.666667 and0.60 against0.80; optional0.70;0.40 only diagnostic floor",
+      "access_basis": "Active generic slider range0.4..1.0,step0.01,text entry; upscaling1 is FSR.",
+      "effect_or_inference": "Lower scene resolution is the main remaining supported GPU-work lever. 0.666667 is approximately1280x720;0.60 is1152x648 at1080p output.",
+      "gameplay_or_visual_risk": "Small distant targets, aliasing and moving-edge readability deteriorate. Reduced scene pixels do not imply proportional FPS.",
+      "uncertainty": "Actual dimensions/alignment, effective scale, CPU/GPU bottleneck and readability need runtime measurement.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 804
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 807
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 795
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_upscaling",
+        "mat_viewportscale"
+      ],
+      "status": "benchmark_native",
+      "candidate_values": "Stretch0 vsFSR1_1 at matched0.80 and0.666667",
+      "access_basis": "Current menu supports Stretch0 andFSR1_1; same generic scaling key.",
+      "effect_or_inference": "Separates scale from spatial reconstruction choice; Stretch could avoid FSR work but is not a demonstrated winner.",
+      "gameplay_or_visual_risk": "Stretch can look softer or more aliased; reconstruction changes distant-edge visibility.",
+      "uncertainty": "Valves internal passes and any shader fallback must be confirmed at runtime; pixels are held constant, not visual quality.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 795
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 804
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 807
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_upscaling",
+        "mat_viewportscale",
+        "r_citadel_fsr2_sharpness"
+      ],
+      "status": "benchmark_native_with_API_gate",
+      "candidate_values": "FSR2 Quality 0.666667 versus FSR1 at the same ratio. FSR3 Quality is an experimental profile requiring an actually exposed and accepted API/backend. Temporal Balanced 0.588235/Performance 0.5 are optional only if readability is acceptable.",
+      "access_basis": "Shipped generic temporal enum offers 1, 0.666667, 0.588235 and 0.5. Parent observed only Stretch, FSR and FSR2 (TAA) in the current DX11 selector; generic XML presence does not establish current API eligibility for FSR3.",
+      "effect_or_inference": "Temporal reconstructors trade lower pixel work for reconstruction cost. Matched ratios allow clearer comparisons.",
+      "gameplay_or_visual_risk": "Ghosting/disocclusion/motion clarity and very low internal resolution may affect cues.",
+      "uncertainty": "No frame-generation claim. FSR3 was absent from the observed DX11 selector; do not force or recommend it by editing storage alone. Actual temporal behavior, frame cost and visual cues still need measurements.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 795
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 804
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 807
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10615
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 833
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_upscaling",
+        "mat_viewportscale"
+      ],
+      "status": "custom_ratio_experiment",
+      "candidate_values": "FSR2/FSR3 scale0.80; original0.79999995 as compatibility control",
+      "access_basis": "Scale is within convar bounds but0.80 is not a temporal menu enum option.",
+      "effect_or_inference": "May isolate reconstruction at equal resolution if actual runtime accepts it.",
+      "gameplay_or_visual_risk": "Same temporal artifact concerns; native menu may show no selected enum or quantize/reset the value.",
+      "uncertainty": "Do not label it a native temporal preset. Persisted text alone does not prove applied custom scale. Prefer matched nativeQuality0.666667 pair.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 795
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 804
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 807
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_fsr_rcas_sharpness",
+        "r_citadel_fsr2_sharpness"
+      ],
+      "status": "clarity_only_native",
+      "candidate_values": "Keep0.2 fixed; optionally test0/0.2/0.5 for clarity only",
+      "access_basis": "Active sliders0..1step0.01; no separate RCAS-disable menu switch.",
+      "effect_or_inference": "Changing sharpness is not established as removing shader work. Fixed storage values are useful controls.",
+      "gameplay_or_visual_risk": "Over-sharpening/ringing/noise versus softer image.",
+      "uncertainty": "AMD original low-levelFSR1 sharpness0 means maximum; modern SDK normalized0 means no added sharpness and has separate enableSharpening. Deadlock mapping/pass bypass is unknown; never call0RCASoff.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10624
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 830
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10615
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 833
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_antialiasing"
+      ],
+      "status": "keep_minimum_or_clarity_benchmark",
+      "candidate_values": "0None baseline;1FXAA clarity challenger",
+      "access_basis": "Native enum0/1; Valve localized cost is small.",
+      "effect_or_inference": "Current baseline already has no post-process AA. FSR1 does not replace AA; FXAA may improve its input at some cost.",
+      "gameplay_or_visual_risk": "AA0 shimmers; FXAA1 can blur small details.",
+      "uncertainty": "AMD integration expects anti-aliased input. An unused historical FSR tooltip says AArequired; actual modern selection behavior must be checked, not inferred from unattached localization.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10492
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 836
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_shadow_quality"
+      ],
+      "status": "keep_minimum",
+      "candidate_values": "0Low",
+      "access_basis": "Native0Low,1Medium,2High,3Ultra; low preset line21.",
+      "effect_or_inference": "Lowest exposed shadow-quality level already selected.",
+      "gameplay_or_visual_risk": "Character/drop/cast shadows can carry position/height cues.",
+      "uncertainty": "No current nativeOff option. Native callback's complete lower-level shadow changes are unavailable; Low must not be described as every shadow disabled.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10699
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 851
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_shadows"
+      ],
+      "status": "exclude_unsupported_override",
+      "candidate_values": "Do not add0/false",
+      "access_basis": "Cheat+gameinfo_cannot_override; absent from active menu/presets.",
+      "effect_or_inference": "Old globaloff storage does not establish normal supported configuration.",
+      "gameplay_or_visual_risk": "Could remove shadows/cues and unsupported rendering changes can break after updates.",
+      "uncertainty": "A cheat flag restricts console access, not proof of every internal video-loader path. Oldsetting.r_shadows0 effectiveness remains unverified.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11359
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_arealights"
+      ],
+      "status": "keep_minimum",
+      "candidate_values": "false",
+      "access_basis": "Active native toggle, stockLowline13.",
+      "effect_or_inference": "Already disables this native rendering feature.",
+      "gameplay_or_visual_risk": "Area-light beam appearance changes; retain actual VFX and indicators.",
+      "uncertainty": "Oldr_area_lights is absent and is not an alias we can prove; native correct key isr_arealights.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10462
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 881
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_ssao_quality"
+      ],
+      "status": "keep_minimum",
+      "candidate_values": "0Off",
+      "access_basis": "Active enum0Off..4Ultra; stockLowline4.",
+      "effect_or_inference": "Already disables screen-space AO.",
+      "gameplay_or_visual_risk": "Contact shading changes without an established mechanic loss.",
+      "uncertainty": "Separate distance-fieldAO is not the same control; its old commented preset key is not active support.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10705
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 842
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_fog_quality"
+      ],
+      "status": "keep_minimum",
+      "candidate_values": "0Low",
+      "access_basis": "Native enum0Low/1High and stockLowline19.",
+      "effect_or_inference": "Already chooses lower volumetric-fog resolution.",
+      "gameplay_or_visual_risk": "Do not remove fog/visibility cues by forcing volume-grid values.",
+      "uncertainty": "Low is not FogOff. Shader/render costs remain scene-dependent.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10612
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 859
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_texture_stream_mip_bias"
+      ],
+      "status": "keep_minimum_with_texture_clarity_benchmark",
+      "candidate_values": "2Low baseline;1Medium or0High only measured readability comparison",
+      "access_basis": "Active native mapping2/1/0; stockLowline14.",
+      "effect_or_inference": "TextureLow may lower streaming/bandwidth use; this16GBGPU may show little FPS difference.",
+      "gameplay_or_visual_risk": "Very soft material/ground detail at low internal scale; GPU-memory issues if increasing quality.",
+      "uncertainty": "Streaming bias is not directly equivalent to final samplerLOD. Avoid4/8 extremes.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11443
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 865
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_texturefilteringquality"
+      ],
+      "status": "exclude_nonmenu_devonly",
+      "candidate_values": "Do not addBilinear0 override to native video",
+      "access_basis": "Developmentonly+snapshot_ignored+defensive; not activeDeadlockmenu or active stockpreset.",
+      "effect_or_inference": "Anisotropy semantics exist in help:0Bilinear,1Trilinear,2..5Aniso2x..16x; default1.",
+      "gameplay_or_visual_risk": "Bilinear ground texture shimmering/blur.",
+      "uncertainty": "Existence/default1 does not prove persistedsetting.* key acceptance. No evidence-backed extra normal setting here.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11473
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_texture_stream_max_resolution",
+        "r_texture_pool_size",
+        "r_texture_lod_scale",
+        "r_citadel_fsr_enable_mip_bias"
+      ],
+      "status": "exclude_nonmenu_internal",
+      "candidate_values": "Keep engine/native behavior",
+      "access_basis": "Nonmenu development-only memory/stream controls;LODscale ischeat; FSRnegativeMipBiasdefaulttrue.",
+      "effect_or_inference": "Avoid forcing texture pools, caps or disabling FSR mip correction based on generic optimization recipes.",
+      "gameplay_or_visual_risk": "Texture pop-in/blurry surfaces/streaming stalls; changed memory pressure.",
+      "uncertainty": "No exact RX7800XT budget formula or current hardware-tier callback obtained.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11440
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11437
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11425
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10621
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_post_bloom",
+        "r_effects_bloom"
+      ],
+      "status": "keep_minimum",
+      "candidate_values": "Bothfalse",
+      "access_basis": "Active native toggles and stockLowlines7/6.",
+      "effect_or_inference": "Both already off; native localized cost is small.",
+      "gameplay_or_visual_risk": "Visualglow/beam appearance can change; indicators still need visual review.",
+      "uncertainty": "No additional hidden bloom scalars are necessary.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11308
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 872
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10855
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 875
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_depth_of_field"
+      ],
+      "status": "keep_native_without_fps_claim",
+      "candidate_values": "false",
+      "access_basis": "Active native toggle plusLowline12.",
+      "effect_or_inference": "Valve tooltip describes negligible cost in its current state and no expected gameplay-performance effect.",
+      "gameplay_or_visual_risk": "Disabled depth blur can be preferred for clarity.",
+      "uncertainty": "Do not sell this as a large steady-state FPS gain.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10762
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 884
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_motion_blur",
+        "r_particle_depth_feathering"
+      ],
+      "status": "compatibility_only",
+      "candidate_values": "Keep shippedLow0/false entries",
+      "access_basis": "Present inLowpresetlines20/16; absent current convar registry and menu.",
+      "effect_or_inference": "Compatibility with native preset serialization only.",
+      "gameplay_or_visual_risk": "Unknown if obsolete aliases are handled specially.",
+      "uncertainty": "No supported separate FPS-effect claim; these are not additional live convars.",
+      "local_evidence": []
+    },
+    {
+      "keys": [
+        "shaderquality"
+      ],
+      "status": "keep_native_low_storage",
+      "candidate_values": "setting.shaderquality0",
+      "access_basis": "Active stockLowline17, high/ultra1; special video-storage key rather than a current scalar convar.",
+      "effect_or_inference": "Current preset already selects stock low shader setting.",
+      "gameplay_or_visual_risk": "Material appearance depends on engine quality implementation.",
+      "uncertainty": "No developer console shader command or custom shader/VPK modification needed; exact shader-level savings are not quantified.",
+      "local_evidence": []
+    },
+    {
+      "keys": [
+        "r_dashboard_render_quality"
+      ],
+      "status": "keep_low_dashboard",
+      "candidate_values": "0",
+      "access_basis": "StockLowline15; special/current nonmenu preset field.",
+      "effect_or_inference": "Useful chiefly for dashboard/background render work; baseline alreadylow.",
+      "gameplay_or_visual_risk": "Dashboard/portraits only, must retain usable hero/shop presentation.",
+      "uncertainty": "Do not attribute dense-fight FPS gain to an idle-dashboard setting.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10735
+        }
+      ]
+    },
+    {
+      "keys": [
+        "fps_max"
+      ],
+      "status": "keep_uncapped_throughput_baseline",
+      "candidate_values": "0",
+      "access_basis": "Archive+release; current help defines0no limit; native tooltip explicitly mentions+fps_max for extended values.",
+      "effect_or_inference": "Avoid gameplay FPS cap confounding benchmarks.",
+      "gameplay_or_visual_risk": "Uncapped can increase power/heat and may worsen pacing/latency versus chosen gameplay cap.",
+      "uncertainty": "Maximumthroughput and optimuminputlatency are separate objectives; no237cap until VRR measured.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7276
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 887
+        }
+      ]
+    },
+    {
+      "keys": [
+        "fps_max_ui",
+        "engine_no_focus_sleep"
+      ],
+      "status": "preserve_background_preferences",
+      "candidate_values": "Keep currently120 dashboard cap and20 background sleep unless testing those scenarios",
+      "access_basis": "Ordinary archived values; UIcap0 means no limit but native label isDashboardmaximumFPS.",
+      "effect_or_inference": "Lower idle/dashboard/background cost does not increase ordinary active-match FPS directly.",
+      "gameplay_or_visual_risk": "Changing background sleep can affect alt-tab behavior; uncappingmenu increasesload.",
+      "uncertainty": "Do not use main-menu FPS as gameplay benchmark.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7282
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 924
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7045
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_low_latency"
+      ],
+      "status": "benchmark_native_latency_tradeoff",
+      "candidate_values": "1On vs0Off; never2Boost on thisAMD",
+      "access_basis": "Native0Off/1On/2Boost; help calls2NVIDIAonly.",
+      "effect_or_inference": "On/Off can change input pacing and throughput; not a promised benefit from either value.",
+      "gameplay_or_visual_risk": "Off may worsen inputlatency even if FPS increases.",
+      "uncertainty": "StoredOn and labelAnti-Lag2 do not prove invocation in currentDX11 backend. Current AMD docs support genericDX11; no primaryDeadlockVulkan-only claim established.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11101
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 899
+        }
+      ]
+    },
+    {
+      "keys": [
+        "engine_low_latency_sleep_after_client_tick"
+      ],
+      "status": "secondary_release_experiment",
+      "candidate_values": "false baseline;true only with low-latencyOn and isolated test",
+      "access_basis": "Release; described as moving low-latency sleep after client simulation on tick frames.",
+      "effect_or_inference": "Changes sleep placement, not computational work by definition; potential timing/pacing tradeoff.",
+      "gameplay_or_visual_risk": "Input responsiveness/pacing regression.",
+      "uncertainty": "No ValveDeadlock-specific optimum or measured throughput win.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7036
+        }
+      ]
+    },
+    {
+      "keys": [
+        "lb_barnlight_shadowmap_scale"
+      ],
+      "status": "secondary_release_experiment",
+      "candidate_values": "Baseline1 vs restrained0.5; query/readback first",
+      "access_basis": "Release, no cheat/devonly flags; help concerns computed barnlight shadowmap size.",
+      "effect_or_inference": "May lower local shadow-map resolution/work; one plausible additional ordinary console control.",
+      "gameplay_or_visual_risk": "Worse local/moving shadow detail; retain silhouettes and enemy/player cues.",
+      "uncertainty": "No menu guarantee/minmax or exact callback semantics; not equivalent to quarter totalshadowcost, not proven effective underLowpreset. Do not use0/0.01 blindly.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 8029
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_citadel_drop_shadow_update_frequency"
+      ],
+      "status": "research_only",
+      "candidate_values": "Keep1",
+      "access_basis": "Clientdll+release; no help/bounds.",
+      "effect_or_inference": "Potential update-rate control exists but numeric semantics are unknown.",
+      "gameplay_or_visual_risk": "Stale/jumping hero drop shadows could impair height/position cues.",
+      "uncertainty": "Cannot infer whether higher means more frequent/less frequent or whether0 disables; do not guess.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10609
+        }
+      ]
+    },
+    {
+      "keys": [
+        "cl_ragdoll_limit"
+      ],
+      "status": "exclude_recommendation_pending_visual_validation",
+      "candidate_values": "Keep native20; do not add5/0; do not force-1 by default either",
+      "access_basis": "Clientdll+archive; no devonly/cheat. Current community maintainer reports Doormanultimate indicator depends on it.",
+      "effect_or_inference": "Lowering maximum bodies could save client work, only if those bodies exist.",
+      "gameplay_or_visual_risk": "Specific reported loss ofDoormanultimate indicator; normalflagis insufficient cue-safety proof.",
+      "uncertainty": "MaintainerREADME is primary project observation, not Valve confirmation. Preserve until dedicated visual/mechanic tests. -1 unlimited could raise work.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6406
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_drawtracers_firstperson"
+      ],
+      "status": "visual_validation_before_optional_experiment",
+      "candidate_values": "Keeptrue;false only isolated optional test",
+      "access_basis": "Clientdll+archive+release; directly controls first-person weapon tracer visibility.",
+      "effect_or_inference": "Could remove local gun tracer render work; magnitude unproven.",
+      "gameplay_or_visual_risk": "Aiming/weapon/hit feedback loss.",
+      "uncertainty": "No native performance recommendation; exclude from defaultmaximum-readable profile.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10840
+        }
+      ]
+    },
+    {
+      "keys": [
+        "enable_boneflex",
+        "r_smooth_morph_normals"
+      ],
+      "status": "research_only_visual_validation",
+      "candidate_values": "Keeptrue",
+      "access_basis": "enable_boneflexclientarchive; smoothMorphNormalsrelease; both no current help.",
+      "effect_or_inference": "Potential facial/morph work can be hypothesized but no current implementation cost evidence.",
+      "gameplay_or_visual_risk": "Heroform/animation/material-normal changes and unknown mechanics.",
+      "uncertainty": "Do not assume every facial/bone/normal feature is cosmetic in all current heroes. Not adopted.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7012
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11389
+        }
+      ]
+    },
+    {
+      "keys": [
+        "violence_ablood",
+        "violence_agibs",
+        "violence_hblood",
+        "violence_hgibs"
+      ],
+      "status": "exclude_default_gameplay_feedback_change",
+      "candidate_values": "Keepnative/defaulttrue",
+      "access_basis": "Archive values documented as blood/gib visibility.",
+      "effect_or_inference": "Could reduce rendered blood/gib work, but no quantified impact or current mechanic separation.",
+      "gameplay_or_visual_risk": "Hit confirmation/corpse/VFX clues; potential ability-ragdoll interactions.",
+      "uncertainty": "No verified effect on relevant shipped content; do not adopt generic Source1gorerecipes.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 14383
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 14386
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 14389
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 14392
+        }
+      ]
+    },
+    {
+      "keys": [
+        "cl_max_particle_pvs_aabb_edge_length"
+      ],
+      "status": "exclude_unknown_visibility_control",
+      "candidate_values": "Keep0",
+      "access_basis": "Release but no help/bounds.",
+      "effect_or_inference": "ParticlesPVS/bounds role inferred solely from name is not sufficient implementation evidence.",
+      "gameplay_or_visual_risk": "May cull/alter large ability/VFX visibility.",
+      "uncertainty": "No arbitrary100 value from community configs; flags do not prove visual correctness.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6256
+        }
+      ]
+    },
+    {
+      "keys": [
+        "cl_particle_fallback_base",
+        "cl_particle_fallback_multiplier",
+        "cl_particle_sim_fallback_threshold_ms",
+        "cl_particle_sim_fallback_base_multiplier",
+        "cl_particle_max_count",
+        "r_particle_max_detail_level",
+        "r_limit_particle_job_duration",
+        "r_late_particle_job_sync",
+        "r_particle_min_timestep"
+      ],
+      "status": "exclude_nonmenu_internal",
+      "candidate_values": "KeepcurrentValve/native behavior",
+      "access_basis": "Most developmentonly/defensive; particleMaxDetail also gameinfo_cannot_override. Native localizedEffectsQuality explicitly marked not currentlyused.",
+      "effect_or_inference": "No missing active supportedparticle-quality slider was discovered.",
+      "gameplay_or_visual_risk": "Ability ranges/tracers/pings/Lashslam/Doorman effects could disappear or update incorrectly.",
+      "uncertainty": "No release equivalent to particle-job-duration toggle found; current noHelp job controls are not optimization contracts.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6295
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6298
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6316
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6313
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6304
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11230
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11098
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11053
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11242
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_threaded_particle_creation",
+        "r_threaded_particles",
+        "r_threaded_scene_object_update",
+        "phys_multithreading_enabled",
+        "phys_step_threaded",
+        "cl_particle_newinit"
+      ],
+      "status": "keep_already_enabled_engine_defaults",
+      "candidate_values": "Alltrue in initial registry",
+      "access_basis": "Development-only internals; renderer/physics optimized paths alreadyenabled.",
+      "effect_or_inference": "Copying these defaults cannot by itself create extra FPS.",
+      "gameplay_or_visual_risk": "Simulation/cloth/physics interactions if changed.",
+      "uncertainty": "Metadata are initial values, not current readback; do not inject/force scheduler internals.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11476
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11479
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11482
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10150
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10168
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6307
+        }
+      ]
+    },
+    {
+      "keys": [
+        "thread_pool_option",
+        "fs_async_threads"
+      ],
+      "status": "exclude_unknown_thread_override",
+      "candidate_values": "-1/default; no fixed-threadcount",
+      "access_basis": "ThreadPoolhidden+release with no choice documentation; IOthreads-1 documentedauto but developmentonly.",
+      "effect_or_inference": "Automatic/native scheduling rather than generic cores+1 recipes.",
+      "gameplay_or_visual_risk": "Oversubscription/IO/render contention/stalls.",
+      "uncertainty": "No exact Source2mapping of-threads to9800X3D worker topology established; IOthreads are not renderingthreads.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 14035
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7306
+        }
+      ]
+    },
+    {
+      "keys": [
+        "cpu_level",
+        "mem_level",
+        "gpu_mem_level",
+        "gpu_level"
+      ],
+      "status": "preserve_for_current_comparisons_then_separate_recovery_test",
+      "candidate_values": "Inherited1/0/0/0 vs nominalnativecpu2/mem2/gpuMem3 if stockautodetection independently confirmed; GPUlevelselectionunproven",
+      "access_basis": "Developmentonly defensive; current shippedmoddefaults contains hardware-selection buckets, not effect callbacks.",
+      "effect_or_inference": "Hardwaretier normalization is a supported-policy recovery question, not demonstrated FPSgain.",
+      "gameplay_or_visual_risk": "Changing tiers may silently alter defaults/memory budgets/graphics; exact behavior unknown.",
+      "uncertainty": "No shippedlevel.ekv/cfg or publiccurrentcallback source found. RendererinitialGPU3/GPUmem2 defaults are not targethardware selection. Do not assume lowCPUmeans fewerthreads/highVRAMmeans specificpoolMB.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 6670
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 8413
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7447
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 7444
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_vulkan_accurate_renderarea",
+        "r_vulkan_sw_cmd_lists",
+        "sc_aggregate_indirect_draw_compaction",
+        "sc_aggregate_indirect_draw_compaction_threshold"
+      ],
+      "status": "preserve_release_backend_defaults",
+      "candidate_values": "true,true,true,8",
+      "access_basis": "Release; current native graphicsAPIdropdown and shippedDX11/Vulkan renderers.",
+      "effect_or_inference": "Vulkan-specific commandpass/indirectdraw settings could be experimental after APIbaseline.",
+      "gameplay_or_visual_risk": "Driver/pacing/visual/stability regression possible.",
+      "uncertainty": "Current processDX11; no benefit from Vulkan-only knobs there. Hardware support detection should remain automatic.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11524
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11530
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11827
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 11830
+        }
+      ]
+    },
+    {
+      "keys": [
+        "r_allow_low_gpu_memory_mode"
+      ],
+      "status": "not_gameplay_optimization",
+      "candidate_values": "Keeptrue",
+      "access_basis": "Release help concerns allowing lowGPUmemory mode e.g. mapbuilding.",
+      "effect_or_inference": "Not proof of a gameplay texture-budget switch.",
+      "gameplay_or_visual_risk": "Unknown unintended behavior ifdisabled.",
+      "uncertainty": "No source-backed FPSclaim.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10417
+        }
+      ]
+    },
+    {
+      "keys": [
+        "mat_async_shader_load",
+        "cl_forcepreload",
+        "mat_queue_mode"
+      ],
+      "status": "exclude_absent_legacy",
+      "candidate_values": "Do not add",
+      "access_basis": "Absent current convarregistry.",
+      "effect_or_inference": "Old reports/Source1recipes do not establish currentcontrols or stable-stategain.",
+      "gameplay_or_visual_risk": "Possible no-effect/invalid/ignored commands; cache clearing/forcedloadcanhitch.",
+      "uncertainty": "No current release replacement to asyncshader-load1 found. r_async_shader_compile_notify_frequency is a development-only diagnostic, not a loadingoptimization.",
+      "local_evidence": []
+    },
+    {
+      "keys": [
+        "r_citadel_npr_outlines",
+        "r_citadel_mboit_quality"
+      ],
+      "status": "exclude_guarded_visual_override",
+      "candidate_values": "Preservenativeoutlines;MBOITquality0 only availablevalue",
+      "access_basis": "NPRoutlinescheat+gameinfoCannotOverride;MBOITqualitymin0max0+gameinfoCannotOverride.",
+      "effect_or_inference": "No legitimate extra control to disable outlines/transparency technique througholdnames.",
+      "gameplay_or_visual_risk": "Readability/visibility or transparency breakage.",
+      "uncertainty": "r_citadel_outlines andr_citadel_mboit oldnames are absent; renamed/current values are not automaticaliases.",
+      "local_evidence": [
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10666
+        },
+        {
+          "path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt",
+          "line": 10663
+        }
+      ]
+    },
+    {
+      "keys": [
+        "rate",
+        "cl_interp",
+        "cl_interp_ratio",
+        "cl_updaterate"
+      ],
+      "status": "preserve_network",
+      "candidate_values": "No networkchanges",
+      "access_basis": "Networking controls have different semantics;cl_interpcurrent readoutcommand.",
+      "effect_or_inference": "No supported mechanism for graphics FPSgain.",
+      "gameplay_or_visual_risk": "Lag/interpolation/connection behavior changes.",
+      "uncertainty": "Separate network tuning cannot replace clientrenderprofiling.",
+      "local_evidence": []
+    }
+  ],
+  "native_scale_math": [
+    {
+      "scale": 1,
+      "ideal_scene_width": 1920,
+      "ideal_scene_height": 1080,
+      "pixel_ratio_of_native": 1,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.8,
+      "ideal_scene_width": 1536,
+      "ideal_scene_height": 864,
+      "pixel_ratio_of_native": 0.6400000000000001,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.7,
+      "ideal_scene_width": 1344,
+      "ideal_scene_height": 756,
+      "pixel_ratio_of_native": 0.48999999999999994,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.666667,
+      "ideal_scene_width": 1280.00064,
+      "ideal_scene_height": 720.00036,
+      "pixel_ratio_of_native": 0.444444888889,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.6,
+      "ideal_scene_width": 1152,
+      "ideal_scene_height": 648,
+      "pixel_ratio_of_native": 0.36,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.588235,
+      "ideal_scene_width": 1129.4112,
+      "ideal_scene_height": 635.2937999999999,
+      "pixel_ratio_of_native": 0.34602041522499993,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.5,
+      "ideal_scene_width": 960,
+      "ideal_scene_height": 540,
+      "pixel_ratio_of_native": 0.25,
+      "not_fps_ratio": true
+    },
+    {
+      "scale": 0.4,
+      "ideal_scene_width": 768,
+      "ideal_scene_height": 432,
+      "pixel_ratio_of_native": 0.16000000000000003,
+      "not_fps_ratio": true
+    }
+  ],
+  "legacy_cleanup_audit": {
+    "total": 31,
+    "absent_current_registry": 11,
+    "present_development_only": 19,
+    "present_cheat": 1,
+    "present_gameinfo_cannot_override": 4,
+    "native_menu_settings": 0,
+    "verdict": "All31 are nonmenu manual overrides;11absent,19developmentonly and1cheat. Four havegameinfoCannotOverride. Removal is a conservative compatibility/native-baseline repair, not a performance result and not proof all were inert.",
+    "access_path_caveat": "Developmentonly restricts normal console paths but native menu setters can handle approveddevelopmentonlyvideo controls. gameinfoCannotOverride concerns a different path. None of these flags alone proves how arbitrarysetting.*video keys were processed. No bypass is attempted.",
+    "entries": [
+      {
+        "storage_key": "setting.r_shadows",
+        "registry_present": true,
+        "metadata": {
+          "key": "r_shadows",
+          "initial_default": "true",
+          "flags_and_bounds": "cheat gameinfo_cannot_override",
+          "help": "<no description>",
+          "line": 11359
+        },
+        "old_value": "0",
+        "status": "guarded_cheat",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_citadel_distancefield_shadows",
+        "registry_present": true,
+        "metadata": {
+          "key": "r_citadel_distancefield_shadows",
+          "initial_default": "true",
+          "flags_and_bounds": "developmentonly clientdll defensive",
+          "help": "<no description>",
+          "line": 10594
+        },
+        "old_value": "false",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.csm_max_shadow_dist_override",
+        "registry_present": true,
+        "metadata": {
+          "key": "csm_max_shadow_dist_override",
+          "initial_default": "-1",
+          "flags_and_bounds": "developmentonly defensive gameinfo_cannot_override",
+          "help": "<no description>",
+          "line": 6748
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.csm_max_num_cascades_override",
+        "registry_present": true,
+        "metadata": {
+          "key": "csm_max_num_cascades_override",
+          "initial_default": "-1",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Number of cascades in sunlight shadow",
+          "line": 6745
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.csm_viewmodel_shadows",
+        "registry_present": true,
+        "metadata": {
+          "key": "csm_viewmodel_shadows",
+          "initial_default": "false",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "<no description>",
+          "line": 6802
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override. Old0 and initialfalse are equivalent; removing text is not proof of a state/FPSchange."
+      },
+      {
+        "storage_key": "setting.lb_enable_shadow_casting",
+        "registry_present": true,
+        "metadata": {
+          "key": "lb_enable_shadow_casting",
+          "initial_default": "true",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Allow stationary/dynamic lights to cast shadows.",
+          "line": 8155
+        },
+        "old_value": "false",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.lb_dynamic_shadow_resolution",
+        "registry_present": true,
+        "metadata": {
+          "key": "lb_dynamic_shadow_resolution",
+          "initial_default": "true",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Dynamically adjust shadow resolution",
+          "line": 8119
+        },
+        "old_value": "false",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_area_lights",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "0",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_citadel_ssao",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "0",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_citadel_distancefield_ao_quality",
+        "registry_present": true,
+        "metadata": {
+          "key": "r_citadel_distancefield_ao_quality",
+          "initial_default": "0",
+          "flags_and_bounds": "developmentonly clientdll defensive",
+          "help": "Distance Field AO quality",
+          "line": 10552
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override. Nativepreset only has it commented out; default0 equals old0."
+      },
+      {
+        "storage_key": "setting.volume_fog_width",
+        "registry_present": true,
+        "metadata": {
+          "key": "volume_fog_width",
+          "initial_default": "240",
+          "flags_and_bounds": "min: 64, max: 1024, developmentonly defensive",
+          "help": "Width of volume fog texture",
+          "line": 14527
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": true,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override. Old0 is below current declared minimum64; accepted/clamped/rejected behavior was not measured."
+      },
+      {
+        "storage_key": "setting.volume_fog_height",
+        "registry_present": true,
+        "metadata": {
+          "key": "volume_fog_height",
+          "initial_default": "160",
+          "flags_and_bounds": "min: 64, max: 1024, developmentonly defensive",
+          "help": "Height of volume fog texture",
+          "line": 14512
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": true,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override. Old0 is below current declared minimum64; accepted/clamped/rejected behavior was not measured."
+      },
+      {
+        "storage_key": "setting.volume_fog_depth",
+        "registry_present": true,
+        "metadata": {
+          "key": "volume_fog_depth",
+          "initial_default": "128",
+          "flags_and_bounds": "min: 48, max: 1024, developmentonly defensive",
+          "help": "Depth of volume fog texture",
+          "line": 14497
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": true,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override. Old0 is below current declared minimum48; accepted/clamped/rejected behavior was not measured."
+      },
+      {
+        "storage_key": "setting.lb_shadow_texture_width_override",
+        "registry_present": true,
+        "metadata": {
+          "key": "lb_shadow_texture_width_override",
+          "initial_default": "-1",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Override width of shadow atlas texture",
+          "line": 8203
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.lb_shadow_texture_height_override",
+        "registry_present": true,
+        "metadata": {
+          "key": "lb_shadow_texture_height_override",
+          "initial_default": "-1",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Override height of shadow atlas texture",
+          "line": 8200
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_displacement_mapping",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "0",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_particle_max_detail_level",
+        "registry_present": true,
+        "metadata": {
+          "key": "r_particle_max_detail_level",
+          "initial_default": "3",
+          "flags_and_bounds": "developmentonly defensive gameinfo_cannot_override",
+          "help": "The maximum detail level of particle to create",
+          "line": 11230
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_particle_shadows",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "0",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_particle_cables_cast_shadows",
+        "registry_present": true,
+        "metadata": {
+          "key": "r_particle_cables_cast_shadows",
+          "initial_default": "true",
+          "flags_and_bounds": "developmentonly defensive gameinfo_cannot_override",
+          "help": "<no description>",
+          "line": 11158
+        },
+        "old_value": "0",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_citadel_half_res_noisy_effects",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "true",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.cl_particle_fallback_base",
+        "registry_present": true,
+        "metadata": {
+          "key": "cl_particle_fallback_base",
+          "initial_default": "0",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Base for falling back to cheaper effects under load.",
+          "line": 6295
+        },
+        "old_value": "5",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.cl_particle_fallback_multiplier",
+        "registry_present": true,
+        "metadata": {
+          "key": "cl_particle_fallback_multiplier",
+          "initial_default": "0",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Multiplier for falling back to cheaper effects under load.",
+          "line": 6298
+        },
+        "old_value": "5",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_distancefield_enable",
+        "registry_present": true,
+        "metadata": {
+          "key": "r_distancefield_enable",
+          "initial_default": "true",
+          "flags_and_bounds": "developmentonly clientdll defensive",
+          "help": "Graphics/Enable Distance Field rendering",
+          "line": 10771
+        },
+        "old_value": "false",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.r_citadel_outlines",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "1",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_citadel_distancefield_reflections",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "false",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_screen_space_shadows",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "false",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_render_portals",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "1",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_env_map_uses_height_map",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "0",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.r_citadel_mboit",
+        "registry_present": false,
+        "metadata": null,
+        "old_value": "false",
+        "status": "absent_registry",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "No current convar and no active native menu/preset setting; no supported alias proven."
+      },
+      {
+        "storage_key": "setting.lb_csm_override_staticgeo_cascades",
+        "registry_present": true,
+        "metadata": {
+          "key": "lb_csm_override_staticgeo_cascades",
+          "initial_default": "false",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "Override Cascades that will render static objects with lb_csm_override_staticgeo_cascades_value",
+          "line": 8059
+        },
+        "old_value": "true",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override."
+      },
+      {
+        "storage_key": "setting.lb_csm_override_staticgeo_cascades_value",
+        "registry_present": true,
+        "metadata": {
+          "key": "lb_csm_override_staticgeo_cascades_value",
+          "initial_default": "-1",
+          "flags_and_bounds": "developmentonly defensive",
+          "help": "If lb_csm_override_staticgeo_cascades, override value used to determine which cascades render static objects",
+          "line": 8065
+        },
+        "old_value": "-1",
+        "status": "nonmenu_development_only",
+        "native_menu_exposed": false,
+        "active_stock_preset": false,
+        "old_value_below_declared_minimum": false,
+        "rationale": "Present internal convar, but not active native menu/preset path; reset unsupported manual storage override. Old-1 equals initial-1; conditionaloverride enable is a separate key."
+      }
+    ],
+    "performance_limit": "Readback/acceptance of preexisting storage was not captured before cleanup. Rendererwork might return after resetting working hidden overrides; do not compare cleanup+differentFSRratio and attribute a singlecause.",
+    "source_old_values": "research/game-install-audit.json original nativeuserdata settings, accountredacted"
+  },
+  "hardware_tiers": {
+    "actual_effect_verdict": "No exact current callbacks/budget/worker effects found in publicprimarysources or shippedconfiguration. DefaultHigh metadata alone is not effectdocumentation.",
+    "native_bucket_policy": [
+      {
+        "field": "setting.mem_level",
+        "value": 2,
+        "condition": "minmegabytes16384,max65535; also2for8192..16384",
+        "path": "research/round2/installed-vpk/citadel/cfg/moddefaults.txt",
+        "line": 80
+      },
+      {
+        "field": "setting.gpu_mem_level",
+        "value": 3,
+        "condition": "bucketlabelvidmem[10240-infinity],minmegatexels9800,max65535; detectionunit/executionnot independentlyconfirmed",
+        "path": "research/round2/installed-vpk/citadel/cfg/moddefaults.txt",
+        "line": 150
+      },
+      {
+        "field": "setting.cpu_level",
+        "value": 2,
+        "condition": "min_processor_count8,max99; bothphysical8andlogical16fallinrange",
+        "path": "research/round2/installed-vpk/citadel/cfg/moddefaults.txt",
+        "line": 185
+      }
+    ],
+    "inherited_fields": {
+      "cpu_level": 1,
+      "mem_level": 0,
+      "gpu_mem_level": 0,
+      "gpu_level": 0
+    },
+    "registry_initial_fields": {
+      "cpu_level": 2,
+      "mem_level": 2,
+      "gpu_mem_level": 2,
+      "gpu_level": 3
+    },
+    "policy": "Do not mislabel inheritedPotatotiers stockhardwaredetection. Preserve duringcurrentnativecomparisons. A separate recoverytrial could let the actualgame regenerate hardwareselection while keepingchosenlowvideo settings, withbackup/readback; no auto-adoptedtierchanges.",
+    "missing_mapping_evidence": "No shipped*.ekv/hardwarelevel-specificcfg found. moddefaults is generateddxsupportpolicy but does not contain thetier-to-memorypool/thread/particle callbacks."
+  },
+  "concrete_core_review": {
+    "path": "optimization/tools/config-core.mjs",
+    "latest_reviewed_sha256": "b11651ba8fa0d84c4d1920123dae7978999f5a4867108842ee3e46955789c605",
+    "reviewed_at_lines": {
+      "legacy_keys": 137,
+      "base": 157,
+      "comparison": 181,
+      "profiles": 189,
+      "machine": 262
+    },
+    "verdict": "No numeric range blocker in the expanded comparisons. Runtime UI adds an API gate: FSR3 is absent from the observed DX11 selector and remains experimental. Current aggressive 80% remains default pending measurements. This agent made no game changes.",
+    "observations": [
+      "Matched 0.666667 Stretch/FSR1/FSR2 Quality separates internal resolution from reconstruction choice. FSR3 Quality requires a verified supported and exposed backend before testing; source enum membership alone is insufficient.",
+      "FSR160.600000 is insideactivegenericrenderqualitybounds; FSR1.666667 is customcontinuousratio close to67%, not a specialtemporalpreset.",
+      "FSR1FXAA1 is nativevalid and usefulvisualinput comparison; baselineAA0 doesnotconstituteanti-aliasing.",
+      "Throughputr_low_latency0 is nativeOff and noNVIDIAboostprecondition. Itsactualbackend-effectcannotbeinferredfromsavedtext.",
+      "fsr2control correctly marks original.79999995 ratio as customtemporalcompatibility requiringruntimeacceptance.",
+      "Bothsharpeningstoragevaluesfixed.2improvecontrol consistency; theydo not guarantee equalvisualstrength/passwork acrossalgorithms.",
+      "DoFoff is supported but native tooltipdescribesnegligiblegameplaycost.",
+      "No ragdoll reduction, boneflex/gore/particlebounds changes shouldenterrecommendedprofiles without mechanicsvalidation."
+    ]
+  },
+  "launch_and_scheduler_audit": [
+    {
+      "options": "-dx11/-vulkan",
+      "verdict": "NativeAPIcomparisononly, warmshader/pipeline caches separately. CurrentDX11 observed; neitherAPIguaranteedwinner."
+    },
+    {
+      "options": "-console",
+      "verdict": "Diagnosticnormalconsole, noFPSclaim."
+    },
+    {
+      "options": "+fps_max0",
+      "verdict": "Nativecurrenttooltip explicitly supports extendedFPSvalues and registrydefines0uncapped. Archive/video/runtimeprecedence stillcheck."
+    },
+    {
+      "options": "-threads/fixedthread_pool_option/highpriority/affinity/SMTdisable",
+      "verdict": "No exactcurrentValveDeadlock support/performanceformula. Do notadopt core+1/excludeCPU0recipes."
+    },
+    {
+      "options": "-high",
+      "verdict": "NoextraCPUcapacity and possibleOSstarvation; no installed-buildFPSproof. Omit."
+    },
+    {
+      "options": "-nojoy/-novid/-heapsize/-dxlevel/Source1mat_queue_mode",
+      "verdict": "No verified currentDeadlock steady-stateFPSbasis; registryabsenceforoldconvars, not blanketproofallcommandlineparsersignorethem."
+    },
+    {
+      "options": "shader-load/IO/cachedeletion tweaks",
+      "verdict": "No currentrelease asyncshaderload replacementfound; do notreplacecurrentthreading/caching defaults withSource1recipes."
+    }
+  ],
+  "runtime_precedence": {
+    "persisted_vs_effective": "Parent now observed native DX11 UI acceptance of FSR at 80% and sharpness 20%, and ordinary console fps_max 0. Native Anti-Lag 2.0 Enabled is UI acceptance, not proof of SDK invocation or measured input latency. No hidden graphics ConVar readback or render-pass instrumentation was obtained.",
+    "native_path": "Parentfreshgame audit provesversion-nativeUSRLOCALpath; legacyMODvideo andcloud copies can differ. Closegamebefore installer writes and preserveexisting cloud/defaultfields.",
+    "init_order": "No official exactcurrentSource2 guarantee for autoexec/+exec vsarchived/nativevideo settings load found. Consolelog/conLogFile do not establish querytiming.",
+    "query_path": "Human after menu/settings settle can use ordinaryreleasehelp/namequeries/cvarlist/differences/print_changed_convars/condump; recorderrors and currentvalues. No injections/unhiding/cheats/insecuremode.",
+    "full_render_behavior": "VideoUIselection plusstoredvalue is stronger evidence than standalonebinarystrings but still needs representative gameplayvisual/FPScheck.",
+    "benchmark_order": "FirstholdAPI,driver,scene,warmup,duration,backgroundloadfixed. Alternateprofileorder; compareFPS and frametime distribution/repeatability. Check cues first inmechanics visualsuite."
+  },
+  "critical_visual_counterevidence": {
+    "source": "https://github.com/Sqooky/OptimizationLock/blob/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/README.md",
+    "lines": [
+      70,
+      71
+    ],
+    "claim_status": "Primaryconfig-maintainer report, not officialValveimplementation proof.",
+    "implication": "Do not recommend cl_ragdoll_limit5/0 until Doormanultimate indicator and current abilitymechanicsare tested. Do not force unlimited-1 asFPSoptimization either."
+  },
+  "metadata_selected": [
+    {
+      "key": "fps_max",
+      "registry_present": true,
+      "metadata": {
+        "key": "fps_max",
+        "initial_default": "120",
+        "flags_and_bounds": "archive release",
+        "help": "Frame rate limiter.  0=no limit.  Does not apply to dedicated server.",
+        "line": 7276
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "fps_max_ui",
+      "registry_present": true,
+      "metadata": {
+        "key": "fps_max_ui",
+        "initial_default": "0",
+        "flags_and_bounds": "archive",
+        "help": "Frame rate limiter while the game UI is displayed.  0=no limit.  Does not apply to dedicated server.",
+        "line": 7282
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_low_latency",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_low_latency",
+        "initial_default": "1",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "NVIDIA Low Latency/AMD Anti-Lag 2 (0 = off, 1 = on, 2 = NV-only, on + boost)",
+        "line": 11101
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_fsr_rcas_sharpness",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_fsr_rcas_sharpness",
+        "initial_default": "0.25",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "RCAS sharpness when using FSR + RCAS upsample.",
+        "line": 10624
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_fsr2_sharpness",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_fsr2_sharpness",
+        "initial_default": "0.5",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10615
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_fsr_enable_mip_bias",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_fsr_enable_mip_bias",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "Apply negative mip bias when rendering with FSR.",
+        "line": 10621
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_texturefilteringquality",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_texturefilteringquality",
+        "initial_default": "1",
+        "flags_and_bounds": "developmentonly snapshot_ignored defensive",
+        "help": "0: Bilinear, 1: Trilinear, 2: Aniso 2x, 3: Aniso 4x, 4: Aniso 8x, 5: Aniso 16x",
+        "line": 11473
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_texture_stream_max_resolution",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_texture_stream_max_resolution",
+        "initial_default": "2147483647",
+        "flags_and_bounds": "min: 512, developmentonly defensive",
+        "help": "Maximum resolution for top mip level in streaming textures",
+        "line": 11440
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_texture_pool_size",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_texture_pool_size",
+        "initial_default": "1600",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "Total size of the texture pool in MB",
+        "line": 11437
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_texture_lod_scale",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_texture_lod_scale",
+        "initial_default": "1",
+        "flags_and_bounds": "cheat",
+        "help": "Scale factor for requested texture size (texture streaming)",
+        "line": 11425
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_texture_stream_mip_bias",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_texture_stream_mip_bias",
+        "initial_default": "0",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "Biases the mip level the texture streaming system choses to stream for each texture.",
+        "line": 11443
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cl_ragdoll_limit",
+      "registry_present": true,
+      "metadata": {
+        "key": "cl_ragdoll_limit",
+        "initial_default": "20",
+        "flags_and_bounds": "clientdll archive",
+        "help": "Maximum number of ragdolls to show (-1 disables limit)",
+        "line": 6406
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_drawtracers_firstperson",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_drawtracers_firstperson",
+        "initial_default": "true",
+        "flags_and_bounds": "clientdll archive release",
+        "help": "Toggle visibility of first person weapon tracers",
+        "line": 10840
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "lb_barnlight_shadowmap_scale",
+      "registry_present": true,
+      "metadata": {
+        "key": "lb_barnlight_shadowmap_scale",
+        "initial_default": "1",
+        "flags_and_bounds": "release",
+        "help": "Scale for computed barnlight shadowmap size",
+        "line": 8029
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_drop_shadow_update_frequency",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_drop_shadow_update_frequency",
+        "initial_default": "1",
+        "flags_and_bounds": "clientdll release",
+        "help": "<no description>",
+        "line": 10609
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "engine_low_latency_sleep_after_client_tick",
+      "registry_present": true,
+      "metadata": {
+        "key": "engine_low_latency_sleep_after_client_tick",
+        "initial_default": "false",
+        "flags_and_bounds": "release",
+        "help": "When r_low_latency is enabled, this moves the low latency sleep on tick frames to happen after client simulation.",
+        "line": 7036
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_vulkan_accurate_renderarea",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_vulkan_accurate_renderarea",
+        "initial_default": "true",
+        "flags_and_bounds": "release",
+        "help": "Sets the renderArea of a render pass to its viewport bounds (false will use RT size). More accurate renderArea, but results in more render passes.",
+        "line": 11524
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_vulkan_sw_cmd_lists",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_vulkan_sw_cmd_lists",
+        "initial_default": "true",
+        "flags_and_bounds": "release",
+        "help": "Enable Software Command lists for Vulkan",
+        "line": 11530
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "sc_aggregate_indirect_draw_compaction",
+      "registry_present": true,
+      "metadata": {
+        "key": "sc_aggregate_indirect_draw_compaction",
+        "initial_default": "true",
+        "flags_and_bounds": "release",
+        "help": "Use multidrawindirect...count if the driver/hardware supports it",
+        "line": 11827
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "sc_aggregate_indirect_draw_compaction_threshold",
+      "registry_present": true,
+      "metadata": {
+        "key": "sc_aggregate_indirect_draw_compaction_threshold",
+        "initial_default": "8",
+        "flags_and_bounds": "min: 1, release",
+        "help": "Threshold of indirect draws when we will do compaction",
+        "line": 11830
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "thread_pool_option",
+      "registry_present": true,
+      "metadata": {
+        "key": "thread_pool_option",
+        "initial_default": "-1",
+        "flags_and_bounds": "hidden release",
+        "help": "Thread pool option",
+        "line": 14035
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cpu_level",
+      "registry_present": true,
+      "metadata": {
+        "key": "cpu_level",
+        "initial_default": "2",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "CPU Level - Default: High",
+        "line": 6670
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "gpu_level",
+      "registry_present": true,
+      "metadata": {
+        "key": "gpu_level",
+        "initial_default": "3",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "GPU Level - Default: High",
+        "line": 7444
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "gpu_mem_level",
+      "registry_present": true,
+      "metadata": {
+        "key": "gpu_mem_level",
+        "initial_default": "2",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "Memory Level - Default: High",
+        "line": 7447
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "mem_level",
+      "registry_present": true,
+      "metadata": {
+        "key": "mem_level",
+        "initial_default": "2",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "Memory Level - Default: High",
+        "line": 8413
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_threaded_particle_creation",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_threaded_particle_creation",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "<no description>",
+        "line": 11476
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_threaded_particles",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_threaded_particles",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "<no description>",
+        "line": 11479
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_threaded_scene_object_update",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_threaded_scene_object_update",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 11482
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "phys_multithreading_enabled",
+      "registry_present": true,
+      "metadata": {
+        "key": "phys_multithreading_enabled",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly gamedll clientdll replicated defensive",
+        "help": "Enable/Disable Multithreading in VPhysics",
+        "line": 10150
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "phys_step_threaded",
+      "registry_present": true,
+      "metadata": {
+        "key": "phys_step_threaded",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly",
+        "help": "<no description>",
+        "line": 10168
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "fs_async_threads",
+      "registry_present": true,
+      "metadata": {
+        "key": "fs_async_threads",
+        "initial_default": "-1",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "Number of IO threads in async filesystem (-1 == auto)",
+        "line": 7306
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cl_particle_newinit",
+      "registry_present": true,
+      "metadata": {
+        "key": "cl_particle_newinit",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly",
+        "help": "turn on optimized particle init",
+        "line": 6307
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cl_particle_max_count",
+      "registry_present": true,
+      "metadata": {
+        "key": "cl_particle_max_count",
+        "initial_default": "0",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "<no description>",
+        "line": 6304
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cl_particle_sim_fallback_threshold_ms",
+      "registry_present": true,
+      "metadata": {
+        "key": "cl_particle_sim_fallback_threshold_ms",
+        "initial_default": "6",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "Amount of simulation time that can elapse before new systems start falling back to cheaper versions",
+        "line": 6316
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cl_particle_sim_fallback_base_multiplier",
+      "registry_present": true,
+      "metadata": {
+        "key": "cl_particle_sim_fallback_base_multiplier",
+        "initial_default": "5",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "How aggressive the switch to fallbacks will be depending on how far over the cl_particle_sim_fallback_threshold_ms the sim time is.  Higher numbers are more aggressive.",
+        "line": 6313
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_limit_particle_job_duration",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_limit_particle_job_duration",
+        "initial_default": "false",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "<no description>",
+        "line": 11098
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_late_particle_job_sync",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_late_particle_job_sync",
+        "initial_default": "false",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 11053
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "cl_max_particle_pvs_aabb_edge_length",
+      "registry_present": true,
+      "metadata": {
+        "key": "cl_max_particle_pvs_aabb_edge_length",
+        "initial_default": "0",
+        "flags_and_bounds": "release",
+        "help": "<no description>",
+        "line": 6256
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_particle_min_timestep",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_particle_min_timestep",
+        "initial_default": "0",
+        "flags_and_bounds": "developmentonly defensive",
+        "help": "A minimum on particle simulation time, particle simulation happening more frequently than this will lerp.",
+        "line": 11242
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_npr_outlines",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_npr_outlines",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll cheat gameinfo_cannot_override",
+        "help": "Enable/Disable NPR Outlines",
+        "line": 10666
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_shadow_caching",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_shadow_caching",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10696
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_distancefield_shadows",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_distancefield_shadows",
+        "initial_default": "true",
+        "flags_and_bounds": "developmentonly clientdll defensive",
+        "help": "<no description>",
+        "line": 10594
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_allow_low_gpu_memory_mode",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_allow_low_gpu_memory_mode",
+        "initial_default": "true",
+        "flags_and_bounds": "release",
+        "help": "Allow Low GPU Memory mode (i.e. when building maps).",
+        "line": 10417
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "engine_no_focus_sleep",
+      "registry_present": true,
+      "metadata": {
+        "key": "engine_no_focus_sleep",
+        "initial_default": "20",
+        "flags_and_bounds": "archive",
+        "help": "<no description>",
+        "line": 7045
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_smooth_morph_normals",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_smooth_morph_normals",
+        "initial_default": "true",
+        "flags_and_bounds": "release",
+        "help": "<no description>",
+        "line": 11389
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_citadel_mboit_quality",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_citadel_mboit_quality",
+        "initial_default": "0",
+        "flags_and_bounds": "min: 0, max: 0, developmentonly clientdll gameinfo_cannot_override",
+        "help": "MBOIT quality, 0: 4 Moments",
+        "line": 10663
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "mat_async_shader_load",
+      "registry_present": false,
+      "metadata": null,
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "mat_queue_mode",
+      "registry_present": false,
+      "metadata": null,
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "enable_boneflex",
+      "registry_present": true,
+      "metadata": {
+        "key": "enable_boneflex",
+        "initial_default": "true",
+        "flags_and_bounds": "clientdll archive",
+        "help": "<no description>",
+        "line": 7012
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "r_async_shader_compile_notify_frequency",
+      "registry_present": true,
+      "metadata": {
+        "key": "r_async_shader_compile_notify_frequency",
+        "initial_default": "10",
+        "flags_and_bounds": "developmentonly",
+        "help": "<no description>",
+        "line": 10468
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "violence_ablood",
+      "registry_present": true,
+      "metadata": {
+        "key": "violence_ablood",
+        "initial_default": "true",
+        "flags_and_bounds": "archive",
+        "help": "Draw alien blood",
+        "line": 14383
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "violence_agibs",
+      "registry_present": true,
+      "metadata": {
+        "key": "violence_agibs",
+        "initial_default": "true",
+        "flags_and_bounds": "archive",
+        "help": "Show alien gib entities",
+        "line": 14386
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "violence_hblood",
+      "registry_present": true,
+      "metadata": {
+        "key": "violence_hblood",
+        "initial_default": "true",
+        "flags_and_bounds": "archive",
+        "help": "Draw human blood",
+        "line": 14389
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    },
+    {
+      "key": "violence_hgibs",
+      "registry_present": true,
+      "metadata": {
+        "key": "violence_hgibs",
+        "initial_default": "true",
+        "flags_and_bounds": "archive",
+        "help": "Show human gib entities",
+        "line": 14392
+      },
+      "source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt"
+    }
+  ],
+  "runtime_observation_reported_by_parent": {
+    "access": "Parent used authorized native UI and the existing F7 console binding. This research agent sent no input or commands.",
+    "ordinary_queries": {
+      "fps_max": 0,
+      "fps_max_ui": 120,
+      "cl_ragdoll_limit": 20
+    },
+    "graphics_query_limit": "Development-only graphics names produced no value readouts through the ordinary console. No unlocking or override bypass was used. Check native graphics UI and gameplay instead of treating silent output as applied-value evidence.",
+    "scene": "status identified local cl_hideout, one human and two bots, with a local server connection. It is not a representative match or controlled replay benchmark.",
+      "diagnostic_observations": "Parent saw repeated SDL event-processing warnings around 10.8–13.3 ms, prediction/ack slot mismatch messages and one average-frame diagnostic around 15.6 ms. These are observations without established causality; do not attribute the frame cost to input processing or a config variable without profiling.",
+      "native_video_ui": {
+        "evidence_source": "Direct native game UI observation reported by parent after activating the verified game process; this research agent did not operate the game.",
+        "renderer": "Direct3D 11 (-dx11)",
+        "upscaling_visible_options": ["Stretch", "FSR", "FSR2 (TAA)"],
+        "selected_upscaling": "FSR",
+        "render_quality_percent": 80,
+        "sharpness_percent": 20,
+        "ssao": "Off",
+        "shadow_quality": "Low",
+        "fog_quality": "Low",
+        "texture_quality": "Low",
+        "off_controls": ["Bloom", "Effects bloom", "VSync", "Area lights", "Depth of field"],
+        "amd_low_latency": "AMD Anti-Lag 2.0 Enabled",
+        "display": {"resolution": "1920x1080", "refresh_reported_by_UI_hz": 480, "mode": "Borderless", "monitor_label": "LG"},
+        "fps_slider": {
+          "observed": "Greyed out and displaying 60 while ordinary console fps_max returned 0.",
+          "source": "evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+          "line": 887,
+          "attributes": {"convar": "fps_max", "min": 60, "max": 1000, "snap": 1, "disableifoutofrange": true},
+          "interpretation": "Value 0 is outside the slider bounds and deliberately disables this control. The displayed 60 is a UI-bound display, not evidence that the effective runtime cap changed to 60; ordinary console readback establishes 0. Exact native widget formatting internals were not recovered."
+        },
+        "limits": ["UI selection acceptance does not prove FPS gain, frame generation or Anti-Lag SDK invocation.", "480 Hz UI display does not establish VRR enablement or a suitable 237 FPS cap.", "FSR3 and DLSS exist in generic XML but were absent from this observed DX11 selector."]
+      },
+      "native_disconnect": {
+      "command": "disconnect",
+      "flags": "release",
+      "metadata_source": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/commands.txt",
+      "line": 1757,
+        "scope": "Normal command for leaving a server. Parent observed it reload the current hideout rather than expose the old dashboard; do not suggest it as a guaranteed Watch shortcut."
+      }
+    },
+    "hideout_navigation_audit": {
+      "manifest": "research/round2/hideout-evidence/manifest.json",
+      "extraction": "Eight actual installed resources extracted with CRC verification. Pinned XML is third-party VRF reconstruction; this agent did not newly decompile compiled resources.",
+      "interact": {
+        "shipped_source": "research/round2/hideout-evidence/installed/cfg/citadel_keys.lst",
+        "action_lines": [526, 528, 530],
+        "action": "InteractEnabled -> Interact -> citadel_hideout_use",
+        "default_key_lines": [1672, 1674],
+        "default_key": "E",
+        "persisted_source": "Steam/userdata/<account>/1422450/remote/cfg/citadelkeys_personal.lst",
+        "persisted_key_lines": [486, 488],
+        "persisted_key": "E",
+        "native_release_command_metadata": {"path": "evidence/valve-build-25689475/mirrored-engine/DumpSource2/commands.txt", "line": 642, "flags": "clientdll release", "help_scope": "Interact with a targeted hideout button"},
+        "label_evidence": {"path": "evidence/valve-build-25689475/mirrored-engine/game/citadel/resource/localization/citadel_main/citadel_main_english.txt", "lines": [5808, 5809], "meaning": "Use global Interact to select a game mode or watch matches."},
+        "binding_migration_evidence": {"localization_line": 4146, "meaning": "The older Hideout-specific bind was replaced by global Interact; previous custom Hideout binds may require reassignment."},
+        "limitation": "Targeting/proximity is required. No normal release command directly opening the Watch page was found. This research agent gave no game input or command."
+      },
+      "world_labels": {"path": "research/round2/hideout-evidence/mirror/panorama/layout/hideout/hideout_in_world_label.xml", "lines": [7, 8, 16, 17], "meaning": "World-label root has hittest=false; Watch is a label panel without an onactivate handler. Clicking visible text is not established as activation."},
+      "reset_camera": {"path": "research/round2/hideout-evidence/mirror/panorama/layout/hud_hideout.xml", "line": 42, "meaning": "Reset Camera binding uses ADS. Persisted ADS key is MOUSE2 at personal binding lines147–150."},
+      "camera_zoom": {"source": "research/round2/hideout-evidence/installed/cfg/citadel_keys.lst", "action_lines": [803, 805, 809, 811], "release_commands": ["citadel_orbit_camera_in", "citadel_orbit_camera_out"], "persisted_keys": ["MWHEELUP", "MWHEELDOWN"], "persisted_lines": [570, 572, 575, 577]},
+      "dashboard_probe": {"command": "gameui_activate", "flags": "hidden release", "metadata_line": 2214, "scope": "Shows the game UI. Current source retains a Dashboard Watch button but does not guarantee this command exposes it while in hideout.", "dashboard_source": "research/round2/hideout-evidence/mirror/panorama/layout/dashboard.xml", "watch_button_line": 73, "watch_callback": "CitadelShowWatchPage(true)", "no_dispatch_bypass": "panorama_dispatch_event is developmentonly at commands.txt3146 and is excluded."},
+      "watch_page": {"path": "research/round2/hideout-evidence/mirror/panorama/layout/citadel_db_page_watch.xml", "line": 24, "GUI_callback": "CitadelWatchGotoMatch()", "scope": "Once the native Watch page is open, its visible Search By Match ID control opens the match-search UI."}
+    },
+  "documentation_access": {
+    "attempted_primary": [
+      "https://developer.valvesoftware.com/wiki/Command_line_options_(Source_2)",
+      "https://developer.valvesoftware.com/wiki/List_of_Deadlock_console_commands_and_variables",
+      "https://developer.valvesoftware.com/wiki/ConVar"
+    ],
+    "result": "403/unavailable in thispass. Search yielded communitydraftSource1hl2options; not promoted intoSource2Deadlockauthority.",
+    "acceptable_evidence": "ActualshippedValveUI/presets/localizationfreshmatched; pinnedbinarymetadata withprovenance; officialAMDimplementationdocs; Valveauthoredpatchnotes for historicalcontext only.",
+    "historical_valve_note": "Nov21,2024Valvenotes reported somefeatures ran despiteUI disabled. ThisdemonstrateswhyUI/flagmetadata needruntimechecks; not proof theoldbug existsnow."
+  },
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/convars.txt",
+      "type": "CurrentthirdpartydumpofValvebinarymetadata"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/DumpSource2/commands.txt",
+      "type": "Currentcommandaccessmetadata"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml",
+      "type": "ReconstructednativeValveUI;compiledresourcefreshunchanged"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/video_defaults_0.txt",
+      "type": "NativeLowpreset;freshinstalledhash"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/moddefaults.txt",
+      "type": "Nativegeneratedhardwaredetectiontable;freshinstalledhash"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/resource/localization/citadel_main/citadel_main_english.txt",
+      "type": "NativeValvelabels/tooltips;freshdepotmatch"
+    },
+    {
+      "url": "https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-spatial/",
+      "type": "OfficialAMDFSR1passes,inputrequirementsandseparateenableSharpening"
+    },
+    {
+      "url": "https://gpuopen.com/manuals/fidelityfx_sdk/reference_documentation/structs/ffx_fsr1_dispatch_description/",
+      "type": "OfficialmodernFSR1SDKnormalizedsharpnessandseparateenable"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/GPUOpen-Effects/FidelityFX-FSR/master/ffx-fsr/ffx_fsr1.h",
+      "type": "OfficialoriginalAMD2021FSR1low-levelsharpnessstops;lines643/662..665"
+    },
+    {
+      "url": "https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-temporal/",
+      "type": "OfficialAMDtemporalreconstructioncost;notthismachinegamebenchmark"
+    },
+    {
+      "url": "https://forums.playdeadlock.com/threads/11-21-2024-update.47476/",
+      "type": "ValveYoshihistoricalUI/renderbugfixcontextonly"
+    },
+    {
+      "url": "https://github.com/Sqooky/OptimizationLock/blob/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/README.md",
+      "type": "Primarythirdpartymaintainermechaniccounterevidence"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities",
+      "type": "OfficialMicrosoftprioritymechanism,notgameFPSadvice"
+    },
+    {
+      "url": "https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/public/tier1/iconvar.h",
+      "type": "OfficialhistoricalSource1flagsemantics,notcurrentSource2support"
+    }
+  ],
+  "remaining_uncertainty": [
+    "Actual FSR render passes and frame cost, Anti-Lag 2 DX11 SDK invocation, FSR3 eligibility on another backend and nonmenu graphics values; native DX11 UI and ordinary FPS/ragdoll readbacks are now observed by parent.",
+    "Everyshadowsystemremainingunder nativeLow andperformanceimpactofthelow-levelreleasebarnlightscale.",
+    "ExactRCASparameterconversion andwhetheranyzero setting bypassesapass.",
+    "ExactCPU/GPU/memorytiersideeffects and actualhardwareautodetection result.",
+    "RepresentativeFPS/frametimegainandreadability under newupdate; no .dem/replay measurement bythisagent.",
+    "AnyfutureValveupdate caninvalidate thissnapshot; recheckbuildandnative evidence beforeupdates."
+  ]
+}

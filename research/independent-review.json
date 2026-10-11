@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "reviewedDate": "2026-10-03",
+  "reviewer": "/root/independent_review",
+  "scope": "Independent read-only review of existing companion, OptiLock reference, and installed native config; candidate installer pending.",
+  "runtimeChanged": false,
+  "candidateApproved": false,
+  "gameFrameRateMeasured": false,
+  "installedBuild": {
+    "appId": 1422450,
+    "steamBuildId": "25689475",
+    "clientVersion": "6745",
+    "sourceRevision": "11078118",
+    "versionDate": "Oct 02 2026",
+    "gameinfoDepotAuthenticationPerformed": false
+  },
+  "findings": [
+    {
+      "id": "IR-01",
+      "priority": 1,
+      "title": "VPK wildcard removal would delete official assets",
+      "evidence": "Installed citadel contains pak01_000 through pak01_322, pak01_dir, and shader VPKs.",
+      "requiredAction": "Never remove VPK files by extension or broad glob. Identify custom packages individually; preserve official assets."
+    },
+    {
+      "id": "IR-02",
+      "priority": 1,
+      "title": "Existing low settings leave gain unproven",
+      "evidence": "Installed video.txt already lowers most expensive graphics features and has native 1920x1080 scale 1, AA/upscaling disabled, particle fallback 5, texture mip bias 4.",
+      "requiredAction": "Build candidates, verify acceptance, and perform matched warmed A/B frame-time measurements before asserting additional gain."
+    },
+    {
+      "id": "IR-03",
+      "priority": 1,
+      "title": "OptiLock's implementation relies on mod and game-description edits",
+      "evidence": "Its README describes replacing gameinfo.gi and including a modded VPK, plus a mip-bias lighting-fix mod dependency above 4.",
+      "requiredAction": "Keep gameinfo and asset packages intact; use native settings and normally editable cfg commands only."
+    },
+    {
+      "id": "IR-04",
+      "priority": 1,
+      "title": "Generic async networking tweak contradicts installed game evidence",
+      "evidence": "gameinfo.gi explicitly sets cl_async_usercmd_send false because early prediction is unsupported; OptiLock sets it true then false elsewhere.",
+      "requiredAction": "Exclude networking, prediction, tick simulation, and guessed threading tweaks from the recommended FPS profile."
+    },
+    {
+      "id": "IR-05",
+      "priority": 2,
+      "title": "Config-file presence does not establish runtime value",
+      "evidence": "machine_convars.vcfg has fps_max 400, video.txt has setting.fps_max 0, and video.txt has a duplicate particle-detail key.",
+      "requiredAction": "Check parsing, mutability, range, normal configuration order, and runtime values."
+    },
+    {
+      "id": "IR-06",
+      "priority": 2,
+      "title": "Companion idle sample is not an FPS baseline",
+      "evidence": "Existing docs label the 0.0000% CPU sample as nonforeground idle work; active OCR/capture FPS effect is unmeasured.",
+      "requiredAction": "Hold companion and overlays constant or close them for controlled benchmarking; do not infer zero capture overhead."
+    },
+    {
+      "id": "IR-07",
+      "priority": 2,
+      "title": "Reported Valve mod/cache deletion quote remains unverified",
+      "evidence": "Checked official City Never Sleeps, forum changelog, and Rat King release posts do not contain that exact advice.",
+      "requiredAction": "Retain mod-free task constraint; avoid attributing a broad deletion directive to Valve without the actual primary post."
+    },
+    {
+      "id": "IR-08",
+      "priority": 2,
+      "title": "High process priority and affinity cuts require measurements",
+      "evidence": "Microsoft Scheduling Priorities guidance warns of starving lower-priority work and system-thread disruption at realtime.",
+      "requiredAction": "Leave default game priority/affinity for recommended profile; no registry/OS optimizer bundle."
+    }
+  ],
+  "primarySources": [
+    "https://forums.playdeadlock.com/threads/09-29-2026.166726/",
+    "https://store.steampowered.com/news/app/1422450/view/694273194214819790",
+    "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=1422450&count=5&maxlength=0&format=json&feeds=steam_community_announcements",
+    "https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities"
+  ],
+  "fullReview": "research/independent-review.txt"
+}

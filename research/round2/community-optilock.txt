@@ -1,0 +1,252 @@
+Deadlock second-round community/config audit
+Checked: 2026-10-04T00:02:01.680Z (UTC; local date October 3, 2026)
+
+This round adds 40 source-ledger entries spanning original Valve/community forums, Steam, Reddit, current config repositories, distribution metadata, guides and wiki indexes. Several sources were only indexed or blocked; their limitations are explicit below and in the JSON. No optimizer was installed or run, no downloaded code was executed, and no installed-game files were changed.
+
+The exact host is Ryzen 7 9800X3D, RX 7800 XT 16 GiB, 32 GiB DDR5, Windows 11 Pro 25H2, 1080p/480 Hz. Build-specific setting comparisons initially use installed build 25689475/client 6745 and matching Valve assets mirrored at SteamTracking commit 4c6431ccdb816d2911bbbaa4335169cc34140386. Any later hotfix must follow the parent's fresh installed-build check.
+
+No independently controlled, current-patch, native-only setting dataset for this exact CPU/GPU combination was located. The findings add useful hypotheses and failure checks, not a validated maximum-FPS result. This machine already stored low-like rendering values, FSR2 at about 80%, mip bias 2, low latency 1, VSync off and unlimited FPS. Reapplying those values is not a new measured gain.
+
+Fresh OptiLock release check
+
+GitHub HEAD remains 7f7a54a1b8237d9b66348067d09f93174c47d303, committed 2026-10-02T04:33:05Z. Fresh primary GameBanana metadata resolves the newer 'City Never Sleeps' title: config file 1834114, version 5, uploaded 2026-10-02T04:36:21Z. Its 743,722-byte ZIP has SHA256 2bfb695f8b8a060f10609d2289077589590befd4dd364df5a4b824eb0d82c322 and verified MD5 57639d501e853b4e368337b5d8f93d5c.
+
+All 36 text entries match GitHub after CRLF/LF normalization; gameinfo/video scalar order and values are identical. The config ZIP contains no VPKs. The page describes seven mod components, while the repository contains four VPK files; the separate Essential Fixes archive was not audited this round. The initial OptiLock config audit therefore remains current despite the distribution filename/version change. Do not equate this comparison with an audit of all distribution mods.
+
+OptiLock's gain claims lack a reproducible scene/hardware/raw trace dataset. Its gameinfo replacement, old hidden overrides, duplicate values and mod-dependent fixes do not supply a native-only measured improvement over the user's already-low baseline. GPL-3.0 applies to the source. The prior detailed audit remains at research/optilock-audit.json and research/optilock-audit.txt.
+
+New independent findings that affect testing
+
+1. The most directly relevant current RX 7800 XT report describes Vulkan lighting, texture and outline corruption while DX11 renders correctly (S16). Other current renderer reports conflict. A faster backend must pass visual/cue checks, not only average FPS.
+
+2. An original 9800X3D/5080 PresentMon report describes ten sessions/six configurations and 200–560 ms CPU stalls with nearly idle GPU work (S07). Backend changes cluster early stalls; warm-cache sessions improve. Its obsolete mat_async_shader_load command is absent from the current registry. Retain and warm caches between comparison arms instead of purging them as routine optimization.
+
+3. A current dense-view Linux/Proton report records 134 versus 271 FPS with roughly 54% greater worker CPU time, but nearly unchanged primary-thread CPU time (S08). It is not native Windows evidence, yet it shows why camera/workload matters and why reducing pixels may fail to repair a CPU-heavy view.
+
+4. A same-GPU original forum report describes lane/Tab performance degradation after five to fifteen minutes (S09); late Street Brawl reports are much worse (S11). Compare dense views, shop/Tab, fights and longer sessions, not only a fresh empty sandbox.
+
+5. Current Sqooky README plus an original Doorman report connect cl_ragdoll_limit 0 to disappearing ultimate indicators (S04/S15). Current issues also report invisible entities with custom gameinfo and no VPK mods (S05). A normal archived setting or plain text file is not evidence that gameplay cues remain intact.
+
+6. Valve developer JasperP's primary methodology asks for restarted backend comparisons, explicit bot/Explore NYC/live workloads, actual overlay numbers, and organized PerfView traces/video (S06). Particle/HUD disable in that discussion was diagnostic isolation, not a competitive configuration recommendation.
+
+Ranked candidates and current project review
+
+Priority 1: compare Stretch/FSR1/FSR2/FSR3 at the common native Quality ratio 0.666667, subject to renderer support and actual runtime readback. Compare Stretch/FSR1 at 0.8 separately. Preserve the original FSR2 about-0.8 file as a compatibility control. Custom temporal 0.8 lies within the scale bounds but is not a native temporal menu enum; acceptance is not proved. Warm both APIs independently and reject corrupted cues.
+
+Priority 2: compare native Anti-Lag 2 on/off without changing other factors. FPS traces cannot establish input-latency improvements. Only afterward consider engine_low_latency_sleep_after_client_tick false/true under enabled latency; it is a release setting, not a proven gain. Optional fullscreen/borderless comparisons should retain the 480 Hz output and actual presentation-mode observations.
+
+Priority 2, research only: lb_barnlight_shadowmap_scale defaults to 1 and has a release flag. Community values include 0 and 0.5. Restrained 0.5 is a missing hypothesis, requiring accepted-value/restart proof, shadow and veil cue checks, then GPU-time and frametime measurement. Zero is not validated. Native shadow quality 0 means LOW, not all shadows disabled.
+
+Priority 3: native FXAA off/on at fixed FSR1 scale can test motion readability against cost. Measure uncapped capacity first, then choose a sustainable cap from actual pacing and synchronization requirements. Neither 477 nor 490 automatically follows from a 480 Hz monitor. The current fps_max_ui help says 'game UI'; verify its actual scope before changing it.
+
+Priority 4, research only: r_smooth_morph_normals and enable_boneflex are ordinary release/archive values, but have no useful help or measured benefit; blood/gib values are similarly unproven. Try individually only after more useful comparisons and keep native values unless complete cues and measured gains justify a change.
+
+The current config-core.mjs snapshot contains 14 staged profiles, SHA256 b11651ba8fa0d84c4d1920123dae7978999f5a4867108842ee3e46955789c605. It now includes equal-scale Quality challengers, FSR1 scale candidates, Stretch pairs, FXAA, Anti-Lag off and the original FSR2 values as a compatibility control. These address the earlier comparison gap. The engine agent performed no live readback; source definitions establish valid paths/ranges, not applied values or gains.
+
+Reject as defaults
+
+Do not automatically lower ragdoll limits, force particle fallback/bounds/drawing, unlock development cvars, set sv_cheats, copy -high/-threads/affinity recipes, or replace network/audio/input preferences. Do not copy absent mat_async_shader_load/cl_forcepreload/mat_queue_mode names or infer command-line flag support solely from a convar dump. Avoid extreme mip bias/pool/culling cuts, routine shader-cache purges, broad VPK deletion, CPU-driver removal, OS migration and compound reinstall recipes. Stock VPKs, mod caches and driver/Steam shader caches are separate data. No fixed gain percentage or '1000 times better' result is established.
+
+Source ledger (full hardware/sample/limitations and per-knob rankings are in community-optilock.json)
+
+S01 — OptiLock fresh repository API and pinned source
+Date: 2026-10-02T04:33:05Z | Evidence: editorial | Inspection: Fresh GitHub repo/commits/issues/comments API plus prior static whole-repository audit
+Fresh GitHub HEAD/issues remain unchanged; author percentages have no reproducible raw benchmark.
+https://github.com/dacooderr/OptiLock/tree/7f7a54a1b8237d9b66348067d09f93174c47d303
+
+S02 — Fresh GameBanana release metadata and configs ZIP
+Date: 2026-10-02T04:36:21Z (primary upload epoch 1790915781) | Evidence: primary_setting_definition | Inspection: Primary public metadata; checksum-verified ZIP entries read statically, no execution/install
+Version-5 config ZIP matches GitHub semantically; all 36 text files normalize identically.
+https://gamebanana.com/mods/690233
+
+S03 — OptiLock indexed distribution description
+Date: Index displays2026-10-01; primary source uploaded2026-10-02 | Evidence: editorial | Inspection: Full indexed page
+Distribution mirror repeats author claims and inconsistent metadata; not independent testing.
+https://deadlocktrade.gg/mods/optilock-fps-configs-essential-performance-fixes
+
+S04 — OptimizationLock pinned current sources
+Date: 2026-10-03T18:08:56Z | Evidence: editorial | Inspection: Fresh API/tree/issues; staticREADME andSqooky/Max/KaizGI parse against currentregistry
+Fresh Sqooky/Max/Kaiz configs include many duplicate, hidden and cue-changing values.
+https://github.com/Sqooky/OptimizationLock/tree/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae
+
+S05 — Current visibility, HUD and hero camera regressions
+Date: 2026-10-02; particleissueSep30 | Evidence: anecdote | Inspection: Fresh primaryissue bodies
+Current plain-config issues include invisible entities, HUD failures and altered hero cameras.
+https://github.com/Sqooky/OptimizationLock/issues/73
+
+S06 — Valve diagnostic methodology and historical Windows/backend investigation
+Date: 2026-02-12 to2026-02-18 | Evidence: primary_setting_definition | Inspection: Original forum developer responses
+Valve developer requests restarted backend comparisons, defined workloads and organized traces.
+https://forums.playdeadlock.com/threads/suggestion-about-rendering.94150/page-2
+
+S07 — 400ms main-thread stalls; PresentMon ten sessions
+Date: 2026-09-01 | Evidence: independently_measured_diagnostic | Inspection: Original post and described counters/method
+9800X3D PresentMon report separates CPU stalls from GPU work and shows warm-cache effects.
+https://forums.playdeadlock.com/threads/400ms-main-thread-stalls-during-gameplay-gpu-idle-both-renderers-presentmon-10-sessions.160054/
+
+S08 — City Never Sleeps dense-view worker CPU comparison
+Date: 2026-09-30 (Wednesday displayed) | Evidence: independently_measured_diagnostic | Inspection: Original post screenshots/counter tables andmethod
+Current dense-view Linux perf capture reports about 54% more worker CPU time.
+https://forums.playdeadlock.com/threads/city-never-sleeps-severe-view-dependent-fps-regression-source-2-worker-cpu-time-54-in-dense-views-vulkan-dx11.166427/
+
+S09 — RX7800XT view/Tab performance degradation
+Date: 2026-09-15 to2026-09-16 | Evidence: anecdote | Inspection: Original post andfollowups
+Same-GPU report identifies camera, Tab and elapsed-session performance differences.
+https://forums.playdeadlock.com/threads/165-90-fps-drop-when-looking-towards-blue-or-when-opening-tab-menu.162300/
+
+S10 — 9800X3D/7900XTX stutter and window-mode comparison
+Date: 2026-08-26 | Evidence: anecdote | Inspection: Original post
+9800X3D/Radeon window-mode/backend anecdote supports optional A/B, without causal isolation.
+https://forums.playdeadlock.com/threads/stutters-every-instance-where-i-had-one.158827/
+
+S11 — Postpatch StreetBrawl late-round severe drops
+Date: Postpatch2026-09-29/30; page showsrelativeYesterday | Evidence: anecdote | Inspection: Original post withmatchIDs; additional7800X3D/5070Ti report
+Current late Street Brawl severe drops highlight mode and session-age controls.
+https://forums.playdeadlock.com/threads/severe-fps-drops-in-the-late-game.166050/
+
+S12 — Single-core bottleneck and failed affinity/Vulkan remedies
+Date: 2026-08-04 to2026-08-06; currentOctreply | Evidence: anecdote | Inspection: Original post andauthorfollowup
+Affinity and suggested Vulkan remedies did not resolve the author's CPU bottleneck.
+https://forums.playdeadlock.com/threads/deadlock-single-core-100-bottleneck-144-to-90-fps-drops-process-lasso-doesnt-fix-it-engine-refuses-to-distribute-load.154113/
+
+S13 — Vindicta scope slowdowns and competing latency/mod remedies
+Date: 2026-03-23 to2026-05-21 | Evidence: anecdote | Inspection: Original thread
+Vindicta scope reports disagree about low-latency and asset-mod remedies.
+https://forums.playdeadlock.com/threads/vindicta-ultimate-fps-drop.120799/
+
+S14 — Vulkan cap/Reflex hitching with videoattachments
+Date: 2026-04-08 | Evidence: anecdote | Inspection: Original post anddriver-settingslist
+NVIDIA Vulkan cap/hitching report includes overlapping driver limits and other confounds.
+https://forums.playdeadlock.com/threads/vulkan-issue-capped-at-60fps-when-nvidia-reflex-is-off-severe-hitching-when-on.125144/
+
+S15 — Ragdoll cap can remove Doorman ultimate VFX
+Date: 2025-09-08;2026-06-16followup | Evidence: anecdote | Inspection: Indexedprimarypostsexcerpt andcurrentREADMEcorroboration
+Ragdoll limit zero can remove Doorman ultimate cues; small positive limits remain unproven.
+https://forums.playdeadlock.com/threads/doorman-ult-vfx-disappear-before-the-ult-ends.79661/
+
+S16 — Current patch Vulkan graphical corruption on same GPU
+Date: 2026-09-30 | Evidence: anecdote | Inspection: Original post
+Current RX 7800 XT report describes Vulkan graphical corruption, with DX11 rendering correctly.
+https://www.reddit.com/r/DeadlockTheGame/comments/1wu0i9o/vulkan_graphics_are_incredibly_glitchy_after_the/
+
+S17 — Performance after update mixed reports
+Date: 2026-09-30 | Evidence: anecdote | Inspection: Original post andhardwarecomments
+Current update reports conflict across hardware; no common controlled gain estimate.
+https://www.reddit.com/r/DeadlockTheGame/comments/1wtzd60/performance_after_update/
+
+S18 — Reset/reinstall/threads/Vulkan multichange currentpatch remedy
+Date: 2026-10-02(indexed);relative1dpage | Evidence: uncontrolled_before_after | Inspection: Original post/comments
+Current reset/reinstall/threads recipe changes many variables and offers no before capture.
+https://www.reddit.com/r/DeadlockTheGame/comments/1ww44z9/how_i_got_the_new_update_to_run_better/
+
+S19 — New patch performance fix using Sqooky GI
+Date: 2026-10-01(indexed);pagecachetimeinconsistent | Evidence: uncontrolled_before_after | Inspection: Original post/comments
+Large current claimed uplift follows uncapping, cache/reset, custom GI and algorithm changes together.
+https://www.reddit.com/r/DeadlockTheGame/comments/1wumzaf/guide_new_patch_performance_fix/
+
+S20 — CachyOS/Windows comparison and Kaiz anecdotes
+Date: 2026-10-01(indexed);relativecachedtime | Evidence: uncontrolled_before_after | Inspection: Original post/comments
+OS-switch and Kaiz gains are uncontrolled; no justification to migrate this Windows host.
+https://www.reddit.com/r/DeadlockTheGame/comments/1wuxwwo/for_people_with_performance_issues_fps/
+
+S21 — 9800X3D/7900XTX stutter observations
+Date: 2026-08-17 | Evidence: anecdote | Inspection: Original complete page body and same-CPU replies re-opened during final verification
+Same-CPU reports conflict; the original author corrects GPU versus CPU utilization.
+https://www.reddit.com/r/DeadlockTheGame/comments/1vqht5q/deadlocks_technical_state/
+
+S22 — Old FSR/Vulkan advice with actual iGPU output confound
+Date: 2024-10-31 | Evidence: uncontrolled_before_after | Inspection: Original thread
+Old FSR/Vulkan advice was confounded by a monitor connected to the motherboard.
+https://www.reddit.com/r/DeadlockTheGame/comments/1gg3y1o/need_advice_to_improve_framerate/
+
+S23 — FSR1 80% plus Vulkan multichange report
+Date: 2024-09-13 | Evidence: uncontrolled_before_after | Inspection: Fullsearch-indexedoriginalthread/comments
+Old FSR1-plus-Vulkan improvement combines variables on ambiguous hardware.
+https://www.reddit.com/r/DeadlockTheGame/comments/1ffnsel/
+
+S24 — AA/upscaler in-motion visual comparison
+Date: 2025-02-26 | Evidence: independently_measured_diagnostic | Inspection: Originalmethodsandlinks;notraworiginalmediaqualityassessment
+Original motion-comparison methodology helps assess aliasing; it is not a current FPS benchmark.
+https://www.reddit.com/r/FuckTAA/comments/1iyx17c/deadlock_motion_comparison_no/
+
+S25 — 2026 FSR1 67% helped when other remedies failed
+Date: 2026-01-26;editedJan28 | Evidence: uncontrolled_before_after | Inspection: Originalthread
+Old FSR1 67% anecdote lacks equal-scale captures and includes custom gameinfo.
+https://steamcommunity.com/app/1422450/discussions/0/689747912977023532/
+
+S26 — FPS halves after first game
+Date: 2026-02-24;replyMar7 | Evidence: anecdote | Inspection: Fullindexedoriginalpost
+Second-game degradation has an unvalidated shader-cache suggestion, not an established fix.
+https://steamcommunity.com/app/1422450/discussions/0/756178376553863189/
+
+S27 — Background second-screen video as confound
+Date: 2025-12-19 | Evidence: anecdote | Inspection: Fullindexedoriginalpost
+Background secondary-screen video is a credible workload confound, not a universal FPS estimate.
+https://steamcommunity.com/app/1422450/discussions/0/690870129357157745/
+
+S28 — Language-English performance workaround
+Date: 2026-01-25 | Evidence: anecdote | Inspection: Originalguide
+English-locale workaround lacks hardware/capture details and may not change this baseline.
+https://steamcommunity.com/sharedfiles/filedetails/?id=3653519890
+
+S29 — 2024 Boost FPS legacy recipe
+Date: 2024-09-14;comments2025 | Evidence: editorial | Inspection: Originalguide/fulllaunchstring;repositorynow404
+Legacy guide mixes development/unhide/preload flags; later users report crashes.
+https://steamcommunity.com/sharedfiles/filedetails/?id=3330901415
+
+S30 — Deprecated Deadlock-Config
+Date: 2025-04-21T22:36:06Z | Evidence: editorial | Inspection: FreshAPI/treeandstaticautoexecREADME
+Explicitly deprecated config changes cheats, network, input and combat cues; includes VPK sounds.
+https://github.com/Skip-eo/Deadlock-Config/tree/c97c17288d14f22b9201e83616807d0f2e6df0e0
+
+S31 — deadlock-config archive
+Date: 2024-09-18T02:35:34Z | Evidence: editorial | Inspection: FreshAPI/tree/readme
+Historical stock/user config archive has no current optimizer or benchmark dataset.
+https://github.com/B13rg/deadlock-config/tree/ae40c41e9445d9d1fd958c90b2019fbfddaa05e8
+
+S32 — Current source-backed settings guide
+Date: 2026-10-01 | Evidence: editorial | Inspection: Fullarticle
+Current source-backed editorial explicitly disclaims benchmarking and explains controlled comparisons.
+https://hone.gg/blog/deadlock-best-settings
+
+S33 — 2026 settings guide with unsupported numeric claims
+Date: 2026-03-22 | Evidence: editorial | Inspection: Fullarticle
+Published gain percentages and cap rules lack capture methods and reference stale options.
+https://www.dodge.gg/en-US/deadlock/news/deadlock-system-requirements-optimization-guide-2026
+
+S34 — City Never Sleeps seven-fixes article
+Date: 2026-09-30 | Evidence: editorial | Inspection: Fullarticle
+Current troubleshooting article labels several claims unverified and supplies no measured benchmark.
+https://www.indiekings.com/2026/09/how-to-fix-deadlock-fps-drops-after.html
+
+S35 — Console/autoexec guide and linked community reference
+Date: Indexed2026-08;exactdateunverified | Evidence: editorial | Inspection: Fullarticleandprimarylinks
+Autoexec workflow reference is community guidance, not Valve-authored performance proof.
+https://dramalock.org/guides/deadlock-console-autoexec-config-commands-guide/
+
+S36 — Grimoire launch/config/mod workflow
+Date: Currentcrawl;releaseindexed6daysago | Evidence: editorial | Inspection: Search-indexedpagebody;dynamicfullpageempty
+Grimoire workflow describes preset/mod management; no independent FPS data was found.
+https://grimoiredeadlock.com/play/
+
+S37 — ConVars data index
+Date: Searchcrawl3weeksago;revisionunavailable | Evidence: discovery_only | Inspection: Search-indexedexcerpt only;fullpageblockedrobots/nonretryable
+Wiki full content was blocked; indexed FPS defaults agree with the current registry.
+https://deadlock.wiki/Data%3AConvars.json
+
+S38 — Deadlock graphical/upscaler/API notes
+Date: Currentindexedcrawl;revisionunavailable | Evidence: discovery_only | Inspection: Indexedexcerpt;fullpage403
+Wiki full content was blocked; indexed old defaults conflict with the current registry.
+https://www.pcgamingwiki.com/wiki/Deadlock
+
+S39 — CS2 DX11/Vulkan benchmark citing Deadlock transition
+Date: 2026-05-27 | Evidence: discovery_only | Inspection: Originalindexedpurpose/method
+Renderer benchmark measures CS2, not Deadlock; reject game-to-game numerical transfer.
+https://www.reddit.com/r/GlobalOffensive/comments/1tov7r1/benchmarking_dx11_vs_vulkan_performance_may_22/
+
+S40 — Deadlock-Tweaks-config now unavailable
+Date: Legacy2024links;checked2026-10-03 | Evidence: discovery_only | Inspection: GitHubwebandprimaryAPI404
+Legacy repository returns 404; latest source inspection cannot be claimed.
+https://github.com/w0nxyApex/Deadlock-Tweaks-config
+
+Companion static evidence: community-config-static-audit.json; optilock-latest-api.json; optilock-gamebanana-profile.json; optilock-v5-static-contents.json; optimizationlock-latest-api.json; optimizationlock-source-inventory.json. Source downloads remain research-only.

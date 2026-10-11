@@ -1,0 +1,268 @@
+{
+  "read_only_game": true,
+  "full_archive_integrity_verified": false,
+  "scope": "All directory entries in core/citadel pak01; CRC checked for extracted config/UI resources",
+  "vpk": [
+    {
+      "directory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\citadel\\pak01_dir.vpk",
+      "version": 2,
+      "header_bytes": 28,
+      "tree_bytes": 6644328,
+      "tree_sha256": "c6a95bc545140f99f66c40ab4558e013618d223055372acc12d589cdf31fb71f",
+      "resources": 140885,
+      "missing_archives": [],
+      "indexed_resource_bytes": 33481671005,
+      "extracted": [
+        {
+          "path": "cfg/moddefaults.txt",
+          "bytes": 315699,
+          "crc32": "6e155bab",
+          "crc_verified": true,
+          "sha256": "3883cf6c5e85d772616a06383d7fd16b99da008fb9efccc39a6815624ef38b2a"
+        },
+        {
+          "path": "cfg/video_defaults_0.txt",
+          "bytes": 834,
+          "crc32": "d10b9389",
+          "crc_verified": true,
+          "sha256": "d7a1f987c4da334533e9a92f196814eb3d4e0923e3e1d558bbfc32bc0cc8de0d"
+        },
+        {
+          "path": "cfg/video_defaults_1.txt",
+          "bytes": 833,
+          "crc32": "857e0a22",
+          "crc_verified": true,
+          "sha256": "7ef678e7c21f2ca32374834d8c898a83326770512a8463e43e8a6525a9f8807b"
+        },
+        {
+          "path": "cfg/video_defaults_2.txt",
+          "bytes": 830,
+          "crc32": "43be704b",
+          "crc_verified": true,
+          "sha256": "16ff9880470092b76722851bb840c3c05bcf1741ad0c25ec4e8490d18d42ab84"
+        },
+        {
+          "path": "cfg/video_defaults_3.txt",
+          "bytes": 865,
+          "crc32": "5e01ac0d",
+          "crc_verified": true,
+          "sha256": "dff9d39949ce2c4988dcfcfab71e2cdf939825b89d089ad0c341a023629fe278"
+        },
+        {
+          "path": "cfg/video_version.txt",
+          "bytes": 197,
+          "crc32": "1263d5ca",
+          "crc_verified": true,
+          "sha256": "71221263e4448ad9eaeac8492df3033e69b827f4d909c5d1c542a5c2b6e6e2f0"
+        },
+        {
+          "path": "panorama/styles/settings_enemy_healthbar_preview.vcss_c",
+          "bytes": 1279,
+          "crc32": "5fed3aae",
+          "crc_verified": true,
+          "sha256": "8a0f0bb243db47aa9d091f5e40996102541fac71b1e69a0fd730abf76b1017fb"
+        },
+        {
+          "path": "panorama/styles/settings_keybinder.vcss_c",
+          "bytes": 27182,
+          "crc32": "5ff9040a",
+          "crc_verified": true,
+          "sha256": "c342c4f807f87a8220954f0ec6b6064806e1c405690512b29a57ce54b4f06c8a"
+        },
+        {
+          "path": "panorama/styles/popups/popup_hero_settings_notice.vcss_c",
+          "bytes": 7516,
+          "crc32": "4ea00868",
+          "crc_verified": true,
+          "sha256": "aa519013723fb46ba0cdbdbdb5a2734837f76b1e6a1a091cd8da54433a951f8e"
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings.vcss_c",
+          "bytes": 170681,
+          "crc32": "042703c3",
+          "crc_verified": true,
+          "sha256": "cad0838dd6a615d4a76027416d2ecd0043b96c95264dd40d0b290cd7f7015799"
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings_reset.vcss_c",
+          "bytes": 9082,
+          "crc32": "c51fd55b",
+          "crc_verified": true,
+          "sha256": "6bb70013e4da3b084c26a49262477bd41ba50c33cbfa2a6b8f83b68c88a4fc07"
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings_share.vcss_c",
+          "bytes": 20813,
+          "crc32": "647e31a3",
+          "crc_verified": true,
+          "sha256": "1f965517ed9a1dfc4a0ce50f529b7a37e127719ff8786116fd2109774f6b1165"
+        },
+        {
+          "path": "panorama/styles/popups/popup_settings_share_preview.vcss_c",
+          "bytes": 11105,
+          "crc32": "2248e81d",
+          "crc_verified": true,
+          "sha256": "c7e30bd4b180cc53489292a2a888ab811c24d1cd442bf3badcbb277848b0431d"
+        },
+        {
+          "path": "panorama/styles/popups/settings_color_slider.vcss_c",
+          "bytes": 10815,
+          "crc32": "00cf3286",
+          "crc_verified": true,
+          "sha256": "0b4a1a9b1533f6595b492bc365ced3e46f326d0b9122bdd5dffb2dc66dc0db6b"
+        },
+        {
+          "path": "panorama/styles/popups/settings_enum.vcss_c",
+          "bytes": 2167,
+          "crc32": "31fd0d78",
+          "crc_verified": true,
+          "sha256": "756c515d90e59b4bfc6aea9aab2e059e7e980652bfccf9a506271e334bcec90a"
+        },
+        {
+          "path": "panorama/styles/popups/settings_slider.vcss_c",
+          "bytes": 6899,
+          "crc32": "7b8fa6ed",
+          "crc_verified": true,
+          "sha256": "5ccb0189d553a8f261c7d3ce797c450dc6125e87fbd5cfb17ae9734ba6b971e7"
+        },
+        {
+          "path": "panorama/styles/popups/settings_toggle.vcss_c",
+          "bytes": 2528,
+          "crc32": "9dd35308",
+          "crc_verified": true,
+          "sha256": "c05ce9b4c67223ad3e011767dee1eca56bc6cd5c54ae563eaee9f2709c1f73b6"
+        },
+        {
+          "path": "panorama/images/control_icons/24px/settings_options.vsvg_c",
+          "bytes": 3436,
+          "crc32": "97e8a820",
+          "crc_verified": true,
+          "sha256": "d289578beccc84ae3522394ddcb91270eaf045b3e2333505f57ecc4593f6d95e"
+        },
+        {
+          "path": "panorama/images/icons/icon_party_settings.vsvg_c",
+          "bytes": 3971,
+          "crc32": "1022dff7",
+          "crc_verified": true,
+          "sha256": "54f82fb5e3a173db65efed53c8c8fe023e2e65b2e2246f590205e0f482981181"
+        },
+        {
+          "path": "panorama/images/icons/settings_global.vsvg_c",
+          "bytes": 2324,
+          "crc32": "1fd1aa27",
+          "crc_verified": true,
+          "sha256": "f4f501e494ac4f78c12e1e40ada9dac2041a8b5d253f937c0c30fb7bf1e5c066"
+        },
+        {
+          "path": "panorama/images/icons/settings_reset.vsvg_c",
+          "bytes": 3223,
+          "crc32": "b4082133",
+          "crc_verified": true,
+          "sha256": "ae1f45d6efd9488ed0ff6c7f7f48ad485bcc980eba00306ec61969df3480494d"
+        },
+        {
+          "path": "panorama/images/icons/settings_shortcut.vsvg_c",
+          "bytes": 2005,
+          "crc32": "cad7c28d",
+          "crc_verified": true,
+          "sha256": "a90c1d7389be81bdc156d0e6aa548eb1f3045ec571a88dd74daef35acb20bfbc"
+        },
+        {
+          "path": "panorama/images/chat_wheel/settings_chatwheel_png.vtex_c",
+          "bytes": 15111,
+          "crc32": "4ce00780",
+          "crc_verified": true,
+          "sha256": "9e3dc0b286adab8e49b96a511b28d17e737436324502c469dd7f04e30033bfc8"
+        },
+        {
+          "path": "panorama/layout/settings_enemy_healthbar_preview.vxml_c",
+          "bytes": 1899,
+          "crc32": "c3144da4",
+          "crc_verified": true,
+          "sha256": "ed1eeb40c8bd74cdc2d5c1b555d1c306d94aab4b8b320acfb12e39fb7bb3acd4"
+        },
+        {
+          "path": "panorama/layout/settings_keybinder.vxml_c",
+          "bytes": 2659,
+          "crc32": "cba9024b",
+          "crc_verified": true,
+          "sha256": "9a6766cd306c9292afc55a6ef44c177a70827a283d6c9a4150e759e7e5759b49"
+        },
+        {
+          "path": "panorama/layout/popups/popup_hero_settings_notice.vxml_c",
+          "bytes": 2423,
+          "crc32": "b296b3ad",
+          "crc_verified": true,
+          "sha256": "2d221e866590d4d34578b1e2b504bd707dc2354e22a9f4991ef6c8889e0809a8"
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings.vxml_c",
+          "bytes": 32094,
+          "crc32": "3895611e",
+          "crc_verified": true,
+          "sha256": "5d1bdc0e192fef226c2c2bf3030d5486e04ec3e5b561261ab6c1a35f6124e4ef"
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings_reset.vxml_c",
+          "bytes": 2631,
+          "crc32": "139aea2d",
+          "crc_verified": true,
+          "sha256": "85de94f58c9620936113c5497b153133cc8681b030bf5b5bd269937654f0bdf6"
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings_share.vxml_c",
+          "bytes": 4607,
+          "crc32": "6a016830",
+          "crc_verified": true,
+          "sha256": "6301343583e9c6cd4ca16d45b4811edc7fed07da2ec8b889433d34075e9de51c"
+        },
+        {
+          "path": "panorama/layout/popups/popup_settings_share_preview.vxml_c",
+          "bytes": 3611,
+          "crc32": "07660557",
+          "crc_verified": true,
+          "sha256": "a9adc8313f8f4ea1d973eaca0f218390cc6e0439b4079512a52f186345596625"
+        },
+        {
+          "path": "panorama/layout/popups/settings_color_slider.vxml_c",
+          "bytes": 1869,
+          "crc32": "15c84505",
+          "crc_verified": true,
+          "sha256": "1eb3ff768cebdf3af49aa28d9aa2433d560646ba00c126d95b83ff04613885fc"
+        },
+        {
+          "path": "panorama/layout/popups/settings_enum.vxml_c",
+          "bytes": 1542,
+          "crc32": "1093d593",
+          "crc_verified": true,
+          "sha256": "f054234ae8486fed5a2d6498f91eb1d1be985e6c243decf4085062947d8481f4"
+        },
+        {
+          "path": "panorama/layout/popups/settings_slider.vxml_c",
+          "bytes": 1756,
+          "crc32": "c9ff49ea",
+          "crc_verified": true,
+          "sha256": "c6bd04bfe66dc2a80a98ab6dfb37d3e673465a0ab7ba7d15bc54967d5dee7f80"
+        },
+        {
+          "path": "panorama/layout/popups/settings_toggle.vxml_c",
+          "bytes": 1533,
+          "crc32": "baed3424",
+          "crc_verified": true,
+          "sha256": "9fbb8951d8d0c9c211ab51a2ed7733a0f0883fc9f91860c9f6ebe22d1ec8069e"
+        }
+      ]
+    },
+    {
+      "directory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Deadlock\\game\\core\\pak01_dir.vpk",
+      "version": 2,
+      "header_bytes": 28,
+      "tree_bytes": 59930,
+      "tree_sha256": "3a0168e2366c190b3ba27603c340842a5256d051034ed9211eb953011b625e01",
+      "resources": 1450,
+      "missing_archives": [],
+      "indexed_resource_bytes": 653007744,
+      "extracted": []
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+Vendor research for Deadlock on Ryzen 7 9800X3D + Radeon RX 7800 XT
+As of 2026-10-03. Research only; no system mutations.
+
+Practical conclusions
+- Use native AMD low latency (r_low_latency 1, confirmed by engine agent) as a latency candidate, and compare its frametimes on/off. NVIDIA Reflex/Boost are inapplicable to this GPU.
+- Measure current 1080p output at 100% render scale against game-integrated FSR. Choose lower render scale by actual GPU pressure and readable moving targets/souls, not by an arbitrary promise.
+- Keep RSR, VSR, Radeon Boost/Chill, AFMF, Enhanced Sync and driver FRTC out of the first real-FPS comparison. FSR 3 menu text does not itself prove frame generation. Use the game limiter after measuring.
+- Leave HAGS, Game Mode, active Ultimate Performance and current driver unchanged for the initial config A/B. These are separate experiments.
+- Installed graphics driver 32.0.31041.1004 is Adrenalin 26.8.1. Official 26.9.2 exists (September 29), but its release notes do not establish a Deadlock fix.
+- Preserve shader caches during warm runs. Mod-cache remediation is separate from driver/Steam shader cache maintenance.
+- Display API confirms physical LG ULTRAGEAR+ primary current output 1920x1080 at 480 Hz and Acer XB273 GZ secondary portrait 1080x1920 at 240 Hz. Virtual SudoMaker outputs are detached. Panel native resolution, FreeSync/VRR and driver caps remain unconfirmed.
+- Determine Instant Replay state from settings; an AMD background service is insufficient evidence. Capture on/off is a benchmark control.
+- Audit snapshot shows low RAM/commit headroom. Measure page activity alongside frame timing before blaming a config or disabling the page file.
+
+The JSON is the complete decision/source map. All recommended choices are unmeasured candidate settings; no FPS improvement or superiority over OptiLock is claimed.
+
+Key sources
+https://gpuopen.com/anti-lag-2/
+https://www.amd.com/en/resources/support-articles/faqs/DH3-040.html
+https://www.amd.com/en/resources/support-articles/faqs/DH3-012.html
+https://gpuopen.com/version-table/
+https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-9-2.html
+https://devblogs.microsoft.com/directx/hardware-accelerated-gpu-scheduling/
+https://support.microsoft.com/en-us/windows/hardware/display-graphics/optimizations-for-windowed-games-in-windows-11
+https://github.com/GameTechDev/PresentMon/blob/main/README.md

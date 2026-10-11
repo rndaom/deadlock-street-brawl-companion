@@ -1,0 +1,95 @@
+{
+  "name": "deadlock-street-brawl-companion",
+  "version": "0.4.0",
+  "description": "Windows Street Brawl companion with visible team and build tracking and contextual item guidance",
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "overwolf": {
+    "packages": [
+      "gep"
+    ]
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run typecheck && node scripts/build.mjs",
+    "start": "node scripts/launch.mjs",
+    "start:overwolf": "node scripts/launch.mjs --overwolf",
+    "package:dir": "npm run build && electron-builder --dir --win --x64",
+    "catalog:sync": "node scripts/sync-catalog.mjs",
+    "reader:build": "node scripts/build-native.mjs",
+    "reader:icons": "node scripts/sync-reader-icons.mjs --verify",
+    "reader:context-icons": "node scripts/sync-context-icons.mjs --verify"
+  },
+  "dependencies": {
+    "lucide-react": "1.51.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@overwolf/ow-electron": "42.11.4",
+    "@types/node": "26.6.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
+  },
+  "build": {
+    "appId": "local.deadlock.streetbrawl",
+    "productName": "Street Brawl Companion",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "native/ScreenReader/publish",
+        "to": "screen-reader",
+        "filter": [
+          "ScreenReader.exe"
+        ]
+      },
+      {
+        "from": "assets/reader-icons",
+        "to": "reader-icons",
+        "filter": [
+          "manifest.json",
+          "context-templates.bin",
+          "context-templates.json",
+          "icons/*.png"
+        ]
+      },
+      {
+        "from": "assets/context-icons",
+        "to": "context-icons",
+        "filter": [
+          "manifest.json",
+          "templates.bin",
+          "templates.json",
+          "heroes/*.png",
+          "abilities/*.png",
+          "glyphs/*.png"
+        ]
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": "dir",
+      "signAndEditExecutable": false
+    }
+  }
+}

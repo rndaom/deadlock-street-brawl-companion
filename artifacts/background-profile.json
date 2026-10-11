@@ -1,0 +1,16 @@
+{
+  "SchemaVersion": 1,
+  "MeasuredAtUtc": "2026-10-03T22:17:43.9672139Z",
+  "Scope": "Already-running companion processes only; no game capture, OCR, or frame-rate measurement.",
+  "DurationSeconds": 20.02,
+  "LogicalProcessors": 16,
+  "CompanionProcessCount": 4,
+  "ProcessSetStable": true,
+  "DeadlockRunningThroughout": true,
+  "AverageTotalCpuPercent": 0.0,
+  "PeakSampledWorkingSetSumMB": 497.5,
+  "PeakSampledPrivateCommittedSumMB": 315.7,
+  "MemoryNote": "Working-set sums may double-count shared pages. Private committed memory is not resident physical RAM.",
+  "GameFrameRateMeasured": false,
+  "OcrImplemented": false
+}

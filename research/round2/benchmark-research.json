@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 2,
+  "researchedUtc": "2026-10-03T23:54:40Z",
+  "scope": "Initial read-only primary-source research and tool review, followed by explicitly assigned fixes to the owned capture/analyzer tools and offline tests. No collector download/execution, game control, configuration installation or FPS capture by this agent.",
+  "state": {
+    "installedGameBuildId": "25689475",
+    "installedVersion": {
+      "clientVersion": 6745,
+      "sourceRevision": 11078118,
+      "versionDate": "Oct 02 2026",
+      "versionTime": "17:45:04"
+    },
+    "machine": {
+      "cpu": "AMD Ryzen 7 9800X3D",
+      "gpu": "AMD Radeon RX 7800 XT",
+      "ram": "32 GB DDR5-6400",
+      "driver": "Adrenalin 26.8.1",
+      "hags": true,
+      "display": "Physical primary LG ULTRAGEAR+ 1920x1080@480Hz; physical secondary Acer XB273 GZ portrait 1080x1920@240Hz. Virtual adapters are detached, not the game display."
+    },
+    "profile": "Root previously installed aggressive (FSR1 at 80% render scale). Installed files do not establish the effective runtime settings.",
+    "originalBackup": "optimization/backups/2026-10-03T23-39-43-399Z-36559c46",
+    "replay": {
+      "historicalInventory": "research/replay-inventory.json: no .dem in full game and app-1422450 userdata/download scopes at 2026-10-03T23:04:13Z; pending request list is not a replay.",
+      "newerUserState": "Parent reports the user selected a current-patch replay. Readiness, downloaded file, camera, tick interval and playback speed are not independently verified by this agent.",
+      "implication": "Prefer that current-patch replay over a downloaded third-party benchmark/mod; obtain actual readiness before collection."
+    },
+    "parentCollectorSmoke": {
+      "evidenceType": "Parent-reported, not executed by this agent",
+      "result": "Initial background 2-second smoke: exit0, all three loss counters0, no CSV. Later foreground smoke: actual CSV with359 application intervals covering1.945118seconds; corrected millisecond schema passes continuity/coverage.",
+      "interpretation": "Foreground rendering makes collection feasible. The short schema smoke does not meet benchmark duration or comparison criteria and establishes no configuration gain.",
+      "followup": "Prepare an actual foreground30-60second observation, then a controlled repeated scene. Scene/cache/generation/cap/API declarations remain unknown unless independently obtained for that run."
+    },
+    "parentRuntimeObservations": {
+      "evidenceType": "Parent-reported native console observations, not captured by this agent",
+      "map": "cl_hideout",
+      "fpsMaxRuntime": 0,
+      "fpsMaxUi": 120,
+      "ragdollLimit": 20,
+      "limit": "These observations do not certify all graphics values, the replay route, effective backend, background workload or declarations throughout a future capture."
+    }
+  },
+  "sources": [
+    {
+      "id": "pm-release",
+      "kind": "Intel official release/API",
+      "url": "https://github.com/GameTechDev/PresentMon/releases/tag/v2.6.0",
+      "verified": "Latest official API still returns v2.6.0."
+    },
+    {
+      "id": "pm-cli",
+      "kind": "Pinned official documentation",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/README-ConsoleApplication.md",
+      "finding": "Standalone ETW console collector supports process PID/name filters, timed recording, frame-type tracking, CSV and no-input options."
+    },
+    {
+      "id": "pm-options",
+      "kind": "Pinned official source",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CommandLine.cpp",
+      "finding": "track_etw_status is accepted in hidden options even though release --help omits it. No generic --debug option. Do not confuse set_circular_buffer_size with a guessed set_buffer_size."
+    },
+    {
+      "id": "pm-status",
+      "kind": "Pinned official source",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/MainThread.cpp",
+      "finding": "Status lines report events/buffers/overflow counts without --debug; final warnings report nonzero losses. Optional administrator restart is opt-in. Standard privilege warning describes other-account/short-running process name querying."
+    },
+    {
+      "id": "pm-output",
+      "kind": "Pinned official source",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/OutputThread.cpp",
+      "finding": "Explicit PID target matches independently of process name. Lost/failed presents can be discarded before CSV output. Lack of malformed rows does not prove zero losses."
+    },
+    {
+      "id": "pm-csv",
+      "kind": "Pinned official source",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CsvOutput.cpp",
+      "finding": "Corrected using CLI and real foreground smoke: CommandLine.cpp selects MilliSeconds; v2_metrics CPUStartTime is milliseconds and interval FrameTime. Default CLI headers are TimeInMs/CPUStartTimeInMs with MsBetweenAppStart. The writer's seconds switch branch is not the selected default. Frame classification needs instrumentation; NotSet/Repeated can be Application in release output."
+    },
+    {
+      "id": "pm-cautions",
+      "kind": "Pinned official documentation",
+      "url": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/README.md",
+      "finding": "HAGS can reduce GPU execution timing accuracy. Vulkan/Other has less presentation instrumentation and weaker CPU pacing/latency attribution."
+    },
+    {
+      "id": "valve-update",
+      "kind": "Valve official current update",
+      "url": "https://www.playdeadlock.com/cityneversleeps",
+      "finding": "New engine/update with rendering work; native sandbox bot action recording/playback/loops and new replay camera/player-view controls. These are useful repeatability features, not a supplied FPS benchmark."
+    },
+    {
+      "id": "valve-developer",
+      "kind": "Verified Valve developer forum replies",
+      "url": "https://forums.playdeadlock.com/threads/suggestion-about-rendering.94150/page-2",
+      "finding": "JasperP uses bot matches for performance testing, asks to distinguish bot/Explore NYC/live matches, and says Vulkan selection requires restart. HUD suppression is a diagnosis experiment, not a usable competitive profile."
+    },
+    {
+      "id": "dense-city-report",
+      "kind": "Original player bug report on official forum; not Valve diagnosis",
+      "url": "https://forums.playdeadlock.com/threads/city-never-sleeps-severe-view-dependent-fps-regression-source-2-worker-cpu-time-54-in-dense-views-vulkan-dx11.166427/",
+      "finding": "Linux/13600KF/7900XTX author reports approximately 134 FPS versus 271 FPS with dense versus simple view; aggregate engine worker CPU time increases about 54%, Low versus Ultra changes little. Does not establish this Windows machine's bottleneck."
+    },
+    {
+      "id": "al2",
+      "kind": "AMD official GPUOpen integration guide",
+      "url": "https://gpuopen.com/learn/integrating-amd-radeon-anti-lag-2-sdk-in-your-game/",
+      "finding": "Updated Aug 27 2026; AL2 adds pacing before input polling and has an optional limiter. Test on/off separately; its software timing monitor does not measure full click-to-photon latency. Right Ctrl temporarily bypasses AL2; keep latency monitor off during throughput runs."
+    },
+    {
+      "id": "vulkan-al2",
+      "kind": "Khronos official extension reference; vendor agent corroboration",
+      "url": "https://docs.vulkan.org/refpages/latest/refpages/source/VkAntiLagDataAMD.html",
+      "finding": "An enabled Anti-Lag path can impose maxFPS; zero disables that optional limit. This does not prove which path Deadlock invokes."
+    },
+    {
+      "id": "old-no-csv",
+      "kind": "Official Intel issue tracker, original user reports",
+      "url": "https://github.com/GameTechDev/PresentMon/issues/478",
+      "finding": "Older v2.3 console-only CSV failure report remains open. It is not proof of a v2.6/Deadlock bug."
+    },
+    {
+      "id": "old-no-events",
+      "kind": "Official Intel issue tracker, original user report",
+      "url": "https://github.com/GameTechDev/PresentMon/issues/441",
+      "finding": "Older Windows 10 no-counter/no-CSV report with an administrator-session workaround. Do not generalize or auto-elevate here."
+    },
+    {
+      "id": "os-ddi",
+      "kind": "Official Intel issue tracker",
+      "url": "https://github.com/GameTechDev/PresentMon/issues/571",
+      "finding": "New OS flip/DDI event support was assigned v2.6.0 and issue closed; an old OS event deficiency is not enough to explain this smoke."
+    },
+    {
+      "id": "valve-demo-docs",
+      "kind": "Valve Developer Community, retrieval unavailable",
+      "url": "https://developer.valvesoftware.com/wiki/Demo_Recording_Tools",
+      "finding": "403 in current research. Generic Source docs and other games do not certify current Deadlock replay/runtime command behavior."
+    },
+    {
+      "id": "amd-ryzen-methodology",
+      "kind": "AMD official CPU-performance methodology",
+      "url": "https://gpuopen.com/learn/ryzen-performance/",
+      "updated": "2024-02-09",
+      "verified": "Live primary page checked2026-10-04: representative scenes, means/percentiles, sufficient tail samples and repeat variation. Under3% variation is AMD experience, not a universal significance gate. Cold-cache first-run tests are separate; no cache deletion between routine warm comparisons. GPU queue/idle diagnosis is stronger than aggregate CPU utilization."
+    }
+  ],
+  "presentMon": {
+    "latestVersion": "2.6.0",
+    "publishedUtc": "2026-09-21T17:30:36Z",
+    "asset": {
+      "name": "PresentMon-2.6.0-x64.exe",
+      "bytes": 980320,
+      "sha256": "b2a706bc6ad475749e3b7e3409263aa1e6906d45bdcf993f6dbc0f660188f1af",
+      "url": "https://github.com/GameTechDev/PresentMon/releases/download/v2.6.0/PresentMon-2.6.0-x64.exe"
+    },
+    "recordingArguments": [
+      "--process_id",
+      "<current-verified-deadlock-PID>",
+      "--output_file",
+      "<fresh-absolute-capture.csv>",
+      "--v2_metrics",
+      "--track_frame_type",
+      "--track_etw_status",
+      "--no_track_input",
+      "--delay",
+      "10",
+      "--timed",
+      "60",
+      "--terminate_after_timed",
+      "--no_console_stats",
+      "--session_name",
+      "<unique-session>"
+    ],
+    "wallTime": "At least approximately 70 seconds including 10-second lead-in; request foreground readiness for 80 seconds.",
+    "noAdditionalComponents": "Console executable alone; no MSI, persistent service, overlay, hook, DLL injection, game assets, launch flags or input automation needed.",
+    "statusRegex": {
+      "line": "EventsLost=(\\d+)\\s+BuffersLost=(\\d+),\\s+OverflowedPresents=(\\d+)",
+      "final": "Also parse final lost-event/lost-buffer/overflow warnings; record maximum seen count, never infer zero from absent output."
+    },
+    "noRowsPolicy": "Absent CSV or no frame rows is an unsuccessful measurement regardless of exit code. Preserve log and metadata, completed=false; no computed FPS.",
+    "escalationPolicy": "No restart_as_admin, registry/security/group changes or session-killing flags. If ETW capture remains unavailable, preserve the limitation and use user-executed native summary as exploratory evidence.",
+    "analysis": "For 60-second observation: warmup 0, requested duration 60, default minimum 60 (250 ms endpoint allowance in analyzer). For 30-second observation, explicitly min-seconds 30, warmup 0 and label exploratory; the stricter wrapper presently does not support observation without assertions."
+  },
+  "truthfulExploratoryMetadata": {
+    "evidenceType": "exploratory-observation",
+    "runId": "<unique-run>",
+    "profile": {
+      "id": "aggressive-installed",
+      "effectiveRuntimeVerified": null
+    },
+    "collector": {
+      "name": "PresentMon",
+      "version": "2.6.0",
+      "completed": "<actual nonempty CSV, exit 0, and elapsed timer completion>",
+      "exitCode": "<actual>",
+      "etwEventsLost": "<parsed actual or null>",
+      "etwBuffersLost": "<parsed actual or null>",
+      "overflowedPresents": "<parsed actual or null>",
+      "timestampUnit": "milliseconds"
+    },
+    "environment": {
+      "foregroundVerifiedDuringCapture": "<actual sampled state or null>",
+      "shaderCacheWarm": null,
+      "frameGenerationDisabled": null,
+      "sceneConfirmed": null,
+      "hags": true
+    },
+    "comparisonContext": {
+      "machineId": "<local alias>",
+      "gameBuildId": "25689475",
+      "driverVersion": "26.8.1",
+      "scenarioId": "user-selected-current-patch-replay-uncontrolled",
+      "renderer": null,
+      "outputWidth": null,
+      "outputHeight": null,
+      "outputRefreshHz": null,
+      "fpsMaxRuntime": null,
+      "backgroundWorkload": null,
+      "camera": null,
+      "scenarioType": null,
+      "replaySha256": null,
+      "replayId": null,
+      "startTick": null,
+      "endTick": null,
+      "playbackSpeed": null,
+      "sceneMap": null,
+      "sceneProcedure": null,
+      "sceneStateId": null
+    },
+    "runtime": {
+      "effectiveFpsCap": null,
+      "renderAPI": null,
+      "replayStartTick": null,
+      "camera": null,
+      "playbackSpeed": null
+    },
+    "warning": "Placeholders are instructions, not production values. Substitute actual measured/declaration values; unknown fields stay null. Complete scene/runtime context and known-zero loss status are required before comparison. Completeness is not independent runtime readback proof."
+  },
+  "nativeGameMeasurement": {
+    "method": "Read file bytes as strings only; no DLL loading, attachment, memory scanning or console execution.",
+    "binariesInspected": [
+      "engine2.dll",
+      "tier0.dll",
+      "citadel/bin/win64/client.dll",
+      "citadel/bin/win64/server.dll",
+      "rendersystemdx11.dll",
+      "rendersystemvulkan.dll",
+      "scenesystem.dll",
+      "worldrenderer.dll",
+      "materialsystem2.dll"
+    ],
+    "literalFpsbench": {
+      "found": false,
+      "additionalSearch": "No literal in the two installed native VPK indexes or indexed official documentation/forum search.",
+      "conclusion": "No current-build fpsbench syntax/flags/output schema verified. This is a scoped absence, not proof that every hidden tool is absent. Do not issue guessed commands."
+    },
+    "timedemo": {
+      "nativeSyntax": "timedemo <demoname> <optional stats.txt>",
+      "related": [
+        "timedemo_start",
+        "timedemo_end",
+        "timedemo_profile.csv",
+        "demo_goto <tick> [relative] [pause]"
+      ],
+      "limits": "Flags, release availability, precise stats definitions and current replay compatibility not runtime verified. Accelerated timedemo may change simulation/network/pacing; do not replace real-time heavy-combat replay measurements with it or alter demo speed."
+    },
+    "vprofLite": {
+      "nativeCommand": "engine_frametime_print_report",
+      "expectedOutput": "Existing profiler summary includes FPS Avg/P1, number of analyzed/excluded frames, subsystem time rows and one-second distributions.",
+      "nativeFileHints": "perfstats_ and CSV column hints: Run Time, Frame Time, Simulation, Sim Ticks, Single Tick, Server, Client, Render Wait, Present Wait, Render GPU; position fields.",
+      "samplingCaution": "cl_frame_perf_sample_buffer_max describes random frame sampling. An engine CSV can be sampled/session-wide; source strings do not certify completeness or a window matching PresentMon.",
+      "fileInventory": "No console/condump/perfstats/timedemo CSV found in the inspected game filename inventory at review time. No private player/chat log content inspected.",
+      "nextStep": "If ETW cannot capture, user can query runtime help/list and execute engine_frametime_print_report after the selected interval, then condump; extract only performance/settings data. Do not enable vprof/developer/cheat tools automatically."
+    },
+    "consoleLogging": "condump and -con_logfile string evidence exists. -condebug/-conclearlog compatibility remains unverified for this build; do not add arbitrary logging launch flags. A read-only cvarlist/help query still requires executing a console command and changes console state."
+  },
+  "experiments": [
+    {
+      "priority": 0,
+      "title": "Validate monitor, then observe current profile",
+      "change": "None",
+      "interval": "30-60 seconds, preferably 60",
+      "controls": "Verified current PID/lifetime and sampled foreground; all unverified scene/cache/FG/effective-setting fields remain unknown.",
+      "output": "Actual application frametime stream, FPS/mean-tail 1%/p99/hitch distribution if ETW succeeds; baseline observation only.",
+      "userAction": "Play selected current-patch replay at normal speed, keep game foreground; no profile switching yet."
+    },
+    {
+      "priority": 1,
+      "title": "Establish dense city and combat repeatability",
+      "change": "None",
+      "interval": "One dense-geometry interval and one later effect-heavy interval from same replay; do not average them together.",
+      "controls": "Record replay identity/hash where available, exact start/end tick or replay time, one hero/player view, camera setting/FOV/HUD, speed 1, no pause/menu/tab transitions. Traverse interval twice before warm runs.",
+      "output": "Repeat variation and scene sensitivity; quiet sandbox kept as separate diagnostic.",
+      "userAction": "Choose view, scrub the same start time, play; confirm driver frame generation off and effective settings when available."
+    },
+    {
+      "priority": 2,
+      "title": "Installed aggressive versus exact original",
+      "change": "Only the declared configuration comparison; baseline exact Oct 3 backup, candidate exact installed profile.",
+      "controls": "Same renderer, replay/camera/ticks, cap, display, driver, background load and warmed assets; game closed and cloud complete for file installs.",
+      "design": "One ABBA block for screening (not proof); promising result gets at least three independent ABBA/BAAB blocks. Existing comparer requires 12 captures.",
+      "output": "Gains above repeat variation with mean-tail 1% and p99 guardrails; report readability separately.",
+      "userAction": "Safe exit/restart and replay seek for each profile, or native menu changes if all required settings really apply live."
+    },
+    {
+      "priority": 3,
+      "title": "Resolution response before lower quality",
+      "change": "FSR1 80% versus 60% only",
+      "controls": "Fixed dense and combat intervals; no backend/Anti-Lag/texture changes combined. 60% is a supported menu candidate, not an asserted improvement.",
+      "interpretation": "Strong FPS response with GPU busy evidence suggests pixel/GPU limit; near-zero response suggests caps or CPU/scene work. HAGS timing alone cannot diagnose. 60% of1080p is1152x648 and may hurt distant-target readability.",
+      "userAction": "Native video scale change and same replay seek; visually compare motion/targets/effects."
+    },
+    {
+      "priority": 4,
+      "title": "Native Anti-Lag2 throughput versus latency",
+      "change": "AL2 on versus off only",
+      "controls": "Same effective uncapped FPS, renderer and scene; verify whether any AL2 limiter is wired by game. Keep its diagnostic monitor off for throughput.",
+      "interpretation": "AL2 is pacing/latency technology; no guaranteed FPS boost or guaranteed off winner. Replay does not validate live input latency; software monitor not click-to-photon.",
+      "userAction": "Menu change or deliberate SDK-documented temporary bypass for diagnosis, then explicit stable on/off state for repeated runs."
+    },
+    {
+      "priority": 5,
+      "title": "DX11 versus Vulkan",
+      "change": "Renderer only",
+      "controls": "Restart each backend; independently warm exact route; same video settings/AL2 state. Confirm actual loaded backend, not just stored checkbox. Revert on visual/stability regression.",
+      "interpretation": "Measure on this Windows/RDNA3 system; Linux DXVK report does not predict winner. Vulkan CPU/GPU attribution less exact.",
+      "userAction": "Select renderer in native menu, exit/restart, warm and repeat replay."
+    }
+  ],
+  "metricDefinitions": {
+    "averageFps": "1000 divided by arithmetic mean of application intervals in milliseconds. Do not average per-frame FPS.",
+    "onePercentLow": "1000 divided by mean of slowest ceil(N*0.01) intervals; distinct from 1000/p99.",
+    "percentile": "Linear interpolation at (N-1)*p over sorted intervals.",
+    "exclusions": "Trim only prespecified lead-in/window boundaries. Keep genuine long frames. Never sum swapchains/processes or market generated frames as rendered FPS.",
+    "uncertainty": "30-60 seconds supports monitoring/screening; one scenario and one run establish no causal profile win. Comparable scene metadata is a declaration, not automatic proof."
+  },
+  "toolReview": {
+    "modified": true,
+    "satisfactory": [
+      "Pinned official hash/source, scoped explicit download, no injection/game input, unique ETW session and output files, focus/lifetime checks, null missing counters, actual exit and log preservation.",
+      "Analyzer distinguishes frame-time definitions; rejects truncated/discontinuous/mixed streams, generated/unknown rows for comparison; null metadata counters produce unknown-warning rather than numeric parse failure.",
+      "Comparer uses independent ABBA blocks, source hashes and context/method checks; synthetic fixtures are rejected as evidence. No statistical confidence claim.",
+      "Concrete known runtime/scenario declarations now gate eligibility and are independently validated by comparator; unknown cap/camera/route stays exploratory even with stale quality flags. Native-scene and replay results are distinguished."
+    ],
+    "defectsAndLimitations": [
+      {
+        "id": "B1",
+        "severity": "Workflow blocker for exploratory observation",
+        "source": "optimization/tools/Capture-PresentMon.ps1:10",
+        "issue": "Mandatory ForegroundConfirmed and SceneConfirmed are appropriate for controlled runs but force unsupported scene assertion for an uncontrolled autonomous observation.",
+        "recommendation": "Root can use direct CLI with truthful null metadata now. If assigned, add explicit observation mode with foreground sampling and unknown scene/cache/FG state; never silently relax comparison checks.",
+        "status": "remaining-workflow-or-measurement-limitation"
+      },
+      {
+        "id": "B2",
+        "severity": "Moderate",
+        "source": "optimization/tools/Capture-PresentMon.ps1:26",
+        "issue": "Wrapper permits at least30 effective seconds, while printed analyzer command defaults to60 minimum. Seconds60 with default warmup10 yields50 and refuses; Seconds30 with warmup10 is rejected outright.",
+        "recommendation": "Require60 effective seconds for controlled comparison or explicitly print matched min-seconds for a clearly labeled short exploratory observation.",
+        "status": "resolved-offline-validated",
+        "resolution": "Printed analyzer command now includes --min-seconds=min(declared effective analysis window,60), retaining the script 30-second floor. Node test accepts a complete50-second stream while refusing an uncovered60-second request; PowerShell checks cover30/50/120-second windows."
+      },
+      {
+        "id": "B3",
+        "severity": "Evidence-quality gap",
+        "source": "optimization/tools/analyze-presentmon.mjs:208",
+        "issue": "eligibleForComparison requires declarations/completion but not traceLossVerified. Unknown loss status can enter comparison despite strict quality objective.",
+        "recommendation": "Require all3 counters knownzero for verified comparison, while retaining unknown/null exploratory analysis with warnings. Also reject negative CSV loss counters if that nonstandard schema is admitted.",
+        "status": "resolved-offline-validated",
+        "resolution": "Analyzer eligibility requires traceLossVerified; comparator independently requires it even if a stale report sets eligible=true. Null/missing status remains valid exploratory input. CSV counters must be nonnegative integers and all knownzero for verification."
+      },
+      {
+        "id": "B4",
+        "severity": "Moderate resilience",
+        "source": "optimization/tools/Capture-PresentMon.ps1",
+        "issue": "Collector process wait has no bounded watchdog; stalled timer/session may wait indefinitely.",
+        "recommendation": "Bound wall time with generous grace and terminate only the wrapper-owned collector if needed; mark capture incomplete, preserve logs. Never stop the game or another session.",
+        "status": "resolved-offline-validated",
+        "resolution": "Deadline=delay+capture+30seconds; after expiry only returned collector instance may be killed, guarded by retained process handle, PID, creation time and pinned path. Cleanup wait is at most5seconds. Failure marks incomplete, preserves logs/metadata and retains original stdout/stderr if exit/read cannot be confirmed. No game/other-session termination."
+      },
+      {
+        "id": "B5",
+        "severity": "Intentional limitation",
+        "issue": "PID focus sampled500ms can miss brief switches, shader/FG assertions are declarations, effective game caps/renderAPI/menu state is not verified.",
+        "recommendation": "Keep warnings and obtain runtime/native user confirmation before comparative claims.",
+        "status": "remaining-workflow-or-measurement-limitation"
+      },
+      {
+        "id": "B6",
+        "severity": "Evidence-quality gap",
+        "status": "resolved-offline-validated",
+        "issue": "Old final overflow-warning pattern missed the official source wording overflowed present events, so a final nonzero count could be overlooked after earlier zero status.",
+        "resolution": "Pure Get-CaptureEtwLossCounters helper matches actual pinned warning wording and legacy plural, takes maximum counts, and leaves absent status null. Offline tests prove final positive warnings override earlier zero lines for all3counters."
+      },
+      {
+        "id": "B7",
+        "severity": "Critical schema interpretation error caught before benchmark",
+        "status": "resolved-source-and-real-smoke-validated",
+        "issue": "CPUStartTime incorrectly mapped to seconds despite actual pinned CLI output using milliseconds; original synthetic v2/default fixtures also used wrong units.",
+        "resolution": "Analyzer1.1.1 maps known CLI CPUStartTime to milliseconds; wrapper explicitly records matching milliseconds and rejects conflicting inherited declarations. Both fixtures corrected. Synthetic30FPS unit test rejects wrong-seconds interpretation, and real foreground CSV passes continuity/coverage without relaxing comparison criteria."
+      },
+      {
+        "id": "B8",
+        "severity": "Evidence-quality gap",
+        "status": "resolved-offline-validated",
+        "issue": "Only machine/build/driver/scenarioId were required; null cap/backend/output/camera or replay interval could previously survive matching context and yield a winner.",
+        "resolution": "Analyzer1.2.0 requires known renderer/output/cap/camera/background plus replay identity and ordered integer ticks/positive speed, or native map/procedure/state. Comparer reruns requirements independently of stale eligible/contextComplete flags. Numeric cap0 is valid. Unknowns remain exploratory. Complete matched declarations do not automatically prove physical runtime readback or scene replication."
+      }
+    ],
+    "tests": {
+      "completedUtc": "2026-10-04T00:14:12Z",
+      "nodeCommand": "node --test optimization/tests/presentmon.test.mjs",
+      "nodeTestsPassed": 26,
+      "nodeTestsFailed": 0,
+      "powershellCommand": "powershell -NoProfile -ExecutionPolicy Bypass -File optimization/tests/capture-wrapper.test.ps1",
+      "powershellChecksPassed": 21,
+      "powershellParseErrors": 0,
+      "collectorExecuted": false,
+      "binaryDownloaded": false,
+      "processTerminated": false,
+      "limitation": "Synthetic parser/comparison and offline PowerShell helper/AST checks. Actual2-second foreground CSV was also analyzed offline for units/interval continuity, not as benchmark evidence. Live watchdog termination has not been executed by this agent."
+    },
+    "analyzerVersion": "1.2.0"
+  },
+  "autonomousBoundary": {
+    "feasibleNow": "Prepare truthful capture metadata and exact CLI, inspect already-created raw logs/CSV, analyze offline, verify hashes/version/PID/lifetime and sample foreground without game input. Root alone coordinates/downloads/captures to avoid concurrent load.",
+    "requiresSceneUser": "Scene control is required for replay readiness, selected player/view/normal speed/start and repeated seek, avoiding menus/focus changes, warm traversal and readable-quality assessment. Root reports newer user authorization to operate native UI, so these controls need not require the user to physically operate every step; this research agent still performs no game control.",
+    "requiresControlledChangeUser": "Config/backend changes require coordinated game exit/restart/cloud completion or verified native menu application. Any authorized root UI/console control must be captured in metadata and performed outside an active match; this research agent does not perform it.",
+    "performanceLimit": "No research, static audit, empty smoke or synthetic test can establish 'best', a measured OptiLock win, 1000x gains, or full input latency."
+  },
+  "timestampCorrection": {
+    "reason": "Previous review considered CsvOutput default seconds switch arm but missed CommandLine actual default MilliSeconds assignment.",
+    "correctedUtc": "2026-10-04T00:05:54Z",
+    "commandLineEvidence": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CommandLine.cpp#L633",
+    "writerEvidence": "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CsvOutput.cpp#L999",
+    "realForegroundCsv": "optimization/local/captures/round2-smoke/foreground-20261004T000221.csv",
+    "actualSchemaUnit": "milliseconds",
+    "frameCount": 359,
+    "coveredSeconds": 1.945118,
+    "coverageRatio": 1,
+    "benchmarkCriteriaMet": false,
+    "codePolicy": "Known CLI schema mapping plus explicit validated metadata; never magnitude inference."
+  },
+  "updatedUtc": "2026-10-04T00:14:12Z",
+  "comparisonContextContract": {
+    "version": "1.2.0",
+    "requiredKnownStrings": [
+      "machineId",
+      "gameBuildId",
+      "driverVersion",
+      "scenarioId",
+      "renderer",
+      "backgroundWorkload",
+      "camera"
+    ],
+    "requiredNumbers": {
+      "outputWidth": "Positive safe integer",
+      "outputHeight": "Positive safe integer",
+      "outputRefreshHz": "Positive finite number",
+      "fpsMaxRuntime": "Nonnegative finite number; numeric0 means uncapped; string0 rejected"
+    },
+    "scenarioAlternatives": {
+      "replay": "scenarioType=replay; replaySha25664hex OR known replayId; startTick/endTick nonnegative safe integers with end>start; playbackSpeed positive finite numeric",
+      "nativeScene": "scenarioType=native-scene; known sceneMap/sceneProcedure/sceneStateId; same analysis method and measured window"
+    },
+    "unknownPolicy": "Missing/null/unknown/placeholder-like declarations remain valid exploratory analysis, comparisonContextComplete=false and eligibleForComparison=false. Comparer independently rejects them even if report quality flags are stale true.",
+    "matching": "Entire comparisonContext matches exactly across reports, as do frame-time method, timestamp units, warmup, duration and collector version. Actual backend interventions need a separate explicitly designed context policy; never misstate renderer to force a comparison.",
+    "evidenceLimit": "Structural completeness validates declarations, not automatic runtime readback, scene state, matched camera or identical background activity.",
+    "output": "consistentScenarioImprovement covers either type; legacy consistentReplayImprovement can be true only for replay scenarios.",
+    "currentResult": "Foreground359-interval1.945118s schema smoke proves collection/units only; no empirical configuration winner is established."
+  }
+}

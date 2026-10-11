@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": 6774,
+  "sourceRevision": 11112755,
+  "patchDateTime": "2026-10-09T16:19:46",
+  "patchTimeZone": null,
+  "language": "english",
+  "owner": "Community Deadlock API parsing Valve assets; not an official Valve API",
+  "sourceArchive": "catalog-sources/client-6774-c9cacf2ee13f7b67",
+  "sources": [
+    {
+      "name": "openapi",
+      "url": "https://api.deadlock-api.com/openapi.json",
+      "retrievedAt": "2026-10-11T16:18:02.423Z",
+      "bytes": 458675,
+      "sha256": "64ef8fcc2b28d39fa4fdf4e9e5a7d73ea92d22735fea2c21ea92e608637e3f6c",
+      "cacheAgeSeconds": null,
+      "lastModified": null,
+      "cacheControl": null,
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "steam-info",
+      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6774",
+      "retrievedAt": "2026-10-11T16:18:02.731Z",
+      "bytes": 253,
+      "sha256": "82cb800963e07440e1bbe3c058e60f224766caaf34dd61133cd5cff01a052137",
+      "cacheAgeSeconds": null,
+      "lastModified": "Sun, 11 Oct 2026 16:18:01 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "items",
+      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6774",
+      "retrievedAt": "2026-10-11T16:18:03.098Z",
+      "bytes": 6157215,
+      "sha256": "31c96630cba83b9fdbbedf62bb76a70cc3334667f05d2694c58d1d73791fe596",
+      "cacheAgeSeconds": null,
+      "lastModified": "Sun, 11 Oct 2026 16:18:02 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "heroes",
+      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6774",
+      "retrievedAt": "2026-10-11T16:18:03.024Z",
+      "bytes": 1881684,
+      "sha256": "903da6e8aa54d96c3a04b956bd300708f19bf48c9c44a9799b3e22da1415880b",
+      "cacheAgeSeconds": null,
+      "lastModified": "Sun, 11 Oct 2026 16:18:02 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "generic-data",
+      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6774",
+      "retrievedAt": "2026-10-11T16:18:03.046Z",
+      "bytes": 25246,
+      "sha256": "73a30810a0b811aab12b4fbef9ff2a7e33f31b5b8e6b85210ad03f311518f496",
+      "cacheAgeSeconds": null,
+      "lastModified": "Sun, 11 Oct 2026 16:18:02 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    }
+  ],
+  "catalog": {
+    "file": "public-catalog.json",
+    "sha256": "d02c3adace68c3eaf481fba8bd19d3cba05e9b0a26ea9c042be5f056e5fbad41",
+    "bytes": 92234
+  },
+  "counts": {
+    "sourceItemRecords": 757,
+    "sourceHeroRecords": 65,
+    "baseShopItems": 173,
+    "releasedHeroes": 41,
+    "signatureAbilitySlots": 164
+  },
+  "coverage": {
+    "itemFilter": "type=upgrade, shopable=true, shop_version=0, supported category; source tiers 1–5 retained",
+    "heroFilter": "Selectable release heroes; all disabled/development/testing/prerelease flags excluded",
+    "excludedHeroes": [
+      {
+        "id": "hero_kali",
+        "name": "Kali",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": false,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_gunslinger",
+        "name": "Gunslinger",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": true,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_yakuza",
+        "name": "The Boss",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_wrecker",
+        "name": "Wrecker",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_rutger",
+        "name": "Rutger",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": true,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_thumper",
+        "name": "Thumper",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": true,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_slork",
+        "name": "Fathom",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_cadence",
+        "name": "Cadence",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": true,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_bomber",
+        "name": "Bomber",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_shieldguy",
+        "name": "Shield Guy",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_vandal",
+        "name": "Vandal",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_trapper",
+        "name": "Trapper",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_operative",
+        "name": "Raven",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_boho",
+        "name": "Boho",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_skyrunner",
+        "name": "Skyrunner",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_swan",
+        "name": "Swan",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_druid",
+        "name": "Druid",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_graf",
+        "name": "Graf",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_fortuna",
+        "name": "Fortuna",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_deadpack",
+        "name": "Deadman Danny",
+        "developmentState": "pre_release",
+        "playerSelectable": false,
+        "disabled": false,
+        "inDevelopment": false,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false,
+        "prereleaseOnly": true
+      },
+      {
+        "id": "hero_opera",
+        "name": "Opera",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_testhero",
+        "name": "hero_testhero",
+        "playerSelectable": false,
+        "disabled": true,
+        "inDevelopment": true,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false
+      },
+      {
+        "id": "hero_artist",
+        "name": "Violet",
+        "developmentState": "pre_release",
+        "playerSelectable": false,
+        "disabled": false,
+        "inDevelopment": false,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false,
+        "prereleaseOnly": true
+      },
+      {
+        "id": "hero_nurse",
+        "name": "Nurse Harrow",
+        "developmentState": "pre_release",
+        "playerSelectable": false,
+        "disabled": false,
+        "inDevelopment": false,
+        "needsTesting": false,
+        "assignedPlayersOnly": false,
+        "limitedTesting": false,
+        "prereleaseOnly": true
+      }
+    ],
+    "itemTierCounts": {
+      "1": 23,
+      "2": 43,
+      "3": 46,
+      "4": 44,
+      "5": 17
+    },
+    "streetBrawlOverrides": 8,
+    "unmodeled": [
+      "Live offer eligibility and offer-pool probabilities",
+      "Enhanced/legendary/corrupted modifier evaluation",
+      "Item marginal value, win rates and causal effects",
+      "Runtime possession, ability investment and round behavior",
+      "Installed build compatibility until participant telemetry supplies a client version"
+    ]
+  },
+  "tagRuleVersion": 1,
+  "tagDefinitions": {
+    "weapon": "Weapon category or positive weapon/fire-rate properties",
+    "spirit": "Spirit category or positive spirit-power property",
+    "melee": "Melee damage mechanic or brawler hero role",
+    "healing": "Positive healing/regeneration/lifesteal mechanic",
+    "support": "Description explicitly supports an ally",
+    "anti-heal": "Offensive enemy healing reduction; wearer penalties excluded",
+    "bullet-resist": "Positive bullet resistance or immunity",
+    "spirit-resist": "Positive spirit resistance",
+    "melee-resist": "Positive melee resistance or immunity",
+    "crowd-control": "Explicit hostile slow/stun/root/silence/disarm mechanic",
+    "control-resist": "Status/slow resistance, cleanse or debuff immunity",
+    "mobility": "Positive movement/stamina property or explicit caster movement action"
+  },
+  "notes": [
+    "All raw static sources retained with SHA-256; refresh pins metadata and all assets to an explicit client_version.",
+    "Static tags describe mechanics and do not score numerical damage or prove an optimal pick.",
+    "Street Brawl overrides use explicit non-null source values for descriptive sign checks; complete raw properties/formulas remain in the archive.",
+    "Tier-5 shop records are special source definitions; shopability does not establish current Street Brawl offer eligibility.",
+    "Source version_datetime has no timezone and is not relabeled UTC.",
+    "Source metadata is cached by the provider; request/retrieval time and cache age are recorded separately.",
+    "Public asset retrieval does not verify the installed game or pass the automatic participant telemetry gate.",
+    "Valve owns game text and assets. This same-machine bundle makes no redistribution-rights claim."
+  ],
+  "researchPins": {
+    "steamTrackingCommit": "2d87734ca5663301b9cc293131f64d80cee73d38",
+    "apiSourceCommit": "f6e1974d45af3ccebe0f36324ea22e1e12990ff3",
+    "note": "Reviewed research source commits; these do not authenticate the mutable provider response."
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "researchDate": "2026-10-03",
+  "scope": "Mod-free Deadlock benchmarking on the user's existing Windows PC; authoring and read-only research only",
+  "validation": {
+    "gameLaunched": false,
+    "externalBinaryDownloaded": false,
+    "externalBinaryRun": false,
+    "fpsMeasured": false,
+    "gameFilesModified": false,
+    "nodeSyntheticTestsPassed": 17,
+    "powershellOfflineChecksPassed": 7,
+    "captureWrapperParserErrors": 0,
+    "limitations": [
+      "Synthetic fixture checks validate calculations and guardrails, not Deadlock performance.",
+      "PresentMon live privileges, runtime command behavior, replay compatibility, frame instrumentation and collector overhead are unverified on this machine.",
+      "No downloaded replay .dem was found in the full installed-game and app-1422450 userdata/download scopes, including hidden and ignored files; see research/replay-inventory.json. A pending_replay_requests.lst file is metadata, not a downloaded replay.",
+      "No performance superiority over OptiLock or the stock baseline has been measured."
+    ]
+  },
+  "machineContext": {
+    "cpu": "AMD Ryzen 7 9800X3D",
+    "gpu": "AMD Radeon RX 7800 XT",
+    "driver": "AMD Adrenalin 26.8.1 (vendor research agent)",
+    "hags": "enabled (vendor research agent)",
+    "gameProcess": "deadlock.exe",
+    "gameBuildId": "25689475 (root audit)",
+    "clientVersion": "6745 (installed steam.inf read)",
+    "sourceRevision": "11078118",
+    "versionDate": "Oct 02 2026",
+    "versionTime": "17:45:04",
+    "activePhysicalDisplays": [
+      {
+        "primary": true,
+        "model": "LG ULTRAGEAR+",
+        "resolution": "1920x1080",
+        "refreshHz": 480
+      },
+      {
+        "primary": false,
+        "model": "Acer XB273 GZ",
+        "resolution": "1080x1920 portrait",
+        "refreshHz": 240
+      }
+    ],
+    "virtualDisplayState": "All audited SudoMaker virtual display outputs are detached; the primary 480 Hz output is a physical LG display.",
+    "displayEvidence": "research/hardware-audit.json ActiveDisplays and DetachedVirtualDisplayOutputs",
+    "attention": "Root/vendor audits reported RAM/commit pressure. The corrected hardware topology is a physical primary LG ULTRAGEAR+ at 1920x1080@480Hz and a physical secondary Acer portrait display at 1080x1920@240Hz, with virtual outputs detached. Record the game's actual target and stable background workload before FPS comparisons."
+  },
+  "presentMon": {
+    "repository": "https://github.com/GameTechDev/PresentMon",
+    "release": "https://github.com/GameTechDev/PresentMon/releases/tag/v2.6.0",
+    "version": "2.6.0",
+    "publishedUtc": "2026-09-21T17:30:36Z",
+    "releaseApi": "https://api.github.com/repos/GameTechDev/PresentMon/releases/tags/v2.6.0",
+    "standaloneAsset": "https://github.com/GameTechDev/PresentMon/releases/download/v2.6.0/PresentMon-2.6.0-x64.exe",
+    "bytes": 980320,
+    "sha256": "b2a706bc6ad475749e3b7e3409263aa1e6906d45bdcf993f6dbc0f660188f1af",
+    "captureArguments": [
+      "--process_id",
+      "USER_SELECTED_CURRENT_PID",
+      "--output_file",
+      "capture.csv",
+      "--v2_metrics",
+      "--track_frame_type",
+      "--track_etw_status",
+      "--no_track_input",
+      "--delay",
+      "10",
+      "--timed",
+      "130",
+      "--terminate_after_timed",
+      "--no_console_stats",
+      "--session_name",
+      "UNIQUE_SESSION_NAME"
+    ],
+    "captureSemantics": "10 seconds to refocus, then 130 recorded seconds. Analyze 120 seconds after a predetermined 10-second measurement lead-in. The game must already be running; no process launch/input/injection is needed.",
+    "schemaCaution": "Corrected after real foreground smoke: CommandLine.cpp selects MilliSeconds by default. Default CLI headers include TimeInMs, CPUStartTimeInMs, MsBetweenAppStart, MsCPUBusy, MsGPUBusy. --v2_metrics emits CPUStartTime in milliseconds and FrameTime, not CPUFrameTime. The writer's seconds switch branch is not the parser-selected default. --qpc_time_ms uses CPUStartQPCTime milliseconds. CSV is UTF-8 with BOM.",
+    "etwCaution": "--track_etw_status is parsed in pinned CommandLine.cpp and prints counters through MainThread.cpp. New unified CSV does not contain those ETW columns; wrapper parses console counters and final loss warnings. Missing counters remain null, never assumed zero.",
+    "method": "Standalone ETW collection without an overlay or process injection; the service/MSI/GUI are unnecessary for this protocol.",
+    "sources": [
+      "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/README.md",
+      "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/README-ConsoleApplication.md",
+      "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CsvOutput.cpp",
+      "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CommandLine.cpp",
+      "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/MainThread.cpp",
+      "https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/OutputThread.cpp"
+    ]
+  },
+  "gameCommandEvidence": {
+    "method": "Read printable strings from installed engine2.dll and tier0.dll. Registration flags and runtime behavior cannot be proven from strings alone.",
+    "engine": "C:/Program Files (x86)/Steam/steamapps/common/Deadlock/game/bin/win64/engine2.dll",
+    "tier0": "C:/Program Files (x86)/Steam/steamapps/common/Deadlock/game/bin/win64/tier0.dll",
+    "found": {
+      "cvarlist": "cvarlist: [ partial ]",
+      "condump": "condump%03d.txt; console description still mentions condumpXX.log",
+      "timedemo": "timedemo <demoname> <optional stats.txt> : gets demo speeds",
+      "timedemo_start": "Starts timedemo on given tick.",
+      "timedemo_end": "Ends timedemo on given tick.",
+      "engine_frametime_print_report": "Print a performance report from the current data in the vprof 'lite' profiler",
+      "consoleLoggingOptions": [
+        "-consolelog",
+        "-con_logfile"
+      ]
+    },
+    "notStaticallyVerified": [
+      "-condebug",
+      "-conclearlog"
+    ],
+    "safeRuntimeDiscovery": "Use the game's ordinary console while out of a match: help cvarlist; help condump; cvarlist; condump. Prefer cvarlist <partial> for candidate families if full output exceeds console history. Identify the newly created condumpNNN.txt by timestamps; preserve existing output. Presence in a binary or old OptiLock list does not establish a currently writable release cvar.",
+    "launchDiscoveryCaution": "Do not use -conclearlog as a default: it can erase an existing log, and its current build support was not established. +cvarlist is not a substitute for knowing when every client command has registered. Do not enable cheats or modify gameinfo.gi to make dev-only controls available.",
+    "profilerCaution": "timedemo may run an accelerated replay and the built-in lite report may be session cumulative. Treat their syntax/functionality as candidates to verify, rather than substitutes for real-time ETW frametime distributions. Do not leave vprof active for FPS benchmarking."
+  },
+  "primaryValveEvidence": [
+    {
+      "url": "https://forums.playdeadlock.com/threads/suggestion-about-rendering.94150/page-2",
+      "author": "JasperP, account marked Valve Developer",
+      "dates": [
+        "2026-02-12",
+        "2026-02-14",
+        "2026-02-17"
+      ],
+      "posts": [
+        21,
+        25,
+        33
+      ],
+      "finding": "Valve's developer asks for separate bot/explore/live behavior, DX11 versus Vulkan checks and RAM behavior; states that bot matches are used internally for performance testing. Vulkan selection needs a game restart. HUD visibility is a diagnostic test, not a recommended competitive config."
+    },
+    {
+      "url": "https://forums.playdeadlock.com/threads/severe-frametime-spikes-when-pressing-keyboard-or-mouse-inputs.84837/page-2",
+      "author": "JasperP, account marked Valve Developer",
+      "date": "2026-03-13",
+      "post": 28,
+      "finding": "For persistent unexplained stutter, Valve requests an exact PerfView trace with OS/CPU/GPU context and private forum delivery. No trace or message was sent."
+    }
+  ],
+  "sourceLimitations": [
+    "Valve Developer Community Demo Recording Tools, PerfView and Command line options pages returned HTTP 403; no precise modern syntax was assumed from inaccessible content.",
+    "Old OptiLock cvarlist is a secondary cross-check only. Its release/cheat/dev flags cannot validate installed build 6745.",
+    "Generic Source timedemo documentation and another Source 2 game's behavior are insufficient to certify Deadlock's current replay workflow."
+  ],
+  "protocol": {
+    "preferredScenario": "Native current-build match replay, fixed hero/player view and camera, playback speed 1, exact same tick range containing heavy combat. Use two distinct scenarios: representative lane/mid geometry and effect-heavy late fight. Record replay file hash, match identifier, start/end ticks, hero and camera mode.",
+    "fallback": "Manually reproduce a timed Explore NYC route or native bot match with the same hero, team composition, difficulty, elapsed match time, purchases and camera landmarks. Bot AI and manual routing vary; do not market their averages as deterministic. No benchmark VPK/map, commands bypass, injected overlay or recorded gameplay input is needed.",
+    "warmup": "After a game/driver update, restart into each candidate profile as required and traverse the full test interval at least twice before collecting warm runs. Retain shader caches. Keep first-run/cold stutter separate from warm throughput. Do not compare a cold renderer/profile against a previously warmed profile.",
+    "design": "Three four-run blocks at minimum: A B B A, B A A B, A B B A. A = clean supported baseline, B = exactly specified candidate. Six captures per profile. Same 120-second effective route and fixed thermal/background conditions. Rewarm after shader/API changes; record all restart and cache states.",
+    "statistics": "Per run: average FPS = 1000/mean frame interval; 1% low = 1000/mean largest ceil(N*0.01) intervals; separately report reciprocal p99, p50/p95/p99/p99.9/max frame time and >8.33/>16.67/>33.33ms counts. Keep genuine spikes. Independent unit is a four-run block, not individual correlated frames. No three-block confidence interval is claimed.",
+    "decision": "Report all block gains and repeat variation. A candidate is only a consistent replay improvement when every block has positive average gain, median gain exceeds max(3%, observed within-profile repeat spread), 1% lows lose no more than 3%, and p99 worsens no more than 3%. This is a conservative engineering gate, not a statistical significance test or guarantee of live gains.",
+    "bottleneck": "Use uncapped controlled captures for throughput. Compare native versus materially lower render resolution while other factors stay fixed. A strong FPS response and GPU-busy timing near the frame interval support a GPU limit; weak response suggests investigation of CPU simulation/render submission, memory, background work or caps. HAGS/Vulkan weaken GPU/CPU attribution, and total CPU utilization does not identify a single busy thread.",
+    "visualValidation": "Compare the same scene/camera with native resolution and candidate downscaling/upscaling. Inspect distant silhouettes, soul orbs, fast target motion, ability warning shapes, haze, shadows, edges and UI text at normal play distance. Rank readable native and optional lower-quality profiles separately; visibility-destroying removals are not an accepted FPS win.",
+    "productionValidation": "After selecting a replay candidate, validate bot and online play with current patch, including late-match effects and at least one 30-minute session. Verify cap/VRR/presentation behavior on the actual physical target display. FPS measurements do not establish full click-to-photon latency."
+  },
+  "implementation": {
+    "analyzer": "optimization/tools/analyze-presentmon.mjs",
+    "captureWrapper": "optimization/tools/Capture-PresentMon.ps1",
+    "nodeTests": "optimization/tests/presentmon.test.mjs",
+    "powershellTests": "optimization/tests/capture-wrapper.test.ps1",
+    "syntheticFixtures": [
+      "optimization/tests/fixtures/presentmon-2.6-default.synthetic.csv",
+      "optimization/tests/fixtures/presentmon-2.6-v2.synthetic.csv"
+    ],
+    "analyzeCommand": "node optimization/tools/analyze-presentmon.mjs analyze capture.csv --metadata capture.json --profile PROFILE --run-id RUN --warmup 10 --duration 120 --out analysis.json",
+    "compareCommand": "node optimization/tools/analyze-presentmon.mjs compare manifest.json --out comparison.json",
+    "comparisonContextRequired": [
+      "machineId",
+      "gameBuildId",
+      "driverVersion",
+      "scenarioId",
+      "renderer",
+      "backgroundWorkload",
+      "camera",
+      "outputWidth",
+      "outputHeight",
+      "outputRefreshHz",
+      "fpsMaxRuntime",
+      "scenarioType"
+    ],
+    "comparisonContextRecommended": [
+      "displayTarget",
+      "vsync",
+      "vrr",
+      "hero",
+      "cameraFov",
+      "thermalState",
+      "runtimeEvidence"
+    ],
+    "captureDefaults": {
+      "Seconds": 130,
+      "WarmupSeconds": 10,
+      "DelaySeconds": 10
+    },
+    "explicitDeclarations": [
+      "ForegroundConfirmed",
+      "SceneConfirmed",
+      "ShaderCacheWarm",
+      "FrameGenerationDisabled"
+    ],
+    "permissions": "Wrapper does not self-elevate or change group membership. An ETW access-denied result is retained as failure; the user can choose an elevated terminal for the collector. Game itself need not run elevated.",
+    "comparisonContextScenarioAlternatives": {
+      "replay": "scenarioType=replay; replaySha25664hex OR known replayId; startTick/endTick nonnegative safe integers with end>start; playbackSpeed positive finite numeric",
+      "nativeScene": "scenarioType=native-scene; known sceneMap/sceneProcedure/sceneStateId; same analysis method and measured window"
+    }
+  },
+  "currentImplementationUpdate": {
+    "updatedUtc": "2026-10-04T00:14:12Z",
+    "analyzerVersion": "1.2.0",
+    "nodeSyntheticTestsPassed": 26,
+    "powershellOfflineChecksPassed": 21,
+    "captureWrapperParserErrors": 0,
+    "comparisonContextContract": {
+      "version": "1.2.0",
+      "requiredKnownStrings": [
+        "machineId",
+        "gameBuildId",
+        "driverVersion",
+        "scenarioId",
+        "renderer",
+        "backgroundWorkload",
+        "camera"
+      ],
+      "requiredNumbers": {
+        "outputWidth": "Positive safe integer",
+        "outputHeight": "Positive safe integer",
+        "outputRefreshHz": "Positive finite number",
+        "fpsMaxRuntime": "Nonnegative finite number; numeric0 means uncapped; string0 rejected"
+      },
+      "scenarioAlternatives": {
+        "replay": "scenarioType=replay; replaySha25664hex OR known replayId; startTick/endTick nonnegative safe integers with end>start; playbackSpeed positive finite numeric",
+        "nativeScene": "scenarioType=native-scene; known sceneMap/sceneProcedure/sceneStateId; same analysis method and measured window"
+      },
+      "unknownPolicy": "Missing/null/unknown/placeholder-like declarations remain valid exploratory analysis, comparisonContextComplete=false and eligibleForComparison=false. Comparer independently rejects them even if report quality flags are stale true.",
+      "matching": "Entire comparisonContext matches exactly across reports, as do frame-time method, timestamp units, warmup, duration and collector version. Actual backend interventions need a separate explicitly designed context policy; never misstate renderer to force a comparison.",
+      "evidenceLimit": "Structural completeness validates declarations, not automatic runtime readback, scene state, matched camera or identical background activity.",
+      "output": "consistentScenarioImprovement covers either type; legacy consistentReplayImprovement can be true only for replay scenarios.",
+      "currentResult": "Foreground359-interval1.945118s schema smoke proves collection/units only; no empirical configuration winner is established."
+    },
+    "limit": "Original validation records above are historical. Current checks are offline only; no game capture or collector execution by this agent."
+  }
+}

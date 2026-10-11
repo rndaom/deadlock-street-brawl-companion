@@ -1,0 +1,117 @@
+Deadlock engine research, second pass — 2026-10-03 client date
+
+The current native low profile already covers the exposed performance settings. Remaining supported candidates mainly change render scale, reconstruction choice, post-process AA or input pacing. No measured winner has been established.
+
+The installed manifest still reports build25689475/client6745/source revision11078118. A fresh live check found the same tracking head4c6431ccdb816d2911bbbaa4335169cc34140386. The game audit independently confirmed the running renderer isDX11. Fresh CRC-checked extractions match the earlier menu/preset hashes. The installed English localization matches depot SHA1ceb5a6aa2c1113b3b05fcec8cb00d65c2b10de82. Reusing the pinned menu reconstruction is justified by unchanged compiled resources; no new decompiler was run.
+
+Local sources:
+- research/round2/installed-vpk/vpk-audit.json: fresh extraction/CRC evidence.
+- research/round2/installed-vpk/citadel/cfg/video_defaults_0.txt: stock Low.
+- research/round2/installed-vpk/citadel/cfg/moddefaults.txt: hardware selection buckets.
+- evidence/valve-build-25689475/mirrored-engine/game/citadel/pak01_dir/panorama/layout/popups/popup_settings.xml: active UI mapping.
+- evidence/valve-build-25689475/mirrored-engine/DumpSource2/convars.txt: pinned current metadata.
+- JSON companion:39 decision rows,31 removed-key records, precise line references and selected defaults/flags.
+
+The registry has4865 convars. The screened graphics/thread/particle families contain686 entries:487 development-only,264 cheat and19 release. Counts overlap. Current metadata is a third-party dump of Valve binary data, not official performance advice or runtime readback.
+
+The parent’s expanded profiles were reviewed at config-core.mjs SHA256b11651ba8fa0d84c4d1920123dae7978999f5a4867108842ee3e46955789c605. BASE starts at157, comparisons181, profiles189. No blocker found in the staged native values. Current80% remains default pending measurements.
+
+Prepare these comparisons with the same API, scene, camera, duration, warmup and background load:
+
+Candidate | Evidence | Practical limitation
+FSR1 at66.7% or60% versus80% | Generic UI scale0.4–1.0,step0.01,text entry | About1280×720 or1152×648 scene at1080p output; verify actual alignment, distant targets and moving edges. Reduced pixels are not proportional FPS promises.
+Stretch versusFSR1 at equal80% and66.7% | Upscaling0/1 and generic scale | Isolates reconstruction choice. Stretch can avoid FSR work but may lose clarity.
+FSR2 Quality versus FSR1 at 0.666667 | Exposed native temporal enum | Equal internal ratio. FSR3 is absent from the observed DX11 selector and remains experimental; generic XML membership does not establish API eligibility or frame generation.
+OriginalFSR2 at0.79999995 | Custom compatibility control | Not a native temporal enum option. Stored text does not prove runtime acceptance. EqualQuality comparisons avoid this gap.
+FXAA1 versusNone0 | Native AA enum | FSR1 itself is not AA. FXAA can improve stability at some cost and may blur details.
+Anti-Lag0 versus1 | NativeOff/On enum | Throughput and input latency can diverge. SavedOn does not prove effectiveDX11 integration. Boost2 isNVIDIA-only.
+Sharpness0/0.2/0.5 | Native sliders0–1 | Clarity experiment, not proven pass removal. Keep fixed in algorithm comparisons.
+lb_barnlight_shadowmap_scale0.5 versus1 | Release, line8029 | Secondary isolated experiment after query/readback. Check local/moving shadows; not a default or a guaranteed gain.
+engine_low_latency_sleep_after_client_tick true versusfalse | Release, line7036 | Secondary sleep-placement comparison with low-latencyOn; no documented FPS optimum.
+
+Native controls already at the exposed minimum:
+
+Shadow quality0 isLow, notOff (UI851–855; metadata10699). The full native callback and every remaining shadow system are not documented in available sources. Global r_shadows is cheat and gameinfo_cannot_override (11359), so0 is excluded.
+
+Screen-spaceAO0 isOff (842–847). Fog0 isLow (859–861), not disabled. Area lights and both bloom controls arefalse (881;872/875). Texture bias2 isLow (865–868);1Medium or0High can be compared for clarity/memory pressure, but this16GBGPU has no measured gain from lower texture quality.
+
+Shaderquality0 is native Low storage. Depth of fieldfalse is valid, but Valve’s current tooltip describes negligible gameplay cost. Motion blur0 and particle depth featheringfalse are compatibility entries in stock Low, absent from the current registry/menu; no separate live FPS claim. Dashboard render quality0 mainly concerns dashboard work. fps_max0 is uncapped; preserve the current dashboard cap120 while comparing active matches.
+
+Ordinary flags do not prove visual safety. cl_ragdoll_limit20 is an archived client setting (6406), but the current OptimizationLock maintainer reports missing Doorman ultimate indicators and suggests unlimited ragdolls to recover them. Keep20. Do not recommend5/0 or force-1 until mechanics are visually validated. The primary community report is a maintainer observation, not Valve implementation proof.
+
+Keep first-person tracers, boneflex, smooth morph normals and blood/gib controls. Their ordinary archive/release flags do not establish worthwhile gains or independence from gameplay cues. Particle bounds are undocumented; copied values can hide large effects. Drop-shadow update frequency1 is release but has no help/bounds, so its numeric direction cannot be guessed.
+
+No active supported particle-quality slider was missed: the shipped Effects Quality localization explicitly says it is not currently used, and the menu does not expose it. Particle fallback/count/detail/time/job-duration settings are internal or development-only; some also disallow gameinfo overrides.
+
+Native optimized paths already enable threaded particles, creation, scene updates, physics and optimized particle initialization. Copying initialtrue defaults creates no demonstrated improvement. IO threads are automatic-1. thread_pool_option is hidden/release with no documented choices. No current Valve evidence establishes cores+1, fixed-threads, CPU0 exclusion, affinity orSMT-off recipes for this machine.
+
+Vulkan is a normal API comparison, not an automaticAMD win. Warm each API separately. Release Vulkan command-list/render-area/indirect-draw controls should remain native defaults; currentDX11 cannot gain from Vulkan-only controls. mat_async_shader_load, cl_forcepreload and mat_queue_mode are absent. Async shader notification is a development diagnostic, not a proven replacement.
+
+Hardware selection policy is now source-backed: moddefaults.txt80–83 selects mem_level2 for16GB-and-up;150–153 selects gpu_mem_level3 for the bucket labeled10GB-and-up (min megatexels9800);185–188 selects cpu_level2 for processor counts8–99. Physical8 and logical16 both fall in the CPU bucket. The VRAM detection unit and executed selection were not independently established.
+
+The inherited Potato fields areCPU1 andmemory/GPUmemory/GPU0. They are not stock hardware detection. Initial registry defaults areCPU2,memory2,GPUmemory2,GPU3. No shipped level.cfg/.ekv or public current callbacks explain their worker/budget/visual effects. Preserve them during current comparisons. A separate backed-up native hardware regeneration experiment may investigate recovery; no CPUlow→fewerworkers orGPUmemoryhigh→specificpool claim is proven.
+
+The31-key cleanup is justified as restoring a supported native baseline, not as a measured gain. None is active in the current menu/presets:11 are absent,19 development-only and1 cheat;4 carry gameinfo_cannot_override. Three old fog dimensions0 fall below current minima64/64/48. Some old values already equal defaults. Some other hidden overrides might have reduced render work if honored; removing them can restore work. Flags alone do not prove arbitrarysetting.* video-loader behavior.
+
+Removed key | Old value | Current flags/status | Registry line
+setting.r_shadows | 0 | cheat gameinfo_cannot_override | 11359
+setting.r_citadel_distancefield_shadows | false | developmentonly clientdll defensive | 10594
+setting.csm_max_shadow_dist_override | 0 | developmentonly defensive gameinfo_cannot_override | 6748
+setting.csm_max_num_cascades_override | 0 | developmentonly defensive | 6745
+setting.csm_viewmodel_shadows | 0 | developmentonly defensive | 6802
+setting.lb_enable_shadow_casting | false | developmentonly defensive | 8155
+setting.lb_dynamic_shadow_resolution | false | developmentonly defensive | 8119
+setting.r_area_lights | 0 | absent | none
+setting.r_citadel_ssao | 0 | absent | none
+setting.r_citadel_distancefield_ao_quality | 0 | developmentonly clientdll defensive | 10552
+setting.volume_fog_width | 0 | min: 64, max: 1024, developmentonly defensive | 14527
+setting.volume_fog_height | 0 | min: 64, max: 1024, developmentonly defensive | 14512
+setting.volume_fog_depth | 0 | min: 48, max: 1024, developmentonly defensive | 14497
+setting.lb_shadow_texture_width_override | 0 | developmentonly defensive | 8203
+setting.lb_shadow_texture_height_override | 0 | developmentonly defensive | 8200
+setting.r_displacement_mapping | 0 | absent | none
+setting.r_particle_max_detail_level | 0 | developmentonly defensive gameinfo_cannot_override | 11230
+setting.r_particle_shadows | 0 | absent | none
+setting.r_particle_cables_cast_shadows | 0 | developmentonly defensive gameinfo_cannot_override | 11158
+setting.r_citadel_half_res_noisy_effects | true | absent | none
+setting.cl_particle_fallback_base | 5 | developmentonly defensive | 6295
+setting.cl_particle_fallback_multiplier | 5 | developmentonly defensive | 6298
+setting.r_distancefield_enable | false | developmentonly clientdll defensive | 10771
+setting.r_citadel_outlines | 1 | absent | none
+setting.r_citadel_distancefield_reflections | false | absent | none
+setting.r_screen_space_shadows | false | absent | none
+setting.r_render_portals | 1 | absent | none
+setting.r_env_map_uses_height_map | 0 | absent | none
+setting.r_citadel_mboit | false | absent | none
+setting.lb_csm_override_staticgeo_cascades | true | developmentonly defensive | 8059
+setting.lb_csm_override_staticgeo_cascades_value | -1 | developmentonly defensive | 8065
+
+RCAS is not a zero-means-off contract. Original2021 AMD FsrRcasCon uses0 as maximum sharpening in stops; the modern SDK uses normalized strength plus a separateenableSharpening flag. Deadlock’s parameter conversion and pass bypass are unavailable. Fixed0.2 storage is useful experimental control but not equal visual strength across algorithms.
+
+Runtime settings and precedence still need observation. USRLOCAL persisted values do not establish actual FSR passes, Anti-Lag invocation or hidden settings. No current Valve source guarantees+exec/autoexec timing relative to native/archive loading. Logging options do not establish that order. The parent’s prepared normal query-only config can be run after initialization and exported withcondump; inspect errors and the native menu.
+
+For the parent’s newly authorized runtime work, active user_keys_0_slot0.vcfg5 bindsF7→toggleconsole; user_convars_0_slot0.vcfg78 storescon_enablefalse. Current launch includes-console. This agent sent no UI/console input.
+
+Accept a profile only after repeatable frame-time measurements and gameplay-cue checks. In particular verify Doorman’s ultimate, Lash’s slam, largeVFX and distant targets before changing bodies, shadow or particle controls.
+
+Primary sources:
+https://github.com/SteamTracking/GameTracking-Deadlock/tree/4c6431ccdb816d2911bbbaa4335169cc34140386
+https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-spatial/
+https://gpuopen.com/manuals/fidelityfx_sdk/reference_documentation/structs/ffx_fsr1_dispatch_description/
+https://raw.githubusercontent.com/GPUOpen-Effects/FidelityFX-FSR/master/ffx-fsr/ffx_fsr1.h (643,662–665)
+https://forums.playdeadlock.com/threads/11-21-2024-update.47476/ (historicalValveUI/render fixes, not proof the old bug remains)
+https://github.com/Sqooky/OptimizationLock/blob/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/README.md (70–71; maintainerDoormancounterevidence)
+
+The requested Valve Developer Community Source2 command-line, Deadlock convar list andConVar pages returned403 or were unavailable. A Source1 community-user draft was not promoted to currentDeadlock support. No code/game/system changes, instrumentation, connection, unlocking, cheats, insecure mode, automated gameplay or game restart were performed by this agent.
+
+Parent runtime update: the existing F7 binding opened the normal console. Ordinary queries returned fps_max 0, fps_max_ui 120 and cl_ragdoll_limit 20. Development-only graphics queries gave no value readouts; no unlocking was used. The scene was local cl_hideout with one human and two bots. SDL-processing warnings (~10.8–13.3 ms), prediction slot mismatch messages and an average-frame diagnostic (~15.6 ms) are observations, not a causal diagnosis or controlled match benchmark. This research agent performed no runtime interaction.
+
+The parent directly inspected the native Video UI: renderer Direct3D 11 (-dx11); FSR selected; render quality 80%; sharpness 20%; SSAO Off; Shadow Low; Fog Low; Texture Low; bloom, effects bloom, VSync, area lights and depth of field Off. AMD Anti-Lag 2.0 shows Enabled. Display is 1920x1080, 480 Hz, borderless, LG. This establishes exposed selection acceptance, not measured FPS gains, Anti-Lag SDK invocation or VRR status. Only Stretch, FSR and FSR2 (TAA) were exposed in the current DX11 selector. Keep FSR3 experimental rather than forcing a setting absent from this runtime menu.
+
+The greyed-out Maximum FPS slider displayed 60 despite ordinary fps_max readback 0. Its shipped source, popup_settings.xml887, explicitly declares min=60, max=1000 and disableifoutofrange=true. Value 0 falls outside those UI bounds and disables the control. The display is not evidence that the runtime cap changed to 60; preserve the confirmed uncapped value. Exact native widget formatting code is unavailable.
+
+The current hideout opens Watch through global Interact, not mouse activation of the world text. CRC-verified installed cfg/citadel_keys.lst526–532 maps InteractEnabled -> Interact -> citadel_hideout_use;1672–1675 sets default E. The actual persisted remote/cfg/citadelkeys_personal.lst486–489 also maps Interact to E. Current localization5808–5809 describes pressing Interact for Play or Watch, and4146 documents migration from the older Hideout-specific binding. Current commands.txt642–643 marks citadel_hideout_use clientdll release and scopes it to a targeted hideout button. Targeting/proximity is necessary; no direct normal release command opening Watch was found.
+
+Pinned hideout_in_world_label.xml7–8 declares hittest=false;16–17 defines Watch as a label panel without an activation handler. hud_hideout.xml42 assigns Reset Camera to ADS; the user's persisted ADS bind is MOUSE2. Native hideout zoom binds use wheel up/down and release citadel_orbit_camera_in/out. The parent observed release disconnect reload the hideout. gameui_activate is hidden release (commands.txt2214) and may be tried as a reversible UI probe, but source does not guarantee it exposes the legacy Dashboard. dashboard.xml73 retains a Watch button callback CitadelShowWatchPage(true). panorama_dispatch_event is development-only and is excluded. Once Watch is visible, citadel_db_page_watch.xml24 defines its Search By Match ID callback.
+
+Fresh hideout evidence is under research/round2/hideout-evidence/manifest.json: eight installed resources extracted with CRC verification plus pinned reconstructed XML, with SHA256/URL inventory. The new audit did not decompile compiled resources or alter the game.

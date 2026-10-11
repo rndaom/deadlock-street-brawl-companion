@@ -1,0 +1,51 @@
+[
+  {
+    "repo_path": "README.md",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/README.md",
+    "local_path": "research\\round2\\optimizationlock-readme.md",
+    "sha256": "EED0C094E40B71F6A63B8D3DA179DBB89E8087C748AF5FDD050579D2AEF853FF",
+    "size": 17451
+  },
+  {
+    "repo_path": "Sqooky's .gi/gameinfo.gi",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/Sqooky%27s%20.gi/gameinfo.gi",
+    "local_path": "research\\round2\\optimizationlock-sqooky-gameinfo.gi",
+    "sha256": "041EBE91C92548C7A45DC4832D22383CF5CE190D8D75B0BB734075F203C02113",
+    "size": 92521
+  },
+  {
+    "repo_path": "Sqooky's .gi/readme.md",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/Sqooky%27s%20.gi/readme.md",
+    "local_path": "research\\round2\\optimizationlock-sqooky-readme.md",
+    "sha256": "3A87B304B255AF1B82F5C3995210FB9ADC3BD286659A1B923770D1FC2A4F1155",
+    "size": 1866
+  },
+  {
+    "repo_path": "kaizuchanerus minimum spec/gameinfo.gi",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/kaizuchanerus%20minimum%20spec/gameinfo.gi",
+    "local_path": "research\\round2\\optimizationlock-kaiz-gameinfo.gi",
+    "sha256": "AFDA3762DE652CF04F325015CFE16496BE4A0080E587DE83E46BAF753C3A36AD",
+    "size": 46719
+  },
+  {
+    "repo_path": "kaizuchanerus minimum spec/readme.md",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/kaizuchanerus%20minimum%20spec/readme.md",
+    "local_path": "research\\round2\\optimizationlock-kaiz-readme.md",
+    "sha256": "1B86647A2F5DF6917DD6223FA982623C75617FEE0D8453611887CE06B74662A1",
+    "size": 2228
+  },
+  {
+    "repo_path": "test_cfg/gameinfo.gi",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/test_cfg/gameinfo.gi",
+    "local_path": "research\\round2\\optimizationlock-test-gameinfo.gi",
+    "sha256": "9F77FB7A2ECE33CB2A085A0CC2C23BE6DD9E5BB61FA212E5EBE90DCB998E0037",
+    "size": 94931
+  },
+  {
+    "repo_path": "test_cfg/video.txt",
+    "url": "https://raw.githubusercontent.com/Sqooky/OptimizationLock/a70ba39997f4f2e43f0622ad8160ce099e2fa5ae/test_cfg/video.txt",
+    "local_path": "research\\round2\\optimizationlock-test-video.txt",
+    "sha256": "3EAC767A751DB000BA2400C07EEB2BD1DD509A60A35F33CEB4F29FF0954F26F3",
+    "size": 2692
+  }
+]

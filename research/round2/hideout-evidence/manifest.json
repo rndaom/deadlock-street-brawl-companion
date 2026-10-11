@@ -1,0 +1,92 @@
+{
+  "read_only_game": true,
+  "build_id": 25689475,
+  "tracking_commit": "4c6431ccdb816d2911bbbaa4335169cc34140386",
+  "reconstruction_limit": "XML is pinned third-party VRF reconstruction. This audit CRC-checks the actual installed compiled resources but does not newly decompile them.",
+  "records": [
+    {
+      "installed_resource": "cfg/citadel_keys.lst",
+      "crc_verified": true,
+      "crc32": "1b96b980",
+      "bytes": 30927,
+      "sha256": "018394680d0f46cc51bf53c4bda3b3ed35f2dff8abc9025a9908fda7f50f2270",
+      "mirror_attempted_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/cfg/citadel_keys.lst",
+      "mirror_http_status": 404
+    },
+    {
+      "installed_resource": "panorama/citadel_keybinds.cfg",
+      "crc_verified": true,
+      "crc32": "244cceba",
+      "bytes": 135,
+      "sha256": "67c75502d4e3aa0733c37eeee386ba6172a48f11ad0ec27293e3301fe5cd9667",
+      "mirror_attempted_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/citadel_keybinds.cfg",
+      "mirror_http_status": 404
+    },
+    {
+      "installed_resource": "panorama/layout/hud_hideout.vxml_c",
+      "crc_verified": true,
+      "crc32": "8d6b1b81",
+      "bytes": 2979,
+      "sha256": "54b3b57c81ce0dad21fc1866be8a8a4a0a053ad7452d9fe5456b0971b62554f4",
+      "mirror_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/hud_hideout.xml",
+      "mirror_bytes": 2582,
+      "mirror_sha256": "66f2abeb1b0d10dfd59d72e2a8e680dc0c814db0bbf13c958b1c7911e5081180",
+      "byte_identical_to_installed": false
+    },
+    {
+      "installed_resource": "panorama/layout/hud_escape_menu.vxml_c",
+      "crc_verified": true,
+      "crc32": "97d0d35f",
+      "bytes": 3481,
+      "sha256": "3195fff4fd4ef046d1944ee0f8f92f78b78e76910b642c61582003f5d0ac5e5c",
+      "mirror_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/hud_escape_menu.xml",
+      "mirror_bytes": 4490,
+      "mirror_sha256": "378378848d72bba376520720173661dbd23de42ac112fdd3620eb78d81babd63",
+      "byte_identical_to_installed": false
+    },
+    {
+      "installed_resource": "panorama/layout/dashboard.vxml_c",
+      "crc_verified": true,
+      "crc32": "d4a4c1c8",
+      "bytes": 4500,
+      "sha256": "36778b1b3067de60cbefb860137704336f6df3ba22043a293096448430bbfc67",
+      "mirror_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/dashboard.xml",
+      "mirror_bytes": 7376,
+      "mirror_sha256": "c0d77ac630e677f651aed96db4412973748b9b94a9c03f3c7d2a2cc5abcb5d37",
+      "byte_identical_to_installed": false
+    },
+    {
+      "installed_resource": "panorama/layout/citadel_db_page_watch.vxml_c",
+      "crc_verified": true,
+      "crc32": "e99ed982",
+      "bytes": 2252,
+      "sha256": "954de8d4d7029a051907c70f3d2cf598dc4c6e8fe603d205c5d844f31d4d3e67",
+      "mirror_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/citadel_db_page_watch.xml",
+      "mirror_bytes": 1478,
+      "mirror_sha256": "ca040aeb667abdceb6c050ca9b4d94a5ff5b5c6b9c8f8d88f914771e05cd9db9",
+      "byte_identical_to_installed": false
+    },
+    {
+      "installed_resource": "panorama/layout/hideout/hideout_in_world_label.vxml_c",
+      "crc_verified": true,
+      "crc32": "b7f7ba7d",
+      "bytes": 2254,
+      "sha256": "a023f9ea4047407d9f40aa2681929c185b972a9e1a9a296f152e5e820fc34136",
+      "mirror_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/hideout/hideout_in_world_label.xml",
+      "mirror_bytes": 1981,
+      "mirror_sha256": "20fa8d4145d906fa2c02d120e0271ef01154020c4482732ec4273929df0b95f6",
+      "byte_identical_to_installed": false
+    },
+    {
+      "installed_resource": "panorama/layout/hideout/hideout_in_world_text_label.vxml_c",
+      "crc_verified": true,
+      "crc32": "6f914bef",
+      "bytes": 1486,
+      "sha256": "343ef12ac527fc96aa57adb63f5c33fedddc25a2beae6f91655b7bb031ff2299",
+      "mirror_url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/4c6431ccdb816d2911bbbaa4335169cc34140386/game/citadel/pak01_dir/panorama/layout/hideout/hideout_in_world_text_label.xml",
+      "mirror_bytes": 358,
+      "mirror_sha256": "d0d43a6263e570fa61d11ae367062c50194b758b6b161db3053ef22dc9b26bcd",
+      "byte_identical_to_installed": false
+    }
+  ]
+}

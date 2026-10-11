@@ -1,0 +1,49 @@
+{
+  "checkedAtUtc": "2026-10-03T23:14:35.151369Z",
+  "gameBuild": "25689475",
+  "nodeTests": {
+    "passed": 27,
+    "failed": 0,
+    "command": "node --test optimization/tests/*.test.mjs"
+  },
+  "powershellOfflineChecks": {
+    "passed": 7,
+    "parserErrors": 0,
+    "runtime": "PowerShell 7",
+    "captureExecuted": false,
+    "binaryDownloaded": false
+  },
+  "gameWritesPerformed": true,
+  "fpsBenchmarked": false,
+  "runtimeConvarsVerified": false,
+  "status": "Applied aggressive profile while game closed after Steam Cloud completion; both hashes and saved settings verified; no FPS measurement yet",
+  "independentReview": "research/independent-final-review.json",
+  "codeHashes": [
+    {
+      "file": "optimization/tools/config-core.mjs",
+      "sha256": "211f2df218846e3fb82c9964ead5a0bdd68e8b8da5c6140d258e95ccc6befbc5"
+    },
+    {
+      "file": "optimization/tools/optimizer.mjs",
+      "sha256": "f4ffa0857e6b1ea5b6fdb99ba19718b1f73ab45b8587f41c275ee56627930178"
+    },
+    {
+      "file": "optimization/tools/transaction.mjs",
+      "sha256": "17b8753ee5a5af4bbaa71ffd7eb6b39c2109e14f63a3e8c2289ee5f1e6e065c1"
+    },
+    {
+      "file": "optimization/tools/analyze-presentmon.mjs",
+      "sha256": "fce893d30fa8fa7a4cd0fb759e1f71023db5dba786131a2e13ad9b989ce2f9df"
+    },
+    {
+      "file": "optimization/tools/Capture-PresentMon.ps1",
+      "sha256": "42c7a921584d83e3b85af47645539f4c38b31d2a42ed258ae5e309cc050df548"
+    },
+    {
+      "file": "optimization/tools/audit-vpk.py",
+      "sha256": "dff9e80f1b47c95d500f0816e81ba3642c012ea1a462d390224d51e17980cd11"
+    }
+  ],
+  "appliedAtUtc": "2026-10-03T23:39:48.002Z",
+  "savedSettingsVerified": true
+}

@@ -1,0 +1,52 @@
+Independent review of the concrete machine profile and installer
+Reviewer: /root/independent_review
+Task date: 2026-10-03, America/New_York
+
+This report supersedes the early installed-config conclusions in independent-review.txt: the native owner after this update is the active account's Steam userdata/1422450/local/cfg directory. The earlier game/citadel/cfg/video.txt inspection described a legacy MOD file, not the authoritative current account configuration. The game-install audit subsequently authenticated stock gameinfo and critical binaries against Valve cached depot hashes.
+
+Profile verdict
+- The three profiles use ordinary native video settings; no gameinfo modification, custom mount, VPK, DLL, console unhider, cheat unlock, simulation/network tweak, input/audio change, or FOV modification is present in config-core.mjs.
+- All 14 quality/VSync entries in BASE_VIDEO that appear in installed cfg/video_defaults_0.txt equal that CRC-verified current-build stock low preset.
+- The extra base values are evidenced by the current menu (low latency), the archived FPS limiter description (0 means no limit), and the existing normal video storage/custom-graphics state.
+- The current menu maps FSR1=1, FSR2=2, render scale 0.4-1.0, FSR2 Quality=0.666667, and sharpening 0-1. The proposed profile values lie in those native controls.
+- r_low_latency=1 is the current engine's NVIDIA low-latency/AMD Anti-Lag 2 mode. It is a native menu control even though the mirrored cvar registration is defensive/developmentonly; no attempted console bypass is involved.
+- Removed LEGACY_VIDEO_KEYS include absent/old names, hidden renderer overrides, and a cheat-flagged shadows override. They must be described as nonmenu manual overrides, not all conclusively obsolete or ineffective. Restoring their normal behavior may increase GPU work relative to this user's already reduced baseline.
+- Native particle cues, outlines, cloak visibility, camera, bindings, accessibility, audio, device identifiers, display resolution and gamma are left to the game/defaults or preserved. Ability clarity still requires gameplay validation; it cannot be certified from stored text.
+
+Read-only dry-run evidence
+- Applied patchKv only in memory to the real active account video.txt for aggressive, native, and fsr2quality. No installed setting was written.
+- Each resulting document parsed; all unrelated existing keys/values stayed identical; each profile's second patch pass was byte-idempotent.
+- The actual active baseline already matches the BASE quality values. Its render scale is approximately 0.8, FSR2=2, and texture bias=2.
+- Aggressive candidate delta: FSR2 to FSR1 at the same scale, FSR1 sharpening 0 to 0.2, and removing 31 unique nonmenu keys (32 occurrences because of the duplicate particle-detail entry).
+- Native candidate: no upscaler and 1.0 scale, with the same normalization. FSR2 Quality is a measured challenger at the native menu ratio; it is not a declared winner.
+- Machine settings intentionally uncap gameplay. The existing archived UI limiter is preserved; the parent removed the initially proposed UI cap reduction after review flagged the unverified scope of that limiter.
+
+Installer checks and findings
+IFR-01 [P1, resolved]: context() attempted scalarMap over full Steam AppState, whose nested InstalledDepots made every mode fail. Read-only reproduction returned Unexpected nested object: InstalledDepots. Parent added an explicit allowNested option only for reading the app manifest; native config parsing remains strict. The corrected actual-machine verify command reached the settings comparison, and a nested AppState fixture passed.
+IFR-02 [P1, resolved]: transaction failure rollback originally omitted the game-closed/context guard. Parent now calls guard before rollback. The meaningful fixture simulating a game start after the first write passed: the second file is untouched, rollback abstains, and verified originals remain available in backup.
+IFR-03 [P2, resolved]: rollback originally did not reverify backup bytes before replacing the target. Parent now checks beforeHash before the rollback write. A fixture that tampers with a backup after the first write passed: rollback refuses to overwrite the candidate with the damaged backup.
+IFR-04 [P2, resolved for same-build resolution changes]: parent added forRestore context/guard and passes it through restore. Restoring compatible settings no longer depends on current 1920x1080 resolution. Same audited build/schema/device/ownership restrictions remain deliberate compatibility guards; the restore should not be advertised as automatic recovery across arbitrary future patches or hardware changes.
+
+Positive implementation checks
+- Intended installed writes are limited to video.txt and machine_convars.vcfg under the current active account's cfg directory.
+- The installer checks the audited CPU/GPU, current Steam build, game client/source revision, video schema/device and apply resolution.
+- Account selectors are numeric. cfg realpath must equal the expected account directory; prepare checks individual target realpaths. Mutation rejects nonregular/symlink targets.
+- Candidate content is regenerated from current files, and plan before/after hashes and exact target names must match before apply. Editing the prepared file content does not turn it into an arbitrary executable or arbitrary file write.
+- Original bytes are backed up and verified before replacement. Same-directory exclusive temporary files are fsynced and renamed, and installed bytes are hash-checked.
+- Game-running/context checks and current hashes are rechecked before ordinary writes. This is not a claim of a race-free two-file/power-loss atomic transaction; two files are individually replaced and backed up.
+- Steam account paths and local settings plans/backups/captures are ignored by git.
+
+Performance conclusion
+No gameplay FPS or frame-time data was collected by this reviewer. Stored/menu correctness supports a native candidate, not an optimality claim. FSR1 at equal scene size plausibly avoids temporal reconstruction cost, but image clarity, dense-scene CPU limits, restored visual-feature work, real capped/uncapped behavior, and actual improvement over the current ultra-reduced baseline must be tested. Do not attach OptiLock marketing percentages to this machine.
+
+Validation and completion status
+- Independently ran node --test optimization/tests/config.test.mjs: 10 tests passed, 0 failed. Tests cover native preference preservation/idempotence, nested AppState, strict invalid config handling, verified backup/install, stale-file refusal, safe rollback, game-start rollback refusal, corrupt-backup refusal and nonfile rejection.
+- Independently ran the actual-machine read-only verify path and syntax checks. Verify correctly reports gameRunning=true and runtimeVerified=false; current settings still differ from the candidate.
+- The four reported concrete installer bugs/limitations have been repaired in their relevant scope. No unresolved blocker remains in the reviewed code paths.
+- Native-values, preservation and mutation-safety static/fixture review passed. Runtime acceptance, in-game image clarity and FPS improvement remain unverified. No game/runtime settings were modified by this reviewer.
+
+Reviewed source fingerprints
+optimization/tools/config-core.mjs: a464f5a5ed94c08819fc46bd476de14315f816e404c807500a381739c054751c
+optimization/tools/optimizer.mjs: 9b5914345b0b078738d6aaddf87a7e699556ea2e70c4101d0a2902a3ded7f7fa
+optimization/tools/transaction.mjs: 17b8753ee5a5af4bbaa71ffd7eb6b39c2109e14f63a3e8c2289ee5f1e6e065c1
+optimization/tests/config.test.mjs: 1ab984e4c1bf1af316a6873bcd375b893822dbabca465ca5400fbcf9c75818c3

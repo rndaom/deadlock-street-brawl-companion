@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "/root/independent_review",
+  "userDate": "2026-10-03",
+  "userTimezone": "America/New_York",
+  "scope": "Concrete config-core, native current-build evidence, account-scoped installer and transactional backup/rollback. Read-only installed inspection; fixture tests only.",
+  "supersedesEarlyInstalledConfigConclusions": true,
+  "nativeSettingsReviewPassed": true,
+  "unrelatedPreferencesPreservationPassed": true,
+  "mutationSafetyStaticAndFixtureReviewPassed": true,
+  "unresolvedBlockers": [],
+  "installationPerformed": false,
+  "runtimeCvarAcceptanceVerified": false,
+  "gameImageClarityVerified": false,
+  "gameFpsImprovementVerified": false,
+  "candidateIsMeasuredWinner": false,
+  "nativeEvidence": {
+    "installedBuildId": "25689475",
+    "clientVersion": "6745",
+    "sourceRevision": "11078118",
+    "stockLowMatchingBaseAssignments": 14,
+    "profileValuesMappedToCurrentMenu": true,
+    "nativeOwner": "Active Steam account userdata/1422450/local/cfg",
+    "authoritativeVideoBaseline": "FSR2 with approximately 0.8 scale, texture mip bias 2, all BASE quality values already reduced.",
+    "aggressiveDelta": "FSR2 to FSR1 at equal 0.8 scale; FSR1 sharpening 0 to 0.2; remove 31 unique nonmenu manual keys / 32 occurrences; archive gameplay cap 400 to 0.",
+    "uiLimiter": "Existing value preserved."
+  },
+  "findings": [
+    {
+      "id": "IFR-01",
+      "priority": 1,
+      "status": "resolved",
+      "title": "Nested Steam AppState originally prevented all installer modes",
+      "repair": "allowNested shallow scalar reading is explicitly enabled for AppState only.",
+      "evidence": "Independent reproduction before repair; actual-machine read-only verify succeeded after repair; nested-manifest fixture passed."
+    },
+    {
+      "id": "IFR-02",
+      "priority": 1,
+      "status": "resolved",
+      "title": "Rollback originally wrote despite game-start guard failure",
+      "repair": "Game/context guard is checked before rollback writes.",
+      "evidence": "Game-start-after-first-write fixture passed; second file unchanged, rollback withheld and originals retained."
+    },
+    {
+      "id": "IFR-03",
+      "priority": 2,
+      "status": "resolved",
+      "title": "Rollback originally lacked a pre-write backup hash check",
+      "repair": "Backup beforeHash is checked before replacing target.",
+      "evidence": "Tampered-backup fixture passed; damaged bytes were not written."
+    },
+    {
+      "id": "IFR-04",
+      "priority": 2,
+      "status": "resolved_for_same_build_resolution_changes",
+      "title": "Restore originally depended on current candidate resolution",
+      "repair": "forRestore context and guard omit the 1920x1080 apply restriction.",
+      "remainingScope": "Restore retains audited hardware/device/schema/build guards; no promise of automatic future-patch recovery."
+    }
+  ],
+  "validation": {
+    "configFixtureTests": { "passed": 10, "failed": 0 },
+    "actualMachineReadOnlyVerifyReachedComparison": true,
+    "actualMachineGameRunningAtVerify": true,
+    "inMemoryRealConfigProfileDryRuns": 3,
+    "allProfilesByteIdempotent": true,
+    "unrelatedKeysChanged": 0,
+    "syntaxChecksPassed": true
+  },
+  "limitations": [
+    "No gameplay benchmark was performed. The native baseline was already ultra reduced.",
+    "Removing hidden/manual overrides can restore rendering work; it is compatibility/readability normalization, not a quantified FPS win.",
+    "Two files are individually replaced with verified backups; this is not a power-loss atomic multi-file transaction or a guarantee against every external writer race.",
+    "Menu/default evidence establishes legitimate native controls. Stored values cannot establish actual runtime acceptance, image clarity or best performance."
+  ],
+  "reviewedSources": [
+    {"file": "optimization/tools/config-core.mjs", "sha256": "a464f5a5ed94c08819fc46bd476de14315f816e404c807500a381739c054751c"},
+    {"file": "optimization/tools/optimizer.mjs", "sha256": "9b5914345b0b078738d6aaddf87a7e699556ea2e70c4101d0a2902a3ded7f7fa"},
+    {"file": "optimization/tools/transaction.mjs", "sha256": "17b8753ee5a5af4bbaa71ffd7eb6b39c2109e14f63a3e8c2289ee5f1e6e065c1"},
+    {"file": "optimization/tests/config.test.mjs", "sha256": "1ab984e4c1bf1af316a6873bcd375b893822dbabca465ca5400fbcf9c75818c3"}
+  ],
+  "fullReview": "research/independent-final-review.txt"
+}

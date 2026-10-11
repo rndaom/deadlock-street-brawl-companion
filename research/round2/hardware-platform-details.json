@@ -1,0 +1,64 @@
+{
+  "Method": "Read-only targeted AMD installed-package registry entries, selected PnP driver metadata, AMD V-Cache service status and Windows GetLogicalProcessorInformationEx cache topology.",
+  "ChipsetPackages": [
+    {
+      "Name": "AMD Chipset Software",
+      "Version": "8.08.12.551",
+      "Publisher": "Advanced Micro Devices, Inc."
+    },
+    {
+      "Name": "AMD_Chipset_Drivers",
+      "Version": "8.08.12.551",
+      "Publisher": "Advanced Micro Devices, Inc."
+    }
+  ],
+  "VCacheService": {
+    "Name": "amd3dvcacheSvc",
+    "DisplayName": "AMD 3D V-Cache Performance Optimizer Service",
+    "Status": "Stopped",
+    "Interpretation": "Service presence/state alone does not establish a problem on this single shared-cache topology."
+  },
+  "L3Caches": [
+    {
+      "Level": 3,
+      "CacheType": 0,
+      "LineSize": 64,
+      "Group": 0,
+      "Bytes": 100663296,
+      "LogicalProcessorMask": 65535
+    }
+  ],
+  "SelectedChipsetComponents": [
+    {
+      "Name": "AMD 3D V-Cache Performance Optimizer",
+      "Version": "1.0.0.12"
+    },
+    {
+      "Name": "AMD GPIO Controller",
+      "Version": "3.0.5.0"
+    },
+    {
+      "Name": "AMD GPIO Controller",
+      "Version": "2.2.0.137"
+    },
+    {
+      "Name": "AMD SMBUS",
+      "Version": "2.0.0.29"
+    },
+    {
+      "Name": "AMD PSP 11.0 Device",
+      "Version": "5.46.0.0"
+    }
+  ],
+  "GPUCounterType": {
+    "Name": "CounterType",
+    "Value": 542180608,
+    "CimType": 7,
+    "Flags": "EnableOverride, ToSubclass"
+  },
+  "Interpretation": [
+    "One 96 MiB unified L3 cache spans processor group 0 mask 0xFFFF (16 logical CPUs). This supplies no hardware justification for restricting affinity or excluding CPU 0.",
+    "Installed package version is 8.08.12.551 and V-Cache driver 1.0.0.12; no chipset update or service change was performed."
+  ],
+  "CapturedUtc": "2026-10-03T23:55:54.6593456Z"
+}

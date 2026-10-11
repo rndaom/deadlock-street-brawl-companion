@@ -1,0 +1,221 @@
+Deadlock benchmark protocol and capture-tool handoff — October 3, 2026
+
+No Deadlock FPS has been measured in this work. Only read-only evidence collection,
+offline source authoring, 17 synthetic Node tests and 7 PowerShell offline checks
+were performed. PresentMon was neither downloaded nor executed; the game was not
+launched or controlled. Synthetic CSVs are explicitly named *.synthetic.csv.
+
+The installed steam.inf identifies client/server 6745, SourceRevision 11078118,
+VersionDate Oct 02 2026, VersionTime 17:45:04. Root's Steam audit identifies build
+25689475. Existing hardware evidence identifies a Ryzen 7 9800X3D and RX 7800 XT.
+Vendor research identifies Adrenalin 26.8.1 and HAGS enabled. Root/vendor audits
+also report RAM/commit pressure. The corrected hardware audit identifies the
+physical primary LG ULTRAGEAR+ at 1920x1080@480Hz and physical secondary Acer
+XB273 GZ in portrait at 1080x1920@240Hz. All audited virtual display outputs are
+detached. Record the game's actual presentation target and stable background
+workload before comparing FPS; see research/hardware-audit.json.
+
+Benchmark preparation
+
+Save the exact baseline settings and launch options, along with a configuration
+hash. Use supported native graphics settings and current release cvars. Give every
+candidate its own profile tag and config hash. Retain all raw captures and logs.
+Freeze game build, driver, target display, refresh rate, game window mode, VSync,
+VRR, frame cap, recording/overlay state and background workload. API or render
+scale changes can be deliberate treatments; name those treatments in each profile.
+Do not quietly change several unrelated Windows/driver settings in the comparison.
+
+Use uncapped runs to estimate throughput and separate production cap testing.
+Disable AFMF/frame generation for render-FPS evidence and declare that state.
+Avoid recording video during the principal timing run. Keep the existing companion
+closed or identically paused across both profiles; active OCR/capture is a separate
+treatment. Warm the full scene at least twice per profile after this update or an
+API/shader change. Keep shader caches: removing a mod cache does not imply erasing
+all driver/Steam shader caches before every benchmark. Save cold first-run results
+separately if investigating compilation stutter.
+
+Choose a reproducible scene
+
+Prefer a native current-build match replay. Download/open it through the game's
+normal replay interface. Use the same hero/player view, camera preset, playback
+speed 1 and exact tick range. Record match identifier and replay file SHA256.
+Choose a 120-second interval with typical geometry and a second 120-second interval
+with a heavy late fight. Start playback before the measured interval so seeking,
+asset streaming and UI opening are outside the predefined measurement window.
+
+No downloaded replay .dem was found in the full installed-game and app-1422450
+userdata/download scopes, including hidden and ignored files. The pending replay
+request file is metadata, not a downloaded replay; see research/replay-inventory.json.
+This scene is still to be chosen. Do not fabricate a replay ID or compatibility result.
+Current replay functionality must be checked in build 6745. A fallback is a timed
+manual Explore NYC route, or a native bot match with the same hero, bot composition,
+difficulty, elapsed time, purchases and fixed camera landmarks. Bot AI and human
+routes introduce variation; apply the repeat-variation gate and state this limit.
+Valve developer JasperP says bot matches are used internally for performance tests:
+https://forums.playdeadlock.com/threads/suggestion-about-rendering.94150/page-2
+Posts 21, 25 and 33 distinguish bot/explore/live behavior, renderer changes and RAM.
+
+Current console discovery
+
+Installed engine2.dll contains timedemo and engine_frametime_print_report strings.
+It exposes timedemo <demoname> <optional stats.txt> in printable usage text, but
+registration flags, successful current replay execution and report completeness
+are unverified. Timedemo can be an accelerated workload and the lite report can be
+session cumulative; neither proves equivalent live combat or full frametime tails.
+Leave profiling/debug overlays off in the principal FPS comparison.
+
+The installed tier0.dll usage is cvarlist: [ partial ]. Installed engine2.dll has
+condump%03d.txt, although its description still says condumpXX.log. Safest runtime
+discovery outside a match is the ordinary console: help cvarlist; help condump;
+cvarlist; condump. Identify the newly created condumpNNN.txt by timestamp, preserving
+existing output. If history truncates the full output, dump candidate families
+with cvarlist <partial> separately. Binary presence or an old OptiLock listing does
+not establish a writable release command. Do not bypass cheat/dev restrictions.
+
+-condebug and -conclearlog were not found in the installed core-module string
+checks; -consolelog and -con_logfile were found. This is not proof of unsupported
+aliases, but it prevents promising their current behavior. Do not use -conclearlog
+by default because it may erase a prior log. A launch-time +cvarlist also needs
+runtime verification that all client commands were registered before the command.
+Valve Developer Community pages for console/demo/PerfView returned HTTP 403, so
+precise Source 2 mechanics were not inferred from inaccessible pages or Source 1.
+
+Capture with the authored wrapper
+
+The standalone official PresentMon v2.6.0 x64 executable is 980320 bytes and has
+SHA256 b2a706bc6ad475749e3b7e3409263aa1e6906d45bdcf993f6dbc0f660188f1af.
+Release date: 2026-09-21T17:30:36Z. Official release/API:
+https://github.com/GameTechDev/PresentMon/releases/tag/v2.6.0
+https://api.github.com/repos/GameTechDev/PresentMon/releases/tags/v2.6.0
+
+The wrapper accepts an explicitly supplied -PresentMonPath, or an explicit
+-Download switch which fetches only that pinned executable into optimization/local/tools.
+It requires a running deadlock.exe, verifies the binary before executing it, uses
+PID targeting and a unique ETW session, and never launches/controls the game. The
+service/MSI/GUI and an overlay are unnecessary. The script does not self-elevate,
+alter registry/group membership, terminate the game or install anything into it.
+
+Create matching metadata with known machineId, gameBuildId, driverVersion, scenarioId, renderer, camera and backgroundWorkload; positive output dimensions/refresh; and numeric fpsMaxRuntime>=0 (0 isuncapped). Specify scenarioType replay with replaySha25664hex OR known replayId, exact ordered integer ticks and positive speed, or native-scene with sceneMap/sceneProcedure/sceneStateId. Unknown values remain exploratory and cannot enter verified comparison. Complete matched context declares conditions; it does not independently prove runtime readback or reproduced state. The entire context and analysis window/method must match across runs. An intentional renderer intervention needs a separately designed comparison policy; do not falsely label renderer to force identical controls.
+
+Example command (placeholders must be replaced with this experiment's paths/tags):
+
+  ./optimization/tools/Capture-PresentMon.ps1 -PresentMonPath 'PATH_TO_PINNED_EXE' -MatchingMetadataPath 'EXPERIMENT_METADATA.json' -Profile baseline -RunId A01 -ScenarioId 'MATCH_CAMERA_TICKS' -ForegroundConfirmed -SceneConfirmed -ShaderCacheWarm -FrameGenerationDisabled
+
+Only pass -ShaderCacheWarm and -FrameGenerationDisabled after checking those states.
+If omitted, they stay unknown. The scene declaration is a human assertion; the
+wrapper samples foreground PID every 500 ms and reports any lost focus. Shorter
+focus changes cannot be excluded by sampling. A game PID lifetime change or failed
+focus sampling invalidates comparison. The script never writes a false declaration
+of shader warmup or generation being off from previously supplied metadata.
+
+Defaults: DelaySeconds=10, Seconds=130 recorded, WarmupSeconds=10 for later analysis.
+This gives 10 seconds to return to the game and a 120-second effective sample.
+Override -Seconds 180 for a longer recorded sample; effective analysis is then
+170 seconds. Finish the identical route at the planned endpoint each time. Outputs
+are capture.csv, capture.json and tool-log.txt in a new run directory. Existing
+capture outputs are never overwritten. Pre/post snapshots include aggregate CPU
+load, free physical RAM, commit usage and game CPU/memory counters. They collect
+no process command lines, window titles, gameplay input or game-memory contents.
+They do not measure sustained thermals or every brief pressure event.
+
+PresentMon arguments are --process_id PID --output_file CSV --v2_metrics
+--track_frame_type --track_etw_status --no_track_input --delay 10 --timed 130
+--terminate_after_timed --no_console_stats --session_name UNIQUE.
+ETW access can require an elevated collector terminal or Performance Log Users
+membership. The wrapper records access failure and does not change permissions.
+No one needs to elevate the game merely to collect an ETW trace.
+
+Correction after the real foreground smoke: pinned CommandLine.cpp selects
+milliseconds by default. Non-v2 headers are TimeInMs and CPUStartTimeInMs, with
+MsBetweenAppStart/MsCPUBusy/MsGPUBusy. --v2_metrics uses CPUStartTime (milliseconds)
+and FrameTime, plus CPUBusy
+and GPUBusy. It does not call the interval CPUFrameTime. --qpc_time_ms instead uses
+CPUStartQPCTime in milliseconds. CSV is UTF-8 with BOM. --track_etw_status is
+accepted in pinned CommandLine.cpp and MainThread.cpp prints loss counters; new
+unified CSV does not expose the status columns. The wrapper takes maxima from
+tool logs and final warnings; missing counters remain null, never assumed zero.
+Source evidence:
+https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CsvOutput.cpp
+https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/CommandLine.cpp
+https://github.com/GameTechDev/PresentMon/blob/v2.6.0/PresentMon/MainThread.cpp
+
+Analyze and compare
+
+  node optimization/tools/analyze-presentmon.mjs analyze capture.csv --metadata capture.json --profile baseline --run-id A01 --warmup 10 --duration 120 --out analysis.json
+
+The parser recognizes actual default, --v2_metrics and documented legacy interval
+aliases. It rejects mixed processes/PIDs/swapchains without explicit filters,
+unknown frame types, generated-frame present intervals, trace-loss counters,
+nonpositive interior intervals, reset timestamps, cut rows/files, discontinuities
+and a sample representing under 98% of the requested window. Generated frames are
+never counted as a rendered FPS gain. It retains genuine long frames. It reports
+every interval crossing the predetermined window boundary and actual duration.
+CSV alone cannot prove a complete capture when truncation ends at a whole row.
+
+Average FPS is 1000 divided by the arithmetic mean frame interval, rather than
+averaging instantaneous FPS values. Mean-tail 1% low is 1000 divided by the mean
+of the slowest ceil(N * 0.01) intervals. The tool separately reports 1000/p99,
+because that differs from mean-tail 1% low. Percentiles use linear interpolation
+at (N - 1) * p. Report p50, p95, p99, p99.9, maximum and counts beyond 8.33, 16.67
+and 33.33 ms. Short tails produce an explicit stability warning.
+
+Use at least three four-run blocks, for example ABBA, BAAB, ABBA. A is stock/clean
+supported baseline; B is the fixed candidate. This gives six captures per profile.
+The same patch/driver/context and 120-second effective scene must be repeated.
+Use the block as the independent unit, rather than treating thousands of correlated
+frames as independent statistical trials. Preserve every successful run rather
+than keeping only the highest FPS result. Log failed/invalid runs and their reason.
+
+A comparison manifest has baselineProfile, candidateProfile and runs, where each
+run entry contains report (path relative to manifest), profile, block and order
+(1..4). Run IDs and raw CSV hashes must be distinct. Example structure:
+  {"baselineProfile":"baseline","candidateProfile":"candidate","runs":[{"report":"A01/analysis.json","profile":"baseline","block":"01","order":1}, ...]}
+
+  node optimization/tools/analyze-presentmon.mjs compare manifest.json --out comparison.json
+
+The comparison refuses inconsistent/missing context, methods, collector version,
+incomplete blocks, unverified focus/scene/cache/generation state and synthetic
+evidence. It shows every block's average/1%/p99 change and both profiles' repeat
+spread. A consistent replay improvement requires positive average gain in every
+block, median gain greater than max(3%, within-profile repeat spread), 1% lows no
+more than 3% worse and p99 no more than 3% worse. This conservative engineering
+gate is not a significance test. No confidence interval is claimed for three blocks.
+
+Diagnosis and final selection
+
+GPU-busy timing near the application frame interval, combined with a strong FPS
+response to a controlled render-resolution reduction, supports a GPU limit. Weak
+response points toward investigation of render submission/simulation, memory,
+caps, driver or background scheduling. Total CPU utilization can hide a saturated
+thread, and CPUFrameTime is not a measurement of exclusive CPU execution. HAGS and
+Vulkan/Other instrumentation weaken GPU/CPU attribution; the parser warns when
+recorded and never turns zero/unavailable GPU counters into proof of a CPU limit.
+https://github.com/GameTechDev/PresentMon/blob/v2.6.0/README.md
+
+Inspect matched still views and motion at normal viewing distance: distant enemies,
+soul orbs, ability warnings, haze/shadows, fast-moving edges and UI text. Record a
+readable native profile separately from optional resolution/upscaling compromises.
+A visibility-destroying profile is not the best competitive result, even if its
+counter rises. Do not remove gameplay effects, assets or HUD for a production FPS
+claim. HUD visibility is a temporary diagnostic explicitly suggested by Valve.
+
+Validate the selected candidate in bot and live play, including late fights and a
+30-minute stability session. A warmed replay does not capture every live network,
+simulation, input-latency or memory-growth problem. FPS does not prove complete
+click-to-photon latency. Set a production frame cap only after verifying the actual
+physical display/VRR range and measured live performance. Persistent unexplained
+stutter can be investigated separately with Microsoft's PerfView, as requested
+by Valve developer JasperP; no traces or messages were sent in this work.
+https://github.com/microsoft/perfview
+https://forums.playdeadlock.com/threads/severe-frametime-spikes-when-pressing-keyboard-or-mouse-inputs.84837/page-2
+
+Offline verification commands
+  node --test optimization/tests/presentmon.test.mjs
+  ./optimization/tests/capture-wrapper.test.ps1
+
+These tests verify offline calculations, schema matching, refusal of invalid data,
+ABBA aggregation, PowerShell parsing, limited process launch scope, quoting and
+temporary-file containment. They do not establish capture runtime compatibility,
+zero collector overhead, Valve acceptance or any FPS gain on the current patch.
+
+Current implementation revision2026-10-04 00:14UTC: analyzer1.2.0,26 Node tests and21offline PowerShell checks passed. These checks verify calculations/guardrails, not FPS gains. Parent foreground schema smoke359intervals/1.945118s does not meet benchmark criteria. See round2/benchmark-research.json for corrections, concrete context contract and remaining measurement limits.

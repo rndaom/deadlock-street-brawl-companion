@@ -1,0 +1,519 @@
+{
+  "format": 1,
+  "reviewer": "/root/independent_review",
+  "stage": "round2 initial research",
+  "generatedAt": "2026-10-03T23:57:01.707Z",
+  "taskLocalDate": "2026-10-03",
+  "scope": {
+    "gameReadOnly": true,
+    "gameCommandsExecuted": false,
+    "settingsModified": false,
+    "processesStopped": false,
+    "cacheOrVpkDeleted": false,
+    "benchmarkPerformed": false,
+    "parentCodeModified": false
+  },
+  "game": {
+    "buildId": "25689475",
+    "clientVersion": "6745",
+    "sourceRevision": "11078118",
+    "videoVersion": "20"
+  },
+  "verdict": {
+    "guardedNativeInstaller": true,
+    "measuredWinner": null,
+    "measuredGainPercent": null,
+    "runtimeValuesVerified": false,
+    "normalizationPerformanceNeutral": null,
+    "normalizationEffect": "unestablished; may increase or decrease rendering work",
+    "newConcreteMutationSafetyBlockerFound": false,
+    "round2CandidateNotYetReviewed": true
+  },
+  "findings": [
+    {
+      "id": "IR2-01",
+      "priority": 1,
+      "title": "Normalization may restore rendering work",
+      "evidence": "20 of 31 removed names register, with differing shadow/particle defaults. Flags and preset absence do not establish native storage behavior.",
+      "action": "Compare original reference against normalized original FSR2 .79999995, original sharpness0, equal effective fps0; do not blindly promote 31 manual keys.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-02",
+      "priority": 1,
+      "title": "Upscaler comparisons are confounded",
+      "evidence": "Current four bundles use .8/1/.666667 scale and different active sharpness assignments.",
+      "action": "Build deterministic equal-scale families plus separate normalization/scale controls; custom temporal .8 requires live readback.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-03",
+      "priority": 2,
+      "title": "RCAS strength label exceeds evidence",
+      "evidence": "Valve slider is percent-valued; original low-level AMD RCAS uses stops, while modern FSR1 dispatch uses normalized 0-1 and a separate enableSharpening flag. Valve API/version/mapping unknown.",
+      "action": "Say RCAS control0.2 or menu20%; do not infer 0 disables sharpening.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-04",
+      "priority": 2,
+      "title": "FSR1 AA0 readability is unmeasured",
+      "evidence": "AMD documents an anti-aliased FSR1 input; native FXAA1 is a valid isolated challenger.",
+      "action": "Measure FXAA0/1 equal FSR1/scale and inspect normal-speed distant targets, souls and combat.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-05",
+      "priority": 2,
+      "title": "Inherited hardware tiers differ from Valve buckets",
+      "evidence": "Original cpu1/mem0/gpuMem0/gpu0 versus stock RAM/core/memory classifications; consumer semantics unknown.",
+      "action": "Preserve tiers for main comparisons; separately inspect normal auto-detected values and controlled effects before proposing tiers.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-06",
+      "priority": 2,
+      "title": "Texture clarity challengers remain untested",
+      "evidence": "Mip2 native low; physical VRAM capacity alone does not establish budget/residency/bandwidth costs.",
+      "action": "Hold all else fixed for mip2/1/0, capture p99/hitches and inspect clarity; query GPU use/budget outside timing if available.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-07",
+      "priority": 1,
+      "title": "Winner assertion has no live/capture evidence",
+      "evidence": "Persisted native settings and loaded DX11 do not establish effective values or gameplay bottleneck/FPS gain.",
+      "action": "Ordinary readback/condump, warmed fixed dense/combat current replay, equal cap, repeated matched capture blocks; keep winner/gain null.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-08",
+      "priority": 2,
+      "title": "Potential release controls need discovery",
+      "evidence": "Barnlight shadowmap scale and hero drop-shadow update frequency are release-registered but have no established safe ranges/effects.",
+      "action": "Read ordinary help/value first, then scoped visual/performance experiments; do not blindly add guessed values.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-09",
+      "priority": 1,
+      "title": "Ragdoll reduction can remove gameplay cues",
+      "evidence": "Parent reports original developer Doorman ult indicator warning; no independent engine proof here.",
+      "action": "Keep ragdoll limit unchanged in default until current-build cue validation.",
+      "status": "unresolved empirical question; no runtime intervention"
+    },
+    {
+      "id": "IR2-10",
+      "priority": 2,
+      "title": "Throughput and latency goals need independent tests",
+      "evidence": "Native Anti-Lag2 and fps0 do not establish a FPS win or best pacing.",
+      "action": "Keep AL1 in primary challenger; separate AL0 graphics-identical experiment and pacing evaluation.",
+      "status": "unresolved empirical question; no runtime intervention"
+    }
+  ],
+  "legacy": {
+    "removedUnique": 31,
+    "registered": 20,
+    "absent": 11,
+    "classification": [
+      {
+        "storageKey": "setting.r_shadows",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "r_shadows true (cheat gameinfo_cannot_override)",
+        "description": "<no description>",
+        "metadataLine": 11359,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_distancefield_shadows",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "r_citadel_distancefield_shadows true (developmentonly clientdll defensive)",
+        "description": "<no description>",
+        "metadataLine": 10594,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.csm_max_shadow_dist_override",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "csm_max_shadow_dist_override -1 (developmentonly defensive gameinfo_cannot_override)",
+        "description": "<no description>",
+        "metadataLine": 6748,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.csm_max_num_cascades_override",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "csm_max_num_cascades_override -1 (developmentonly defensive)",
+        "description": "Number of cascades in sunlight shadow",
+        "metadataLine": 6745,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.csm_viewmodel_shadows",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "csm_viewmodel_shadows false (developmentonly defensive)",
+        "description": "<no description>",
+        "metadataLine": 6802,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.lb_enable_shadow_casting",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "lb_enable_shadow_casting true (developmentonly defensive)",
+        "description": "Allow stationary/dynamic lights to cast shadows.",
+        "metadataLine": 8155,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.lb_dynamic_shadow_resolution",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "lb_dynamic_shadow_resolution true (developmentonly defensive)",
+        "description": "Dynamically adjust shadow resolution",
+        "metadataLine": 8119,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_area_lights",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_ssao",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_distancefield_ao_quality",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "r_citadel_distancefield_ao_quality 0 (developmentonly clientdll defensive)",
+        "description": "Distance Field AO quality",
+        "metadataLine": 10552,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.volume_fog_width",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "volume_fog_width 240 (min: 64, max: 1024, developmentonly defensive)",
+        "description": "Width of volume fog texture",
+        "metadataLine": 14527,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.volume_fog_height",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "volume_fog_height 160 (min: 64, max: 1024, developmentonly defensive)",
+        "description": "Height of volume fog texture",
+        "metadataLine": 14512,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.volume_fog_depth",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "volume_fog_depth 128 (min: 48, max: 1024, developmentonly defensive)",
+        "description": "Depth of volume fog texture",
+        "metadataLine": 14497,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.lb_shadow_texture_width_override",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "lb_shadow_texture_width_override -1 (developmentonly defensive)",
+        "description": "Override width of shadow atlas texture",
+        "metadataLine": 8203,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.lb_shadow_texture_height_override",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "lb_shadow_texture_height_override -1 (developmentonly defensive)",
+        "description": "Override height of shadow atlas texture",
+        "metadataLine": 8200,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_displacement_mapping",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_particle_max_detail_level",
+        "originalValues": [
+          "0",
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "r_particle_max_detail_level 3 (developmentonly defensive gameinfo_cannot_override)",
+        "description": "The maximum detail level of particle to create",
+        "metadataLine": 11230,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_particle_shadows",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_particle_cables_cast_shadows",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "r_particle_cables_cast_shadows true (developmentonly defensive gameinfo_cannot_override)",
+        "description": "<no description>",
+        "metadataLine": 11158,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_half_res_noisy_effects",
+        "originalValues": [
+          "true"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.cl_particle_fallback_base",
+        "originalValues": [
+          "5"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "cl_particle_fallback_base 0 (developmentonly defensive)",
+        "description": "Base for falling back to cheaper effects under load.",
+        "metadataLine": 6295,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.cl_particle_fallback_multiplier",
+        "originalValues": [
+          "5"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "cl_particle_fallback_multiplier 0 (developmentonly defensive)",
+        "description": "Multiplier for falling back to cheaper effects under load.",
+        "metadataLine": 6298,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_distancefield_enable",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "r_distancefield_enable true (developmentonly clientdll defensive)",
+        "description": "Graphics/Enable Distance Field rendering",
+        "metadataLine": 10771,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_outlines",
+        "originalValues": [
+          "1"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_distancefield_reflections",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_screen_space_shadows",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_render_portals",
+        "originalValues": [
+          "1"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_env_map_uses_height_map",
+        "originalValues": [
+          "0"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.r_citadel_mboit",
+        "originalValues": [
+          "false"
+        ],
+        "convarRegistered": false,
+        "convarMetadata": null,
+        "description": null,
+        "metadataLine": null,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.lb_csm_override_staticgeo_cascades",
+        "originalValues": [
+          "true"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "lb_csm_override_staticgeo_cascades false (developmentonly defensive)",
+        "description": "Override Cascades that will render static objects with lb_csm_override_staticgeo_cascades_value",
+        "metadataLine": 8059,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      },
+      {
+        "storageKey": "setting.lb_csm_override_staticgeo_cascades_value",
+        "originalValues": [
+          "-1"
+        ],
+        "convarRegistered": true,
+        "convarMetadata": "lb_csm_override_staticgeo_cascades_value -1 (developmentonly defensive)",
+        "description": "If lb_csm_override_staticgeo_cascades, override value used to determine which cascades render static objects",
+        "metadataLine": 8065,
+        "effectiveNativeStorageBehavior": "unverified",
+        "ordinaryConsoleWritability": "unverified"
+      }
+    ]
+  },
+  "originalTiers": {
+    "cpu_level": "1",
+    "mem_level": "0",
+    "gpu_mem_level": "0",
+    "gpu_level": "0"
+  },
+  "nativeBucketEvidence": {
+    "memLevel2": "RAM >=16384 and <65535 megabytes",
+    "gpuMemLevel3": ">=9800 and <65535 megatexels; unit/conversion not established here",
+    "cpuLevel2": "8-99 processor-count bucket"
+  },
+  "sourceUrls": [
+    "https://github.com/SteamTracking/GameTracking-Deadlock/tree/4c6431ccdb816d2911bbbaa4335169cc34140386",
+    "https://gpuopen.com/manuals/fidelityfx_sdk/techniques/super-resolution-spatial/",
+    "https://raw.githubusercontent.com/GPUOpen-Effects/FidelityFX-FSR/master/docs/FidelityFX-FSR-Overview-Integration.pdf",
+    "https://forums.playdeadlock.com/threads/bugs-in-player-model-rendering.95561/",
+    "https://gpuopen.com/manuals/fidelityfx_sdk/reference_documentation/structs/ffx_fsr1_dispatch_description/"
+  ],
+  "reviewedCodeSha256": {
+    "config-core.mjs": "afa52144f4ed5f8207e18df6aac8667dd3b23cd27df7d40183a5639151376226",
+    "optimizer.mjs": "f4ffa0857e6b1ea5b6fdb99ba19718b1f73ab45b8587f41c275ee56627930178",
+    "transaction.mjs": "17b8753ee5a5af4bbaa71ffd7eb6b39c2109e14f63a3e8c2289ee5f1e6e065c1"
+  },
+  "humanReport": "research/round2/independent-initial-review.txt",
+  "humanReportSha256": "3e99f1b04d714eddd1973502db8f7dcc9b1c6f136a92ac56e2eb9bccf4a8656b"
+}
