@@ -1,7 +1,5 @@
-import { ArrowRight } from 'lucide-react';
 import type { CompanionView, ItemRef, SeatView } from '../view';
-import { glyphUrl } from '../catalog-index';
-import { AbilityArt, HeroArt, ItemArt, RankPips, SectionTitle } from './Art';
+import { HeroArt, ItemArt, SectionTitle } from './Art';
 
 const ITEM_SLOTS = 12;
 
@@ -15,50 +13,46 @@ export function ItemRow({ items, size = 'sm', slots, empty }: { items: ItemRef[]
 }
 
 export function Loadout({ view }: { view: CompanionView }) {
-  const { me } = view;
-  if (!me.hero && !me.items.length && !me.ranksKnown) return null;
-  const plan = me.plan;
+  const { me, insights } = view;
+  if (!me.hero && !me.items.length) return null;
+  const counts = { weapon: 0, vitality: 0, spirit: 0 };
+  for (const ref of me.items) if (ref.item && ref.item.category !== 'unknown') counts[ref.item.category]++;
   return <section className="panel loadout" aria-labelledby="loadout-title">
     <SectionTitle id="loadout-title" aside={me.items.length ? `${me.items.length} items` : undefined}>Your build</SectionTitle>
     <div className="loadout-body">
-      <div className="loadout-portrait"><HeroArt hero={me.hero} variant="vertical" /><span className="loadout-hero-name">{me.hero?.name ?? 'Hero not read'}</span></div>
+      <div className="loadout-portrait"><HeroArt hero={me.hero} variant="vertical" /></div>
       <div className="loadout-main">
+        <div className="loadout-hero">
+          <span className="loadout-hero-name">{me.hero?.name ?? 'Hero not read'}</span>
+          {insights?.heroWinRate != null && <span className="loadout-hero-stat" title="This hero's Street Brawl win rate"><strong className="num">{Math.round(insights.heroWinRate * 100)}%</strong> win rate</span>}
+        </div>
         <ItemRow items={me.items} slots={Math.max(ITEM_SLOTS, me.items.length)} />
-        {me.abilities.length > 0 && <div className="abilities" role="list" aria-label="Ability upgrades">
-          {me.abilities.map((ability) => <div role="listitem" key={ability.slot} className={`ability ${ability.isNext ? 'ability-next' : ''}`}
-            aria-label={`${ability.name}: ${ability.rank === null ? 'rank not read' : `tier ${ability.rank} of 3`}${ability.isNext ? ', next upgrade' : ''}`}>
-            <AbilityArt label={ability.label} />
-            <span className="ability-name">{ability.name}</span>
-            <RankPips rank={ability.rank} next={ability.isNext} />
-          </div>)}
+        {me.items.length > 0 && <div className="loadout-split" aria-label={`${counts.weapon} weapon, ${counts.vitality} vitality, ${counts.spirit} spirit items`}>
+          {(['weapon', 'vitality', 'spirit'] as const).map((category) => <span key={category} className={`split-chip cat-${category}`}><i aria-hidden="true" /><strong className="num">{counts[category]}</strong> {category}</span>)}
         </div>}
+        {insights?.toughest?.hero && <p className="loadout-warn">Toughest matchup: <strong>{insights.toughest.hero.name}</strong> — {view.me.hero?.name} wins {Math.round(insights.toughest.winRate * 100)}% against them.</p>}
       </div>
     </div>
-    {plan && <div className="upgrade">
-      <span className="upgrade-label">Next upgrade</span>
-      <div className="upgrade-main">
-        <AbilityArt label={me.abilities[plan.slot]?.label ?? null} size="sm" />
-        <span className="upgrade-name"><strong>{plan.ability}</strong> to tier {plan.tier}</span>
-        {plan.cost !== null && <span className="ap" title="Ability points"><img src={glyphUrl('ap-icon')} alt="" onError={(event) => { event.currentTarget.style.display = 'none'; }} /><strong className="num">{plan.cost}</strong> AP</span>}
-      </div>
-      <p className="upgrade-why">{plan.reason[0]?.toUpperCase()}{plan.reason.slice(1)}{plan.games ? ` · ${plan.games.toLocaleString()} games` : ''}.</p>
-      {plan.then.length > 0 && <p className="upgrade-then"><span>Then</span>{plan.then.map((name, index) => <span key={index} className="then-step">{index > 0 && <ArrowRight size={11} aria-hidden="true" />}{name}</span>)}</p>}
-    </div>}
-    {!me.ranksKnown && <p className="hint">Open the ability upgrade view in Deadlock to read your ranks.</p>}
   </section>;
 }
 
 function SeatRow({ seat, enemy }: { seat: SeatView; enemy: boolean }) {
+  const matchup = seat.matchup;
   return <li className={`seat ${seat.isLocal ? 'seat-you' : ''} ${seat.heroId ? '' : 'seat-unread'}`}>
     <HeroArt hero={seat.hero} variant="small" className={enemy ? 'hero-enemy' : 'hero-ally'} />
-    <span className="seat-name">{seat.hero?.name ?? 'Not read yet'}{seat.isLocal && <em>You</em>}</span>
+    <span className="seat-name">
+      <span className="seat-hero">{seat.hero?.name ?? 'Not read yet'}</span>
+      {seat.isLocal && <em>You</em>}
+      {matchup && <span className={`matchup matchup-${matchup.tone}`} title={`You win ${Math.round(matchup.winRate * 100)}% of ${matchup.games.toLocaleString()} Street Brawl games against ${seat.hero?.name ?? 'this hero'}`}>
+        <span className="num">{Math.round(matchup.winRate * 100)}%</span></span>}
+    </span>
     <ItemRow items={seat.items} size="xs" empty={seat.heroId ? 'Items not read' : ''} />
   </li>;
 }
 
 const GUIDE = [
   { title: 'Keep Deadlock in front', body: 'The reader follows your visible game window. Put the companion on your second screen.' },
-  { title: 'Hold Tab at a safe moment', body: 'About ten seconds on the scoreboard reads every hero and their items.' },
+  { title: 'Hold Tab at a safe moment', body: 'A few seconds on the scoreboard reads every hero and their items.' },
   { title: 'Draft opens, pick appears', body: 'The three cards are read in game order, and the best one is called out with the reasons.' },
 ];
 
@@ -70,7 +64,7 @@ export function Guide() {
       <span className="guide-num" aria-hidden="true"><span>{['I', 'II', 'III'][index]}</span></span>
       <strong>{step.title}</strong><p>{step.body}</p>
     </li>)}</ol>
-    <p className="hint">Open the ability upgrade view now and then, and the companion will also suggest your next upgrade.</p>
+    <p className="hint">Your ability ranks are read from the upgrade panel during drafts and while Tab is held; the next upgrade appears with them.</p>
   </section>;
 }
 
@@ -81,10 +75,12 @@ export function Teams({ view }: { view: CompanionView }) {
     : [...seats, ...Array.from({ length: 4 - seats.length }, (_, index): SeatView => ({ seat: offset + seats.length + index, hero: undefined, heroId: null, items: [], isLocal: false }))];
   const theirs = pad(teams.theirs, 100), ours = pad(teams.ours, 200);
   const read = (seats: SeatView[]) => seats.filter((seat) => seat.heroId).length;
+  const hasMatchups = theirs.some((seat) => seat.matchup);
   return <section className="panel teams" aria-label="Teams">
     <div className="team team-enemy">
       <SectionTitle aside={<span className="num">{read(theirs)}/4</span>}>{teams.known ? 'Enemy team' : 'Right team'}</SectionTitle>
       <ul className="seats">{theirs.map((seat) => <SeatRow key={seat.seat} seat={seat} enemy />)}</ul>
+      {hasMatchups && <p className="hint">The % beside each enemy is how often {view.me.hero?.name ?? 'your hero'} wins against them in Street Brawl.</p>}
       {teams.hiddenEnemyItems > 0 && <p className="hint">{teams.hiddenEnemyItems} enemy item{teams.hiddenEnemyItems === 1 ? ' is' : 's are'} hidden on the scoreboard.</p>}
     </div>
     <div className="team team-ally">

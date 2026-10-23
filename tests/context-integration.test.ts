@@ -333,9 +333,10 @@ describe('native protocol → visible context → current decisions', () => {
     // The best readable card is still named, but only as a comparison with the repeat caveat carried.
     expect([0, 1, 2]).toContain(result.preferredPosition);
     expect(result.title).not.toMatch(/^Pick /);
-    expect(result.reasons.join(' ')).toContain('Comparison only');
+    // The undecoded repeat is a diagnostic limitation, not a hedge in the shown reasons.
+    expect(result.reasons.join(' ')).not.toMatch(/Comparison only|unobserved|unread/);
     expect(result.limitations.join(' ')).toContain('no decoded Street Brawl upgrade/stacking state');
-    expect(result.ranked.find(entry => entry.position === 1)!.reasons.join(' ')).toContain('A repeat may upgrade the existing item');
+    expect(result.ranked.find(entry => entry.position === 1)!.reasons.join(' ')).not.toContain('A repeat may upgrade the existing item');
   });
 
   it('fresh header/round confirmations do not freshen a hidden mutable snapshot beyond thirty seconds', () => {
@@ -388,6 +389,12 @@ describe('native protocol → visible context → current decisions', () => {
     later();
     if (boundary === 'finished-to-combat') {
       state = observe(state, { ...hudContext(), panel: 'post-match' });
+      later();
+    }
+    if (boundary === 'round-regression') {
+      // One "ROUND 1" read below round 5 is a misread until a second read agrees (2026-10-18: a misread round was taken at once).
+      state = observe(state, hudContext(), [contextBlock('ROUND 1', .45, .08)]);
+      expect(state.round).toBe(5);
       later();
     }
     state = observe(state, hudContext(), boundary === 'round-regression' ? [contextBlock('ROUND 1', .45, .08)] : []);
@@ -675,7 +682,8 @@ describe('unattended context acquisition and decision liveness', () => {
     const reads = worker.requests.filter(({ request }) => request.op === 'read');
     expect(reads.length).toBeGreaterThan(8);
     for (let index = 1; index < reads.length; index++) {
-      expect(reads[index]!.startedAt - reads[index - 1]!.startedAt).toBeGreaterThanOrEqual(210 / SCREEN_READER_LIMITS.maxWorkerWallShare);
+      // A draft is on screen throughout, so the draft's (larger) duty share applies.
+      expect(reads[index]!.startedAt - reads[index - 1]!.startedAt).toBeGreaterThanOrEqual(210 / SCREEN_READER_LIMITS.draftWorkerWallShare);
     }
     const full = reads.filter(({ request }) => JSON.stringify(request.crop) === JSON.stringify(FULL));
     expect(full.length).toBeGreaterThan(2);

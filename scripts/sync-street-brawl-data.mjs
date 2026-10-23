@@ -10,5 +10,9 @@ const contextCatalog = JSON.parse(await fs.readFile(new URL('../data/context-cat
 const slots = new Map(contextCatalog.abilities.map(ability => [String(ability.numericId), ability.slot]));
 const output = await fetchStreetBrawlData(slots);
 await fs.writeFile(new URL('../data/street-brawl-data.json', import.meta.url), `${JSON.stringify(output)}\n`);
+const wide = Object.values(output.heroes).filter(hero => hero.wideWindow).map(hero => hero.name);
 console.log(`Saved ${Object.keys(output.items).length} items and ${Object.keys(output.heroes).length} heroes`,
   `(${Object.keys(output.globalItemStats).length} item win rates, fetched ${output.fetchedAt}).`);
+console.log(`Games since ${output.window.since.slice(0, 10)} (wide fallback since ${output.window.wideSince.slice(0, 10)}${wide.length ? ` for ${wide.join(', ')}` : ', unused'}).`,
+  `Per-hero prior ${output.heroPriorMatches} games, Good-list prior ${(output.goodPrior * 100).toFixed(2)} points,`,
+  output.enhanced ? `Enhanced: ${output.enhanced.share * 100 | 0}% of drafted copies, mean uplift ${(output.enhanced.meanUplift * 100).toFixed(2)} points.` : 'no Enhanced results.');

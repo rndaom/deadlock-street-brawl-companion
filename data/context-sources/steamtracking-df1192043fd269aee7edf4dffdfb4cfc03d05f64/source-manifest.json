@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "commit": "df1192043fd269aee7edf4dffdfb4cfc03d05f64",
+  "sources": [
+    {
+      "file": "convars.txt",
+      "sourcePath": "DumpSource2/convars.txt",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/df1192043fd269aee7edf4dffdfb4cfc03d05f64/DumpSource2/convars.txt",
+      "bytes": 524264,
+      "sha256": "95811d33abf57336ac082469b9acb603d720e918cbc7188517aa0d6bd1ade30f",
+      "retrievedAt": "2026-10-17T22:48:15.353Z"
+    },
+    {
+      "file": "abilities.vdata",
+      "sourcePath": "game/citadel/pak01_dir/scripts/abilities.vdata",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/df1192043fd269aee7edf4dffdfb4cfc03d05f64/game/citadel/pak01_dir/scripts/abilities.vdata",
+      "bytes": 8071494,
+      "sha256": "39eeb3eb73b2f7bc4bce13ed82cdd9f971aa9b2b86a71b4846f6d48b54299ee8",
+      "retrievedAt": "2026-10-17T22:48:15.759Z"
+    },
+    {
+      "file": "citadel_hud_ability_upgrade_button.xml",
+      "sourcePath": "game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_button.xml",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/df1192043fd269aee7edf4dffdfb4cfc03d05f64/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_button.xml",
+      "bytes": 808,
+      "sha256": "3e33eb188e1e63efe13bac9567c644561b3547897de06ef9dbf359be2fe7fe06",
+      "retrievedAt": "2026-10-17T22:48:15.883Z"
+    },
+    {
+      "file": "citadel_hud_ability_upgrade_pips.xml",
+      "sourcePath": "game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_pips.xml",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/df1192043fd269aee7edf4dffdfb4cfc03d05f64/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_pips.xml",
+      "bytes": 1538,
+      "sha256": "374c8afa3261a3cdad6f7826f0110bec45a5745862dace86952802ab18a92517",
+      "retrievedAt": "2026-10-17T22:48:16.046Z"
+    },
+    {
+      "file": "steam.inf",
+      "sourcePath": "game/citadel/steam.inf",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/df1192043fd269aee7edf4dffdfb4cfc03d05f64/game/citadel/steam.inf",
+      "bytes": 176,
+      "sha256": "0e5346fad7ea6ea7a7d965123cfe21ef50bf46d1cd05a13f5b2483bbdb71974d",
+      "retrievedAt": "2026-10-17T22:48:16.155Z"
+    }
+  ]
+}

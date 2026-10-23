@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createController } from '../src/app/controller';
 import { getDecisionKey } from '../src/core/store';
-import { DEMO_CATALOG } from '../src/demo/scenarios';
 import type { Advice, Catalog, MatchState } from '../src/shared/types';
 import { advice, draft, fixtureEvents, item, MATCH_ID, match, NOW, observation, player, source, testCatalog } from './fixtures';
 
@@ -24,13 +23,13 @@ function delayedController() {
   const complete = (entry: Pending, overrides: Partial<Advice> = {}) => {
     const key = getDecisionKey(entry.snapshot, entry.catalog.modelVersion, entry.catalog.revision);
     expect(key).not.toBeNull();
-    entry.resolve(advice(key!, { computedAt: entry.at, evidence: entry.snapshot.mode === 'demo' ? 'synthetic' : 'mechanics', ...overrides }));
+    entry.resolve(advice(key!, { computedAt: entry.at, evidence: 'mechanics', ...overrides }));
   };
   return { controller, pending, complete, setClock: (at: number) => { clock = at; } };
 }
 
 describe('application controller transactions', () => {
-  it('leaves background timers asleep while waiting, in combat, or after returning to Live', async () => {
+  it('leaves background timers asleep until a draft is open', async () => {
     vi.useFakeTimers({ now: NOW });
     const score = vi.fn(async () => null);
     const controller = createController(testCatalog, { score });
@@ -38,26 +37,20 @@ describe('application controller transactions', () => {
       expect(vi.getTimerCount()).toBe(0);
       await vi.advanceTimersByTimeAsync(20_000);
       expect(score).not.toHaveBeenCalled();
-      controller.setMode('demo');
+      for (const event of fixtureEvents()) controller.ingest(event);
       expect(vi.getTimerCount()).toBe(1);
       await vi.advanceTimersByTimeAsync(1_000);
-      expect(score).toHaveBeenCalledTimes(1);
-      controller.runDemoScenario('combat');
-      expect(vi.getTimerCount()).toBe(0);
-      controller.runDemoScenario('waiting');
-      expect(vi.getTimerCount()).toBe(0);
-      controller.runDemoScenario('draft');
-      expect(vi.getTimerCount()).toBe(1);
-      controller.setMode('live');
-      expect(vi.getTimerCount()).toBe(0);
+      expect(score).toHaveBeenCalled();
     } finally { controller.dispose(); vi.useRealTimers(); }
   });
 
   it('automatically expires draft advice and stops checking the closed deadline', async () => {
     vi.useFakeTimers({ now: NOW });
-    const controller = createController(testCatalog);
+    const controller = createController(testCatalog, {
+      score: async (snapshot, catalog, at) => advice(getDecisionKey(snapshot, catalog.modelVersion, catalog.revision)!, { computedAt: at, evidence: 'mechanics' }),
+    });
     try {
-      controller.setMode('demo');
+      for (const event of fixtureEvents()) controller.ingest(event);
       await vi.advanceTimersByTimeAsync(0);
       expect(controller.getState().advice?.kind).toBe('pick');
       expect(vi.getTimerCount()).toBe(1);
@@ -77,79 +70,9 @@ describe('application controller transactions', () => {
       expect(vi.getTimerCount()).toBe(1);
       controller.ingest({ type: 'source', source: source({ status: 'interrupted', continuity: 'gap' }) });
       expect(vi.getTimerCount()).toBe(0);
-      controller.setMode('demo');
-      expect(vi.getTimerCount()).toBe(1);
       controller.dispose();
       expect(vi.getTimerCount()).toBe(0);
     } finally { controller.dispose(); vi.useRealTimers(); }
-  });
-
-  it('publishes only complete fixture snapshots after entering Demo', async () => {
-    const controller = createController(testCatalog, { now: () => NOW, autoTick: false });
-    const published: MatchState[] = [];
-    controller.subscribe((state) => published.push(state));
-    try {
-      controller.setMode('demo');
-      await flush();
-      const hydrated = published.filter((state) => state.match !== null);
-      expect(hydrated.length).toBeGreaterThan(0);
-      expect(hydrated.every((state) => state.mode === 'demo' && state.players.length === 8 && state.draft !== null)).toBe(true);
-      expect(controller.getState().advice?.kind).toBe('pick');
-      expect(controller.getCatalog().revision).toBe(DEMO_CATALOG.revision);
-    } finally { controller.dispose(); }
-  });
-
-  it('clears all synthetic state on Demo to Live and restores the public catalogue', async () => {
-    const controller = createController(testCatalog, { now: () => NOW, autoTick: false });
-    try {
-      controller.setMode('demo');
-      await flush();
-      expect(controller.getState().match).not.toBeNull();
-      controller.setMode('live');
-      const live = controller.getState();
-      expect(live.mode).toBe('live');
-      expect(live.match).toBeNull();
-      expect(live.players).toEqual([]);
-      expect(live.draft).toBeNull();
-      expect(live.advice).toBeNull();
-      expect(live.source.status).not.toBe('connected');
-      expect(controller.getCatalog().revision).toBe(testCatalog.revision);
-    } finally { controller.dispose(); }
-  });
-
-  it('ignores stopped Live-provider callbacks while Demo is active', async () => {
-    const controller = createController(testCatalog, { now: () => NOW, autoTick: false });
-    try {
-      controller.setMode('demo');
-      await flush();
-      const before = structuredClone(controller.getState());
-      for (const event of fixtureEvents()) controller.ingest(event);
-      expect(controller.getState()).toEqual(before);
-    } finally { controller.dispose(); }
-  });
-
-  it('requires Demo mode for a fixture transaction', () => {
-    const controller = createController(testCatalog, { autoTick: false });
-    try {
-      expect(() => controller.runDemoScenario('draft')).toThrow();
-      expect(controller.getState().match).toBeNull();
-    } finally { controller.dispose(); }
-  });
-
-  it('keeps the Demo identity through every phase and explicit missing-data scenario', async () => {
-    const controller = createController(testCatalog, { now: () => NOW, autoTick: false });
-    try {
-      controller.setMode('demo');
-      for (const id of ['draft', 'rerolled', 'combat', 'interrupted', 'unknown-item', 'unknown-ranks', 'post-match', 'waiting'] as const) {
-        controller.runDemoScenario(id);
-        await flush();
-        expect(controller.getState().mode).toBe('demo');
-        expect(controller.getState().source.provider).toContain('Synthetic');
-        if (['combat', 'interrupted', 'post-match', 'waiting'].includes(id)) {
-          expect(controller.getState().advice?.kind).not.toBe('pick');
-        }
-      }
-    } finally { controller.dispose(); }
   });
 
   it('uses the injected clock when accepting a current result', async () => {
@@ -160,20 +83,6 @@ describe('application controller transactions', () => {
       work.complete(work.pending[0]!);
       await flush();
       expect(work.controller.getState().advice?.kind).toBe('pick');
-    } finally { work.controller.dispose(); }
-  });
-
-  it('does not let a pending Demo result populate the new Live epoch', async () => {
-    const work = delayedController();
-    try {
-      work.controller.setMode('demo');
-      const old = work.pending[0]!;
-      work.controller.setMode('live');
-      work.complete(old);
-      await flush();
-      expect(work.controller.getState().mode).toBe('live');
-      expect(work.controller.getState().advice).toBeNull();
-      expect(work.controller.getState().match).toBeNull();
     } finally { work.controller.dispose(); }
   });
 
@@ -245,7 +154,7 @@ describe('application controller transactions', () => {
   it('rejects a matching pending result once the confirmed draft deadline has passed', async () => {
     const work = delayedController();
     try {
-      work.controller.setMode('demo');
+      for (const event of fixtureEvents()) work.controller.ingest(event);
       const pending = work.pending[0]!;
       const deadline = work.controller.getState().match!.deadlineAt!;
       work.setClock(deadline + 1);
@@ -258,7 +167,7 @@ describe('application controller transactions', () => {
   it('expires an existing directive without needing a new provider packet', async () => {
     const work = delayedController();
     try {
-      work.controller.setMode('demo');
+      for (const event of fixtureEvents()) work.controller.ingest(event);
       work.complete(work.pending[0]!);
       await flush();
       expect(work.controller.getState().advice?.kind).toBe('pick');

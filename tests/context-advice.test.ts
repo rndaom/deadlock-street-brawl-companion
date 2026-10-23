@@ -83,7 +83,8 @@ describe('actual observed-context offer comparisons', () => {
     expect(score(bullet, 0)).toBeGreaterThan(score(spirit, 0));
     expect(score(spirit, 1)).toBeGreaterThan(score(bullet, 1));
     expect(spirit.preferredPosition).toBe(1);
-    expect(reasonsAt(bullet, 0)).toContain("12% bullet resist answers observed Haze's source damage kit");
+    // Reasons state the effect without "observed" hedging.
+    expect(reasonsAt(bullet, 0)).toContain("12% bullet resist answers Haze's source damage kit");
     expect(spirit.reasons.join(' ')).toContain('Seven');
     expect(spirit.reasons.join(' ')).toContain('18% spirit resist');
     expect(bullet.factsUsed?.some(fact => fact.scope === 'enemy' && fact.playerSeat === 4 && fact.label.includes('Haze'))).toBe(true);
@@ -104,11 +105,31 @@ describe('actual observed-context offer comparisons', () => {
     expect(after.factsUsed?.some(fact => fact.scope === 'enemy' && fact.playerSeat === 4 && fact.label.includes('Boundless Spirit'))).toBe(true);
   });
 
+  it('gives the recommended card the highest edge and percentile when the observed context decides the pick', () => {
+    const sets = [offense(), protection(), [offer('upgrade_healbane', 0), offer('upgrade_rapid_rounds', 1), offer('upgrade_non_player_bonus', 2)]];
+    const contexts = [match(), match({ players: [player('hero_haze', 4, 1, [item('upgrade_vampire', 0)])] }), match({ players: [player('hero_wraith', 4, 1), player('hero_atlas', 5, 1)] })];
+    let checked = 0;
+    for (const offers of sets) for (const context of contexts) {
+      const advice = advise(offers, context);
+      const chosen = advice.ranked.find(entry => entry.position === advice.preferredPosition)!;
+      expect(chosen.edge).toBeDefined();
+      for (const entry of advice.ranked) {
+        expect(chosen.edge!).toBeGreaterThanOrEqual(entry.edge!);
+        expect(chosen.tierPercentile!).toBeGreaterThanOrEqual(entry.tierPercentile!);
+      }
+      checked++;
+    }
+    expect(checked).toBe(9);
+  });
+
   it('chooses healing reduction when actual enemy healing gear appears and states the triggering damage', () => {
     const offers = [offer('upgrade_healbane', 0), offer('upgrade_rapid_rounds', 1), offer('upgrade_non_player_bonus', 2)];
     const before = advise(offers, match({ players: [player('hero_haze', 4, 1)] }));
     const after = advise(offers, match({ players: [player('hero_haze', 4, 1, [item('upgrade_vampire', 0)])] }));
-    expect(before.preferredPosition).toBe(1);
+    // Healbane already leads on its measured Haze win rate (Rapid Rounds' Valve-list prior fades with
+    // its 24k Haze games); the enemy's healing gear adds the observed-context case on top.
+    expect(score(after, 0)).toBeGreaterThan(score(before, 0) + 1);
+    expect(before.reasons.join(' ')).not.toContain('healing reduction');
     expect(after.preferredPosition).toBe(0);
     expect(after.reasons.join(' ')).toContain('35% listed healing reduction');
     expect(after.reasons.join(' ')).toContain('13% listed bullet lifesteal');
@@ -219,10 +240,11 @@ describe('actual observed-context offer comparisons', () => {
     expect(result.limitations.join(' ')).toContain('bonus coverage is unread');
     expect(result.comparisonPosition).toBe(1);
     expect(result.comparisonBasis).toBe('main-item-base-effects');
-    expect(result.reasons.join(' ')).toContain('could change this choice');
+    // The unread enhancements are the caveat; the reasons stay plain statements.
+    expect(result.reasons.join(' ')).not.toMatch(/could change|unread|observed/i);
   });
 
-  it('compares main items consistently when only one unknown bundle contains some identified bonuses', () => {
+  it('keeps the main-item base comparison but credits identified bonus items on the pick score', () => {
     const offers = protection().map(entry => ({ ...entry, variant: 'unknown' as const, bonusIds: null as string[] | null }));
     const context = match({ players: [player('hero_gigawatt', 4, 1)] });
     const before = advise(offers, context);
@@ -230,10 +252,12 @@ describe('actual observed-context offer comparisons', () => {
     const after = advise(offers, context);
     expect(before.preferredPosition).toBe(1);
     expect(before.comparisonPosition).toBe(1);
-    expect(after.preferredPosition).toBe(before.preferredPosition);
     expect(after.comparisonPosition).toBe(before.comparisonPosition);
     expect(after.caveat).toContain('not read');
-    expect(after.ranked.map(entry => entry.score)).toEqual(before.ranked.map(entry => entry.score));
+    // The free items are real value: only the card that carries them gains.
+    expect(after.ranked[0]!.score).toBeGreaterThan(before.ranked[0]!.score);
+    expect(after.ranked.slice(1).map(entry => entry.score)).toEqual(before.ranked.slice(1).map(entry => entry.score));
+    expect(after.ranked[0]!.reasons.join(' ')).toMatch(/Bonus! Also gives/);
     expect(after.limitations.join(' ')).toContain('every bonus and special modifier is excluded');
   });
 
@@ -256,7 +280,7 @@ describe('actual observed-context offer comparisons', () => {
       expect(result.preferredPosition).toBe(1);
       expect(result.title).toBe("Pick Enchanter's Emblem");
       expect(result.reasons[0]).toBe(pickReason(result));
-      expect(result.reasons.join(' ')).toContain('Comparison only');
+      expect(result.reasons.join(' ')).not.toMatch(/Comparison only|unread|observed/i);
       expect(result.reasons.join(' ')).toContain('Seven');
     }
   });
@@ -314,7 +338,8 @@ describe('actual observed-context offer comparisons', () => {
     expect(result.caveat).toContain('not read');
     expect(result.comparisonPosition ?? null).toBeNull();
     expect(result.limitations.join(' ')).toContain('repeated Extra Spirit');
-    expect(result.ranked[0]!.reasons.join(' ')).toContain('unobserved upgrade operator is not assumed');
+    // The repeat stays a diagnostic limitation; the card's reasons do not hedge about it.
+    expect(result.ranked[0]!.reasons.join(' ')).not.toMatch(/upgrade operator|unobserved/);
   });
 
   it('does not apply fixed source quantities when the catalogue version changes', () => {

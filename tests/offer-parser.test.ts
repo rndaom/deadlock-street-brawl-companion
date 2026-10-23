@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import catalogData from '../data/public-catalog.json';
 import type { Catalog } from '../src/shared/types';
 import type { NativeIconMatch, NativeOcrBlock } from '../src/shared/screen-reading';
-import { detectDraftHint, normalizeOfferText, parseScreenOffers } from '../src/screen/offer-parser';
+import { detectDraftHint, draftChoiceStage, isBonusLabel, namedItems, normalizeOfferText, parseScreenOffers } from '../src/screen/offer-parser';
 
 const catalog = catalogData as Catalog;
 const centers = [0.26, 0.5, 0.74];
@@ -43,7 +43,7 @@ describe('anonymized actual selection OCR geometry', () => {
     expect(parsed.isDraft).toBe(true);
     expect(parsed.offers.map(offer => offer.name)).toEqual(['Toxic Bullets', 'Tesla Bullets', 'Spiritual Overflow']);
     expect(parsed.offers[2]?.warning).toMatch(/OCR correction/);
-    expect(parsed.offers.every(offer => offer.variant === 'unknown' && offer.bonusIds === null)).toBe(true);
+    expect(parsed.offers.every(offer => offer.variant === 'base' && offer.bonusIds === null)).toBe(true);
   });
   it('also reconstructs the actual individually bounded OCR heading words', () => {
     const blocks = observedSelectionFrame().filter(value => !['Toxic Bullets', 'Tesla Bullets', 'Spiritual Ouerflow'].includes(value.text));
@@ -53,9 +53,13 @@ describe('anonymized actual selection OCR geometry', () => {
     expect(parseScreenOffers(blocks, catalog, { conservativeUnmarkedDetails: true }).offers.map(offer => offer.name))
       .toEqual(['Toxic Bullets', 'Tesla Bullets', 'Spiritual Overflow']);
   });
-  it('withholds a partially revealed actual frame with only two headings', () => {
+  it('places the two readable cards of a partially revealed actual frame and keeps the third explicitly unread', () => {
+    // Cards deal in one at a time (2026-10-18: the first set took 1.1-1.7 s to show); readable cards show at once.
     const blocks = observedSelectionFrame().filter(value => !['RARE!', 'Spiritual Ouerflow'].includes(value.text));
-    expect(parseScreenOffers(blocks, catalog, { conservativeUnmarkedDetails: true })).toMatchObject({ isDraft: true, incomplete: true, offers: [] });
+    const parsed = parseScreenOffers(blocks, catalog, { conservativeUnmarkedDetails: true });
+    expect(parsed).toMatchObject({ isDraft: true, incomplete: true, signature: null });
+    expect(parsed.offers.map(offer => [offer.position, offer.name])).toEqual([[0, 'Toxic Bullets'], [1, 'Tesla Bullets'], [2, 'Unread item choice']]);
+    expect(parsed.offers[2]).toMatchObject({ itemId: '', confidence: 0, bonusIds: null });
   });
   it('retains the same card details when the actual reroll counter drops out of OCR', () => {
     const first = parseScreenOffers(observedSelectionFrame(), catalog, { conservativeUnmarkedDetails: true });
@@ -118,9 +122,18 @@ describe('source-backed draft cues and spatial offers', () => {
   it('closed/selects-complete text overrides both names and an external hint', () => {
     expect(parseScreenOffers([...frame(), block('Selects Complete', 0.35, 0.25, 0.3)], catalog, { draftConfirmed: true }).isDraft).toBe(false);
   });
-  it('withholds a partially revealed two-card frame', () => {
+  it('places a partially revealed two-card frame by the fixed card positions', () => {
     const blocks = frame().filter(value => value.text !== 'Spirit Resilience' && !(value.text === 'Tier 2' && value.x > 0.6));
-    expect(parseScreenOffers(blocks, catalog)).toMatchObject({ isDraft: true, incomplete: true, offers: [], signature: null });
+    const parsed = parseScreenOffers(blocks, catalog);
+    expect(parsed).toMatchObject({ isDraft: true, incomplete: true, signature: null });
+    expect(parsed.offers.map(offer => offer.itemId ? offer.name : '')).toEqual(['Active Reload', 'Bullet Lifesteal', '']);
+    // The right card alone is placed on the right.
+    const right = parseScreenOffers(frame().filter(value => !['Active Reload', 'Bullet Lifesteal', 'Tier 2'].includes(value.text) || value.x > 0.6), catalog);
+    expect(right.offers.map(offer => offer.itemId ? offer.name : '')).toEqual(['', '', 'Spirit Resilience']);
+  });
+  it('does not place a lone name that is not where a card name can be', () => {
+    const blocks = [...frame().filter(value => !itemNames.includes(value.text) && value.text !== 'Tier 2'), block('Active Reload', 0.38, 0.6)];
+    expect(parseScreenOffers(blocks, catalog).offers.filter(offer => offer.itemId)).toEqual([]);
   });
   it('keeps an unread third main item explicit when its card anchor is visible', () => {
     const parsed = parseScreenOffers(frame(['Active Reload', 'Bullet Lifesteal', 'Quantum Marmalade']), catalog);
@@ -187,11 +200,11 @@ describe('whole-name OCR matching', () => {
 });
 
 describe('bonus bundles and variants', () => {
-  it('keeps unmarked real-capture details unknown while preserving readable main cards', () => {
+  it('reads unlabelled real-capture cards as base items but keeps their unread bonus details unknown', () => {
     const parsed = parseScreenOffers(frame(), catalog, { conservativeUnmarkedDetails: true });
     expect(parsed.offers.map(offer => offer.name)).toEqual(itemNames);
-    expect(parsed.offers.every(offer => offer.itemId && offer.variant === 'unknown' && offer.bonusIds === null)).toBe(true);
-    expect(parsed.offers[0]?.warning).toMatch(/modifier.*unconfirmed/);
+    expect(parsed.offers.every(offer => offer.itemId && offer.variant === 'base' && offer.bonusIds === null)).toBe(true);
+    expect(parsed.offers[0]?.warning).not.toMatch(/modifier/);
     expect(parsed.offers[0]?.warning).toMatch(/bundle.*unconfirmed/);
     expect(parsed.message).toMatch(/details are unconfirmed/);
     expect(parsed.message).not.toMatch(/advice is withheld/);
@@ -206,20 +219,20 @@ describe('bonus bundles and variants', () => {
     const parsed = parseScreenOffers([...frame(), marker('Enhanced'), marker('Bonus!')], catalog,
       { conservativeUnmarkedDetails: true, iconMatches: [bonusIcon(0), bonusIcon(0, 1)] });
     expect(parsed.offers[0]).toMatchObject({ variant: 'enhanced', bonusIds: ['upgrade_improved_spirit', 'upgrade_improved_spirit'] });
-    expect(parsed.offers[1]).toMatchObject({ variant: 'unknown', bonusIds: null });
+    expect(parsed.offers[1]).toMatchObject({ variant: 'base', bonusIds: null });
   });
   it('retains explicitly named bonus quantities even when no standalone marker was read', () => {
     const parsed = parseScreenOffers(frame(['Leech + Extra Spirit + Extra Regen', 'Bullet Lifesteal', 'Spirit Resilience']), catalog, { conservativeUnmarkedDetails: true });
-    expect(parsed.offers[0]).toMatchObject({ variant: 'unknown', bonusIds: ['upgrade_improved_spirit', 'upgrade_endurance'] });
+    expect(parsed.offers[0]).toMatchObject({ variant: 'base', bonusIds: ['upgrade_improved_spirit', 'upgrade_endurance'] });
   });
   it('does not use unmarked native extras to enlarge an explicitly named real-capture bundle', () => {
     const parsed = parseScreenOffers(frame(['Leech + Extra Spirit', 'Bullet Lifesteal', 'Spirit Resilience']), catalog,
       { conservativeUnmarkedDetails: true, iconMatches: [bonusIcon(0), bonusIcon(0, 1)] });
     expect(parsed.offers[0]?.bonusIds).toBeNull();
   });
-  it('keeps Rare roll rarity insufficient to certify no modifiers or no bonus', () => {
+  it('keeps Rare roll rarity insufficient to certify no bonus', () => {
     expect(parseScreenOffers([...frame(), marker('Rare!')], catalog, { conservativeUnmarkedDetails: true }).offers[0])
-      .toMatchObject({ variant: 'unknown', bonusIds: null });
+      .toMatchObject({ variant: 'base', bonusIds: null });
   });
   it('preserves all explicitly named plus-separated bonus items', () => {
     const parsed = parseScreenOffers(frame(['Leech + Extra Spirit + Extra Regen', 'Bullet Lifesteal', 'Spirit Resilience']), catalog);
@@ -368,5 +381,160 @@ describe('observed fields, signature and bounded input', () => {
       expect(detectDraftHint([block(label, 0.1, 0.1)])).toBe(false);
     }
     expect(detectDraftHint([block('Choice 3 of 3', 0.1, 0.1)])).toBe(true);
+  });
+});
+
+// Real 2026-10-11 Street Brawl draft geometry (client 1920x1080), public card labels only.
+function realDraft(names: [string, string, string] = ['Disarming Hex', 'Stamina Mastery', 'Surge of Power']): NativeOcrBlock[] {
+  return [block('SELECT ITEM•', 0.038333, 0.175889, 0.260556, 0.0583), block('CHOICE 3 OF 3', 0.039444, 0.267787, 0.101111, 0.023715),
+    block(names[0], 0.213889, 0.675889, 0.128889, 0.032609), block(names[1], 0.423889, 0.447628, 0.151667, 0.031621),
+    block('Use Re-Roll', 0.462778, 0.653162, 0.074444, 0.019763), block('Re-Roll Remaining', 0.464444, 0.713439, 0.075, 0.01581),
+    block(names[2], 0.653333, 0.675889, 0.136667, 0.036561)];
+}
+// The middle card's "BONUS!" label (citadel_item_draft_option.css: 20px at (60,30) of the 400px option)
+// as Windows OCR actually reads it, and the native matcher's two bonus slots around it.
+const middleBonusLabel = (text = 'eoNUS!') => block(text, 0.428, 0.239, 0.031, 0.022);
+const middleBonusIcon = (slot: 0 | 1, itemId: string, confidence = 0.97): NativeIconMatch => ({ role: 'bonus', slot, itemId, confidence,
+  bounds: slot === 0 ? { x: 0.417, y: 0.248, width: 0.052, height: 0.093 } : { x: 0.396, y: 0.327, width: 0.042, height: 0.074 } });
+
+describe('Street Brawl "Bonus!" cards', () => {
+  it.each(['eoNUS!', 'eoNusr', 'BONUS!', 'Bonus!'])('reads the real OCR form %s of the Bonus! label as the bonus marker', text => {
+    const parsed = parseScreenOffers([...realDraft(), middleBonusLabel(text)], catalog,
+      { conservativeUnmarkedDetails: true, iconMatches: [middleBonusIcon(0, 'upgrade_improved_spirit'), middleBonusIcon(1, 'upgrade_endurance')] });
+    expect(parsed.offers.map(offer => offer.name)).toEqual(['Disarming Hex', 'Stamina Mastery', 'Surge of Power']);
+    expect(parsed.offers[1]).toMatchObject({ bonusIds: ['upgrade_improved_spirit', 'upgrade_endurance'], bonusExpected: true });
+    expect(parsed.offers[0]?.bonusExpected).toBeUndefined();
+  });
+  it('predicts a bonus from an owned component and records the item the upgrade absorbs', () => {
+    const parsed = parseScreenOffers(realDraft(), catalog, { conservativeUnmarkedDetails: true, ownedItemIds: ['upgrade_improved_stamina'] });
+    expect(parsed.offers[1]).toMatchObject({ itemId: 'upgrade_superior_stamina', bonusIds: null, bonusExpected: true, absorbsIds: ['upgrade_improved_stamina'] });
+    expect(parsed.offers[1]?.warning).toMatch(/Bonus! card/);
+    // Cards that upgrade nothing you own carry no bonus: confirmed, not "unread".
+    expect(parsed.offers[0]?.bonusIds).toEqual([]); expect(parsed.offers[2]?.bonusIds).toEqual([]);
+    expect(parsed.offers[0]?.warning ?? '').not.toMatch(/Bonus/);
+  });
+  it('keeps bonus coverage unknown when your inventory has not been read', () => {
+    const parsed = parseScreenOffers(realDraft(), catalog, { conservativeUnmarkedDetails: true });
+    expect(parsed.offers.every(offer => offer.bonusIds === null && !offer.bonusExpected)).toBe(true);
+  });
+  it('accepts one identified bonus with an empty second slot when one owned component is absorbed', () => {
+    const icons = [middleBonusIcon(0, 'upgrade_improved_spirit'), middleBonusIcon(1, '', 0)];
+    const owned = parseScreenOffers([...realDraft(), middleBonusLabel()], catalog, { conservativeUnmarkedDetails: true, iconMatches: icons, ownedItemIds: ['upgrade_improved_stamina'] });
+    expect(owned.offers[1]?.bonusIds).toEqual(['upgrade_improved_spirit']);
+    // Without the ownership prediction an empty second slot cannot prove a one-item bundle.
+    expect(parseScreenOffers([...realDraft(), middleBonusLabel()], catalog, { conservativeUnmarkedDetails: true, iconMatches: icons }).offers[1]?.bonusIds).toBeNull();
+  });
+  it('never reads the bonus label or bonus icons as a separate card', () => {
+    const parsed = parseScreenOffers([...realDraft(), middleBonusLabel()], catalog,
+      { conservativeUnmarkedDetails: true, iconMatches: [middleBonusIcon(0, 'upgrade_improved_spirit'), middleBonusIcon(1, '', 0)], ownedItemIds: ['upgrade_improved_stamina'] });
+    expect(parsed.offers).toHaveLength(3);
+    expect(parsed.offers.map(offer => offer.position)).toEqual([0, 1, 2]);
+  });
+  it('accepts unlabelled native bonus slots only when an owned component predicts the bonus', () => {
+    // Windows OCR rarely reads the small label; the native helper then searches the fixed slots.
+    const icons = [middleBonusIcon(0, 'upgrade_improved_spirit'), middleBonusIcon(1, '', 0)];
+    const predicted = parseScreenOffers(realDraft(), catalog, { conservativeUnmarkedDetails: true, iconMatches: icons, ownedItemIds: ['upgrade_improved_stamina'] });
+    expect(predicted.offers[1]).toMatchObject({ bonusIds: ['upgrade_improved_spirit'], bonusExpected: true, absorbsIds: ['upgrade_improved_stamina'] });
+    expect(predicted.offers[1]?.warning ?? '').not.toMatch(/bonus/i);
+    // Nothing owned is upgraded by this card: a template match alone cannot certify a bundle.
+    const unpredicted = parseScreenOffers(realDraft(), catalog, { conservativeUnmarkedDetails: true, iconMatches: icons, ownedItemIds: ['upgrade_endurance'] });
+    expect(unpredicted.offers[1]).toMatchObject({ bonusIds: null, bonusExpected: true });
+  });
+});
+
+describe('hover tooltips over a neighbouring card', () => {
+  // Real 19:58:02Z read: the right card's tooltip covered the middle card; its title was read as
+  // the middle card (offers "Metal Skin, Stamina Mastery, Stamina Mastery").
+  const tooltipFrame = (): NativeOcrBlock[] => [
+    block('SELECT ITEM:', 0.038, 0.182, 0.227, 0.052), block('CHOICE 3 OF 3', 0.039, 0.268, 0.101, 0.024),
+    block('Metal Skin', 0.232, 0.674, 0.094, 0.032), block('Stamina Mastery', 0.393, 0.476, 0.136, 0.031),
+    block('•2 Stamina', 0.392, 0.551, 0.047, 0.013), block('•18% Stamina Recovery', 0.392, 0.577, 0.098, 0.016),
+    block('•23% Air Jump/Dash Distance', 0.392, 0.604, 0.121, 0.015), block('Passive', 0.397, 0.642, 0.031, 0.013),
+    block('Allows an additional use of Air Jump or Air', 0.392, 0.670, 0.171, 0.016), block('Dash before landing.', 0.392, 0.693, 0.082, 0.015),
+    block('UPGRADES FROM:', 0.396, 0.730, 0.057, 0.009), block('Stamina Mastery', 0.640, 0.678, 0.159, 0.039)];
+  it('does not read a tooltip title as the covered card', () => {
+    // The coordinator confirms the draft from a fresh title read; the tooltip hides Use Re-Roll here.
+    const parsed = parseScreenOffers(tooltipFrame(), catalog, { draftConfirmed: true, conservativeUnmarkedDetails: true });
+    expect(parsed.offers.filter(offer => offer.name === 'Stamina Mastery').length).toBeLessThanOrEqual(1);
+    expect(parsed.offers.some(offer => offer.position === 1 && offer.itemId === 'upgrade_superior_stamina')).toBe(false);
+    expect(parsed).toMatchObject({ isDraft: true, incomplete: true });
+  });
+  it('does not read an "UPGRADES FROM:" component as the covered card (real 17:31:01Z Warp Stone → Headshot Booster flip)', () => {
+    const blocks = [block('SELECT ITEMS', 0.038, 0.182, 0.227, 0.052), block('CHOICE 2 OF 3', 0.039, 0.268, 0.101, 0.024),
+      block('Radiant Regeneration', 0.2, 0.675, 0.16, 0.032), block('Headhunter', 0.66, 0.676, 0.11, 0.036),
+      block('Headhunter', 0.55, 0.30, 0.10, 0.031), block('Passive', 0.552, 0.40, 0.031, 0.013),
+      block('UPGRADES FROM:', 0.551, 0.52, 0.057, 0.009), block('Headshot Booster', 0.553, 0.535, 0.07, 0.012)];
+    const parsed = parseScreenOffers(blocks, catalog, { draftConfirmed: true, conservativeUnmarkedDetails: true });
+    expect(parsed.offers.some(offer => offer.itemId === 'upgrade_headshot_booster')).toBe(false);
+    expect(parsed).toMatchObject({ isDraft: true, incomplete: true });
+  });
+  it('still reads the three real cards when no tooltip is open', () => {
+    const parsed = parseScreenOffers(realDraft(['Blood Tribute', 'Torment Pulse', 'Surge of Power']), catalog, { conservativeUnmarkedDetails: true });
+    expect(parsed.offers.map(offer => offer.name)).toEqual(['Blood Tribute', 'Torment Pulse', 'Surge of Power']);
+  });
+});
+
+describe('real misreads from the 2026-10-13/16 logs', () => {
+  it('never takes a tooltip stat line ("•13% Spirit Lifesteal") as a card name', () => {
+    // A tooltip over the middle card: its title is unread and its stat lines sit where a name could be.
+    const blocks = frame().filter(entry => entry.text !== 'Bullet Lifesteal')
+      .concat([block('•13%', 0.42, 0.42, 0.04), block('Spirit Lifesteal', 0.465, 0.42, 0.12), block('+8% Fire Rate', 0.42, 0.46, 0.14)]);
+    const parsed = parseScreenOffers(blocks, catalog);
+    expect(parsed.offers.map(offer => offer.itemId)).not.toContain('upgrade_health_stealing_magic');
+    expect(parsed.offers[1]?.itemId).toBe('');
+  });
+  it('reads the reroll count when its "1" is read as a letter', () => {
+    const swap = (label: string) => frame().map(entry => entry.text === '1 Re-Roll Remaining' ? { ...entry, text: label } : entry);
+    for (const label of ['I Re-Roll Remaining', 'J Re-Roll Remaining', 'l Re-ROII Remaining']) expect(parseScreenOffers(swap(label), catalog).rerolls).toBe(1);
+  });
+  it('finds the three cards on an ultrawide 2560x1080 screen, where the panel stays centred', () => {
+    const squeeze = (16 / 9) / (2560 / 1080);
+    const wide = frame().map(entry => ({ ...entry, x: 0.5 + (entry.x - 0.5) * squeeze, width: entry.width * squeeze }));
+    expect(parseScreenOffers(wide, catalog).offers.filter(offer => offer.itemId)).toHaveLength(0);
+    expect(parseScreenOffers(wide, catalog, { aspect: 2560 / 1080 }).offers.map(offer => offer.name)).toEqual(itemNames);
+  });
+});
+
+describe('2026-10-18 live draft reads', () => {
+  it.each(['eoevus!', "eotVUS'", 'eoegus!', 'eo.VUS!'])('reads the real OCR form %s of the Bonus! label above the card name', text => {
+    // 12:03:16Z Greater Expansion (with Sprint Boots) and 18:24:40Z Radiant Regeneration (with Healing Rite).
+    const parsed = parseScreenOffers([...realDraft(), middleBonusLabel(text)], catalog, { conservativeUnmarkedDetails: true });
+    expect(parsed.offers[1]).toMatchObject({ name: 'Stamina Mastery', bonusExpected: true });
+    expect(parsed.offers[0]?.bonusExpected).toBeUndefined();
+  });
+  it('does not take ordinary short words for the Bonus! label, nor a fuzzy form below the name', () => {
+    for (const word of ['focus', 'venus', 'minus', 'bogus', 'genus', 'bonfire', 'eo', 'bus']) expect(isBonusLabel(normalizeOfferText(word))).toBe(word === 'bogus'); // 'bogus' is one edit from bonus; it never stands alone above a card
+    const below = parseScreenOffers([...realDraft(), block('eoevus!', 0.428, 0.52, 0.031, 0.022)], catalog, { conservativeUnmarkedDetails: true });
+    expect(below.offers[1]?.bonusExpected).toBeUndefined();
+  });
+  it('never reads the item after "UPGRADES TO :" in a hover tooltip as the covered card (12:03:10.881Z)', () => {
+    // The left card's tooltip covers the middle card (Battle Vest); its component list is indented past the icon.
+    const blocks = [block('SELECT ITEMS', 0.038, 0.182, 0.227, 0.052), block('CHOICE 1 OF 3', 0.039, 0.268, 0.101, 0.024),
+      block('Weakening Headshot', 0.205, 0.676, 0.146, 0.033), block('Arcane Surge', 0.665, 0.676, 0.112, 0.033),
+      block('Weakening Headshot', 0.392, 0.40, 0.14, 0.031), block('.60 Bonus Health', 0.392, 0.45, 0.07, 0.013), block('Passive', 0.397, 0.48, 0.031, 0.013),
+      block('UPGRADES TO :', 0.396, 0.53, 0.06, 0.012), block('Cripping Headshot', 0.425, 0.547, 0.11, 0.032)];
+    const parsed = parseScreenOffers(blocks, catalog, { draftConfirmed: true, conservativeUnmarkedDetails: true });
+    expect(parsed.offers.some(offer => offer.itemId === 'upgrade_crippling_headshot' || /Crippling/.test(offer.name))).toBe(false);
+    expect(parsed.offers.map(offer => offer.itemId ? offer.name : '')).toEqual(['Weakening Headshot', '', 'Arcane Surge']);
+  });
+  it('keeps the readable cards beside a tooltip that covers the middle one (match B 18:08:11Z)', () => {
+    const blocks = [block('SELECT ITEMS', 0.038, 0.182, 0.227, 0.052), block('CHOICE 2 OF 3', 0.039, 0.268, 0.101, 0.024),
+      block('Recharging Rush', 0.21, 0.676, 0.135, 0.033), block('Spirit Lifesteal', 0.66, 0.676, 0.125, 0.033),
+      block('Recharging Rush', 0.392, 0.40, 0.13, 0.031), block('•20% Max Ammo', 0.392, 0.45, 0.07, 0.013),
+      block('Passive', 0.397, 0.50, 0.031, 0.013), block('See Details', 0.392, 0.62, 0.05, 0.013)];
+    const parsed = parseScreenOffers(blocks, catalog, { draftConfirmed: true, conservativeUnmarkedDetails: true });
+    expect(parsed.offers.map(offer => offer.itemId ? offer.name : '')).toEqual(['Recharging Rush', '', 'Spirit Lifesteal']);
+  });
+  it('stays a draft while the next choice deals in with only "CHOICE 2 OF 3" readable (18:10:24.5Z)', () => {
+    const parsed = parseScreenOffers([block('CHOICE 2 OF 3', 0.039, 0.268, 0.101, 0.024), block('.18', 0.3, 0.5, 0.02, 0.013)], catalog, { draftConfirmed: true });
+    expect(parsed).toMatchObject({ isDraft: true, offers: [] });
+    expect(parsed.message).not.toMatch(/no longer visible/);
+  });
+  it('finds the picked card that lingers while the next choice deals in (match B 18:10:27.8Z)', () => {
+    const blocks = [block('SELECT', 0.038, 0.182, 0.1, 0.052), block('CHOICE 3 OF 3', 0.039, 0.268, 0.101, 0.024), block('Use Re-Roll', 0.462, 0.653, 0.074, 0.02),
+      block('Spirit Resilience', 0.6, 0.5, 0.12, 0.03)];
+    expect(draftChoiceStage(blocks)).toBe(3);
+    expect(namedItems(blocks, catalog, ['upgrade_tech_purge', 'upgrade_bullet_armor_reduction_aura', 'upgrade_warp_stone'])).toEqual(['upgrade_tech_purge']);
+    expect(namedItems(blocks, catalog, ['upgrade_warp_stone'])).toEqual([]);
   });
 });

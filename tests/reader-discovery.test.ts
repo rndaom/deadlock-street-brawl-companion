@@ -23,7 +23,7 @@ function expectCaveatedPickOnShownCard(state: ScreenReaderState) {
   const pick = state.advice?.preferredPosition ?? null;
   expect(pick).not.toBeNull();
   expect(itemIds).toContain(state.offers.find(offer => offer.position === pick)?.itemId);
-  expect(state.offers.every(offer => offer.variant === 'unknown' && offer.bonusIds === null)).toBe(true);
+  expect(state.offers.every(offer => offer.variant === 'base' && offer.bonusIds === null)).toBe(true);
   expect(state.advice?.caveat).toMatch(/not read/);
 }
 const controlsWithoutHeading = () => [round(), ...publicDraftBlocks().filter(block => !/^(SELECT|CHOICE)/i.test(block.text))];
@@ -65,7 +65,7 @@ function assertSingleContextWorker(harness: ReturnType<typeof automatic>) {
   expect(harness.spawn).toHaveBeenCalledTimes(1);
   expect(harness.spawn).toHaveBeenCalledWith('mock-process-never-launched.exe',
     ['--icons', 'mock-item-assets', '--context-icons', 'mock-context-assets'],
-    { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
+    { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'], env: expect.objectContaining({ DOTNET_GCgen0size: '0x1000000' }) });
   expect(harness.workers[0]!.maximumOutstanding).toBe(1);
   expect(harness.workers[0]!.requests.filter(({ request }) => request.op !== 'probe')
     .every(({ request }) => request.context === true)).toBe(true);
@@ -121,7 +121,10 @@ describe('automatic reader discovery under imperfect native scene classification
     expectCaveatedPickOnShownCard(harness.reader.getState());
     const reads = harness.workers[0]!.requests.filter(({ request }) => request.op === 'read');
     expect(reads.some(({ request }) => isFull(request.crop))).toBe(true);
-    expect(reads.length).toBeLessThanOrEqual(10);
+    // Hints stay rare; the rest are card and context reads at the draft pace.
+    const hints = reads.filter(({ request }) => request.crop.height < 0.5);
+    expect(hints.length).toBeLessThanOrEqual(2);
+    expect(reads.length).toBeLessThanOrEqual(Math.ceil(5_000 / SCREEN_READER_LIMITS.draftReadSpacingMs));
     assertSingleContextWorker(harness);
   });
 
@@ -159,8 +162,9 @@ describe('automatic reader discovery under imperfect native scene classification
     const reads = harness.workers[0]!.requests.filter(({ request }) => request.op === 'read');
     expect(reads.length).toBeGreaterThan(5);
     for (let index = 1; index < reads.length; index++) {
+      // The draft is on screen from the first frame, so the draft's duty share applies.
       expect(reads[index]!.startedAt - reads[index - 1]!.startedAt)
-        .toBeGreaterThanOrEqual(210 / SCREEN_READER_LIMITS.maxWorkerWallShare);
+        .toBeGreaterThanOrEqual(210 / SCREEN_READER_LIMITS.draftWorkerWallShare);
     }
     assertSingleContextWorker(harness);
   });

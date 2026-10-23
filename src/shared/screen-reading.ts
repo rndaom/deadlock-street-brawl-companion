@@ -9,6 +9,13 @@ export const SCREEN_CAPTURE_FRESHNESS_MS = 4_000;
 /** Read draft cards stay on screen this long without a fresh confirming read. The draft
  * closing (no "Select Items" cue on two reads) clears them sooner. */
 export const SCREEN_CARD_HOLD_MS = 10_000;
+/** While Deadlock is in the background (the player alt-tabbed to the companion), nothing can be
+ * re-read, so the cards from the last look stay up longer. Reads resume when the game is in front. */
+export const SCREEN_CARD_BACKGROUND_HOLD_MS = 60_000;
+/** How long shown cards stay up without a confirming read in this reader state. */
+export function cardHoldMs(state: { gamePresent: boolean; foreground: boolean }): number {
+  return state.gamePresent && !state.foreground ? SCREEN_CARD_BACKGROUND_HOLD_MS : SCREEN_CARD_HOLD_MS;
+}
 /** Recommendation snapshot age, not proof that a hidden loadout has stayed unchanged. */
 export const SCREEN_CONTEXT_MAX_AGE_MS = 30_000;
 /** Inventory cell mapping epoch, never a player or match identity. */
@@ -65,16 +72,23 @@ export interface NativeScreenContext {
 }
 export interface NativeBrawlLayout {
   myItems: { slot: number; itemId: string; confidence: number }[];
+  /** Own inventory cells that hold an icon (recognized or not, e.g. a cooldown-dimmed active); null when the grid was not read. */
+  myOccupied?: number | null;
   /** Seat 0-3 left team, 4-7 right team on the scoreboard. */
   playerItems: { seat: number; slot: number; itemId: string; confidence: number }[];
-  /** Purchased upgrade tiers (0-3) per ability slot, when the upgrade panel is visible. */
-  abilityRanks: number[] | null;
+  /** Purchased upgrade tiers (0-3) per ability slot when the upgrade panel is visible; null for a column
+   * covered by the cursor or a tooltip. */
+  abilityRanks: (number | null)[] | null;
   hiddenItems: number;
+  /** Round wins as filled pips under the "ROUND N" title: [left team, right team]; null when not read. */
+  roundPips?: [number, number] | null;
 }
 export interface NativeReadResult {
   protocol: 1; id: string; status: string;
   gamePresent: boolean; foreground: boolean;
   clientWidth: number; clientHeight: number;
+  /** Screen position of the game client in physical pixels; null when no game window is known. */
+  clientLeft?: number | null; clientTop?: number | null;
   capturedAt: number | null; elapsedMs: number; hash: string | null;
   blocks: NativeOcrBlock[]; icons?: NativeIconMatch[]; context?: NativeScreenContext;
   crop?: CaptureRegion; ocrAvailable?: boolean; ocrLanguage?: string | null;
@@ -142,6 +156,20 @@ export interface ScreenMatchContext {
   localInventoryRetiredLayoutIds?: string[];
   localAbilities: ScreenAbilityState[]; abilityCompleteness: ScreenCompleteness; abilityObservation: ScreenContextObservation | null;
   abilityRevision: number; observations: ScreenMatchFieldObservations; lastObservedAt: number | null;
+  /** Evidence behind the round number (only +1 steps, a new draft after combat, the round pips). */
+  roundTracking?: ScreenRoundTracking;
+}
+export interface ScreenRoundTracking {
+  /** A round read that skipped ahead (or restarted at 1), waiting for a second agreeing read. */
+  candidate: number | null; candidateCount: number;
+  /** A lower score read, waiting for repeated agreeing reads before it replaces the shown score. */
+  scoreCandidate: [number, number] | null; scoreCandidateCount: number;
+  /** Capture time of the latest draft frame, and the round in effect then. */
+  lastDraftAt: number | null; roundAtLastDraft: number | null;
+  /** Combat was seen well after the latest draft: the next "Choice 1 of 3" opens a new round. */
+  combatSinceDraft: boolean;
+  /** The round was advanced by a new draft rather than read ("ROUND N" not visible yet). */
+  inferredAt: number | null;
 }
 export interface ScreenPlayerObservation {
   seat: number; team?: ScreenTeam | null; heroId?: string | null; isLocal?: boolean | null;
@@ -173,6 +201,10 @@ export interface ScreenOffer {
   variant: 'base' | 'enhanced' | 'legendary' | 'corrupted' | 'unknown';
   /** The card showed "RARE!": a higher tier than this choice normally offers. */
   rare?: boolean;
+  /** The card carries a free "Bonus!" item: its marker was read, or the item upgrades from one you own. */
+  bonusExpected?: boolean;
+  /** Owned items this upgrade absorbs when picked (they leave your inventory). */
+  absorbsIds?: string[];
   confidence: number; warning: string | null;
   bounds?: CaptureRegion;
 }
@@ -180,7 +212,8 @@ export interface ScreenAdvice {
   preferredPosition: number | null; title: string; reasons: string[]; limitations: string[];
   comparisonPosition?: number | null;
   comparisonBasis?: 'main-item-base-effects';
-  ranked: { position: number; score: number; reasons: string[] }[];
+  /** edge: card value minus its tier pool's average, in win-rate points; tierPercentile: 0-100 rank in that pool. */
+  ranked: { position: number; score: number; reasons: string[]; edge?: number; tierPercentile?: number }[];
   rerollReason: string;
   /** True when none of the read cards is worth taking and a reroll is available or unread. */
   rerollSuggested?: boolean;
@@ -206,13 +239,32 @@ export interface ScreenReaderState {
   previewDataUrl?: string | null;
   metrics: { reads: number; skipped: number; timeouts: number; cpuPercent: number | null; memoryMb: number | null };
   /** Heroes in the current match from the top bar / scoreboard (see draft-roster.ts). */
-  roster?: { seats: (string | null)[]; localHeroId: string | null; localSide: 0 | 1 | null; allies: string[]; enemies: string[] } | null;
+  roster?: { seats: (string | null)[]; localHeroId: string | null; localSide: 0 | 1 | null; allies: string[]; enemies: string[];
+    /** 'outside' = hideout/menus/queue (the last match stays shown), 'loading'/'match' = in a match, 'unknown' = not yet known. */
+    phase?: 'unknown' | 'outside' | 'loading' | 'match';
+    /** When the current match's evidence began (ms). */
+    since?: number | null } | null;
   /** Rerolls left this round, from the draft text or counted from observed rerolls. */
   rerollsLeft?: number | null;
   /** Next ability upgrade from Street Brawl upgrade-order statistics (see ability-plan.ts). */
-  abilityPlan?: { slot: number; ability: string; tier: number; cost: number; winRate: number | null; games: number; then: string[]; reason: string } | null;
+  abilityPlan?: { slot: number; ability: string; tier: number; cost: number; winRate: number | null; games: number; then: string[]; path?: number[]; reason: string } | null;
   /** Items and ability ranks read this match (see build-tracker.ts). */
-  build?: { myItems: string[]; seatItems: string[][]; abilityRanks: number[] | null; hiddenEnemyItems: number } | null;
+  build?: { myItems: string[]; seatItems: string[][]; abilityRanks: (number | null)[] | null; hiddenEnemyItems: number } | null;
+  /** The game client rectangle on screen (physical pixels), for the in-game overlay. */
+  gameBounds?: { x: number; y: number; width: number; height: number } | null;
+  /** Matchups against the identified enemies and the items to hope for in drafts (see match-insights.ts). */
+  insights?: MatchInsights | null;
+  /** Unspent ability points last read from the HUD, and when. */
+  abilityPoints?: { value: number; at: number } | null;
+}
+export interface MatchupInsight { heroId: string; winRate: number; delta: number; matches: number }
+export interface WishlistInsight { itemId: string; tier: number; winRate: number | null; counters: string[]; valve: boolean }
+export interface MatchInsights {
+  heroId: string; heroWinRate: number | null; heroGames: number;
+  /** One entry per identified enemy that has enough games, toughest first. */
+  matchups: MatchupInsight[];
+  /** Best items not owned yet for this hero against this enemy team, compared within each shop tier. */
+  wishlist: { tier: number; items: WishlistInsight[] }[];
 }
 export interface ScreenOfferParseResult {
   isDraft: boolean; offers: ScreenOffer[]; heroId: string | null;

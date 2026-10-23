@@ -21,7 +21,10 @@ internal sealed class IconMatcher
     private const int CoarseGrid = 8;
     private const double MaximumDistance = 0.022;
     private const double MinimumMargin = 0.006;
-    private static readonly Regex BonusText = new("^bonus[!:+]?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    // The stylized "BONUS!" label is read by Windows OCR as "eoNUS!" or "eoNusr" (Oct 2026 match logs), never as "Bonus".
+    private static readonly Regex BonusText = new("^[be8ß3]?[o0]nus[!:+rl1i|]?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    /** True when any OCR word or block is the card's "Bonus!" label, including its usual misreads. */
+    public static bool HasBonusLabel(IReadOnlyList<OcrBlock> blocks) => BonusAnchors(blocks).Any();
     private readonly Template[] templates;
 
     private IconMatcher(Template[] templates) => this.templates = templates;
@@ -107,6 +110,43 @@ internal sealed class IconMatcher
         return found;
     }
 
+    // Street Brawl option panels (citadel_item_draft_option, 400x400 at 1080p design), left, middle and right card,
+    // measured from real 2026-10-11 draft frames (main icon 140px at panel (130,95)).
+    private static readonly (double X, double Y)[] CardPanels = [(334, 476), (761, 228), (1187, 476)];
+    private static readonly Regex DraftText = new("^(select items?:?|choice [1-3] of 3|use re-?roll)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    /** True when the draft panel's own labels are visible. */
+    public static bool HasDraftText(IReadOnlyList<OcrBlock> blocks) => blocks.Any(block => DraftText.IsMatch(Regex.Replace(block.Text.Trim(), "[•.]", ":").TrimEnd(':').Trim()) || DraftText.IsMatch(block.Text.Trim()));
+
+    /**
+     * The small "BONUS!" label is rarely read by OCR (3 reads in every logged match), so the bonus slots are also
+     * searched at their fixed place on each of the three cards. Only a strong, unambiguous template match in the
+     * first slot reports a card; the second slot is then reported as found or empty, like the label-anchored search.
+     */
+    public IReadOnlyList<IconMatchRecord> FindCardBonusIcons(Bitmap image, NormalizedRect imageBounds, int clientWidth, int clientHeight)
+    {
+        if (templates.Length == 0 || image.Width < 32 || image.Height < 32 || !ValidBounds(imageBounds) || clientWidth < 64 || clientHeight < 64) return Array.Empty<IconMatchRecord>();
+        double k = clientHeight / 1080.0, offset = (clientWidth - 1920 * k) / 2;
+        double sx = image.Width / (imageBounds.Width * clientWidth), sy = image.Height / (imageBounds.Height * clientHeight);
+        double scale = sy * k;
+        if (scale < 0.15 || scale > 4) return Array.Empty<IconMatchRecord>();
+        PixelBuffer? pixels = null;
+        var found = new List<IconMatchRecord>();
+        foreach (var (panelX, panelY) in CardPanels)
+        {
+            (double X, double Y) Point(double dx, double dy) => ((offset + (panelX + dx) * k - imageBounds.X * clientWidth) * sx, ((panelY + dy) * k - imageBounds.Y * clientHeight) * sy);
+            var first = Point(90, 90); var second = Point(40, 165);
+            if (first.X < 0 || first.Y < 0 || first.X >= image.Width || first.Y >= image.Height) continue;
+            pixels ??= PixelBuffer.Read(image);
+            var match = Search(pixels, first.X, first.Y, 100 * scale, -20, scale);
+            if (match is null) continue;
+            found.Add(new IconMatchRecord(match.ItemId, Math.Round(Math.Clamp(0.98 - match.Distance * 3.0, 0, 0.98), 4), ToNormalized(match.Square, imageBounds, image.Width, image.Height), "bonus", 0));
+            var other = Search(pixels, second.X, second.Y, 80 * scale, 0, scale);
+            found.Add(other is null ? new IconMatchRecord("", 0, ToNormalized(new Square(second.X, second.Y, 80 * scale, 0), imageBounds, image.Width, image.Height), "bonus", 1)
+                : new IconMatchRecord(other.ItemId, Math.Round(Math.Clamp(0.98 - other.Distance * 3.0, 0, 0.98), 4), ToNormalized(other.Square, imageBounds, image.Width, image.Height), "bonus", 1));
+        }
+        return found;
+    }
+
     public static IReadOnlyList<IconMatchRecord> InferUnresolvedBonusSlots(Bitmap image, IReadOnlyList<OcrBlock> blocks, NormalizedRect imageBounds)
     {
         var found = new List<IconMatchRecord>();
@@ -127,12 +167,13 @@ internal sealed class IconMatcher
         {
             var local = ToLocal(anchor, imageBounds, image.Width, image.Height);
             double centerX = local.Left + local.Width / 2.0, centerY = local.Top + local.Height / 2.0;
-            // Pinned CSS: label center approximately (100,49), bonus centers (90,90) and (40,165).
+            // citadel_item_draft_option.css (SteamTracking master): label at margin (60,30), 20px, rotated 15deg, so its
+            // center is about (90,42); BonusItem1 100x100 at (40,40) rotated -20deg, center (90,90); BonusItem2 80x80 at (0,125), center (40,165).
             // Invalid/edge glyph geometry still yields unknown candidates; it never silently drops a slot.
             bool searchable = rawScale >= 0.15 && rawScale <= 4 && local.Width >= 8 && local.Height >= 5
                 && local.Width <= scale * 160 && local.Height <= scale * 90;
-            yield return new BonusPair(new Square(centerX - 10 * scale, centerY + 41 * scale, 100 * scale, -20),
-                new Square(centerX - 60 * scale, centerY + 116 * scale, 80 * scale, 0), scale, searchable);
+            yield return new BonusPair(new Square(centerX, centerY + 48 * scale, 100 * scale, -20),
+                new Square(centerX - 50 * scale, centerY + 123 * scale, 80 * scale, 0), scale, searchable);
         }
     }
 

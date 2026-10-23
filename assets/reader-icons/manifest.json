@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "clientVersion": "6774",
-  "revision": "11112755",
-  "catalogSha256": "d02c3adace68c3eaf481fba8bd19d3cba05e9b0a26ea9c042be5f056e5fbad41",
-  "retrievedAt": "2026-10-11T16:19:40.918Z",
+  "clientVersion": "6807",
+  "revision": "11154106",
+  "catalogSha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
+  "retrievedAt": "2026-10-21T10:44:33.519Z",
   "source": "Static public Deadlock API item images; mirrored Valve assets, not a game capture",
-  "totalBytes": 8149589,
+  "totalBytes": 8199521,
   "featureGrid": 16,
   "icons": [
     {
@@ -17,8 +17,8 @@
       "file": "icons/upgrade_active_reload.png",
       "width": 200,
       "height": 200,
-      "bytes": 16731,
-      "sha256": "601d7991d9f8b19fefe54b410a0f7f5812788115c6ec90281a77c053b9779158"
+      "bytes": 16836,
+      "sha256": "c2004e076aafd5678e9ee7c95353a96e3e905ecb86b1796d9e271a4d0c6794a5"
     },
     {
       "itemId": "upgrade_thermal_detonator",
@@ -53,8 +53,8 @@
       "file": "icons/upgrade_arctic_blast.png",
       "width": 200,
       "height": 200,
-      "bytes": 37106,
-      "sha256": "d181f8d6020bb4ff4aa87a538c8c5a7023a21f88b2cf49dfa7390642bb672e40"
+      "bytes": 37687,
+      "sha256": "0eefad21e999a5dfe9276e40cdef89fa21889a8d7ad74176c7a4b88540146f09"
     },
     {
       "itemId": "upgrade_aprounds",
@@ -65,8 +65,8 @@
       "file": "icons/upgrade_aprounds.png",
       "width": 200,
       "height": 200,
-      "bytes": 28974,
-      "sha256": "4ba236b3da3130656f00b72b6ec61a65b06e145f4b11e0d2f64bf2ad6dcb7386"
+      "bytes": 30499,
+      "sha256": "e592fef8ece304f591eb0c9c11af927a53df87af199ce84cbb4ca03261b39f5e"
     },
     {
       "itemId": "upgrade_bulletshredimbue",
@@ -101,8 +101,8 @@
       "file": "icons/upgrade_berserker.png",
       "width": 200,
       "height": 200,
-      "bytes": 38001,
-      "sha256": "219d2a4c37de926af10fc9daee9263507c327f9ca5c72ab9b24a9a0420cfc52f"
+      "bytes": 38489,
+      "sha256": "3ce38be400dff58845b8823666c78b8c2e052bf24d0d59ede485c71be4a3fef4"
     },
     {
       "itemId": "upgrade_blood_tribute",
@@ -149,8 +149,8 @@
       "file": "icons/upgrade_improved_bullet_armor.png",
       "width": 200,
       "height": 200,
-      "bytes": 50327,
-      "sha256": "d3d6c1dd54aedfc6f5031974052a4eaca53e156bca9f9b1fa65ca3f43fd20a8c"
+      "bytes": 51581,
+      "sha256": "4b87a2a0578af4611811b9d193264c89ff23c057b9d00111fe2fa795dc8b9e6b"
     },
     {
       "itemId": "upgrade_bullet_resist_shredder",
@@ -173,8 +173,8 @@
       "file": "icons/upgrade_burst_fire.png",
       "width": 200,
       "height": 200,
-      "bytes": 38185,
-      "sha256": "f6f0b4dfafee6b42c5e91af370f3ad3063d2b29ee92a34e83e7472d842fec213"
+      "bytes": 38190,
+      "sha256": "182d531fd576bc05c0a9da4d36393de13af7276df28efa1e6294322981e6e292"
     },
     {
       "itemId": "upgrade_capacitor",
@@ -185,8 +185,8 @@
       "file": "icons/upgrade_capacitor.png",
       "width": 200,
       "height": 200,
-      "bytes": 50353,
-      "sha256": "3323852a1eade18cb7dabbdfb3360e9796a4b2d0812e56a3e7d75f327f1e3cfe"
+      "bytes": 50549,
+      "sha256": "895b96b59facf5c80e6728a92d9867e79a4374e5fd0d8a08a285693b7c6a273f"
     },
     {
       "itemId": "upgrade_celestial_guidance",
@@ -209,8 +209,8 @@
       "file": "icons/upgrade_cheat_death.png",
       "width": 200,
       "height": 200,
-      "bytes": 36341,
-      "sha256": "30beefba103e494574c43f19e97b9383621004834806fe96f1f11518587a13af"
+      "bytes": 38475,
+      "sha256": "f1df038ad93807e22b05d2faaad9cf37217c3c0f727dad30567981b4a09bfa89"
     },
     {
       "itemId": "upgrade_cloak_of_opportunity",
@@ -293,8 +293,8 @@
       "file": "icons/upgrade_banshee_slugs.png",
       "width": 200,
       "height": 200,
-      "bytes": 48193,
-      "sha256": "9c1dee73e4822db09ef0149bc02dc68c36a0e90db5e71bca280edad59388a4c0"
+      "bytes": 49813,
+      "sha256": "0f5c2eefc89bdcc58c6cec10766af83d557452dd4156c4e8865186d2103f905a"
     },
     {
       "itemId": "upgrade_crushing_fists",
@@ -329,8 +329,8 @@
       "file": "icons/upgrade_glitch.png",
       "width": 200,
       "height": 200,
-      "bytes": 29005,
-      "sha256": "610b25439e9bc2efbe848549f4ce81abcfd756f15e8340bc871b2a316971b736"
+      "bytes": 29064,
+      "sha256": "842053fcd507641076428b480feb55ee221b0d8b2c29fed16325de364705fcb8"
     },
     {
       "itemId": "upgrade_debuff_reducer",
@@ -377,8 +377,8 @@
       "file": "icons/upgrade_reduce_debuff_duration.png",
       "width": 200,
       "height": 200,
-      "bytes": 39925,
-      "sha256": "3d6d402c7535922bd1dc3e761e02bdf9b6c127278b19cc2735ced864b208ea42"
+      "bytes": 41641,
+      "sha256": "b9ae6810d722bc1f31e61d6223b6e647e8c8ff32f45e40ec96856460178d98cb"
     },
     {
       "itemId": "upgrade_divine_barrier",
@@ -401,8 +401,8 @@
       "file": "icons/upgrade_diviners_kevlar.png",
       "width": 200,
       "height": 200,
-      "bytes": 64751,
-      "sha256": "39ac993daca5439e81bd9d50f4fb5074aad60772684b30aa543b20418d37cc33"
+      "bytes": 65676,
+      "sha256": "79b8f41039e5d37c6ecf58ba9edbf5e6a8c7008a2d3d6f986b585c19d19bd43e"
     },
     {
       "itemId": "upgrade_arcane_extension",
@@ -413,8 +413,8 @@
       "file": "icons/upgrade_arcane_extension.png",
       "width": 200,
       "height": 200,
-      "bytes": 13746,
-      "sha256": "caa6a310fd4ff2624b48be2af23286c39c7120dbf173ebda4043410592153a25"
+      "bytes": 13939,
+      "sha256": "a02880f8cfcd7827579e5983ffeb7c79588aac90bed7d09cdfe3ee7e73ce232d"
     },
     {
       "itemId": "upgrade_ability_power_shard",
@@ -485,8 +485,8 @@
       "file": "icons/upgrade_reinforcing_casings.png",
       "width": 200,
       "height": 200,
-      "bytes": 50554,
-      "sha256": "a6935fb579695a5ab95ad3564c75b2306b779c20158a7b55a5710e8c704139cb"
+      "bytes": 52956,
+      "sha256": "523708f838fc9ff1b5f97b529e50618b78c0e4e882cd9b22e3901fc3ae1f27ec"
     },
     {
       "itemId": "upgrade_eternal_gift",
@@ -533,8 +533,8 @@
       "file": "icons/upgrade_clip_size.png",
       "width": 200,
       "height": 200,
-      "bytes": 36749,
-      "sha256": "6845cd06c831c27ceb31e17994ef5278da9fb9cfc817151ee86e14ac0cb5c944"
+      "bytes": 38025,
+      "sha256": "23010a351ad38740d68d7e1d7e130ef6415b8e7fbf2b041f74e39760301926a0"
     },
     {
       "itemId": "upgrade_extra_charge",
@@ -617,8 +617,8 @@
       "file": "icons/upgrade_focus_lens.png",
       "width": 200,
       "height": 200,
-      "bytes": 53875,
-      "sha256": "3b8454253249ed0fb17fb6df99f95caa10544a40541df7152ff94cb61b5d5033"
+      "bytes": 53202,
+      "sha256": "db44adcd3b1ad376bf4800ce854f88d78b29e5bae6801b72555077ff6f49ff3b"
     },
     {
       "itemId": "upgrade_chonky",
@@ -749,8 +749,8 @@
       "file": "icons/upgrade_headhunter.png",
       "width": 200,
       "height": 200,
-      "bytes": 32971,
-      "sha256": "b7850eb623b0ffaf06dd36d59c9e50f85e17d61f32bb7707faebe1b15736623a"
+      "bytes": 34481,
+      "sha256": "8840a70e56acf87e1390764a1890199808f1e08683715ce992210d2251eb62a5"
     },
     {
       "itemId": "upgrade_headshot_booster",
@@ -761,8 +761,8 @@
       "file": "icons/upgrade_headshot_booster.png",
       "width": 200,
       "height": 200,
-      "bytes": 27985,
-      "sha256": "b157f5a2fd9192b6257389d223c8befb6a60f83c304ee0e20a162c35ddce484c"
+      "bytes": 28750,
+      "sha256": "1a4e65cc5db1311522d269a605dcab5e4e48ab208294a847d2cd1ebe38490033"
     },
     {
       "itemId": "upgrade_healbane",
@@ -797,8 +797,8 @@
       "file": "icons/upgrade_health_nova.png",
       "width": 200,
       "height": 200,
-      "bytes": 29082,
-      "sha256": "df1450aab305aabad2ba91e4c13ad0063a7d984d9e2697105ce0c6c36188bbfe"
+      "bytes": 29566,
+      "sha256": "86d880db1db38951edea312a4314e61cc3570b8753302f3fc5f904c822458f27"
     },
     {
       "itemId": "upgrade_health_stimpak",
@@ -821,8 +821,8 @@
       "file": "icons/upgrade_healbuff.png",
       "width": 200,
       "height": 200,
-      "bytes": 49992,
-      "sha256": "ffdfd69faa89e40cf6e3a1184db615a8f7dbf5cd37882b0cb7c07beb9f2d4dda"
+      "bytes": 51816,
+      "sha256": "4360a193c06eb438967e2219ff03bf71005088555356b0480388899f07393b4e"
     },
     {
       "itemId": "upgrade_dps_aura",
@@ -833,8 +833,8 @@
       "file": "icons/upgrade_dps_aura.png",
       "width": 200,
       "height": 200,
-      "bytes": 12950,
-      "sha256": "98866ce3a8a6887a989e7900d0d7611ab227529ddf2522d0259989e28127a396"
+      "bytes": 13254,
+      "sha256": "9322cb562216f9c6af2bd68ccf8634eb9018ec8e6a03394cdb641873a48fe049"
     },
     {
       "itemId": "upgrade_high_velocity_mag",
@@ -893,8 +893,8 @@
       "file": "icons/upgrade_auto_cleanse.png",
       "width": 200,
       "height": 200,
-      "bytes": 48567,
-      "sha256": "ee5cb4716c73382aebf4527399596dcf02a43426d32b31b078c430ebb6c7f9d8"
+      "bytes": 50432,
+      "sha256": "378da1cb6ece3b1b0595b55c1c0739b1bd366f7ea8f51191e286958a0bcd340f"
     },
     {
       "itemId": "upgrade_infinite_rounds",
@@ -917,8 +917,8 @@
       "file": "icons/upgrade_infuser.png",
       "width": 200,
       "height": 200,
-      "bytes": 31927,
-      "sha256": "949f761fa42ae807dfb31b8b70c678c57244ca0068ef56635eb251906c9af13a"
+      "bytes": 32255,
+      "sha256": "05a7dbd8bd4fd418bc1eaa388d2e976758f3a04a5a11e6a44a8158fe24e098e1"
     },
     {
       "itemId": "upgrade_inhibitor",
@@ -929,8 +929,8 @@
       "file": "icons/upgrade_inhibitor.png",
       "width": 200,
       "height": 200,
-      "bytes": 25445,
-      "sha256": "1eced04e2aaa233edc34dee6079295850f8dac8ed106c540989b416d74e4195a"
+      "bytes": 29009,
+      "sha256": "759e1c8e13f614b24939ac776f41935abdc81373c97a126b60e17c6f952694cc"
     },
     {
       "itemId": "upgrade_intensifying_clip",
@@ -941,8 +941,8 @@
       "file": "icons/upgrade_intensifying_clip.png",
       "width": 200,
       "height": 200,
-      "bytes": 22450,
-      "sha256": "cdaf3c5379a88117d530ce83952da3f172339708fd2035976daef78dd2fba3bb"
+      "bytes": 22149,
+      "sha256": "bbf30c1b19e5bc77f8d66c6e7cf409cc81ada2e9a9ab51f5023d53f8adba5590"
     },
     {
       "itemId": "upgrade_juggernaut",
@@ -953,8 +953,8 @@
       "file": "icons/upgrade_juggernaut.png",
       "width": 200,
       "height": 200,
-      "bytes": 30360,
-      "sha256": "7c99b3a0ba8baa3fcff868b61241934454d042b73c35db95f5b6c1a245b2cf31"
+      "bytes": 30872,
+      "sha256": "a46d1c30e0fae7b47034de664e5743788e2b34508eef283193187778acbaa51e"
     },
     {
       "itemId": "upgrade_kinetic_sash",
@@ -1013,8 +1013,8 @@
       "file": "icons/upgrade_ultimate_burst.png",
       "width": 200,
       "height": 200,
-      "bytes": 32829,
-      "sha256": "fb7cdce3ede06b1d7e1d7a70e59a025c17b024e7b023bff5a577780b0c125b47"
+      "bytes": 33587,
+      "sha256": "096f131813cd54457f1835e3ab810ca7f1d836c3190ff117780efa6ed4c03e45"
     },
     {
       "itemId": "upgrade_long_range",
@@ -1037,8 +1037,8 @@
       "file": "icons/upgrade_critshot.png",
       "width": 200,
       "height": 200,
-      "bytes": 46344,
-      "sha256": "d4757ba858d8fe731c374887a15e6b485d1def62a00259fb873551d420494f73"
+      "bytes": 46594,
+      "sha256": "5994b20dfa91e8266e8e0e20164445d1505447168a0bb93e1254291cbe674fe3"
     },
     {
       "itemId": "upgrade_magic_carpet",
@@ -1049,8 +1049,8 @@
       "file": "icons/upgrade_magic_carpet.png",
       "width": 200,
       "height": 200,
-      "bytes": 52214,
-      "sha256": "25b924d80ec9da3b2ec4bd61bd963c5b7f040800d4eb42604ca11a92f3b5c8c8"
+      "bytes": 53400,
+      "sha256": "76825b15d21d00979cc7e1a8d9b635b8a9f1b94d41ee980168b4c245495d614d"
     },
     {
       "itemId": "upgrade_rocket_booster",
@@ -1097,8 +1097,8 @@
       "file": "icons/upgrade_ethereal_bullets.png",
       "width": 200,
       "height": 200,
-      "bytes": 32933,
-      "sha256": "fc177cbaff63c8f7fee4d73d8851c21cc6bbcbcfc9ed476aa320a673650fd6fe"
+      "bytes": 34474,
+      "sha256": "a679c7cab67a35aa6268940806165a490bfabb7a86e310d88da5818e87359fe0"
     },
     {
       "itemId": "upgrade_metal_skin",
@@ -1193,8 +1193,8 @@
       "file": "icons/upgrade_crackshot.png",
       "width": 200,
       "height": 200,
-      "bytes": 35876,
-      "sha256": "a576d577eb6503b479c3ab40ae5cccbe533b01203e1455a72a0824862148abee"
+      "bytes": 36651,
+      "sha256": "097fb3620974be52621fe0ec7aa384e9b72692666577a131ff0ee570d6579a5f"
     },
     {
       "itemId": "upgrade_magic_slow",
@@ -1265,8 +1265,8 @@
       "file": "icons/upgrade_pristine_emblem.png",
       "width": 200,
       "height": 200,
-      "bytes": 23883,
-      "sha256": "b4ae5da8380b9c9568d878b4a75fca7039ca4a9d07a3902af67839d25e6dd323"
+      "bytes": 23561,
+      "sha256": "cd7a462dc7fd9eb8e8d9acab2f764c2cd229f228d699f8797bc0207af109eada"
     },
     {
       "itemId": "upgrade_phantom_strike",
@@ -1289,8 +1289,8 @@
       "file": "icons/upgrade_deflecting_armor.png",
       "width": 200,
       "height": 200,
-      "bytes": 35480,
-      "sha256": "a05f549d1dfe325904c1eaf0f361da330c1c5b24e29d2d8fa5111d57679d5be6"
+      "bytes": 36338,
+      "sha256": "141048bb4f5840ec3507a9376d0fcf70239bf6dc832de745a08ec7f6d6b8a246"
     },
     {
       "itemId": "upgrade_close_quarter_combat",
@@ -1337,8 +1337,8 @@
       "file": "icons/upgrade_resonant_healing.png",
       "width": 200,
       "height": 200,
-      "bytes": 49116,
-      "sha256": "8dbf6ca72c8b8f583f9e9b861640ef49ef453a67474f381856e637e0a352b16b"
+      "bytes": 50119,
+      "sha256": "ada94affe5e15b6a3e26f8039ccafd40319988aae634df1dafd4d5579440b0fb"
     },
     {
       "itemId": "upgrade_rapid_recharge",
@@ -1349,8 +1349,8 @@
       "file": "icons/upgrade_rapid_recharge.png",
       "width": 200,
       "height": 200,
-      "bytes": 20041,
-      "sha256": "240de759643273581db75434cc0ce84e83dc9aaee39a14a267c94771f39ffdfa"
+      "bytes": 20630,
+      "sha256": "e79e4b4f199fb172d021c37ab71caed4a42c830ad5d51571812609922b210831"
     },
     {
       "itemId": "upgrade_rapid_rounds",
@@ -1397,8 +1397,8 @@
       "file": "icons/upgrade_rechargingbullets.png",
       "width": 200,
       "height": 200,
-      "bytes": 36377,
-      "sha256": "8716cd814c441ee6598639f7e6435c85e1db0072addbe0d8ef2f329b19395d9b"
+      "bytes": 36381,
+      "sha256": "46ccde854278b4bd26526721bd99795d071fe241d79c392c9428bb172320536a"
     },
     {
       "itemId": "upgrade_ability_refresher",
@@ -1421,8 +1421,8 @@
       "file": "icons/upgrade_rescue_beam.png",
       "width": 200,
       "height": 200,
-      "bytes": 42366,
-      "sha256": "a83b5852b0838e7980cc6e806b7c8de4e3609eb9c4978f28ca93cc64ddbbde6f"
+      "bytes": 44348,
+      "sha256": "6120fa0cea3f790933dc63c0e5483cd4fe436fa515161096c7d7070e7455ef97"
     },
     {
       "itemId": "upgrade_restorative_locket",
@@ -1469,8 +1469,8 @@
       "file": "icons/upgrade_ricochet.png",
       "width": 200,
       "height": 200,
-      "bytes": 43890,
-      "sha256": "bb91c3dd95ea1919cbdd76bf68f9ca29e46f625e5770c4e00e9c6614d6a67640"
+      "bytes": 45456,
+      "sha256": "1aae5ff9f5367c953139f6ca23781da7190338958efb6663cde8e9bdb10552c6"
     },
     {
       "itemId": "upgrade_runed_gauntlets",
@@ -1553,8 +1553,8 @@
       "file": "icons/upgrade_sharpshooter.png",
       "width": 200,
       "height": 200,
-      "bytes": 50552,
-      "sha256": "627c01828b4aa5d4b2e42963c76b17682b81210110983f06733b5882554b379e"
+      "bytes": 51790,
+      "sha256": "536f7c301c530c2d04ddf0b628e1fcc6f6976b1483e56c95191f6a1e94d4eb48"
     },
     {
       "itemId": "upgrade_shrink_ray",
@@ -1577,8 +1577,8 @@
       "file": "icons/upgrade_targeted_silence.png",
       "width": 200,
       "height": 200,
-      "bytes": 34887,
-      "sha256": "539819115b0fee130eb82812cfe9aaf224d5be0956bef3f5a69520432efe56cd"
+      "bytes": 35515,
+      "sha256": "3a38d9a10d97a77f995831c0c76bfae89886b1550e410a6a26371bcdd655c429"
     },
     {
       "itemId": "upgrade_proc_silence",
@@ -1589,8 +1589,8 @@
       "file": "icons/upgrade_proc_silence.png",
       "width": 200,
       "height": 200,
-      "bytes": 59251,
-      "sha256": "b25c9020ef1905473be64783157e6a2f88bb53584bf0eb6af3d3f9298611f74e"
+      "bytes": 61586,
+      "sha256": "92f914763ecb73d8ac02b61c29da6eda4b147ac991079a243e39c0d3a3a8f34e"
     },
     {
       "itemId": "upgrade_siphon_bullets",
@@ -1601,8 +1601,8 @@
       "file": "icons/upgrade_siphon_bullets.png",
       "width": 200,
       "height": 200,
-      "bytes": 50830,
-      "sha256": "3066a3c00dad9f833930280120e31896c072c0900b9f8ba2ade3f850f5342810"
+      "bytes": 52055,
+      "sha256": "1ddc088622e0095a70c604387c2c873b5b47938b3de6668cb048bec4e0627de3"
     },
     {
       "itemId": "upgrade_slowing_bullets",
@@ -1625,8 +1625,8 @@
       "file": "icons/upgrade_containment.png",
       "width": 200,
       "height": 200,
-      "bytes": 23033,
-      "sha256": "d51371f6552de9884a24a069e1a8940c3ac06a599c3e18779b0912435b705615"
+      "bytes": 23576,
+      "sha256": "71cf6b89368571edd2b3bc4666e39eb0630995c94c16567c351bdd0dea90079c"
     },
     {
       "itemId": "upgrade_spellbreaker",
@@ -1649,8 +1649,8 @@
       "file": "icons/upgrade_enchanted_holsters.png",
       "width": 200,
       "height": 200,
-      "bytes": 43983,
-      "sha256": "313a9a93961f1fb50053beeb360cd7e66de784175375ca5727d5c2ad4ae73e7d"
+      "bytes": 46072,
+      "sha256": "4ab1f95b83324934b172e7f7de63eb877203142b1b5457ffc02edcdab1ce0e81"
     },
     {
       "itemId": "upgrade_spirit_burn",
@@ -1685,8 +1685,8 @@
       "file": "icons/upgrade_spellslinger_headshots.png",
       "width": 200,
       "height": 200,
-      "bytes": 53287,
-      "sha256": "dec8c64ec5d1cf98cdc28f47585d039f4de731c2f405bb0d9716822e7350ea7a"
+      "bytes": 54383,
+      "sha256": "88711c16af65eadbf9398a73d8b066ab182e0a4f7f39afe849013f2f7c45c801"
     },
     {
       "itemId": "upgrade_tech_purge",
@@ -1697,8 +1697,8 @@
       "file": "icons/upgrade_tech_purge.png",
       "width": 200,
       "height": 200,
-      "bytes": 51524,
-      "sha256": "f1ccbf24f3e1c1b84799c1e3dad3f29630744dc423a7176a4660b54fdb6fbae4"
+      "bytes": 51846,
+      "sha256": "fc49646d8241becb00b85a54f19b192f594fc234dd97ac70ef76d1373f85f403"
     },
     {
       "itemId": "upgrade_spirit_sap",
@@ -1721,8 +1721,8 @@
       "file": "icons/upgrade_spirit_bubble.png",
       "width": 200,
       "height": 200,
-      "bytes": 29624,
-      "sha256": "cb94318d7eb8880637006e9876b772124d252e61b44afadd28b318bcaa4e7ea0"
+      "bytes": 30270,
+      "sha256": "2d94b98207866a3581b8d29cd3ab878705e9a48e1ec6f57a2448a4355a084de8"
     },
     {
       "itemId": "upgrade_tech_defense_shredders",
@@ -1733,8 +1733,8 @@
       "file": "icons/upgrade_tech_defense_shredders.png",
       "width": 200,
       "height": 200,
-      "bytes": 50982,
-      "sha256": "f59b411afab9d3018ece00d9aa97e347077c9e220bece4ae0408440740f0aea6"
+      "bytes": 51941,
+      "sha256": "5ba3793df4076835ab577465efd6a239fefe31a1c8a681c8a428e330aee3fede"
     },
     {
       "itemId": "upgrade_spirit_snatch",
@@ -1769,8 +1769,8 @@
       "file": "icons/upgrade_tech_overflow.png",
       "width": 200,
       "height": 200,
-      "bytes": 56190,
-      "sha256": "922d1b6550d10f4512787f776aa6e6bbcf722f8e5e4ac5ac36f4f3cd9a723da0"
+      "bytes": 56198,
+      "sha256": "7b8a62cd6693900574a58098447b47dcec64cde6d2160f7cbcef768d3dcd6cc8"
     },
     {
       "itemId": "upgrade_split_shot",
@@ -1793,8 +1793,8 @@
       "file": "icons/upgrade_sprint_booster.png",
       "width": 200,
       "height": 200,
-      "bytes": 27834,
-      "sha256": "9da32c31bc012ad4bfaa24c9d0b0429c3b7659f98a4b34d7244bd9cf3d9208ac"
+      "bytes": 22389,
+      "sha256": "813c74f05965588fd274008e67d76d86ca872fbf6ddd11a3a33c30488682ae79"
     },
     {
       "itemId": "upgrade_weapon_backstabber",
@@ -1817,8 +1817,8 @@
       "file": "icons/upgrade_superior_stamina.png",
       "width": 200,
       "height": 200,
-      "bytes": 57870,
-      "sha256": "3dccb83e0ae0ad258d339a6a7395b17c05c60152c1aea4859ab4c3d36cd03917"
+      "bytes": 59702,
+      "sha256": "1f8167c13a101adf9c8aa97ae2114b231dc1b045c072c5dec694bc476e491a58"
     },
     {
       "itemId": "upgrade_cooldown_reduction",
@@ -1853,8 +1853,8 @@
       "file": "icons/upgrade_suppressor.png",
       "width": 200,
       "height": 200,
-      "bytes": 55036,
-      "sha256": "875484eaf6a070b3972c6c6025f6a091895f4c205e83d7b1b41b0a659fc48987"
+      "bytes": 55615,
+      "sha256": "61f151093d401c723304e28231545293bed015b19d4841a6ed87fecea4923ffc"
     },
     {
       "itemId": "upgrade_magic_storm",
@@ -1865,8 +1865,8 @@
       "file": "icons/upgrade_magic_storm.png",
       "width": 200,
       "height": 200,
-      "bytes": 41671,
-      "sha256": "712339d5372494c40559e0d1eb1c2a0b69e505c28b5129291a3ead234823d803"
+      "bytes": 42252,
+      "sha256": "fc90da9ca7918c382566752f61baa1eca6a089d8e6b876a1c0bb0cd4dbb66925"
     },
     {
       "itemId": "upgrade_blitz_bullets",
@@ -1889,8 +1889,8 @@
       "file": "icons/upgrade_magic_shock.png",
       "width": 200,
       "height": 200,
-      "bytes": 24935,
-      "sha256": "f10e18fb6ee73d9101986729ee6035602deac3505b36d1df627e527ec12eb5bf"
+      "bytes": 25025,
+      "sha256": "f64adc4b98e5a780bc43833cff56a7d6bbbc162b10669184bf2b3cfa2edaf22b"
     },
     {
       "itemId": "upgrade_chain_lightning",
@@ -1901,8 +1901,8 @@
       "file": "icons/upgrade_chain_lightning.png",
       "width": 200,
       "height": 200,
-      "bytes": 44228,
-      "sha256": "982888e63fa46b28c1d49f08c72db7989f2123d8988a402a89592eee82cc8d70"
+      "bytes": 45408,
+      "sha256": "0ff939601c4201e48c0563d0797084a4ceaac88a0729e1707b8b4f9c42fda696"
     },
     {
       "itemId": "upgrade_titan_round",
@@ -1913,8 +1913,8 @@
       "file": "icons/upgrade_titan_round.png",
       "width": 200,
       "height": 200,
-      "bytes": 48682,
-      "sha256": "6e77a13f603568baeecb4a53abbdf46c9d65a6ec6ac885d86309e7f65fa09d82"
+      "bytes": 49663,
+      "sha256": "8b3b9d9743a6267ef11a0b00fc35d6ce7ed544e1151c3f2ef405ba167a344c99"
     },
     {
       "itemId": "upgrade_tech_damage_pulse",
@@ -1949,8 +1949,8 @@
       "file": "icons/upgrade_transcendent_cooldown.png",
       "width": 200,
       "height": 200,
-      "bytes": 62432,
-      "sha256": "1112559b99b30faf14057527c7941b07c8e06c59ad598b8adea402181aa42f45"
+      "bytes": 63290,
+      "sha256": "23c4ae8cedb0e8bdd675abe70a43e0913200494abf0c0d747bcb7390d3e0faf4"
     },
     {
       "itemId": "upgrade_trophy_collector",
@@ -1985,8 +1985,8 @@
       "file": "icons/upgrade_unstoppable.png",
       "width": 200,
       "height": 200,
-      "bytes": 62414,
-      "sha256": "f1b5c211161a7566401f25070c7084212100a5d02576c4e4053e6160bdf32d3a"
+      "bytes": 64848,
+      "sha256": "ae63da996394963f5af0ea6936a0623fdce354b412685a80bca2ce83030d1b6e"
     },
     {
       "itemId": "upgrade_surging_power",
@@ -2033,8 +2033,8 @@
       "file": "icons/upgrade_warp_stone.png",
       "width": 200,
       "height": 200,
-      "bytes": 54297,
-      "sha256": "1442e8869c7132523eb77ea2448b657e74024c5c7f09f5641147298a30ece81b"
+      "bytes": 54738,
+      "sha256": "f443c82d30a22e2b76ed8e880c1726cb657d19c9b433e279fe5b3047e54341bb"
     },
     {
       "itemId": "upgrade_headshot_booster2",
@@ -2081,8 +2081,8 @@
       "file": "icons/upgrade_absorbing_armor.png",
       "width": 200,
       "height": 200,
-      "bytes": 32860,
-      "sha256": "7b9c3f7a55ba10d692832b9d93a9b1c95bb8c2c7092f8486b84d5c8c49c2f2dc"
+      "bytes": 33321,
+      "sha256": "f8b809f64db2610c59e68f4e7c3a6842aa2a5a75392f88807bdaa6d2827d50dc"
     }
   ]
 }

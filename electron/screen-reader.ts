@@ -6,18 +6,20 @@ import type { EventEmitter } from 'node:events';
 import type { Readable, Writable } from 'node:stream';
 import type { Catalog } from '../src/shared/types';
 import {
-  createInitialScreenReaderState, DEFAULT_CAPTURE_REGION, SCREEN_CAPTURE_FRESHNESS_MS, SCREEN_CARD_HOLD_MS, SCREEN_CONTEXT_MAX_AGE_MS, validateCaptureRegion, isScreenLayoutId,
+  cardHoldMs, createInitialScreenReaderState, DEFAULT_CAPTURE_REGION, SCREEN_CAPTURE_FRESHNESS_MS, SCREEN_CARD_HOLD_MS, SCREEN_CONTEXT_MAX_AGE_MS, validateCaptureRegion, isScreenLayoutId,
   type CaptureRegion, type NativeOcrBlock, type NativeReadResult, type NativeScreenContext,
-  type ScreenOfferParseResult, type ScreenReaderState,
+  type ScreenOffer, type ScreenOfferParseResult, type ScreenReaderState,
 } from '../src/shared/screen-reading';
-import { detectDraftClosed, detectDraftHint, parseScreenOffers, SELECTIONS_COMPLETE_MESSAGE } from '../src/screen/offer-parser';
+import { detectDraftClosed, detectDraftHint, cardSlotAt, draftChoiceStage, namedItemCenters, parseScreenOffers, SELECTIONS_COMPLETE_MESSAGE } from '../src/screen/offer-parser';
 import { evaluateScreenOffers } from '../src/screen/screen-advice';
 import { detectScoreboardHint, parseScreenMatchObservation } from '../src/screen/match-parser';
-import { expireScreenMatchContext, reduceScreenMatchContext, resetScreenMatchContext } from '../src/screen/match-state';
+import { expireScreenMatchContext, forgetMatchRound, reduceScreenMatchContext, resetScreenMatchContext, SPECTATOR_HOLD_MS } from '../src/screen/match-state';
 import { evaluateAbilityUpgrade } from '../src/screen/ability-advice';
-import { createRosterTracker } from '../src/screen/draft-roster';
+import { createRosterTracker, currentLocalHero } from '../src/screen/draft-roster';
 import { createBuildTracker } from '../src/screen/build-tracker';
 import { abilityPlan } from '../src/screen/ability-plan';
+import { matchInsights } from '../src/screen/match-insights';
+import { streetBrawlData } from '../src/screen/street-brawl-data';
 
 /** These are scheduling/cancellation limits, not a CPU, GPU or FPS guarantee. */
 export const SCREEN_READER_LIMITS = Object.freeze({
@@ -27,14 +29,44 @@ export const SCREEN_READER_LIMITS = Object.freeze({
   captureFreshnessMs: SCREEN_CAPTURE_FRESHNESS_MS, cardHoldMs: SCREEN_CARD_HOLD_MS, readSpacingMs: 500, phaseSpacingMs: 1_000,
   contextDiscoverySpacingMs: 10_000,
   maxWorkerWallShare: 0.3, textBufferBytes: 500_000, previewBufferBytes: 12_000_000,
-  stopTimeoutMs: 1_500, maxTimeoutsBeforeRetry: 5, cpuPressurePercent: 75,
+  // While a draft is on screen the player is waiting on every read: read twice as often for those
+  // 10-25 seconds (about half of one below-normal core), and at the usual pace otherwise.
+  draftReadSpacingMs: 250, draftWorkerWallShare: 0.5,
+  /** No diagnostic screenshot this soon after a draft appears, so it never delays the first cards. */
+  draftFrameQuietMs: 3_000,
+  stopTimeoutMs: 5_000, maxTimeoutsBeforeRetry: 5, cpuPressurePercent: 75,
   /** Consecutive reads without a draft cue before shown cards are withdrawn. */
   draftCueMissesToClose: 2,
   /** Minimum spacing between saved diagnostic draft frames. */
   frameCaptureSpacingMs: 15_000,
+  /** Most idle time a slow read can add before the next one (2026-10-18: a 2.8 s read was followed by a 9.3 s pause). */
+  maxIdleAfterReadMs: 2_000, draftMaxIdleAfterReadMs: 1_000,
+  /** Read spacing outside a match (hideout, menus, queue, post-match): the next match's loading screen lasts far longer. */
+  outsideReadSpacingMs: 3_000,
   /** One full-window diagnostic snapshot (HUD, scoreboard or draft) at most this often. */
   snapshotSpacingMs: 45_000,
 });
+/** Shown between matches; the last match's build and roster stay on screen until the next match starts. */
+export const OUTSIDE_MESSAGE = 'Not in a match. The last match stays shown until the next one starts.';
+/** A missing game window resets the match only after this long (a fullscreen toggle or a crash and rejoin keeps it). */
+export const GAME_GONE_MS = 15_000;
+
+/**
+ * The death screen: the HUD belongs to the teammate being watched. The native reader's spectator
+ * verdict missed 25 of 41 real death-screen reads, which show "Respawn in: NN" and "Next player"
+ * (OCR: "Next plyer"). A visible item draft is always your own.
+ */
+export function deathScreen(reply: Pick<NativeReadResult, 'blocks' | 'context'>, draftCue: boolean): boolean {
+  if (draftCue) return false;
+  if (reply.context?.viewMode === 'spectator') return true;
+  return reply.blocks.some(block => {
+    const key = block.text.toUpperCase().replace(/[^A-Z]/g, '');
+    if (key.includes('SPECTATING')) return true;
+    const middle = !block.bounds || (block.bounds.y > 0.3 && block.bounds.y < 0.95);
+    return middle && (key.includes('RESPAWNIN') || /(?:NEXT|PREVIOUS)PL[A-Z]{0,2}YER/.test(key));
+  });
+}
+
 /** One reader decision, written to the local diagnostics log for troubleshooting. */
 export type ScreenReaderTrace = Record<string, unknown>;
 export const DRAFT_HINT_REGION: Readonly<CaptureRegion> = Object.freeze({ x: 0, y: 0, width: 1, height: 0.35 });
@@ -56,7 +88,7 @@ export interface ScreenReaderProcess extends Pick<EventEmitter, 'on' | 'once' | 
   kill(signal?: NodeJS.Signals): boolean;
 }
 export type SpawnScreenReader = (path: string, args: string[], options: {
-  windowsHide: true; shell: false; stdio: ['pipe', 'pipe', 'pipe'];
+  windowsHide: true; shell: false; stdio: ['pipe', 'pipe', 'pipe']; env?: NodeJS.ProcessEnv;
 }) => ScreenReaderProcess;
 export interface ScreenReaderOptions {
   helperPath: string; iconDirectory?: string; contextIconDirectory?: string; catalog: Catalog; initialCrop?: CaptureRegion;
@@ -158,12 +190,20 @@ function normalizeNativeContext(value: unknown): NativeScreenContext {
       const ranks = brawl.abilityRanks;
       return { brawl: {
         myItems: entries('myItems', 16).map(item => ({ slot: integer(item.slot, 15), itemId: text(item.itemId, 128), confidence: confidence(item) })),
-        playerItems: entries('playerItems', 96).map(item => ({ seat: integer(item.seat, 7), slot: integer(item.slot, 11), itemId: text(item.itemId, 128), confidence: confidence(item) })),
+        myOccupied: brawl.myOccupied === undefined || brawl.myOccupied === null ? null : integer(brawl.myOccupied, 16),
+        // Late-game seats hold up to 16 items in 8 scoreboard rows.
+        playerItems: entries('playerItems', 128).map(item => ({ seat: integer(item.seat, 7), slot: integer(item.slot, 15), itemId: text(item.itemId, 128), confidence: confidence(item) })),
+        // A column covered by the cursor or a tooltip is null; the others still count.
         abilityRanks: ranks === undefined || ranks === null ? null : (() => {
           if (!Array.isArray(ranks) || ranks.length !== 4) throw new TypeError('Invalid ability ranks.');
-          return ranks.map(rank => integer(rank, 3));
+          return ranks.map(rank => rank === null ? null : integer(rank, 3));
         })(),
-        hiddenItems: brawl.hiddenItems === undefined ? 0 : integer(brawl.hiddenItems, 96),
+        hiddenItems: brawl.hiddenItems === undefined ? 0 : integer(brawl.hiddenItems, 128),
+        roundPips: brawl.roundPips === undefined || brawl.roundPips === null ? null : (() => {
+          const pips = brawl.roundPips;
+          if (!Array.isArray(pips) || pips.length !== 2) throw new TypeError('Invalid round pips.');
+          return [integer(pips[0], 3), integer(pips[1], 3)] as [number, number];
+        })(),
       } };
     })()),
     ...(context.abilityPoints === undefined || context.abilityPoints === null ? {} : (() => {
@@ -214,10 +254,15 @@ export function normalizeNativeReply(input: unknown, requestedCrop: CaptureRegio
   if (metrics) metrics.unchanged = unchanged;
   const preview = data.previewPng ?? data.previewPngBase64;
   const previewPng = preview === undefined || preview === null ? null : text(preview, SCREEN_READER_LIMITS.previewBufferBytes);
-  if (previewPng && (!previewPng.startsWith('iVBORw0KGgo') || !/^[A-Za-z0-9+/]*={0,2}$/.test(previewPng))) throw new TypeError('Invalid screen preview.');
+  // A base64 round trip checks the alphabet and padding in a few milliseconds; a regex over a 5 MB
+  // screenshot took 16.
+  if (previewPng && (!previewPng.startsWith('iVBORw0KGgo') || previewPng.length % 4 !== 0
+    || Buffer.from(previewPng, 'base64').toString('base64') !== previewPng)) throw new TypeError('Invalid screen preview.');
   return {
     protocol: 1, id: text(data.id, 128), status: data.status as string,
     gamePresent: bool(data.gamePresent), foreground: bool(data.foreground), clientWidth, clientHeight,
+    clientLeft: data.clientLeft === undefined || data.clientLeft === null ? null : number(data.clientLeft, -65_536, 65_536),
+    clientTop: data.clientTop === undefined || data.clientTop === null ? null : number(data.clientTop, -65_536, 65_536),
     capturedAt: data.capturedAt === undefined || data.capturedAt === null ? null : number(data.capturedAt), elapsedMs: number(data.elapsedMs, 0, 120_000),
     hash: data.hash === undefined || data.hash === null ? null : text(data.hash, 128), blocks, icons, crop, metrics,
     ...(data.context === undefined || data.context === null ? {} : { context: normalizeNativeContext(data.context) }),
@@ -291,6 +336,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
   let hintAt: number | null = null;
   let lastHintStart = -Infinity;
   let draftHint = false;
+  /** When the current draft was first seen (wall clock). */
+  let draftSeenAt = -Infinity;
+  /** The earliest the next read may start under the draft pace, after the last read. */
+  let draftPaceAt = 0;
   let candidate: { signature: string; count: number; lastSeenAt: number;
     context: { heroId: string | null; round: number | null; rerolls: number | null } } | null = null;
   let confirmationStartedAt: number | null = null;
@@ -301,6 +350,22 @@ export function createScreenReader(options: ScreenReaderOptions) {
   let lastFullContextAt = -Infinity;
   let nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
   let lastCardParse: ScreenOfferParseResult | null = null;
+  /** A read that disagrees with shown cards: the cards it read, until a second read agrees (tooltip misreads flip one card). */
+  let pendingReplace: Map<number, string> | null = null;
+  /** The cards shown for the current "Choice N of 3", and those of the previous choice. When the next choice opens,
+   * the picked card stays on screen while the new cards deal in: it is the pick, and never one of the new cards. */
+  /** byPosition: the item shown on each card (empty when unread); pick: the card credited as picked from it. */
+  type ChoiceSet = { stage: number | null; round: number | null; ids: string[]; byPosition: string[]; credited: boolean; pick?: string };
+  let choiceSet: ChoiceSet | null = null;
+  let previousChoiceSet: ChoiceSet | null = null;
+  /** When the current "Choice N of 3" was first seen (capture time): its first frames still show the leaving pick. */
+  let stageOpened: { stage: number; at: number } | null = null;
+  /** The last choice's cards when the draft closed: the third pick lingers on screen then too. */
+  let closingSet: { set: ChoiceSet; at: number } | null = null;
+  /** A card of the leaving set read at its own place, waiting for a second read before it is credited. */
+  let lingerCandidate: { set: ChoiceSet; itemId: string; count: number } | null = null;
+  /** The game window answered with a capture while not in front (the native reader allows a visible background window). */
+  let backgroundReadable = false;
   const roster = createRosterTracker(options.catalog, { localPlayerNames: options.localPlayerNames });
   const build = createBuildTracker();
   /** Enemy seats' items, given which side of the top bar you are on. */
@@ -312,6 +377,11 @@ export function createScreenReader(options: ScreenReaderOptions) {
    * cards change while the same "Choice N of 3" stays open. Reset when the round changes. */
   const rerolls: { count: number | null; stage: string | null; round: number | null } = { count: null, stage: null, round: null };
   let lastClientSize: string | null = null;
+  let lastInsightsKey: string | null = null;
+  /** The upgrade panel (Tab held) was on the last read: read the bottom strip again soon, since ranks change right then. */
+  let panelReadDue = false;
+  /** When the game window was first missing; match knowledge survives a brief loss (fullscreen toggle, crash and rejoin). */
+  let absentSince: number | null = null;
   let previewPending = false;
   let timeoutsSinceRetry = 0;
   let retryRequired = false;
@@ -328,6 +398,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
 
   const snapshot = (): ScreenReaderState => structuredClone(state);
   function publish(patch: Partial<ScreenReaderState> = {}) {
+    // A patch that repeats the current values (the per-read foreground flag, an unchanged status) is not news.
+    const keys = Object.keys(patch) as (keyof ScreenReaderState)[];
+    const same = (a: unknown, b: unknown) => Object.is(a, b) || (Array.isArray(a) && Array.isArray(b) && a.length === 0 && b.length === 0);
+    if (keys.length > 0 && keys.every(key => same(state[key], patch[key]))) return;
     state = { ...state, ...patch, revision: state.revision + 1 };
     for (const listener of listeners) { try { listener(snapshot()); } catch { /* A UI subscriber must not break acquisition. */ } }
   }
@@ -335,12 +409,12 @@ export function createScreenReader(options: ScreenReaderOptions) {
     if (timer === 'loop') { if (loopTimer !== null) clearTimeout(loopTimer); loopTimer = null; }
     else { if (expiryTimer !== null) clearTimeout(expiryTimer); expiryTimer = null; }
   }
-  function clearDecision(message: string, status: ScreenReaderState['status'], clearCandidate = true) {
+  function clearDecision(message: string, status: ScreenReaderState['status'], clearCandidate = true, extra: Partial<ScreenReaderState> = {}) {
     clearTimer('expiry');
     const changed = state.offers.length > 0 || state.advice !== null || state.observedAt !== null || (clearCandidate && candidate !== null);
     if (clearCandidate) { candidate = null; mainCandidate = null; confirmationStartedAt = null; }
     lastCardParse = null;
-    publish({ message, status, offers: [], advice: null, heroId: null, observedAt: null,
+    publish({ ...extra, message, status, offers: [], advice: null, heroId: null, observedAt: null,
       generation: state.generation + (changed ? 1 : 0) });
   }
   function fence(message: string, status: ScreenReaderState['status']) {
@@ -351,8 +425,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
     if (contextExpiryTimer !== null) clearTimeout(contextExpiryTimer); contextExpiryTimer = null;
     // A retired acquisition epoch cannot hydrate a new match context.
-    state = { ...state, matchContext: resetScreenMatchContext(state.matchContext), abilityAdvice: null };
-    clearDecision(message, status);
+    clearDecision(message, status, true, { matchContext: resetScreenMatchContext(state.matchContext), abilityAdvice: null });
   }
   function eligible() { return !disposed && state.enabled && !retryRequired && !pressurePaused && !workloadPressured && !terminationFailed; }
   function schedule() {
@@ -371,7 +444,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
     if (helper || stopping || terminationFailed || !eligible()) throw new ReaderFailure('interrupted');
     const args = [...(options.iconDirectory ? ['--icons', options.iconDirectory] : []),
       ...(options.contextIconDirectory ? ['--context-icons', options.contextIconDirectory] : [])];
-    const process = spawnProcess(options.helperPath, args, { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
+    // A 16 MB GC nursery halves the helper's peak memory (240 -> 136 MB private) at the same read speed;
+    // .NET otherwise sizes it from the CPU cache, which is huge on X3D processors.
+    const process = spawnProcess(options.helperPath, args, { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...globalThis.process.env, DOTNET_GCgen0size: '0x1000000' } });
     let resolveExit!: () => void;
     const current: Helper = { process, exit: new Promise<void>(resolve => { resolveExit = resolve; }),
       resolveExit: () => resolveExit(), exited: false, buffer: '', bufferedBytes: 0, decoder: new StringDecoder('utf8') };
@@ -381,7 +457,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
       current.exited = true; current.resolveExit();
       if (helper === current) {
         helper = null; publish({ engineReady: false, gamePresent: false, foreground: false });
-        if (!stopping && !disposed) {
+        if (!stopping && !disposed && terminationFailed) {
+          // A helper that outlived the stop timeout has now exited: nothing is left running, so restart.
+          rejectPending('process'); terminationFailed = false; void retry();
+        } else if (!stopping && !disposed) {
           rejectPending('process'); retryRequired = true;
           fence('The screen-reader process stopped. Choose Retry to start it again.', 'unavailable');
         }
@@ -406,9 +485,13 @@ export function createScreenReader(options: ScreenReaderOptions) {
       if (current.bufferedBytes > (pending.debug ? SCREEN_READER_LIMITS.previewBufferBytes : SCREEN_READER_LIMITS.textBufferBytes)) {
         protocolFailure(); return;
       }
+      // Search only the new text for a line end: rescanning a multi-megabyte screenshot line on every
+      // chunk cost 43 ms of main-thread time per screenshot.
+      let searchFrom = current.buffer.length;
       current.buffer += typeof chunk === 'string' ? chunk : current.decoder.write(chunk);
       let newline: number;
-      while ((newline = current.buffer.indexOf('\n')) !== -1) {
+      while ((newline = current.buffer.indexOf('\n', searchFrom)) !== -1) {
+        searchFrom = 0;
         const line = current.buffer.slice(0, newline).trim();
         current.buffer = current.buffer.slice(newline + 1);
         current.bufferedBytes = Buffer.byteLength(current.buffer);
@@ -498,8 +581,12 @@ export function createScreenReader(options: ScreenReaderOptions) {
       metrics: { ...state.metrics, reads: state.metrics.reads + (operation === 'read' ? 1 : 0),
         skipped: state.metrics.skipped + (reply.unchanged ? 1 : 0), cpuPercent, memoryMb } });
     // Occupation includes elapsed native work, not its CPU percentage. Idle at least four times that duration.
-    nextRequestAt = Math.max(nextRequestAt, startedAt + SCREEN_READER_LIMITS.readSpacingMs,
-      finishedAt + elapsed * (1 / SCREEN_READER_LIMITS.maxWorkerWallShare - 1));
+    const spacing = draftHint ? SCREEN_READER_LIMITS.draftReadSpacingMs : SCREEN_READER_LIMITS.readSpacingMs;
+    const share = draftHint ? SCREEN_READER_LIMITS.draftWorkerWallShare : SCREEN_READER_LIMITS.maxWorkerWallShare;
+    const idleCap = draftHint ? SCREEN_READER_LIMITS.draftMaxIdleAfterReadMs : SCREEN_READER_LIMITS.maxIdleAfterReadMs;
+    nextRequestAt = Math.max(nextRequestAt, startedAt + spacing, finishedAt + Math.min(idleCap, elapsed * (1 / share - 1)));
+    draftPaceAt = Math.max(startedAt + SCREEN_READER_LIMITS.draftReadSpacingMs,
+      finishedAt + Math.min(SCREEN_READER_LIMITS.draftMaxIdleAfterReadMs, elapsed * (1 / SCREEN_READER_LIMITS.draftWorkerWallShare - 1)));
     const sampleWall = cpuSamples.reduce((sum, sample) => sum + sample.wallMs, 0);
     if (cpuSamples.length >= 5 && sampleWall >= 3_000 && oneCoreCpuPercent !== null && oneCoreCpuPercent > SCREEN_READER_LIMITS.cpuPressurePercent) {
       pressurePaused = true;
@@ -509,32 +596,46 @@ export function createScreenReader(options: ScreenReaderOptions) {
   function fresh(reply: NormalizedNativeReply) {
     return reply.capturedAt !== null && epochNow() >= reply.capturedAt && epochNow() - reply.capturedAt < SCREEN_READER_LIMITS.captureFreshnessMs;
   }
-  /** Shown cards stay until the draft closes, new cards replace them, or no read confirms them for cardHoldMs. */
+  /** Shown cards stay until the draft closes, new cards replace them, or no read confirms them for
+   * cardHoldMs (longer while the player has alt-tabbed out of the game, see cardHoldMs()). */
   function armExpiry(observedAt: number) {
     clearTimer('expiry');
-    expiryTimer = setTimeout(() => {
+    // Cards kept while the game is behind other windows and cannot be read get the longer hold; a game read in the background does not.
+    const holdMs = () => state.gamePresent && !state.foreground && !backgroundReadable ? cardHoldMs(state) : SCREEN_READER_LIMITS.cardHoldMs;
+    // Age counts only timer time that has passed, so a system clock change can neither extend nor revive the cards.
+    let age = Math.max(0, epochNow() - observedAt);
+    const schedule = (delay: number) => { expiryTimer = setTimeout(() => { age += delay; check(); }, delay); };
+    const check = () => {
       expiryTimer = null;
       if (!state.enabled || disposed || state.observedAt !== observedAt) return;
+      const left = holdMs() - age;
+      // In the background the deadline shrinks again when the game returns, so check again soon.
+      if (left > 0) { schedule(Math.max(1, state.foreground ? left : Math.min(left, 1_000))); return; }
       clearDecision('Waiting for the item-choice screen.', 'waiting-draft');
-    }, Math.max(1, observedAt + SCREEN_READER_LIMITS.cardHoldMs - epochNow()));
+    };
+    schedule(Math.max(1, SCREEN_READER_LIMITS.cardHoldMs - age));
   }
   function adviceFor(parsed: ScreenOfferParseResult, context = state.matchContext) {
     const known = roster.snapshot();
     return evaluateScreenOffers(parsed.offers, options.catalog, {
-      heroId: known.localHeroId ?? context.localHeroId ?? parsed.heroId, round: context.round ?? parsed.round,
-      rerolls: rerolls.count ?? parsed.rerolls ?? context.rerollsRemaining, enemyHeroIds: known.enemies,
+      heroId: currentLocalHero(known, context.localHeroId, context.observations.localHeroId?.capturedAt, parsed.heroId), round: context.round ?? parsed.round,
+      rerolls: rerolls.count ?? parsed.rerolls ?? context.rerollsRemaining, choice: rerolls.stage === null ? null : Number(rerolls.stage),
+      enemyHeroIds: known.enemies,
       ownedItemIds: build.snapshot().myItems, enemyItemIds: enemyItems(), matchContext: context, now: contextNow(),
     });
   }
   function currentCardAdvice(context = state.matchContext) {
     if (!lastCardParse || !state.enabled || context.phase === 'finished'
-      || state.observedAt === null || epochNow() < state.observedAt || epochNow() - state.observedAt >= SCREEN_READER_LIMITS.cardHoldMs) return null;
+      || state.observedAt === null || epochNow() < state.observedAt
+      || epochNow() - state.observedAt >= (state.gamePresent && !state.foreground && !backgroundReadable ? cardHoldMs(state) : SCREEN_READER_LIMITS.cardHoldMs)) return null;
     return adviceFor(lastCardParse, context);
   }
   function trackRerolls(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply, cardsChanged: boolean) {
     const stage = reply.blocks.map(block => block.text.match(/choice\s*(\d)\s*(?:of|\/)\s*3/i)?.[1]).find(Boolean) ?? null;
-    if (parsed.round !== null && rerolls.round !== null && parsed.round !== rerolls.round) rerolls.count = null;
-    if (parsed.round !== null) rerolls.round = parsed.round;
+    // The match state's round (checked and inferred across frames), not this frame's raw title (a "ROUND 13" misread).
+    const round = state.matchContext.round ?? parsed.round;
+    if (round !== null && rerolls.round !== null && round !== rerolls.round) { rerolls.count = null; rerolls.stage = null; }
+    if (round !== null) rerolls.round = round;
     if (parsed.rerolls !== null) rerolls.count = parsed.rerolls;
     // New cards while the same choice is still open means a reroll was spent.
     else if (cardsChanged && stage !== null && stage === rerolls.stage && rerolls.count !== null && rerolls.count > 0) rerolls.count--;
@@ -549,6 +650,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
       ...context.players.flatMap(player => [player.heroObservation, player.teamObservation, player.inventoryObservation,
         ...player.inventory.map(item => item.observation)])].filter(value => value !== null);
     const deadlines = observations.map(value => value.capturedAt + SCREEN_CONTEXT_MAX_AGE_MS);
+    if (context.viewMode === 'spectator' && context.observations.viewMode) deadlines.push(context.observations.viewMode.capturedAt + SPECTATOR_HOLD_MS);
     if (state.abilityAdvice?.kind === 'upgrade') {
       deadlines.push(...[context.observations.localAbilityPoints,
         context.localAbilities.find(ability => ability.slot === state.abilityAdvice!.slot)?.observation]
@@ -560,7 +662,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
       contextExpiryTimer = null;
       // Keep historical facts visible with their age, but replace advice in one snapshot.
       const expired = expireScreenMatchContext(state.matchContext, contextNow());
-      publish({ matchContext: expired, advice: currentCardAdvice(expired), abilityAdvice: state.foreground
+      publish({ matchContext: expired, advice: currentCardAdvice(expired), abilityAdvice: (state.foreground || backgroundReadable)
         ? evaluateAbilityUpgrade(expired, options.catalog, contextNow()) : null });
       armContextExpiry();
     }, Math.max(1, deadline - contextNow() + 1));
@@ -600,53 +702,71 @@ export function createScreenReader(options: ScreenReaderOptions) {
       candidate = null; mainCandidate = null; lastCardParse = null; confirmationStartedAt = null;
       clearTimer('expiry');
     }
-    publish({ matchContext: context, abilityAdvice: !spectator && context.phase !== 'finished' && state.foreground
+    publish({ matchContext: context, abilityAdvice: !spectator && context.phase !== 'finished' && (state.foreground || backgroundReadable)
       ? evaluateAbilityUpgrade(context, options.catalog, contextNow()) : null,
       advice: withdraw ? null : currentCardAdvice(context), ...(withdraw ? { offers: [], observedAt: null, heroId: null,
         generation: state.generation + (state.offers.length || state.advice ? 1 : 0), status: 'waiting-draft' as const,
-        message: spectator ? 'Spectator view detected. Waiting for your own game view.' : 'Waiting for the item-choice screen.' } : {}) });
+        message: spectator ? 'Spectating (you may be dead). Picks return when your own view is back.' : 'Waiting for the item-choice screen.' } : {}) });
     armContextExpiry();
     return !spectator && context.phase !== 'finished';
   }
-  function acceptParsed(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply) {
+  /** The picked card lingers in its place this long after the next choice opens or the draft closes. */
+  const LINGER_MS = 3_000;
+  function forgetChoices() { choiceSet = null; previousChoiceSet = null; pendingReplace = null; stageOpened = null; closingSet = null; lingerCandidate = null; }
+  /** The draft closed: its last shown set may still credit the pick that lingers for a moment. */
+  function draftClosing(at: number | null) {
+    if (choiceSet && closingSet?.set !== choiceSet && !choiceSet.credited && choiceSet.byPosition.filter(Boolean).length === 3 && at !== null) closingSet = { set: choiceSet, at };
+    stageOpened = null;
+  }
+  /** The shown set of the choice just before this "Choice N of 3", if it was shown this round. */
+  function setBefore(stage: number | null) {
+    if (stage === null || stage < 2) return null;
+    const round = state.matchContext.round;
+    for (const set of [choiceSet, previousChoiceSet]) if (set && set.stage === stage - 1 && (set.round === round || set.round === null || round === null)) return set;
+    return null;
+  }
+  const unreadOffer = (position: number): ScreenOffer => ({ position, itemId: '', name: 'Unread item choice', bonusIds: null, variant: 'unknown', confidence: 0,
+    warning: 'This card is not readable yet.' });
+  /**
+   * Shows the readable cards of a draft read:
+   *  - nothing shown yet: the readable cards show at once, even one or two of three (cards deal in one by one);
+   *  - cards shown: newly readable cards fill the unread places; a read that changes a shown card replaces the set
+   *    only when the next read agrees (2026-10-18: one tooltip read put "Crippling Headshot" in place of Battle Vest
+   *    and flipped the pick), and a read where no shown card is still there (a reroll or pick) withdraws the old set at once;
+   *  - in a new "Choice N of 3", a card of the previous choice is the picked card leaving the screen, not a new card.
+   */
+  function acceptParsed(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply, stage: number | null) {
     const shown = state.status === 'ready' && state.offers.length === 3 && state.observedAt !== null
       && epochNow() - state.observedAt < SCREEN_READER_LIMITS.cardHoldMs;
     let offers = parsed.offers;
-    // Card animations, hover effects and particles routinely hide one name for a
-    // frame. When the other two names match the cards already shown, the third
-    // card is the same one; reuse its earlier reading.
-    if (shown && parsed.isDraft && offers.length === 3) {
-      const unread = offers.filter(offer => !offer.itemId);
-      const sameKnown = offers.filter(offer => offer.itemId).every(offer =>
-        state.offers.find(previous => previous.position === offer.position)?.itemId === offer.itemId);
-      if (unread.length === 1 && sameKnown) {
-        offers = offers.map(offer => offer.itemId ? offer : state.offers.find(previous => previous.position === offer.position) ?? offer);
-      }
+    const readableIds = () => offers.filter(offer => offer.itemId).map(offer => offer.itemId);
+    const leaving = setBefore(stage);
+    const at = reply.capturedAt ?? epochNow();
+    const newChoice = !!leaving && stageOpened !== null && stageOpened.stage === stage && at - stageOpened.at <= LINGER_MS;
+    if (parsed.isDraft && offers.length === 3 && leaving) {
+      // The first frames of a new choice still show the picked card in its place, even when all three names read
+      // (2026-10-18 review: "d, b, e" with the picked b fading out was shown, and b recommended); while cards deal
+      // in, no card of the previous choice is a new card yet.
+      const partial = readableIds().length < 3;
+      // Once the lingering card is known, only it is the pick; another card of the last choice in its old place is offered again.
+      const pick = leaving.pick ?? (lingerCandidate?.set === leaving ? lingerCandidate.itemId : null);
+      offers = offers.map(offer => offer.itemId && (newChoice && leaving.byPosition[offer.position] === offer.itemId && (pick === null || pick === offer.itemId)
+        || partial && (pick === null ? leaving.ids.includes(offer.itemId) : pick === offer.itemId)) ? unreadOffer(offer.position) : offer);
     }
-    // Small "RARE!" / "ENHANCED" labels are not read on every frame; once read, they stay
-    // with that same card.
-    if (shown) offers = offers.map(offer => {
-      const previous = state.offers.find(entry => entry.position === offer.position && entry.itemId === offer.itemId && !!offer.itemId);
-      if (!previous) return offer;
-      return { ...offer, ...(previous.rare && !offer.rare ? { rare: true } : {}),
-        ...(previous.variant === 'enhanced' && offer.variant !== 'enhanced' ? { variant: 'enhanced' as const } : {}) };
-    });
-    const readableColumns = parsed.isDraft && offers.length === 3
-      && new Set(offers.map(offer => offer.position)).size === 3
-      && offers.every(offer => [0, 1, 2].includes(offer.position))
-      && offers.filter(offer => offer.itemId).length >= 2
-      // The same item on two cards is a half-drawn reveal/reroll animation, not a real set.
-      && new Set(offers.filter(offer => offer.itemId).map(offer => offer.itemId)).size === offers.filter(offer => offer.itemId).length;
-    note('parse', { isDraft: parsed.isDraft, message: parsed.message, offers: offers.map(offer => offer.name), readable: readableColumns });
-    const changed = shown && parsed.offers.some(offer => offer.itemId
-      && state.offers.find(previous => previous.position === offer.position)?.itemId !== offer.itemId);
-    if (!readableColumns && changed) {
-      // A pick or reroll replaced the cards; never leave the old pick on screen.
-      clearDecision('New item choices appeared. Reading them…', 'reading');
-      note('decision', 'cards changed; old cards withdrawn');
+    const closing = closingSet && at - closingSet.at <= LINGER_MS ? closingSet.set : null;
+    if (parsed.isDraft && offers.length === 3 && closing && !shown && readableIds().length < 3
+      && offers.every(offer => !offer.itemId || closing.byPosition[offer.position] === offer.itemId)) {
+      // Right after a draft closes, the lingering pick is not a new draft of one card.
+      note('decision', 'leftover card of the closed draft ignored');
       return;
     }
-    if (!readableColumns) {
+    const ids = readableIds();
+    const readable = parsed.isDraft && offers.length === 3 && new Set(offers.map(offer => offer.position)).size === 3
+      && offers.every(offer => [0, 1, 2].includes(offer.position)) && ids.length >= 1
+      // The same item on two cards is a half-drawn reveal/reroll animation, not a real set.
+      && new Set(ids).size === ids.length;
+    note('parse', { isDraft: parsed.isDraft, message: parsed.message, offers: offers.map(offer => offer.name), readable });
+    if (!readable) {
       // One unreadable frame inside an open draft is not a new draft: keep the shown cards.
       if (shown && parsed.isDraft) { note('decision', 'kept shown cards through unreadable frame'); return; }
       if (shown) { note('decision', 'kept shown cards; awaiting draft-close confirmation'); return; }
@@ -655,43 +775,123 @@ export function createScreenReader(options: ScreenReaderOptions) {
       publish({ calibrationRequired: false });
       return;
     }
-    const signature = JSON.stringify([...offers].sort((a, b) => a.position - b.position).map(offer => [offer.position, offer.itemId]));
-    const sameCards = shown && candidate?.signature === signature;
-    if (!sameCards) candidate = { signature, count: 1, lastSeenAt: reply.capturedAt!, context: { heroId: parsed.heroId, round: parsed.round, rerolls: parsed.rerolls } };
-    else if (reply.capturedAt! > candidate!.lastSeenAt) { candidate!.count++; candidate!.lastSeenAt = reply.capturedAt!; }
-    note('decision', sameCards ? `same cards (seen ${candidate!.count}x)` : 'new cards shown');
-    displayParsed({ ...parsed, offers }, reply, sameCards ? state.generation : state.generation + 1);
+    const previousAt = (position: number) => shown ? state.offers.find(entry => entry.position === position) : undefined;
+    const conflicts = offers.filter(offer => offer.itemId && previousAt(offer.position)?.itemId && previousAt(offer.position)!.itemId !== offer.itemId);
+    const agreements = offers.filter(offer => offer.itemId && previousAt(offer.position)?.itemId === offer.itemId);
+    let generation = state.generation;
+    if (!shown) {
+      pendingReplace = null; generation++;
+      note('decision', ids.length === 3 ? 'new cards shown' : 'new cards shown (' + ids.length + ' of 3 readable)');
+    } else if (!conflicts.length) {
+      pendingReplace = null;
+      // Same set: carry earlier readings into places this frame could not read.
+      offers = offers.map(offer => offer.itemId ? offer : previousAt(offer.position) ?? offer);
+      note('decision', offers.every(offer => offer.itemId) ? 'same cards' : 'same cards (partly read)');
+    } else {
+      const pairs = new Map(conflicts.map(offer => [offer.position, offer.itemId] as const));
+      const pending = pendingReplace;
+      const confirmed = !!pending && [...pairs].some(([position, itemId]) => pending.get(position) === itemId)
+        && [...pairs].every(([position, itemId]) => !pending.has(position) || pending.get(position) === itemId);
+      if (!confirmed) {
+        pendingReplace = pairs;
+        if (!agreements.length) {
+          // No shown card is still there: a pick or reroll is replacing the cards; never leave the old pick on screen.
+          // (A tooltip over one card leaves the other cards readable and agreeing.)
+          clearDecision('New item choices appeared. Reading them…', 'reading');
+          note('decision', 'cards changed; old cards withdrawn');
+        } else note('decision', 'one card read differently; waiting for a second read before replacing it');
+        return;
+      }
+      pendingReplace = null; generation++;
+      note('decision', 'changed cards confirmed by a second read');
+    }
+    // Small "RARE!" / "ENHANCED" / "BONUS!" labels are not read on every frame; once read, they stay with that same card.
+    if (shown) offers = offers.map(offer => {
+      const previous = state.offers.find(entry => entry.position === offer.position && entry.itemId === offer.itemId && !!offer.itemId);
+      if (!previous) return offer;
+      return { ...offer, ...(previous.rare && !offer.rare ? { rare: true } : {}),
+        ...(previous.variant === 'enhanced' && offer.variant !== 'enhanced' ? { variant: 'enhanced' as const } : {}),
+        ...(previous.bonusExpected && !offer.bonusExpected ? { bonusExpected: true } : {}) };
+    });
+    displayParsed({ ...parsed, offers }, reply, generation, stage);
   }
-  function displayParsed(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply, generation = state.generation) {
+  function displayParsed(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply, generation = state.generation, stage: number | null = null) {
     const context = state.matchContext;
     // A reroll replaces all three cards; one card finishing its reveal is not a reroll.
     const replaced = parsed.offers.filter(offer => offer.itemId && state.offers.some(previous => previous.position === offer.position && previous.itemId && previous.itemId !== offer.itemId)).length;
     trackRerolls(parsed, reply, generation !== state.generation && replaced >= 2);
-    const advice = adviceFor(parsed, context);
+    let advice = adviceFor(parsed, context);
+    const ids = parsed.offers.filter(offer => offer.itemId).map(offer => offer.itemId);
+    // One readable card of three is no basis for a pick: show it, and wait for the others.
+    if (advice && ids.length < 2) advice = { ...advice, preferredPosition: null, title: 'Reading the other cards…' };
     lastCardParse = parsed;
-    note('advice', advice ? { preferred: advice.preferredPosition, title: advice.title, reroll: advice.rerollReason } : null);
-    publish({ generation, status: 'ready', message: parsed.offers.some(offer => !offer.itemId) ? 'One card could not be read; check it in game.'
-      : 'Item choices read from the game screen.',
-      offers: parsed.offers, advice, heroId: roster.snapshot().localHeroId ?? context.localHeroId ?? parsed.heroId, observedAt: reply.capturedAt,
+    const currentStage = stage ?? (rerolls.stage === null ? null : Number(rerolls.stage));
+    if (choiceSet && choiceSet.stage !== null && currentStage !== null && choiceSet.stage !== currentStage) previousChoiceSet = choiceSet;
+    const byPosition = [0, 1, 2].map(position => parsed.offers.find(offer => offer.position === position)?.itemId ?? '');
+    if (choiceSet && choiceSet.stage === currentStage) { choiceSet.ids = ids; choiceSet.byPosition = byPosition; choiceSet.round = context.round; }
+    else choiceSet = { stage: currentStage, round: context.round, ids, byPosition, credited: false };
+    closingSet = null;
+    note('advice', advice ? { preferred: advice.preferredPosition, title: advice.title, reroll: advice.rerollReason, choice: rerolls.stage } : null);
+    const unread = parsed.offers.filter(offer => !offer.itemId).length;
+    publish({ generation, status: 'ready', message: unread === 0 ? 'Item choices read from the game screen.'
+      : unread === 1 && parsed.offers.some(offer => offer.name === 'Ambiguous item name' || offer.warning === 'The main item name was not recognized.')
+        ? 'One card could not be read; check it in game.' : 'Reading the other cards…',
+      offers: parsed.offers, advice, heroId: currentLocalHero(roster.snapshot(), context.localHeroId, context.observations.localHeroId?.capturedAt, parsed.heroId), observedAt: reply.capturedAt,
       calibrationRequired: false });
     armExpiry(reply.capturedAt!);
   }
+  /**
+   * The picked card lingers in its place while the next "Choice N of 3" deals in, and after the last choice while
+   * the draft closes (real 2026-10-18 frames): credit it to your build, since the inventory read can miss its slot
+   * for the rest of the match. Only a card read in its own place, alone of its set, on two reads counts (an
+   * unpicked card is gone at once; a card offered again shows elsewhere or with the other new cards).
+   */
+  function observeLeaving(set: ChoiceSet | null, blocks: NativeOcrBlock[], reply: NormalizedNativeReply) {
+    if (!set || set.credited || set.byPosition.filter(Boolean).length < 3) return;
+    const crop = reply.crop ?? { ...DEFAULT_CAPTURE_REGION };
+    const aspect = reply.clientWidth / Math.max(1, reply.clientHeight);
+    const inPlace = new Set(namedItemCenters(blocks, options.catalog, set.ids)
+      .filter(entry => { const slot = cardSlotAt(crop.x + entry.x * crop.width, aspect); return slot !== null && set.byPosition[slot] === entry.itemId; })
+      .map(entry => entry.itemId));
+    if (inPlace.size !== 1) { if (inPlace.size > 1) lingerCandidate = null; return; }
+    const itemId = [...inPlace][0]!;
+    lingerCandidate = lingerCandidate && lingerCandidate.set === set && lingerCandidate.itemId === itemId
+      ? { ...lingerCandidate, count: lingerCandidate.count + 1 } : { set, itemId, count: 1 };
+    if (lingerCandidate.count < 2) return;
+    set.credited = true; set.pick = itemId; lingerCandidate = null;
+    build.creditPick(itemId);
+    publish({ build: build.snapshot() });
+    note('pick', itemId);
+  }
   function applyGameReply(reply: NormalizedNativeReply, operation: Operation, isHint: boolean, debug: boolean, isFooter: boolean) {
     if (reply.synthetic) throw new ReaderFailure('protocol');
-    publish({ gamePresent: reply.gamePresent, foreground: reply.foreground });
+    const bounds = reply.gamePresent && reply.clientLeft != null && reply.clientTop != null && reply.clientWidth > 0 && reply.clientHeight > 0
+      ? { x: reply.clientLeft, y: reply.clientTop, width: reply.clientWidth, height: reply.clientHeight } : null;
+    const old = state.gameBounds ?? null;
+    const boundsChanged = !old !== !bounds || !!old && !!bounds && (old.x !== bounds.x || old.y !== bounds.y || old.width !== bounds.width || old.height !== bounds.height);
+    publish({ gamePresent: reply.gamePresent, foreground: reply.foreground, ...(boundsChanged ? { gameBounds: bounds } : {}) });
     if (!reply.gamePresent) {
-      roster.reset(); build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null;
-      if (state.roster || state.build) publish({ roster: null, rerollsLeft: null, build: null, abilityPlan: null });
-      draftHint = false; hintAt = null; fullReadDue = false;
+      absentSince ??= wallNow();
+      if (wallNow() - absentSince >= GAME_GONE_MS) {
+        roster.reset(); build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null;
+        forgetChoices();
+        if (state.roster || state.build) publish({ roster: null, rerollsLeft: null, build: null, abilityPlan: null, insights: null, abilityPoints: null });
+        lastInsightsKey = null;
+      }
+      draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; backgroundReadable = false;
       if (state.matchContext.sessionId !== null) fence('Waiting for Deadlock.', 'waiting-game');
       else clearDecision('Waiting for Deadlock.', 'waiting-game');
       publish({ abilityAdvice: null });
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
       return;
     }
+    absentSince = null;
     const cardsShown = state.status === 'ready' && state.offers.length > 0;
-    if (!reply.foreground) {
-      fullReadDue = false;
+    // A helper that can capture the game behind other windows (after checking nothing covers it) answers ok
+    // without focus: keep reading then. Today's helper answers not_foreground and the reader pauses as before.
+    backgroundReadable = !reply.foreground && (reply.status === 'ok' || reply.status === 'unchanged');
+    if (!reply.foreground && reply.status === 'not_foreground') {
+      fullReadDue = false; panelReadDue = false;
       // Looking at the companion moves focus away from the game. The cards just read
       // are still the cards in the game; keep them until they expire or change.
       if (cardsShown) { note('decision', 'game not in foreground; kept shown cards'); publish({ foreground: false }); }
@@ -734,26 +934,75 @@ export function createScreenReader(options: ScreenReaderOptions) {
       publish({ previewDataUrl: reply.previewPng ? `data:image/png;base64,${reply.previewPng}` : null,
         message: reply.previewPng ? 'Reading-area preview captured. Return here to adjust the area if needed.' : 'The reader did not return a preview.' });
     }
+    // The loading screen names your hero ("JOINING THE FIGHT AS … | INFERNUS") only in the middle of
+    // the screen, outside the cheap strips: read the whole window next.
+    if (reply.blocks.some(block => /JOININGTHEFIGHT/.test(block.text.toUpperCase().replace(/[^A-Z]/g, '')))) nextContextDiscoveryAt = Math.min(nextContextDiscoveryAt, wallNow());
+    const parserBlocks = blocksForScreenParser(reply);
+    const currentDraftCue = detectDraftHint(parserBlocks);
     const epochBefore = roster.snapshot().epoch;
-    roster.observe(reply.context, reply.blocks.flatMap(block => block.bounds ? [{ text: block.text, bounds: block.bounds }] : []), epochNow());
+    roster.observe(reply.context, reply.blocks.flatMap(block => block.bounds ? [{ text: block.text, bounds: block.bounds }] : []), epochNow(),
+      reply.clientWidth / reply.clientHeight);
     const known = roster.snapshot();
     // A new match (new match number, a different own hero, or a long gap) means the old
     // build and reroll count belong to the previous match.
-    if (known.epoch !== epochBefore) { build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null; }
-    build.observe(reply.context?.brawl);
+    if (known.epoch !== epochBefore) {
+      build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null;
+      forgetChoices();
+      // The old match's round, score and draft stage too (keeping the reader session: this frame is the new match's).
+      const forgotten = forgetMatchRound(state.matchContext);
+      if (forgotten !== state.matchContext) publish({ matchContext: forgotten });
+    }
+    const frameAt = reply.capturedAt ?? epochNow();
+    const stage = draftChoiceStage(parserBlocks);
+    if (stage !== null && stageOpened?.stage !== stage) stageOpened = { stage, at: frameAt };
+    // The third pick lingers in its place for a moment after the draft closes.
+    if (closingSet && frameAt - closingSet.at <= LINGER_MS) observeLeaving(closingSet.set, parserBlocks, reply);
+    const spectating = deathScreen(reply, currentDraftCue);
+    const draftPanel = currentDraftCue || reply.context?.panel === 'draft';
+    // The round title of this frame first updates the match state, so your ability budget uses this round.
+    if (currentDraftCue) cueMisses = 0;
+    const matchReadable = consumeMatchReply(reply, currentDraftCue);
+    // After the match (awards, vote, summary, hideout) the HUD on screen is not yours: the last build stays as it was.
+    const outside = known.phase === 'outside' && !currentDraftCue;
+    if (!outside) {
+      build.observe(reply.context?.brawl, { round: state.matchContext.round, points: reply.context?.abilityPoints?.value ?? null, draft: draftPanel },
+        { spectating, at: reply.capturedAt ?? epochNow() });
+    }
+    // While Tab is held the panel is up and upgrades happen: read the bottom strip at the read spacing
+    // instead of waiting for the next once-a-second cue scan.
+    panelReadDue = !draftPanel && !spectating && (!!reply.context?.brawl?.abilityRanks
+      || reply.blocks.some(block => /HOLDTABTOUPGRADE/.test(block.text.toUpperCase().replace(/[^A-Z]/g, ''))));
     const buildView = build.snapshot();
     if (JSON.stringify(buildView) !== JSON.stringify(state.build ?? null)) publish({ build: buildView });
     const plan = abilityPlan(known.localHeroId, buildView.abilityRanks);
     if (JSON.stringify(plan) !== JSON.stringify(state.abilityPlan ?? null)) publish({ abilityPlan: plan });
-    note('build', { mine: buildView.myItems.length, enemy: enemyItems().length, abilities: buildView.abilityRanks });
-    const rosterView = { seats: known.seats, localHeroId: known.localHeroId, localSide: known.localSide, allies: known.allies, enemies: known.enemies };
+    note('build', { mine: buildView.myItems.length, enemy: enemyItems().length, abilities: buildView.abilityRanks, spectating,
+      ...(build.abilityRejection() ? { abilityRejected: build.abilityRejection() } : {}) });
+    const rosterView = { seats: known.seats, localHeroId: known.localHeroId, localSide: known.localSide, allies: known.allies, enemies: known.enemies, phase: known.phase, since: known.since };
     if (JSON.stringify(rosterView) !== JSON.stringify(state.roster ?? null)) publish({ roster: rosterView });
     note('roster', rosterView);
-    const parserBlocks = blocksForScreenParser(reply);
-    const currentDraftCue = detectDraftHint(parserBlocks);
+    // Matchups and the draft wishlist only change with the hero, the enemy team, owned items or fresh statistics.
+    const insightEnemies = known.localSide === null ? [] : known.enemies;
+    const insightsKey = [known.localHeroId, insightEnemies.join(','), buildView.myItems.join(','), streetBrawlData().fetchedAt].join('|');
+    if (insightsKey !== lastInsightsKey) {
+      lastInsightsKey = insightsKey;
+      publish({ insights: matchInsights(known.localHeroId, insightEnemies, buildView.myItems) });
+    }
+    const unspent = reply.context?.abilityPoints?.value;
+    if (!outside && typeof unspent === 'number' && Number.isInteger(unspent) && unspent >= 0 && unspent <= 40 && reply.capturedAt !== null
+      && (state.abilityPoints?.value !== unspent || reply.capturedAt - state.abilityPoints.at > 15_000)) {
+      publish({ abilityPoints: { value: unspent, at: reply.capturedAt } });
+    }
     note('draftCue', currentDraftCue);
-    if (currentDraftCue) cueMisses = 0;
-    if (!consumeMatchReply(reply, currentDraftCue)) {
+    if (outside) {
+      // Between matches there are no cards to read: look less often (a new match announces itself with its
+      // loading screen, read on the next look) and say so once.
+      draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; scoreboardReadDue = false;
+      nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.outsideReadSpacingMs);
+      if (state.message !== OUTSIDE_MESSAGE || state.offers.length) clearDecision(OUTSIDE_MESSAGE, 'waiting-draft');
+      return;
+    }
+    if (!matchReadable) {
       draftHint = false; hintAt = null; fullReadDue = false;
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
       // A dead player is classified as a spectator, but still holds Tab to see the scoreboard.
@@ -765,6 +1014,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
       return;
     }
     if (isHint) {
+      // A draft just appeared: read its cards at the draft pace instead of after the usual spacing
+      // (still within the draft's duty share, so a slow hint read is not followed straight away).
+      if (currentDraftCue && !draftHint) { draftSeenAt = wallNow(); nextRequestAt = Math.min(nextRequestAt, Math.max(wallNow() + 50, draftPaceAt)); }
       draftHint = currentDraftCue;
       hintAt = draftHint ? reply.capturedAt : null;
       fullReadDue = draftHint;
@@ -781,6 +1033,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
         // misses, or at once when the game shows its own "Selects Complete" label.
         if (state.status !== 'ready' || cueMisses >= SCREEN_READER_LIMITS.draftCueMissesToClose || detectDraftClosed(parserBlocks)) {
           if (state.status === 'ready') note('decision', 'draft closed; cards withdrawn');
+          draftClosing(frameAt);
+          // The next draft is another choice: its own "Choice N of 3" label says which.
+          rerolls.stage = null;
           clearDecision('Waiting for the item-choice screen.', 'waiting-draft');
         } else note('decision', 'draft cue missed once; kept shown cards');
         nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
@@ -794,6 +1049,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     // unnecessary separate title scan, and cannot turn inventory names into a draft.
     if (currentDraftCue) {
       scoreboardReadDue = false;
+      if (!draftHint) draftSeenAt = wallNow();
       draftHint = true; hintAt = reply.capturedAt; lastHintStart = wallNow();
     }
     if (!draftHint || hintAt === null || epochNow() - hintAt >= SCREEN_READER_LIMITS.captureFreshnessMs) {
@@ -806,15 +1062,27 @@ export function createScreenReader(options: ScreenReaderOptions) {
       x: (icon.bounds.x - reply.crop!.x) / reply.crop!.width, y: (icon.bounds.y - reply.crop!.y) / reply.crop!.height,
       width: icon.bounds.width / reply.crop!.width, height: icon.bounds.height / reply.crop!.height,
     } }));
-    const parsed = parseScreenOffers(parserBlocks, options.catalog, { draftConfirmed: true, iconMatches: icons, conservativeUnmarkedDetails: true });
+    // Owned items predict which cards carry a "Bonus!" item (an upgrade of something you own).
+    let parsed = parseScreenOffers(parserBlocks, options.catalog, { draftConfirmed: true, iconMatches: icons, conservativeUnmarkedDetails: true,
+      aspect: reply.clientWidth / Math.max(1, reply.clientHeight), ...(reply.crop ? { crop: reply.crop } : {}),
+      ...(build.ownInventoryRead() ? { ownedItemIds: build.snapshot().myItems } : {}) });
+    // A frame with the draft's own labels ("CHOICE 2 OF 3", reroll button) but no readable card layout is still the
+    // draft (2026-10-18: such a frame said "panel no longer visible" for one read): wait for the next read.
+    if (!parsed.isDraft && currentDraftCue) parsed = { ...parsed, isDraft: true };
     if (!parsed.isDraft) { draftHint = false; hintAt = null; fullReadDue = false; }
     if (parsed.message === SELECTIONS_COMPLETE_MESSAGE) {
       // The game says the picks are done: the shown pick is no longer actionable.
       note('decision', 'selections complete; cards withdrawn');
+      draftClosing(frameAt);
+      observeLeaving(choiceSet, parserBlocks, reply);
       clearDecision('Waiting for the item-choice screen.', 'waiting-draft');
       return;
     }
-    acceptParsed(parsed, reply);
+    if (parsed.isDraft && stage !== null && stageOpened?.stage === stage
+      && (frameAt - stageOpened.at <= LINGER_MS || parsed.offers.filter(offer => offer.itemId).length < 3)) {
+      observeLeaving(setBefore(stage), parserBlocks, reply);
+    }
+    acceptParsed(parsed, reply, stage);
   }
 
   async function cycle() {
@@ -826,8 +1094,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
     let isFooter = false;
     let debug = false;
     let scoreboardRead = false;
+    let panelRead = false;
     if (!state.engineReady) { operation = 'fixture'; crop = { ...DEFAULT_CAPTURE_REGION }; }
-    else if (!state.gamePresent || !state.foreground) { operation = 'probe'; crop = hintCrop; }
+    else if (!state.gamePresent || !state.foreground && !backgroundReadable) { operation = 'probe'; crop = hintCrop; }
     else if (previewPending) { operation = 'read'; crop = state.crop; debug = true; }
     // A slower title read may consume its hint lifetime through cooldown. Hand
     // off one full capture before scoreboard work; its current cue is rechecked.
@@ -836,6 +1105,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
       operation = 'read'; crop = { ...MATCH_CONTEXT_REGION }; scoreboardReadDue = false;
       isHint = true; isFooter = true; lastHintStart = wallNow(); scoreboardRead = true;
     }
+    else if (panelReadDue && !draftHint && wallNow() - lastHintStart < SCREEN_READER_LIMITS.phaseSpacingMs) {
+      operation = 'read'; crop = { ...DRAFT_FOOTER_REGION }; panelReadDue = false; panelRead = true;
+    }
     else if (!draftHint || hintAt === null || wallNow() - lastHintStart >= SCREEN_READER_LIMITS.phaseSpacingMs) {
       if (wallNow() - lastHintStart < SCREEN_READER_LIMITS.phaseSpacingMs) { nextRequestAt = lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs; return; }
       operation = 'read'; crop = footerFallbackDue ? { ...DRAFT_FOOTER_REGION } : hintCrop;
@@ -843,7 +1115,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     } else { operation = 'read'; crop = draftCaptureRegion(state.crop); }
     // A once-per-second context refresh replaces a card read. The helper still
     // captures only this area, and keeps its two-megapixel acquisition bound.
-    if (operation === 'read' && !isHint && !debug && wallNow() - lastFullContextAt >= SCREEN_READER_LIMITS.phaseSpacingMs) {
+    if (operation === 'read' && !isHint && !debug && !panelRead && wallNow() - lastFullContextAt >= SCREEN_READER_LIMITS.phaseSpacingMs) {
       crop = { ...MATCH_CONTEXT_REGION };
     }
     // Recovery cannot depend on recognizing a cue in the cheap crops. Replace
@@ -856,15 +1128,19 @@ export function createScreenReader(options: ScreenReaderOptions) {
     if (contextEpoch !== epoch || !eligible() || stopping) return;
     // Occasionally keep a draft image so a misread can be replayed and fixed offline.
     // Draft card reads and full scoreboard (Tab) reads are the frames worth replaying.
-    let captureFrame = !!options.onDraftFrame && operation === 'read' && !debug && (draftHint && !isHint || scoreboardRead)
+    // None between matches (2026-10-18: post-match and hideout screens filled the frames folder).
+    const inMatch = draftHint || roster.snapshot().phase !== 'outside';
+    let captureFrame = !!options.onDraftFrame && operation === 'read' && !debug && inMatch
+      && (draftHint && !isHint && wallNow() - draftSeenAt >= SCREEN_READER_LIMITS.draftFrameQuietMs || scoreboardRead)
       && wallNow() - lastFrameCaptureAt >= SCREEN_READER_LIMITS.frameCaptureSpacingMs;
     // Also keep an occasional whole-window image so HUD, hero and item recognition can be checked offline.
-    const snapshot = !captureFrame && !!options.onDraftFrame && operation === 'read' && !debug && isHint
+    const snapshot = !captureFrame && !!options.onDraftFrame && operation === 'read' && !debug && isHint && inMatch
       && wallNow() - lastSnapshotAt >= SCREEN_READER_LIMITS.snapshotSpacingMs;
     if (snapshot) { crop = { ...MATCH_CONTEXT_REGION }; isFooter = true; captureFrame = true; lastSnapshotAt = wallNow(); }
     // Saved images are whole-window so they replay with true screen positions.
     if (captureFrame) { lastFrameCaptureAt = wallNow(); crop = { ...MATCH_CONTEXT_REGION }; }
-    trace = { at: new Date(epochNow()).toISOString(), op: operation, crop, hint: isHint, footer: isFooter, draftHint, scoreboard: scoreboardRead, frame: captureFrame };
+    trace = { at: new Date(epochNow()).toISOString(), op: operation, crop, hint: isHint, footer: isFooter, draftHint, scoreboard: scoreboardRead,
+      ...(panelRead ? { panelRead: true } : {}), frame: captureFrame, round: state.matchContext.round };
     try {
       const reply = await request(operation, crop, debug || captureFrame);
       if (contextEpoch !== epoch || !eligible() || stopping) return;
@@ -877,12 +1153,15 @@ export function createScreenReader(options: ScreenReaderOptions) {
           heroes: reply.context.heroes.filter(hero => hero.heroId).map(hero => `${hero.role === 'local' ? 'me' : hero.seat}:${hero.heroId}`),
           heroSlots: reply.context.heroes.length,
           items: reply.context.items.filter(item => item.itemId).map(item => `${item.role === 'local-inventory' ? 'me' : item.seat}:${item.itemId}`),
+          // The fixed-layout own inventory that feeds the build tracker (the list above is the older generic reader).
+          mine: reply.context.brawl?.myItems.map(item => `${item.slot}:${item.itemId}`) ?? null, occupied: reply.context.brawl?.myOccupied ?? null,
           itemSlots: reply.context.items.length,
-          abilities: reply.context.abilities.map(ability => ability.rank), ap: reply.context.abilityPoints?.value ?? null } : null,
+          abilities: reply.context.abilities.map(ability => ability.rank), ap: reply.context.abilityPoints?.value ?? null,
+          panelRanks: reply.context.brawl?.abilityRanks ?? null } : null,
         text: reply.blocks.map(block => block.text).join(' | ').slice(0, 1_500) });
       if (pressurePaused) return;
       if (operation === 'read' && crop.x === 0 && crop.y === 0 && crop.width === 1 && crop.height === 1
-        && reply.gamePresent && reply.foreground && fresh(reply) && ['ok', 'unchanged'].includes(reply.status)) {
+        && reply.gamePresent && fresh(reply) && ['ok', 'unchanged'].includes(reply.status)) {
         lastFullContextAt = startedAt;
         nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
       }
@@ -950,7 +1229,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
       }
       // This is a deliberate user restart. Use the same stop barrier and retry
       // reset as the Retry control; a timeout pause must not leave Resume inert.
-      state.enabled = true;
+      publish({ enabled: true });
       await retry();
       return;
     }
@@ -967,6 +1246,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     nextRequestAt = Math.max(nextRequestAt, wallNow()); schedule();
   }
   async function retry(): Promise<void> {
+    if (terminationFailed && (!helper || helper.exited)) terminationFailed = false;
     if (disposed || terminationFailed) return;
     clearTimer('loop'); fence(workloadPressured ? 'Screen reading paused while the game is under load.' : 'Preparing the screen reader again…',
       state.enabled && !workloadPressured ? 'starting' : 'paused');

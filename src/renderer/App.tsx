@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AppSettings, Catalog, CompanionBridge, DisplayInfo } from '../shared/types';
 import type { ScreenReaderState } from '../shared/screen-reading';
 import { DEFAULT_SETTINGS } from '../shared/settings';
-import { createBrowserBridge } from '../app/browser-bridge';
 import { newestScreenReaderState } from './screen-state';
 import { useReaderClock } from './clock';
 import { deriveView } from './view';
@@ -11,13 +10,14 @@ import { Emblem } from './components/Art';
 import { TopBar, MatchStrip } from './components/TopBar';
 import { Decision } from './components/Decision';
 import { Guide, Loadout, Teams } from './components/Loadout';
+import { Leveling } from './components/Leveling';
+import { Wishlist } from './components/Wishlist';
 import { Sheet } from './components/Sheet';
 import type { SheetTab } from './components/Sheet';
 
 declare global { interface Window { companion?: CompanionBridge } }
-const bridge = window.companion ?? createBrowserBridge();
 
-export function App() {
+export function App({ bridge }: { bridge: CompanionBridge }) {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [displays, setDisplays] = useState<DisplayInfo[]>([]);
@@ -36,7 +36,7 @@ export function App() {
       setCatalog(nextCatalog); setSettings(nextSettings); setDisplays(nextDisplays);
     }).catch(() => { if (mounted) setError('The companion could not start. Restart it.'); });
     return () => { mounted = false; unsubscribeReader(); };
-  }, []);
+  }, [bridge]);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--text-scale', String(Math.min(1.5, Math.max(0.8, settings.textScale))));
@@ -82,7 +82,9 @@ export function App() {
       {view.calibrationRequired && <button type="button" className="callout" onClick={() => openSheet('area')}>
         <strong>Adjust the reading area</strong><span>Include all three draft cards. Leave out your inventory and other menus.</span></button>}
       <Decision view={view} generation={shown?.generation ?? 0} onAction={onAction} />
+      <Leveling view={view} />
       <Loadout view={view} />
+      <Wishlist view={view} />
       <Teams view={view} />
       {!view.hasMatchData && <Guide />}
     </main>

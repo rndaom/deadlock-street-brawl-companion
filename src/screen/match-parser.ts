@@ -8,6 +8,7 @@ import {
   type ScreenInventoryItem, type ScreenMatchContext, type ScreenMatchObservation, type ScreenPlayerObservation,
 } from '../shared/screen-reading';
 import { detectDraftHint, normalizeOfferText, parseScreenOffers } from './offer-parser';
+import { isOutsideMatchText, isPostMatchText } from './draft-roster';
 
 export interface ScreenMatchParseOptions {
   sessionId: string;
@@ -21,6 +22,8 @@ export interface ScreenMatchParseOptions {
 interface Line { text: string; key: string; bounds: CaptureRegion; whole: boolean }
 interface Environment { sessionId: string; frameId: string; capturedAt: number; receivedAt: number; round: number | null }
 const FULL_CLIENT: CaptureRegion = { x: 0, y: 0, width: 1, height: 1 };
+// The five score pips under "ROUND N" (1920x1080 design px 898..1022, 78..90).
+const ROUND_PIP_STRIP: CaptureRegion = { x: 0.468, y: 0.072, width: 0.064, height: 0.011 };
 const QUALITY = 0.94;
 const MAX_ITEMS = 256;
 const MAX_TEXT = 512;
@@ -279,7 +282,9 @@ function uniqueNumber(lines: readonly Line[], pattern: RegExp, maximum: number, 
  * Source: SteamTracking4c6431cc panorama/{layout,styles}/citadel_hud_top_bar*,
  * hud.xml, hud_abilities*, and citadel_hud_ability_upgrade_pips*. */
 export function parseScreenMatchObservation(reply: NativeReadResult, catalog: Catalog, options: ScreenMatchParseOptions): ScreenMatchObservation | null {
-  if (!reply || reply.protocol !== 1 || !reply.gamePresent || !reply.foreground || !['ok', 'unchanged'].includes(reply.status)
+  // A capture of a game behind other windows (status ok without focus) is as good as a focused one: the helper
+  // only returns ok after it has checked that nothing covers the game.
+  if (!reply || reply.protocol !== 1 || !reply.gamePresent || !['ok', 'unchanged'].includes(reply.status)
     || (reply as NativeReadResult & { synthetic?: boolean }).synthetic === true
     || !Array.isArray(reply.blocks) || !catalog || !Array.isArray(catalog.heroes) || !Array.isArray(catalog.items)
     || typeof options?.sessionId !== 'string' || !options.sessionId || options.sessionId.length > 128
@@ -303,22 +308,36 @@ export function parseScreenMatchObservation(reply: NativeReadResult, catalog: Ca
   const spectator = (context as NativeScreenContext & { viewMode?: string } | undefined)?.viewMode === 'spectator'
     || lines.some(line => SPECTATOR.test(line.key));
   // The source round title is centered between teams; per-player labels and chat are excluded.
+  // Street Brawl has at most 2 * scoreToWin - 1 rounds: a "ROUND 13" misread (2026-10-18) is not a round.
   const round = uniqueNumber(lines.filter(line => line.whole && centerY(line.bounds) < 0.18
     && centerX(line.bounds) >= 0.45 && centerX(line.bounds) <= 0.55 && line.bounds.width <= 0.20
-    && line.bounds.height >= 0.01), /^round\s+(\d{1,2})$/, 20, 1);
+    && line.bounds.height >= 0.01), /^round\s+(\d{1,2})$/, Math.max(1, 2 * (CONTEXT_CATALOG.streetBrawl.scoreToWin || 3) - 1), 1);
   const env: Environment = { sessionId: options.sessionId, frameId: reply.id, capturedAt: reply.capturedAt,
     receivedAt: options.receivedAt, round: round?.value ?? null };
   const result: ScreenMatchObservation = { sessionId: env.sessionId, frameId: env.frameId, capturedAt: env.capturedAt,
     receivedAt: env.receivedAt, fields: {} };
   if (typeof context?.sessionId === 'string' && context.sessionId.length > 0 && context.sessionId.length <= 128) result.gameSessionId = context.sessionId;
   if (round) { result.round = round.value; result.fields!.round = evidence(env, 'visible-text', 1, round.bounds); }
+  // Round wins are the filled pips under the round title. The native reader only sends them when it
+  // has proven the title from its cream lettering on the same frame (OCR reads the title on few
+  // frames), so a menu or replay screen cannot set a score.
+  const pips = context?.brawl?.roundPips;
+  if (Array.isArray(pips) && pips.length === 2 && pips.every(value => Number.isInteger(value) && value >= 0 && value <= 3)) {
+    result.scores = [pips[0], pips[1]];
+    result.fields!.scores = evidence(env, 'layout-association', 1, round?.bounds ?? [ROUND_PIP_STRIP]);
+  }
   // Brawl can display victory/defeat for a round; those words alone do not end a match.
   const finishTitles = lines.filter(line => line.whole && /^(?:match complete|match finished)$/.test(line.key)
     && line.bounds.width >= 0.12 && line.bounds.height >= 0.03 && centerX(line.bounds) > 0.25
     && centerX(line.bounds) < 0.75 && centerY(line.bounds) > 0.12 && centerY(line.bounds) < 0.65);
   const draftTitles = lines.filter(line => line.whole && /^select\s*items\s*:?$/.test(line.key)
     && line.bounds.width >= 0.08 && line.bounds.height >= 0.026 && line.bounds.height < 0.15 && centerY(line.bounds) < 0.65);
-  const finished = context?.panel === 'post-match' || finishTitles.length > 0;
+  // The awards/vote/summary screens after the last round (2026-10-18) end the match as well.
+  // Only screen text of their size and place: a player named "KeyPlayer" (small scoreboard text) or "play again"
+  // in the chat (lower left) is not the end of the match.
+  const postMatchText = lines.some(line => isPostMatchText(line.key) && line.bounds.height >= 0.015
+    && centerX(line.bounds) > 0.15 && centerX(line.bounds) < 0.85 && !(centerX(line.bounds) < 0.35 && centerY(line.bounds) > 0.5));
+  const finished = context?.panel === 'post-match' || finishTitles.length > 0 || postMatchText;
   // A portrait match only establishes a HUD surface, not that a draft has closed.
   // Use the same current source controls and three-card geometry as the offer
   // parser when the large title is unread. No retained hint establishes this phase.
@@ -391,7 +410,10 @@ export function parseScreenMatchObservation(reply: NativeReadResult, catalog: Ca
   const priorBrawlMode = !!previous && previous.phase !== 'finished'
     && (previous.round !== null && priorModeEvidence(previous.observations.round)
       || previous.phase === 'draft' && priorModeEvidence(previous.observations.phase));
-  const brawl = !twelveColumns && (columns.length === 8 || !!round || draft
+  // The hideout shows a top bar, your practice hero's HUD and an 8-seat scoreboard: its queue and
+  // HUD text ("FINDING STREET BRAWL", "ITEM VALUE") mean no match is running.
+  const outsideMatch = reply.blocks.some(block => typeof block.text === 'string' && isOutsideMatchText(block.text));
+  const brawl = !twelveColumns && !outsideMatch && (columns.length === 8 || !!round || draft
     || !nativeUnsupported && rosterCounts.includes(8)
     || !nativeUnsupported && priorBrawlMode
     || !nativeUnsupported && priorOwnershipFresh && (previous.players.length === 8 || previous.round !== null || previous.phase === 'draft'));

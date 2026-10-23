@@ -298,6 +298,14 @@ describe('own-view association', () => {
     expect(result).toMatchObject({ viewMode: 'participant', localHeroId: ownHero, localSeat: 2, localTeam: 0 });
     expect(result.fields?.viewMode?.method).toBe('layout-association');
   });
+  it('never takes the hideout practice hero as yours (queue / hideout HUD text on screen)', () => {
+    expect(parse(reply(ownContext(), { blocks: [block('830', 0.05, 0.03, 0.2, 0.03)] }))).toMatchObject({ viewMode: 'participant', localHeroId: ownHero });
+    for (const cue of ['FINDING STREET BRAWL', 'ITEM VALUE']) {
+      const result = parse(reply(ownContext(), { blocks: [block(cue, 0.05, 0.03, 0.2, 0.03)] }))!;
+      expect(result.localHeroId ?? null).toBeNull();
+      expect(result.viewMode).not.toBe('participant');
+    }
+  });
   it('never calls a roster name/hero uniqueness or an active-view candidate own', () => {
     const value = context(); value.heroes.push(localHero());
     value.regions.push({ kind: 'local-hero', bounds: { x: 0.36, y: 0.77, width: 0.28, height: 0.22 }, complete: true });
@@ -536,6 +544,32 @@ describe('explicit round/draft fields and capture provenance', () => {
     expect(result.deadlineAt).toBeUndefined(); expect(result.matchId).toBeUndefined();
     expect(result.fields?.round).toMatchObject({ capturedAt: 10_000, receivedAt: 10_050, round: 4 });
   });
+  it('takes the native round-win pips as the score, with or without the OCR round title', () => {
+    // The native reader sends pips only after proving the title from its lettering; OCR reads the title on few frames.
+    const pips = (roundPips: [number, number]) => context({ brawl: { myItems: [], playerItems: [], abilityRanks: null, hiddenItems: 0, roundPips } });
+    const scored = parse(reply(pips([2, 0]), { blocks: [block('ROUND 3', 0.46, 0.055, 0.08, 0.025)] }))!;
+    expect(scored.scores).toEqual([2, 0]);
+    expect(scored.fields?.scores).toMatchObject({ capturedAt: 10_000, confidence: 1 });
+    const untitled = parse(reply(pips([1, 1]), { blocks: [] }))!;
+    expect(untitled.scores).toEqual([1, 1]);
+    expect(untitled.fields?.scores?.bounds.length).toBe(1);
+    const impossible = parse(reply(pips([4, 0]), { blocks: [] }))!;
+    expect(impossible.scores).toBeUndefined();
+  });
+  it('rejects a round beyond the last possible Street Brawl round (a "ROUND 13" misread, 2026-10-18 18:29)', () => {
+    expect(parse(reply(context(), { blocks: [block('ROUND 13', 0.46, 0.055, 0.08, 0.025)] }))?.round).toBeUndefined();
+    expect(parse(reply(context(), { blocks: [block('ROUND 6', 0.46, 0.055, 0.08, 0.025)] }))?.round).toBeUndefined();
+    expect(parse(reply(context(), { blocks: [block('ROUND 5', 0.46, 0.055, 0.08, 0.025)] }))?.round).toBe(5);
+  });
+  it('ends the match on the awards, vote and summary screens (2026-10-18)', () => {
+    for (const text of ['THE VOTES ARE IN...', "WINNER'S BONUS", '3 players commended', 'PLAY AGAIN']) {
+      expect(parse(reply(context(), { blocks: [block(text, 0.4, 0.2, 0.2, 0.04)] }))?.phase).toBe('finished');
+    }
+    expect(parse(reply(context(), { blocks: [block('RECOMMENDED', 0.4, 0.2, 0.2, 0.04)] }))?.phase).not.toBe('finished');
+    // A player named "KeyPlayer" on the scoreboard, and "play again" typed in the chat, are not the post-match screen.
+    expect(parse(reply(context(), { blocks: [block('KeyPlayer', 0.3, 0.12, 0.05, 0.01)] }))?.phase).not.toBe('finished');
+    expect(parse(reply(context(), { blocks: [block('[ALL] rndaom: play again?', 0.02, 0.7, 0.2, 0.02)] }))?.phase).not.toBe('finished');
+  });
   it('does not infer round/AP/pick budget from the catalog schedule or arbitrary labels', () => {
     const result = parse(reply(context(), { blocks: [block('Round 5', 0.02, 0.6), block('Match ID: 314159', 0.03, 0.7),
       block('Select Items', 0.03, 0.74, 0.08, 0.014), block('Victory', 0.05, 0.09), block('Defeat', 0.1, 0.7)] }))!;
@@ -550,7 +584,7 @@ describe('explicit round/draft fields and capture provenance', () => {
     expect(parse(reply(context({ panel: 'draft', viewMode: 'spectator' }), { blocks }))?.pickStage).toBeUndefined();
   });
   it('rejects absent game, background, failed, stale, future and synthetic frames', () => {
-    for (const change of [{ gamePresent: false }, { foreground: false }, { status: 'timeout' }, { hash: null },
+    for (const change of [{ gamePresent: false }, { foreground: false, status: 'not_foreground' }, { status: 'timeout' }, { hash: null },
       { capturedAt: null }, { clientWidth: Number.NaN }]) expect(parse(reply(context(), change))).toBeNull();
     // A reply that arrives a full freshness window after its capture no longer describes the game; one just inside still does.
     expect(parse(reply(context()), { receivedAt: 10_000 + SCREEN_CAPTURE_FRESHNESS_MS })).toBeNull();
@@ -558,6 +592,8 @@ describe('explicit round/draft fields and capture provenance', () => {
     expect(parse(reply(context()), { receivedAt: 9_999 })).toBeNull();
     expect(parse({ ...reply(context()), synthetic: true } as NativeReadResult)).toBeNull();
     expect(parse(reply(context(), { status: 'unchanged' }))).not.toBeNull();
+    // A helper that captured the game behind other windows (nothing covering it) answers ok without focus.
+    expect(parse(reply(context(), { foreground: false }))).not.toBeNull();
   });
   it('uses source capture time, leaves change-time derivation to the reducer and never mutates input', () => {
     const input = reply(withItems([localItem(0)])); const before = structuredClone(input);

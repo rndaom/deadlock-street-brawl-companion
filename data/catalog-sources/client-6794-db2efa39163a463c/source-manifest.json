@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "clientVersion": 6794,
+  "sources": [
+    {
+      "name": "openapi",
+      "url": "https://api.deadlock-api.com/openapi.json",
+      "retrievedAt": "2026-10-17T22:47:56.331Z",
+      "bytes": 471100,
+      "sha256": "180293fe4da0e5aa3643c8467b79d2fded29467e5ef187f1be063d425693e7e1",
+      "cacheAgeSeconds": null,
+      "lastModified": null,
+      "cacheControl": null,
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "steam-info",
+      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6794",
+      "retrievedAt": "2026-10-17T22:47:56.473Z",
+      "bytes": 253,
+      "sha256": "b9bb822c4bb31e31047f062def1923b11175c1a995684c9afa210f86c7f25b7f",
+      "cacheAgeSeconds": null,
+      "lastModified": "Sat, 17 Oct 2026 22:47:54 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "items",
+      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6794",
+      "retrievedAt": "2026-10-17T22:47:56.561Z",
+      "bytes": 6378476,
+      "sha256": "1f6fc3760e03addf2c918d7ee3b9ef59705668258ba3a7b1d0d44f04c6bb7b34",
+      "cacheAgeSeconds": 1961,
+      "lastModified": "Sat, 17 Oct 2026 22:45:39 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "heroes",
+      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6794",
+      "retrievedAt": "2026-10-17T22:47:56.615Z",
+      "bytes": 1900896,
+      "sha256": "0a987618e380a677e5635f5bb85eac72c151a5136791441fa6630a3d0ba50964",
+      "cacheAgeSeconds": 1961,
+      "lastModified": "Sat, 17 Oct 2026 22:39:42 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    },
+    {
+      "name": "generic-data",
+      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6794",
+      "retrievedAt": "2026-10-17T22:47:56.590Z",
+      "bytes": 25246,
+      "sha256": "c79251babef7812fc27d20a6154fe9f39355fc6ce659a79a6fbd3c910df7e396",
+      "cacheAgeSeconds": 134,
+      "lastModified": "Sat, 17 Oct 2026 22:45:40 GMT",
+      "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
+      "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
+    }
+  ]
+}

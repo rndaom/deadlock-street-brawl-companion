@@ -24,7 +24,9 @@ internal sealed record Reply(
   long? CapturedAt, double ElapsedMs, string? Hash, IReadOnlyList<OcrBlock> Blocks,
   bool OcrAvailable, string? OcrLanguage, NormalizedRect? Crop = null, ImageMetrics? Metrics = null,
   string? ErrorCode = null, bool Synthetic = false, bool Unchanged = false, string? PreviewPngBase64 = null,
-  IReadOnlyList<IconMatchRecord>? Icons = null, NativeContext? Context = null);
+  IReadOnlyList<IconMatchRecord>? Icons = null, NativeContext? Context = null,
+  // Screen position of the game client (physical pixels), so the companion can place its overlay.
+  int? ClientLeft = null, int? ClientTop = null);
 internal sealed record CachedOcr(string Hash, NormalizedRect Crop, int Width, int Height, bool Synthetic, uint GameProcessId, nint GameHandle, IReadOnlyList<OcrBlock> Blocks, IReadOnlyList<IconMatchRecord> Icons, NativeContext? Context, int FineCoverage = 0, IReadOnlyList<NormalizedRect>? NumericCoverage = null);
 internal readonly record struct GameWindow(nint Handle, uint ProcessId, Rectangle Client, string Status, bool Present, bool Foreground);
 
@@ -181,7 +183,11 @@ internal static class Program
         with { AffinityLimited = _affinityLimited, OcrMs = Math.Round(watch.Elapsed.TotalMilliseconds, 2) };
       var request = new Request($"review-image-{index + 1}", "fixture", crop, Context: true);
       var game = new GameWindow(0, 0, new Rectangle(0, 0, clientWidth, clientHeight), "ok", false, false);
-      var reply = Response("ok", game, request, watch, null, hash, blocks, true, crop, metrics, context: context);
+      // Bonus! card icons, as the live read does, so a saved draft frame replays them too.
+      IReadOnlyList<IconMatchRecord> icons = IconMatcher.HasBonusLabel(blocks)
+        ? _iconMatcher?.FindBonusIcons(bitmap, blocks, crop) ?? IconMatcher.InferUnresolvedBonusSlots(bitmap, blocks, crop)
+        : _iconMatcher is not null && IconMatcher.HasDraftText(blocks) ? _iconMatcher.FindCardBonusIcons(bitmap, crop, clientWidth, clientHeight) : [];
+      var reply = Response("ok", game, request, watch, null, hash, blocks, true, crop, metrics, icons: icons, context: context);
       await Console.Out.WriteLineAsync(JsonSerializer.Serialize(reply, Json)); await Console.Out.FlushAsync();
       await Task.Delay(Math.Max(500, (int)Math.Ceiling(watch.Elapsed.TotalMilliseconds * 4)));
     }
@@ -352,11 +358,13 @@ internal static class Program
       blocks=refinement.Blocks;
       var ocrMs=ocrWatch.Elapsed.TotalMilliseconds;
       IReadOnlyList<IconMatchRecord> icons = [];
-      if (blocks.Any(block => block.Text.Contains("Bonus", StringComparison.OrdinalIgnoreCase)))
+      if (IconMatcher.HasBonusLabel(blocks))
       {
         icons = _iconMatcher?.FindBonusIcons(bitmap, blocks, actualCrop)
           ?? IconMatcher.InferUnresolvedBonusSlots(bitmap, blocks, actualCrop);
       }
+      else if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks))
+        icons = _iconMatcher.FindCardBonusIcons(bitmap, actualCrop, game.Client.Width, game.Client.Height);
       var context = request.Context ? _matchReader?.Read(pixels, imageWidth, imageHeight, actualCrop, game.Client.Width, game.Client.Height,
         blocks, synthetic ? "synthetic-fixture" : _gameSession) : null;
       var numbersWatch=Stopwatch.StartNew();
@@ -403,7 +411,8 @@ internal static class Program
     }
     return new(1, request.Id, status, game.Present, game.Foreground, game.Client.Width, game.Client.Height, capturedAt,
       Math.Round(watch.Elapsed.TotalMilliseconds, 2), hash, blocks, available, _engine?.RecognizerLanguage.LanguageTag,
-      crop, metrics, error, synthetic, unchanged, preview, icons, context);
+      crop, metrics, error, synthetic, unchanged, preview, icons, context,
+      game.Present ? game.Client.X : null, game.Present ? game.Client.Y : null);
   }
 
   private static void ClearCachedText() { Cache.Clear(); }
@@ -568,7 +577,7 @@ internal static class Program
     // Four copies are one observation and never increase confidence. Disagreement stays unknown.
     const int cellWidth=180,cellHeight=76,copies=4;
     using var canvas=new Bitmap(cellWidth*copies,cellHeight*regions.Length,PixelFormat.Format32bppArgb);
-    var placements=new List<(NormalizedRect Bounds,Rectangle[] Copies)>();
+    var placements=new List<(NormalizedRect Bounds,Rectangle[] Copies,bool Teal)>();
     using(var graphics=Graphics.FromImage(canvas))
     {
       graphics.Clear(Color.Black);graphics.InterpolationMode=InterpolationMode.HighQualityBicubic;
@@ -583,6 +592,13 @@ internal static class Program
         using(var patchGraphics=Graphics.FromImage(patch))
         {patchGraphics.InterpolationMode=InterpolationMode.HighQualityBicubic;patchGraphics.DrawImage(captured,new Rectangle(0,0,width,height),source,GraphicsUnit.Pixel);}
         var patchPixels=Pixels(patch);int left=width,top=height,right=0,bottom=0;
+        // The teal AP amount is binarised by its colour (white digits on black), so the OCR sees plain glyphs.
+        if(regions[index].Teal)
+        {
+          for(int offset=0;offset<patchPixels.Length;offset+=4)
+          {byte value=NativeMatchReader.Teal(patchPixels[offset+2],patchPixels[offset+1],patchPixels[offset])?(byte)255:(byte)0;patchPixels[offset]=patchPixels[offset+1]=patchPixels[offset+2]=value;patchPixels[offset+3]=255;}
+          WritePixels(patch,patchPixels);
+        }
         for(int y=0;y<height;y++)for(int x=0;x<width;x++)
         {
           int offset=(y*width+x)*4;double luminance=.0722*patchPixels[offset]+.7152*patchPixels[offset+1]+.2126*patchPixels[offset+2];
@@ -597,7 +613,7 @@ internal static class Program
         foreach(var target in targets)graphics.DrawImage(patch,target,ink,GraphicsUnit.Pixel);
         var observedBounds=new NormalizedRect(bounds.X+left/(double)width*bounds.Width,bounds.Y+top/(double)height*bounds.Height,
           (right-left)/(double)width*bounds.Width,(bottom-top)/(double)height*bounds.Height);
-        placements.Add((observedBounds,targets));
+        placements.Add((observedBounds,targets,regions[index].Teal));
       }
     }
     var canvasPixels=Pixels(canvas);
@@ -608,10 +624,15 @@ internal static class Program
     foreach(var placement in placements)
     {
       var first=placement.Copies[0];var last=placement.Copies[^1];
-      var row=new NormalizedRect(first.X/(double)canvas.Width,first.Y/(double)canvas.Height,(last.Right-first.X)/(double)canvas.Width,first.Height/(double)canvas.Height);
+      // The OCR line box may extend past the tight ink box (taller line height), so the row is its whole cell band,
+      // which holds only this field's copies.
+      double band=Math.Max(0,(cellHeight-first.Height)/2d);
+      var row=new NormalizedRect(Math.Max(0,first.X-6)/(double)canvas.Width,(first.Y-band)/(double)canvas.Height,(last.Right-first.X+12)/(double)canvas.Width,(first.Height+2*band)/(double)canvas.Height);
       var lines=observed.Where(block=>NativeMatchReader.Contains(row,block.Bounds)).ToArray();
       if(lines.Length!=1||lines[0].Bounds.X>row.X+first.Width/(double)canvas.Width||lines[0].Bounds.X+lines[0].Bounds.Width<last.X/(double)canvas.Width)continue;
       string repeated=string.Concat(lines[0].Text.Where(character=>!char.IsWhiteSpace(character)));
+      // A digit-only teal field: letters OCR substitutes for digits there ("O" for 0) are read as those digits.
+      if(placement.Teal)repeated=NativeMatchReader.DigitText(repeated.ToLowerInvariant());
       if(repeated.Length is <4 or >16||repeated.Length%copies!=0||repeated.Any(character=>character is <'0' or >'9'))continue;
       string text=repeated[..(repeated.Length/copies)];
       if(Enumerable.Range(0,copies).Any(copy=>repeated.Substring(copy*text.Length,text.Length)!=text)
@@ -658,6 +679,13 @@ internal static class Program
     top = Math.Clamp(top, 0, height); bottom = Math.Clamp(bottom, top, height);
     return new(crop.X + left / width * crop.Width, crop.Y + top / height * crop.Height,
       (right - left) / width * crop.Width, (bottom - top) / height * crop.Height);
+  }
+
+  private static void WritePixels(Bitmap bitmap,byte[] pixels)
+  {
+    var data=bitmap.LockBits(new Rectangle(0,0,bitmap.Width,bitmap.Height),ImageLockMode.WriteOnly,PixelFormat.Format32bppArgb);
+    try{for(var y=0;y<bitmap.Height;y++)Marshal.Copy(pixels,y*bitmap.Width*4,data.Scan0+y*data.Stride,bitmap.Width*4);}
+    finally{bitmap.UnlockBits(data);}
   }
 
   private static byte[] Pixels(Bitmap bitmap)
@@ -811,13 +839,15 @@ internal static class Native
     if (!IsWindow(game.Handle) || actualProcessId != game.ProcessId || !IsDeadlock(actualProcessId)) return game with { Status = "not_found", Present = false, Foreground = false };
     if (IsIconic(game.Handle)) return game with { Status = "minimized", Foreground = false };
     if (!IsWindowVisible(game.Handle) || Cloaked(game.Handle)) return game with { Status = "no_window", Foreground = false };
-    if (!foreground) return game with { Status = "not_foreground", Foreground = false };
+    // A game that lost focus but is still fully visible (two monitors: the player clicked the companion on the other
+    // one) is still captured; the reply carries Foreground = false. A covered background game stays "not_foreground".
+    var covered = foreground ? "occluded" : "not_foreground";
     var client = ClientRectangle(game.Handle);
-    if (client.Width < 320 || client.Height < 240 || client != game.Client) return game with { Status = "capture_failed", Client = client, Foreground = true };
+    if (client.Width < 320 || client.Height < 240 || client != game.Client) return game with { Status = "capture_failed", Client = client, Foreground = foreground };
     var monitor = MonitorFromWindow(game.Handle, 0);
     var information = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
     if (monitor == 0 || !GetMonitorInfo(monitor, ref information) || !information.Monitor.ToRectangle().Contains(client))
-      return game with { Status = "offscreen", Foreground = true };
+      return game with { Status = "offscreen", Foreground = foreground };
     // Every visible top-level window above the game is checked, including always-on-top overlays.
     // There is no desktop image capture when another application's window intersects the game.
     for (var above = GetWindow(game.Handle, GwHwndPrevious); above != 0; above = GetWindow(above, GwHwndPrevious))
@@ -828,18 +858,18 @@ internal static class Native
       if ((extended & WsExTransparent) != 0 || ((extended & WsExLayered) != 0 && (extended & (WsExToolWindow | WsExNoActivate)) != 0)) continue;
       var overlap = Rectangle.Intersect(WindowRectangle(above), client);
       // Small intersections (a taskbar edge, a notification corner) do not hide the draft cards.
-      if (overlap.Width * (long)overlap.Height > client.Width * (long)client.Height / 20) return game with { Status = "occluded", Foreground = true };
+      if (overlap.Width * (long)overlap.Height > client.Width * (long)client.Height / 20) return game with { Status = covered, Foreground = foreground };
     }
     // Draft cards and the scoreboard occupy the middle of the window; corners may carry small widgets.
-    var covered = 0;
+    var hidden = 0;
     foreach (var point in new[] {
       new Point { X = client.Left + client.Width / 4, Y = client.Top + client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Top + client.Height / 3 },
       new Point { X = client.Left + client.Width / 4, Y = client.Bottom - client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Bottom - client.Height / 3 },
       new Point { X = client.Left + client.Width / 2, Y = client.Top + client.Height / 2 },
     })
-      if (GetAncestor(WindowFromPoint(point), GaRoot) != game.Handle) covered++;
-    if (covered >= 2) return game with { Status = "occluded", Foreground = true };
-    return game with { Status = "ok", Foreground = true };
+      if (GetAncestor(WindowFromPoint(point), GaRoot) != game.Handle) hidden++;
+    if (hidden >= 2) return game with { Status = covered, Foreground = foreground };
+    return game with { Status = "ok", Foreground = foreground };
   }
 
   internal static Bitmap Capture(GameWindow game, Rectangle source, int width, int height)

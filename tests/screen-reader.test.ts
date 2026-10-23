@@ -4,10 +4,10 @@ import { availableParallelism } from 'node:os';
 import publicCatalog from '../data/public-catalog.json';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  blocksForScreenParser, createScreenReader, draftCaptureRegion, DRAFT_FOOTER_REGION, DRAFT_HINT_REGION, MATCH_CONTEXT_REGION, normalizeNativeReply, SCREEN_READER_LIMITS,
+  blocksForScreenParser, createScreenReader, draftCaptureRegion, DRAFT_FOOTER_REGION, DRAFT_HINT_REGION, MATCH_CONTEXT_REGION, normalizeNativeReply, OUTSIDE_MESSAGE, SCREEN_READER_LIMITS,
   type ScreenReaderOptions, type ScreenReaderProcess,
 } from '../electron/screen-reader';
-import { DEFAULT_CAPTURE_REGION, type CaptureRegion, type NativeScreenContext } from '../src/shared/screen-reading';
+import { DEFAULT_CAPTURE_REGION, SCREEN_CARD_BACKGROUND_HOLD_MS, type CaptureRegion, type NativeScreenContext } from '../src/shared/screen-reading';
 import { testCatalog } from './fixtures';
 import type { Catalog } from '../src/shared/types';
 
@@ -113,6 +113,21 @@ describe('native boundary and crop coordinates', () => {
     expect(result.blocks[0]!.words).toEqual((raw.blocks as RawBlock[])[0]!.words);
     expect(result.previewPng).toBe('iVBORw0KGgo='); expect(result.metrics?.unchanged).toBe(true);
   });
+  it('carries the game client position for the overlay, and tolerates older helpers without it', () => {
+    const request: Request = { id: 'fixture', op: 'read', crop: { ...DEFAULT_CAPTURE_REGION } };
+    expect(normalizeNativeReply(reply(request, { clientLeft: -1920, clientTop: 40 }))).toMatchObject({ clientLeft: -1920, clientTop: 40 });
+    expect(normalizeNativeReply(reply(request))).toMatchObject({ clientLeft: null, clientTop: null });
+    expect(() => normalizeNativeReply(reply(request, { clientLeft: 'left' }))).toThrow();
+  });
+  it('publishes where the game window is, and forgets it when the game closes', async () => {
+    const work = fixture();
+    work.behavior((request, process) => process.send(request, request.op === 'fixture' ? { blocks: [], gamePresent: false, foreground: false } : { clientLeft: 2560, clientTop: 0 }));
+    await work.warm();
+    expect(work.reader.getState().gameBounds).toEqual({ x: 2560, y: 0, width: 1920, height: 1080 });
+    work.behavior((request, process) => process.send(request, { status: 'not_found', gamePresent: false, foreground: false, clientWidth: 0, clientHeight: 0, blocks: [] }));
+    await work.step(1_000);
+    expect(work.reader.getState().gameBounds).toBeNull();
+  });
   it('accepts native omitted-null fields on normal unavailable-window replies', () => {
     const raw = reply({ id: 'fixture', op: 'probe', crop: { ...DRAFT_HINT_REGION } }, { status: 'not_found', gamePresent: false, foreground: false });
     delete (raw as Record<string, unknown>).capturedAt; delete (raw as Record<string, unknown>).hash;
@@ -196,7 +211,7 @@ describe('bounded real-reader lifecycle', () => {
     const work = fixture({ iconDirectory: 'C:/test/items', contextIconDirectory: 'C:/test/portraits' });
     await work.reader.pollOnce();
     expect(work.spawnProcess).toHaveBeenCalledWith('C:/synthetic-unit-test/ScreenReader.exe',
-      ['--icons', 'C:/test/items', '--context-icons', 'C:/test/portraits'], { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
+      ['--icons', 'C:/test/items', '--context-icons', 'C:/test/portraits'], { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'], env: expect.objectContaining({ DOTNET_GCgen0size: '0x1000000' }) });
     expect(work.process.requests[0]).toMatchObject({ op: 'fixture', context: true });
     expect(work.reader.getState().matchContext.localHeroId).toBeNull();
   });
@@ -214,7 +229,7 @@ describe('bounded real-reader lifecycle', () => {
     expect(work.spawnProcess).not.toHaveBeenCalled();
     await work.reader.pollOnce();
     expect(work.spawnProcess).toHaveBeenCalledWith('C:/synthetic-unit-test/ScreenReader.exe', ['--icons', 'C:/synthetic-unit-test/icons'],
-      { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
+      { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'], env: expect.objectContaining({ DOTNET_GCgen0size: '0x1000000' }) });
     expect(work.process.requests).toHaveLength(1); expect(work.process.requests[0]!.op).toBe('fixture');
     expect(work.reader.getState()).toMatchObject({ engineReady: true, gamePresent: false, offers: [], advice: null });
   });
@@ -397,12 +412,12 @@ describe('fresh draft generations and readable uncertainty', () => {
     expect(work.reader.getState()).toMatchObject({ status: 'ready', generation });
     expect(work.reader.getState().observedAt).toBeGreaterThan(observedAt!);
     expect(work.reader.getState().offers.map(offer => offer.name)).toEqual(['Toxic Bullets', 'Tesla Bullets', 'Spiritual Overflow']);
-    expect(work.reader.getState().offers.every(offer => offer.variant === 'unknown' && offer.bonusIds === null)).toBe(true);
+    expect(work.reader.getState().offers.every(offer => offer.variant === 'base' && offer.bonusIds === null)).toBe(true);
     expectPickOnShownCard(work.reader.getState()); expectUnreadEffectsCaveat(work.reader.getState());
   });
-  it('never certifies missing small modifier and bonus labels as a plain base offer', async () => {
+  it('never certifies a missing small bonus label as a card without a bonus', async () => {
     const work = fixture(); await work.ready();
-    expect(work.reader.getState().offers.every(offer => offer.variant === 'unknown' && offer.bonusIds === null)).toBe(true);
+    expect(work.reader.getState().offers.every(offer => offer.variant === 'base' && offer.bonusIds === null)).toBe(true);
     expectPickOnShownCard(work.reader.getState()); expectUnreadEffectsCaveat(work.reader.getState());
   });
   it('keeps confirmed main names visible when modifier details alternate between known and unread', async () => {
@@ -487,28 +502,30 @@ describe('fresh draft generations and readable uncertainty', () => {
     expect(work.reader.getState().observedAt).toBeGreaterThan(first);
     expect(work.reader.getState().generation).toBeGreaterThan(expiredGeneration);
   });
-  it('replaces endlessly changing card identities on every read instead of keeping an old pick', async () => {
-    const work = fixture(); await work.warm(); let frame = 0; let sent: string[] = [];
+  it('keeps the shown cards when one card reads differently on single reads, and replaces it after two agreeing reads', async () => {
+    // 2026-10-18: a hover tooltip over one card read as another item for one frame and flipped the pick.
+    const work = fixture(); await work.warm(); let cardReads = 0; let steady = false;
     work.behavior((request, process) => {
-      frame++;
-      const names = [frame % 2 ? 'Fixture item a' : 'Fixture item d', 'Fixture item b', 'Fixture item c'];
-      if (!isTitleCrop(request.crop)) sent = names;
+      if (!isTitleCrop(request.crop)) cardReads++;
+      const names = [steady || cardReads % 2 === 0 ? 'Fixture item d' : 'Fixture item a', 'Fixture item b', 'Fixture item c'];
       process.send(request, { blocks: cards(request.crop, [], names) });
     });
-    const generations = new Set<number>(); let previous: string | null = null; let changes = 0;
+    await work.step();
+    const first = work.reader.getState();
+    expect(first.offers.map(offer => offer.name)).toEqual(['Fixture item a', 'Fixture item b', 'Fixture item c']);
     for (let index = 0; index < 8; index++) {
       await work.step();
       const state = work.reader.getState();
       expect(state.status).toBe('ready');
-      // The visible cards and their pick always describe the latest card capture.
-      expect(state.offers.map(offer => offer.name)).toEqual(sent);
+      expect(state.offers.map(offer => offer.name)).toEqual(['Fixture item a', 'Fixture item b', 'Fixture item c']);
+      expect(state.generation).toBe(first.generation);
       expectPickOnShownCard(state);
-      expect(state.advice!.title).not.toMatch(sent[0] === 'Fixture item a' ? /Fixture item d/ : /Fixture item a/);
-      if (previous !== null && previous !== sent[0]) changes++;
-      previous = sent[0]!; generations.add(state.generation);
     }
-    expect(changes).toBeGreaterThan(3);
-    expect(generations.size).toBe(changes + 1);
+    steady = true;
+    for (let index = 0; index < 4 && work.reader.getState().offers[0]!.itemId !== 'd'; index++) await work.step();
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).toEqual(['d', 'b', 'c']);
+    expect(work.reader.getState().generation).toBeGreaterThan(first.generation);
+    expectPickOnShownCard(work.reader.getState());
   });
   it('withdraws cards against real combat-frame structure after consecutive title misses and remains waiting for ten minutes', async () => {
     const work = fixture(); await work.warm(); await work.step();
@@ -560,9 +577,12 @@ describe('fresh draft generations and readable uncertainty', () => {
       .some(crop => JSON.stringify(request.crop) === JSON.stringify(crop)))).toBe(true);
     expect(work.reader.getState().status).toBe('ready');
   });
-  it('replaces an older preference immediately when a readable new set of offers appears', async () => {
+  it('replaces an older preference once a second read confirms a changed card', async () => {
     const work = fixture(); await work.ready(); const previous = work.reader.getState().generation;
     work.behavior((request, process) => process.send(request, { blocks: cards(request.crop, [], ['Fixture item d', 'Fixture item b', 'Fixture item c']) }));
+    await work.step();
+    // One read is not enough: a tooltip over one card reads as another item for a frame.
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).toEqual(['a', 'b', 'c']);
     await work.step();
     expect(work.reader.getState()).toMatchObject({ status: 'ready', observedAt: Date.now() });
     expect(work.reader.getState().offers.map(offer => offer.itemId)).toEqual(['d', 'b', 'c']);
@@ -644,7 +664,7 @@ describe('fresh draft generations and readable uncertainty', () => {
       else expect(state).toMatchObject({ offers: [], advice: null, observedAt: null });
     }
   });
-  it('keeps shown cards through focus loss, including unchanged cached blocks, until the card hold expires', async () => {
+  it('keeps shown cards through focus loss, including unchanged cached blocks, until the background card hold expires', async () => {
     const work = fixture(); await work.ready();
     const shown = work.reader.getState();
     work.behavior((request, process) => process.send(request, { status: 'not_foreground', foreground: false, unchanged: true }));
@@ -653,7 +673,10 @@ describe('fresh draft generations and readable uncertainty', () => {
     await work.step(1_000);
     expect(work.process.requests.at(-1)!.op).toBe('probe');
     expect(work.reader.getState()).toMatchObject({ status: 'ready', offers: shown.offers });
-    await vi.advanceTimersByTimeAsync(shown.observedAt! + SCREEN_READER_LIMITS.cardHoldMs - Date.now());
+    // Alt-tabbed to the companion (one monitor): the cards outlive the normal hold, since nothing can re-read them.
+    await vi.advanceTimersByTimeAsync(shown.observedAt! + SCREEN_READER_LIMITS.cardHoldMs + 5_000 - Date.now());
+    expect(work.reader.getState()).toMatchObject({ status: 'ready', offers: shown.offers, advice: shown.advice });
+    await vi.advanceTimersByTimeAsync(shown.observedAt! + SCREEN_CARD_BACKGROUND_HOLD_MS - Date.now());
     expect(work.reader.getState()).toMatchObject({ offers: [], advice: null, observedAt: null });
     // With nothing shown, focus loss reports the interruption.
     await work.step(1_000);
@@ -701,8 +724,8 @@ describe('actual cancellation, timeout and workload barriers', () => {
       } else process.send(request, { elapsedMs: 180.52 });
     });
     await vi.advanceTimersByTimeAsync(500); const hint = work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(210); await hint;
-    // A 210 ms read may occupy at most maxWorkerWallShare of wall time before the next request.
-    const cooldown = Math.ceil(210 / SCREEN_READER_LIMITS.maxWorkerWallShare) - 210;
+    // A 210 ms read may occupy at most the draft's duty share of wall time before the next request.
+    const cooldown = Math.ceil(210 / SCREEN_READER_LIMITS.draftWorkerWallShare) - 210;
     const count = work.process.requests.length;
     await work.step(cooldown - 1); expect(work.process.requests).toHaveLength(count);
     await work.step(1);
@@ -721,17 +744,17 @@ describe('actual cancellation, timeout and workload barriers', () => {
     work.process.finish(); await read;
     expect(work.reader.getState().metrics.timeouts).toBe(1);
   });
-  it('fails closed permanently if the OS process cannot be confirmed stopped', async () => {
+  it('stays closed while the OS process cannot be confirmed stopped, then restarts once it exits', async () => {
     const work = fixture(); work.behavior(() => {});
     const read = work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(0); work.process.autoExit = false;
     await vi.advanceTimersByTimeAsync(SCREEN_READER_LIMITS.startupTimeoutMs + SCREEN_READER_LIMITS.stopTimeoutMs);
     await read; await work.reader.retry(); await work.reader.pollOnce();
     expect(work.reader.getState()).toMatchObject({ status: 'unavailable', offers: [], advice: null });
     expect(work.spawnProcess).toHaveBeenCalledOnce();
-    work.process.finish();
-    await work.reader.setEnabled(false); await work.reader.setEnabled(true); await work.reader.pollOnce();
-    expect(work.reader.getState()).toMatchObject({ enabled: false, status: 'unavailable' });
-    expect(work.spawnProcess).toHaveBeenCalledOnce();
+    // The late exit proves nothing is left running; the reader starts a fresh helper by itself.
+    work.process.finish(); await vi.advanceTimersByTimeAsync(10); void work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(10);
+    expect(work.spawnProcess).toHaveBeenCalledTimes(2);
+    expect(work.reader.getState().status).not.toBe('unavailable');
   });
   it('rejects over-budget results even if the elapsed timer callback has not run yet', async () => {
     const work = fixture(); await work.warm();
@@ -797,11 +820,12 @@ describe('actual cancellation, timeout and workload barriers', () => {
     const work = fixture(); await work.warm();
     work.behavior((request, process) => process.send(request, { elapsedMs: 300, metrics: { cpuMs: 2, workingSetMb: 80 } }));
     await work.step(); const count = work.process.requests.length;
-    // 300 ms of native work allows the next request only after it is maxWorkerWallShare of the elapsed wall time.
-    const cooldown = Math.ceil(300 * (1 / SCREEN_READER_LIMITS.maxWorkerWallShare - 1));
-    expect(cooldown).toBeGreaterThan(SCREEN_READER_LIMITS.readSpacingMs);
-    await work.step(SCREEN_READER_LIMITS.readSpacingMs); expect(work.process.requests).toHaveLength(count);
-    await work.step(cooldown - SCREEN_READER_LIMITS.readSpacingMs); expect(work.process.requests).toHaveLength(count + 1);
+    // The fixture's draft is on screen: 300 ms of native work allows the next request only after it is
+    // the draft's duty share of the elapsed wall time.
+    const cooldown = Math.ceil(300 * (1 / SCREEN_READER_LIMITS.draftWorkerWallShare - 1));
+    expect(cooldown).toBeGreaterThan(SCREEN_READER_LIMITS.draftReadSpacingMs);
+    await work.step(SCREEN_READER_LIMITS.draftReadSpacingMs); expect(work.process.requests).toHaveLength(count);
+    await work.step(cooldown - SCREEN_READER_LIMITS.draftReadSpacingMs); expect(work.process.requests).toHaveLength(count + 1);
     expect(work.reader.getState().metrics.memoryMb).toBe(80);
   });
   it('reports measured CPU as a fraction of machine capacity and leaves missing metrics unknown', async () => {
@@ -878,5 +902,165 @@ describe('Street Brawl Tab scoreboard', () => {
     const tabRead = reads.findIndex(request => JSON.stringify(request.crop) === JSON.stringify(DRAFT_HINT_REGION));
     expect(tabRead).toBeGreaterThan(-1);
     expect(reads.slice(tabRead + 1).some(request => JSON.stringify(request.crop) === JSON.stringify(MATCH_CONTEXT_REGION))).toBe(true);
+  });
+});
+
+/** A word at real 1920x1080 draft geometry (client coordinates, the native reader's frame). */
+function clientBlock(text: string, centerX: number, centerY: number, width = 0.12, height = 0.03): RawBlock {
+  const bounds = { x: centerX - width / 2, y: centerY - height / 2, width, height };
+  return { text, bounds, words: [{ text, bounds }] };
+}
+/** Card name centres of the real panel: 0.5 and 0.5 +- 0.2217 across, about 0.69 (outer) and 0.46 (raised middle) down. */
+const SLOT_CENTERS: readonly [number, number][] = [[0.2783, 0.69], [0.5, 0.46], [0.7217, 0.69]];
+function liveDraft(crop: CaptureRegion, names: (string | null)[], stage: number | null = null) {
+  return [block('Select Items', 0.08, 0.01, 0.24, 0.035, crop), ...(stage === null ? [] : [clientBlock(`CHOICE ${stage} OF 3`, 0.5, 0.17, 0.1, 0.022)]),
+    ...names.flatMap((name, slot) => name === null ? [] : [clientBlock(name, SLOT_CENTERS[slot]![0], SLOT_CENTERS[slot]![1])])];
+}
+
+describe('2026-10-18 live match reads', () => {
+  it('shows cards as they deal in, one or two at a time, and names a pick only once two are readable', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', null, null];
+    work.behavior((request, process) => process.send(request, { blocks: liveDraft(request.crop, names) }));
+    await work.step(); await work.step();
+    let state = work.reader.getState();
+    expect(state.status).toBe('ready');
+    expect(state.offers.map(offer => offer.itemId)).toEqual(['a', '', '']);
+    expect(state.advice?.preferredPosition ?? null).toBeNull();
+    const generation = state.generation;
+    names = ['Fixture item a', 'Fixture item b', 'Fixture item c'];
+    await work.step(); await work.step();
+    state = work.reader.getState();
+    expect(state.offers.map(offer => offer.itemId)).toEqual(['a', 'b', 'c']);
+    // Filling the unread places is the same set: no new generation, and the pick is on a shown card.
+    expect(state.generation).toBe(generation);
+    expectPickOnShownCard(state);
+  });
+  it('credits the picked card that lingers as the next choice opens, and never shows it as a new card', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c']; let stage = 1;
+    work.behavior((request, process) => process.send(request, { blocks: liveDraft(request.crop, names, stage) }));
+    await work.step(); await work.step();
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).toEqual(['a', 'b', 'c']);
+    expect(work.reader.getState().build?.myItems ?? []).not.toContain('b');
+    // Choice 2 deals in: the picked "b" still shows in its place while a new card already shows on the left.
+    stage = 2; names = ['Fixture item d', 'Fixture item b', null];
+    await work.step();
+    // One read of it is not enough to credit it (an unpicked card can be misplaced for a frame).
+    expect(work.reader.getState().build?.myItems ?? []).not.toContain('b');
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).not.toContain('b');
+    await work.step();
+    expect(work.reader.getState().build?.myItems).toContain('b');
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).not.toContain('b');
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).not.toContain('a');
+    names = ['Fixture item d', 'Fixture item e', 'Fixture item c'];
+    await work.step(); await work.step();
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).toEqual(['d', 'e', 'c']);
+    expect(work.reader.getState().build?.myItems).toContain('b');
+  });
+  it('hides the picked card fading in its place even when all three names read as the next choice opens (review repro)', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c']; let stage = 1;
+    work.behavior((request, process) => process.send(request, { blocks: liveDraft(request.crop, names, stage) }));
+    await work.step(); await work.step();
+    stage = 2; names = ['Fixture item d', 'Fixture item b', 'Fixture item e'];
+    await work.step();
+    let state = work.reader.getState();
+    expect(state.offers.map(offer => offer.itemId)).not.toContain('b');
+    expect(state.offers.find(offer => offer.position === state.advice?.preferredPosition)?.itemId ?? null).not.toBe('b');
+    await work.step();
+    expect(work.reader.getState().build?.myItems).toContain('b');
+    // The new card dealt into that place shows as usual.
+    names = ['Fixture item d', 'Fixture item c', 'Fixture item e'];
+    await work.step(); await work.step();
+    state = work.reader.getState();
+    expect(state.offers.map(offer => offer.itemId)).toEqual(['d', 'c', 'e']);
+    expectPickOnShownCard(state);
+  });
+  it('never credits an unpicked card of the last choice read in another place (review repro)', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c']; let stage = 1;
+    work.behavior((request, process) => process.send(request, { blocks: liveDraft(request.crop, names, stage) }));
+    await work.step(); await work.step();
+    stage = 2; names = ['Fixture item c', null, null];
+    for (let index = 0; index < 4; index++) await work.step();
+    expect(work.reader.getState().build?.myItems ?? []).not.toContain('c');
+  });
+  it('credits the third pick lingering as the draft closes, and does not show it as a new one-card draft', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c'];
+    let closing = false;
+    work.behavior((request, process) => process.send(request, { blocks: closing
+      // The panel title fades with the picked card; the other cards are gone.
+      ? [block('Select Items', 0.08, 0.01, 0.24, 0.035, request.crop), clientBlock('Fixture item c', SLOT_CENTERS[2]![0], SLOT_CENTERS[2]![1])]
+      : liveDraft(request.crop, names, 3) }));
+    await work.step(); await work.step();
+    expect(work.reader.getState().offers.map(offer => offer.itemId)).toEqual(['a', 'b', 'c']);
+    // "Selections complete" closes the draft.
+    work.behavior((request, process) => process.send(request, { blocks: [block('Selections Complete', 0.4, 0.5, 0.2, 0.04, request.crop),
+      clientBlock('Fixture item c', SLOT_CENTERS[2]![0], SLOT_CENTERS[2]![1])] }));
+    await work.step();
+    closing = true;
+    work.behavior((request, process) => process.send(request, { blocks: [block('Select Items', 0.08, 0.01, 0.24, 0.035, request.crop),
+      clientBlock('Fixture item c', SLOT_CENTERS[2]![0], SLOT_CENTERS[2]![1])] }));
+    for (let index = 0; index < 3; index++) {
+      await work.step();
+      expect(work.reader.getState().offers.filter(offer => offer.itemId)).toEqual([]);
+    }
+    expect(work.reader.getState().build?.myItems).toContain('c');
+    expect(work.reader.getState().build?.myItems ?? []).not.toContain('a');
+  });
+  it('reports a failed capture while the game is not in front, instead of asking to return to it', async () => {
+    const work = fixture(); await work.warm();
+    work.behavior((request, process) => process.send(request, { foreground: false, status: 'blank_capture', blocks: [] }));
+    for (let index = 0; index < 3; index++) await work.step(1_000);
+    expect(work.reader.getState().message).toMatch(/black/);
+  });
+  it('keeps the shown cards through a frame that shows only the choice label (no "panel no longer visible")', async () => {
+    const work = fixture(); await work.warm(); let labelOnly = false;
+    work.behavior((request, process) => process.send(request, { blocks: labelOnly
+      ? [clientBlock('CHOICE 2 OF 3', 0.5, 0.17, 0.1, 0.022)] : liveDraft(request.crop, ['Fixture item a', 'Fixture item b', 'Fixture item c'], 2) }));
+    await work.step(); await work.step();
+    const shown = work.reader.getState();
+    expect(shown.offers.map(offer => offer.itemId)).toEqual(['a', 'b', 'c']);
+    labelOnly = true;
+    for (let index = 0; index < 3; index++) {
+      await work.step();
+      expect(work.reader.getState()).toMatchObject({ status: 'ready', generation: shown.generation });
+      expectPickOnShownCard(work.reader.getState());
+    }
+  });
+  it('caps the pause after a slow read (a 2.8 s read was followed by a 9.3 s pause)', async () => {
+    const work = fixture(); await work.warm();
+    work.behavior((request, process) => process.send(request, { blocks: [], elapsedMs: 2_780 }));
+    await work.step(1_000);
+    const before = work.process.requests.length;
+    await work.step(SCREEN_READER_LIMITS.maxIdleAfterReadMs + 1);
+    expect(work.process.requests.length).toBeGreaterThan(before);
+  });
+  it('outside a match: keeps the last build, saves no diagnostic frames and looks less often', async () => {
+    const frames: unknown[] = [];
+    const work = fixture({ onDraftFrame: (png: string, trace: unknown) => { frames.push(trace); } });
+    await work.warm();
+    // The awards screen after the last round (it was read as your HUD and trimmed a 12-item build to 3).
+    const awards = { sessionId: 'synthetic-window-a', panel: 'hud', viewMode: 'participant', heroes: [], items: [], abilities: [], regions: [],
+      brawl: { myItems: [{ slot: 0, itemId: 'a', confidence: 0.99 }], myOccupied: 3, playerItems: [], abilityRanks: null, hiddenItems: 0 } };
+    work.behavior((request, process) => process.send(request, { previewPngBase64: request.debugPreview ? 'iVBORw0KGgo=' : undefined, context: awards,
+      blocks: [block('THE VOTES ARE IN...', 0.35, 0.1, 0.3, 0.05, request.crop), block("WINNER'S BONUS", 0.1, 0.5, 0.2, 0.03, request.crop)] }));
+    for (let index = 0; index < 4 && work.reader.getState().roster?.phase !== 'outside'; index++) await work.step(1_000);
+    expect(work.reader.getState().roster?.phase).toBe('outside');
+    expect(work.reader.getState().message).toBe(OUTSIDE_MESSAGE);
+    const framesBefore = frames.length; const requestsBefore = work.process.requests.length;
+    for (let index = 0; index < 120; index++) await work.step(500);
+    expect(frames.length).toBe(framesBefore);
+    // 60 s at the outside spacing: about 20 looks instead of about 120.
+    expect(work.process.requests.length - requestsBefore).toBeLessThanOrEqual(Math.ceil(60_000 / SCREEN_READER_LIMITS.outsideReadSpacingMs) + 2);
+    expect(work.reader.getState().build?.myItems ?? []).toEqual([]);
+  });
+  it('reads a game behind other windows when the helper can capture it (status ok without focus)', async () => {
+    const work = fixture(); await work.warm();
+    work.behavior((request, process) => process.send(request, { foreground: false }));
+    for (let index = 0; index < 4; index++) await work.step();
+    expect(work.process.requests.slice(-2).every(request => request.op === 'read')).toBe(true);
+    expect(work.reader.getState().status).toBe('ready');
+    // Today's helper answers not_foreground: the reader only probes, as before.
+    work.behavior((request, process) => process.send(request, { foreground: false, status: 'not_foreground', blocks: [] }));
+    for (let index = 0; index < 4; index++) await work.step(1_000);
+    expect(work.process.requests.at(-1)!.op).toBe('probe');
   });
 });

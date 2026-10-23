@@ -85,12 +85,10 @@ export function evaluateContextOffers(offers: ScreenOffer[], catalog: Catalog, c
     if (repeated.length || ownedRepeated.length) {
       materialProblems.push(`Offer ${offer.position + 1}: repeated ${unique([...repeated, ...ownedRepeated].map(item => item.name)).join(', ')} has no decoded Street Brawl upgrade/stacking state.`);
     }
-    const contributions: Contribution[] = [];
-    // Repetition is recorded, but an unspecified item upgrade operator is never
-    // converted into an additive runtime level or duplicated passive proc.
-    for (const item of definitions.filter((item, index) => definitions.findIndex(other => other.id === item.id) === index)) {
-      contributions.push(...scoreItem(item, build));
-    }
+    // Only the main item is scored here: screen-advice values a card's bonus items once, as free
+    // items (bonusValue), the same way it values a fresh draft's Bonus! cards. Repetition is still
+    // recorded above; an unspecified upgrade operator is never turned into an additive level.
+    const contributions: Contribution[] = scoreItem(main, build);
     for (const contribution of contributions) factsUsed.push(...contribution.facts);
     const ordered = contributions.filter(entry => entry.reason && entry.points > 0.01).sort((a, b) => b.points - a.points);
     const reasons = ordered.slice(0, 3).map(entry => entry.reason);
@@ -100,7 +98,7 @@ export function evaluateContextOffers(offers: ScreenOffer[], catalog: Catalog, c
     }
     if (!reasons.length) reasons.push(`${main.name}: ${shortDescription(main.description) || 'no supported contextual effect is available.'}`);
     const bonusNames = (offer.bonusIds ?? []).map(id => SOURCE_ITEMS.get(id)?.name).filter((name): name is string => !!name);
-    if (bonusNames.length) reasons.push(`Read bonuses: ${quantityNames(bonusNames)}; their known base parameters are included once per distinct item.`);
+    if (bonusNames.length) reasons.push(`Read bonuses: ${quantityNames(bonusNames)}; valued separately as free items.`);
     if (offer.variant !== 'base' || offer.bonusIds === null) reasons.unshift('Comparison of known base mechanics; unread bundle effects can change the order.');
     if (repeated.length || ownedRepeated.length) reasons.push('A repeat may upgrade the existing item; the unobserved upgrade operator is not assumed.');
     return { position: offer.position, score: round(contributions.reduce((total, entry) => total + entry.points, 0)), reasons };

@@ -1,9 +1,7 @@
-import type { Advice, AppMode, Catalog, DemoScenarioId, MatchState, TelemetryEvent } from '../shared/types';
-import { isAppMode, isDemoScenarioId } from '../shared/settings';
+import type { Advice, Catalog, MatchState, TelemetryEvent } from '../shared/types';
 import { acceptAdvice, createInitialState, decisionBlockers, getDecisionKey, reduceTelemetry, sameDecisionKey } from '../core/store';
 import { parseTelemetryEvent } from '../core/validation';
 import { evaluateDecision } from '../core/scoring';
-import { DEMO_CATALOG, getDemoEvents } from '../demo/scenarios';
 
 export interface ControllerOptions {
   now?: () => number;
@@ -25,7 +23,7 @@ export function createController(publicCatalog: Catalog, options: ControllerOpti
   let scorerFailures = 0;
   let timer: ReturnType<typeof setInterval> | null = null;
   const listeners = new Set<(snapshot: MatchState) => void>();
-  const catalog = () => state.mode === 'demo' ? DEMO_CATALOG : publicCatalog;
+  const catalog = () => publicCatalog;
   const notify = () => { syncTimer(); for (const listener of listeners) listener(state); };
 
   function syncTimer() {
@@ -73,35 +71,12 @@ export function createController(publicCatalog: Catalog, options: ControllerOpti
   }
 
   function ingest(input: unknown) {
-    // Stopped live providers cannot populate the synthetic demonstration.
-    if (disposed || state.mode !== 'live') return;
+    if (disposed) return;
     try { apply(parseTelemetryEvent(input)); }
     catch {
       malformedUpdates++;
       apply({ type: 'source', source: { ...state.source, status: 'interrupted', continuity: 'gap', message: 'A provider update could not be validated. Advice is unavailable until state is restored.' } });
     }
-  }
-
-  function setMode(mode: AppMode) {
-    if (!isAppMode(mode)) throw new Error('Invalid application mode.');
-    if (disposed || state.mode === mode) return;
-    evaluationEpoch++;
-    lastRequestedKey = '';
-    state = createInitialState(mode);
-    notify();
-    if (mode === 'demo') runDemoScenario('draft');
-  }
-
-  function runDemoScenario(id: DemoScenarioId) {
-    if (state.mode !== 'demo') throw new Error('Demonstration scenarios require Demo mode.');
-    if (!isDemoScenarioId(id)) throw new Error('Unknown demonstration scenario.');
-    evaluationEpoch++;
-    lastRequestedKey = '';
-    state = createInitialState('demo');
-    // Apply the fixture transaction before announcing it; never flash a half-hydrated match.
-    for (const event of getDemoEvents(id, now())) state = reduceTelemetry(state, parseTelemetryEvent(event));
-    notify();
-    scheduleScore();
   }
 
   function tick() {
@@ -118,16 +93,16 @@ export function createController(publicCatalog: Catalog, options: ControllerOpti
     getState: () => state,
     getCatalog: catalog,
     subscribe(listener: (snapshot: MatchState) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
-    ingest, setMode, runDemoScenario, tick,
+    ingest, tick,
     exportDiagnostics() {
       return JSON.stringify({
         schemaVersion: 1, applicationVersion: options.applicationVersion ?? 'development', generatedAt: new Date(now()).toISOString(),
         mode: state.mode, provider: state.source.provider, status: state.source.status,
         runtimeVersion: state.source.runtimeVersion,
         capabilities: state.source.capabilities.map(({ name, supported, verified }) => ({ name, supported, verified })),
-        noImageMethodVerified: state.mode === 'live' && state.source.noImageMethodVerified,
+        noImageMethodVerified: state.source.noImageMethodVerified,
         continuity: state.source.continuity, sourceDeliveryBoundMs: state.source.deliveryBoundMs,
-        sourceAgeProven: state.mode === 'live' && state.source.status === 'connected'
+        sourceAgeProven: state.source.status === 'connected'
           && state.source.continuity === 'continuous'
           && state.source.capabilities.some(capability => capability.name === 'source_continuity' && capability.verified && capability.supported)
           && (state.source.deliveryBoundMs !== null || (state.draft?.observation.observedAt != null && state.draft?.observation.clockUncertaintyMs != null)),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseTelemetryEvent } from '../src/core/validation';
-import { DEFAULT_SETTINGS, isAppMode, isDemoScenarioId, validateSettingsPatch } from '../src/shared/settings';
+import { DEFAULT_SETTINGS, isAppMode, validateSettingsPatch } from '../src/shared/settings';
 import type { TelemetryEvent } from '../src/shared/types';
 import { draft, fixtureEvents, item, MATCH_ID, match, NOW, observation, player, source } from './fixtures';
 
@@ -112,11 +112,8 @@ describe('renderer request validation', () => {
     expect(validateSettingsPatch({ displayId: null })).toEqual({ displayId: null });
     expect(DEFAULT_SETTINGS.hidePlayerNames).toBe(true);
     expect(isAppMode('live')).toBe(true);
-    expect(isAppMode('demo')).toBe(true);
+    expect(isAppMode('demo')).toBe(false);
     expect(isAppMode('LIVE')).toBe(false);
-    expect(isDemoScenarioId('unknown-ranks')).toBe(true);
-    expect(isDemoScenarioId('live-match')).toBe(false);
-    expect(isDemoScenarioId({ id: 'draft' })).toBe(false);
   });
 
   it.each([null, undefined, [], 'large', 1, { unknownSetting: true }, { textScale: 0.79 }, { textScale: 1.51 }, { textScale: NaN }, { textScale: Infinity }, { textScale: '1' }, { hidePlayerNames: 'true' }, { alwaysOnTop: 1 }, { displayId: '' }, { displayId: 123 }, { displayId: 'x'.repeat(101) }])('rejects a malformed settings request: %j', (input) => {

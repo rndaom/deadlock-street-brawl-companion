@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialScreenMatchContext, type ScreenAbilityState, type ScreenContextObservation,
   type ScreenInventoryItem, type ScreenMatchObservation } from '../src/shared/screen-reading';
-import { expireScreenMatchContext, isScreenObservationUsable, reduceScreenMatchContext, resetScreenMatchContext, screenObservationAge } from '../src/screen/match-state';
+import { expireScreenMatchContext, forgetMatchRound, isScreenObservationUsable, reduceScreenMatchContext, resetScreenMatchContext, screenObservationAge, SPECTATOR_HOLD_MS } from '../src/screen/match-state';
 
 let ordinal = 0;
 const START = 1_000_000;
@@ -106,7 +106,10 @@ describe('source, match, local hero and visible column resets', () => {
   it('round rollback starts an empty context, rather than copying a prior match build', () => {
     const first = own({ round: 5 }); inventory(first, [item(first)]);
     const state = reduce(createInitialScreenMatchContext(), first);
-    expect(reduce(state, own({ round: 1 }))).toMatchObject({ round: 1, localInventory: [], players: [] });
+    // A single lower round read is a misread; "ROUND 1" read twice is a new match.
+    const once = reduce(state, own({ round: 1 }));
+    expect(once).toMatchObject({ round: 5 });
+    expect(reduce(once, own({ round: 1 }))).toMatchObject({ round: 1, localInventory: [], players: [] });
   });
   it('clears dependent local data on a hero change and accepts the new same-frame HUD', () => {
     const first = own(); inventory(first, [item(first)]); const state = reduce(createInitialScreenMatchContext(), first);
@@ -272,6 +275,21 @@ describe('slot coverage, unknown values, and aged positive evidence', () => {
     const participant = own(); inventory(participant, [item(participant)]); const state = reduce(createInitialScreenMatchContext(), participant);
     expect(reduce(state, own({ viewMode: 'spectator', localHeroId: 'viewed-hero' }))).toMatchObject({ viewMode: 'spectator', localHeroId: null, localInventory: [], localAbilities: [] });
   });
+  it('ends a death-cam spectator verdict once frames stop showing SPECTATING (respawn)', () => {
+    const dead = frame({ viewMode: 'spectator', phase: 'combat', round: 2 });
+    dead.fields = { viewMode: observation(dead), phase: observation(dead), round: observation(dead) };
+    const spectating = reduce(createInitialScreenMatchContext(), dead);
+    expect(spectating.viewMode).toBe('spectator');
+    // Respawned HUD frames carry no view verdict (confidence 0), as in the 2026-10-11 live logs.
+    const alive = frame({ viewMode: 'unknown', phase: 'combat', round: 2, capturedAt: dead.capturedAt + SPECTATOR_HOLD_MS + 500, receivedAt: dead.capturedAt + SPECTATOR_HOLD_MS + 510 });
+    alive.fields = { viewMode: observation(alive, 0), phase: observation(alive) };
+    expect(reduce(spectating, alive).viewMode).toBe('unknown');
+    // A frame shortly after the last SPECTATING one keeps the verdict (one frame without the label).
+    const blink = frame({ viewMode: 'unknown', phase: 'combat', round: 2, capturedAt: dead.capturedAt + 1_000, receivedAt: dead.capturedAt + 1_010 });
+    blink.fields = { viewMode: observation(blink, 0) };
+    expect(reduce(spectating, blink).viewMode).toBe('spectator');
+    expect(expireScreenMatchContext(spectating, dead.capturedAt + SPECTATOR_HOLD_MS + 1).viewMode).toBe('unknown');
+  });
   it('exposes retained snapshot age without allowing receipt-time or clock rollback laundering', () => {
     const value = own(); const state = reduce(createInitialScreenMatchContext(), value); const proof = state.observations.localHeroId!;
     expect(screenObservationAge(proof, proof.capturedAt + 20_000)).toBe(20_000);
@@ -284,5 +302,85 @@ describe('slot coverage, unknown values, and aged positive evidence', () => {
     const expired = expireScreenMatchContext(state, value.capturedAt + 30_001);
     expect(expired).toMatchObject({ viewMode: 'unknown', revision: state.revision + 1, localHeroId: 'hero-a' });
     expect(expired.localInventory).toEqual(state.localInventory); expect(expired.observations.viewMode).toEqual(state.observations.viewMode);
+  });
+});
+
+describe('round number evidence (real 2026-10-18 matches)', () => {
+  /** A frame captured `at` ms after START; only the fields given are observed. */
+  function at(ms: number, patch: Partial<ScreenMatchObservation>): ScreenMatchObservation {
+    const value: ScreenMatchObservation = { sessionId: 'test-reader-a', gameSessionId: 'test-window-a', frameId: `round-frame-${++ordinal}`,
+      capturedAt: START + ms, receivedAt: START + ms + 10, ...patch };
+    value.fields = Object.fromEntries((['round', 'phase', 'pickStage', 'scores'] as const).filter(key => key in patch).map(key => [key, observation(value)]));
+    return value;
+  }
+  const run = (frames: ScreenMatchObservation[]) => frames.reduce((state, value) => reduceScreenMatchContext(state, value, value.receivedAt), createInitialScreenMatchContext());
+
+  it('ignores a misread "ROUND 13" in round 3 (match C, 18:29:27) and keeps the match context', () => {
+    const state = run([at(0, { round: 3, phase: 'combat' }), at(1_000, { round: 13, phase: 'combat' }), at(2_000, { round: 3, phase: 'combat' })]);
+    expect(state.round).toBe(3);
+  });
+  it('advances the round when a new "Choice 1 of 3" draft opens after combat (match A round 3, 12:05:16)', () => {
+    const state = run([
+      at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(20_000, { phase: 'draft', pickStage: 3 }),
+      at(60_000, { round: 2, phase: 'combat' }), at(120_000, { phase: 'combat' }),
+      // The round-3 draft: "ROUND 3" is not read until 40 s later.
+      at(130_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(3);
+    expect(state.observations.round?.round).toBe(3);
+    expect(state.roundTracking?.inferredAt).toBe(START + 130_000);
+    // Later picks of the same draft and the "ROUND 3" read change nothing.
+    const later = run([at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(60_000, { phase: 'combat' }), at(130_000, { phase: 'draft', pickStage: 1 }),
+      at(140_000, { phase: 'draft', pickStage: 2 }), at(170_000, { round: 3, phase: 'combat' })]);
+    expect(later.round).toBe(3);
+  });
+  it('does not advance twice when "ROUND N" was already read before the draft opened (match B 18:09:59)', () => {
+    const state = run([at(0, { round: 1, phase: 'draft', pickStage: 1 }), at(60_000, { round: 1, phase: 'combat' }),
+      at(100_000, { round: 2, phase: 'combat' }), at(105_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(2);
+  });
+  it('does not treat the next choice of the same draft as a new round', () => {
+    const state = run([at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(5_000, { phase: 'combat' }), at(8_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(2);
+  });
+  it('accepts a skipped round only on a second agreeing read or matching pips, and never past round 5', () => {
+    expect(run([at(0, { round: 2, phase: 'combat' }), at(1_000, { round: 4, phase: 'combat' })]).round).toBe(2);
+    expect(run([at(0, { round: 2, phase: 'combat' }), at(1_000, { round: 4, phase: 'combat' }), at(2_000, { round: 4, phase: 'combat' })]).round).toBe(4);
+    expect(run([at(0, { round: 2, phase: 'combat' }), at(1_000, { round: 4, phase: 'combat', scores: [2, 1] })]).round).toBe(4);
+    expect(run([at(0, { round: 5, phase: 'combat' }), at(1_000, { round: 6, phase: 'combat' }), at(2_000, { round: 6, phase: 'combat' })]).round).toBe(5);
+  });
+  it('keeps a score only when its pips fit the round, and never lowers it on one read', () => {
+    expect(run([at(0, { round: 3, phase: 'combat', scores: [1, 1] })]).scores).toEqual([1, 1]);
+    expect(run([at(0, { round: 3, phase: 'combat', scores: [1, 1] }), at(1_000, { round: 3, phase: 'combat', scores: [2, 1] })]).scores).toEqual([2, 1]);
+    // 3 pips in round 1 cannot be; the same frame's round read is doubtful too.
+    expect(run([at(0, { round: 1, phase: 'combat', scores: [2, 1] })])).toMatchObject({ round: null, scores: null });
+    const lowered = [at(0, { round: 3, phase: 'combat', scores: [2, 0] }), at(1_000, { round: 3, phase: 'combat', scores: [1, 1] })];
+    expect(run(lowered).scores).toEqual([2, 0]);
+    expect(run([...lowered, at(2_000, { round: 3, phase: 'combat', scores: [1, 1] }), at(3_000, { round: 3, phase: 'combat', scores: [1, 1] })]).scores).toEqual([1, 1]);
+  });
+  it('lowers a round taken from a one-off "ROUND N+1" misread after three agreeing lower reads', () => {
+    const misread = [at(0, { round: 2, phase: 'combat' }), at(1_000, { round: 3, phase: 'combat' })];
+    expect(run(misread).round).toBe(3);
+    expect(run([...misread, at(2_000, { round: 2, phase: 'combat' }), at(3_000, { round: 2, phase: 'combat' })]).round).toBe(3);
+    expect(run([...misread, at(2_000, { round: 2, phase: 'combat' }), at(3_000, { round: 2, phase: 'combat' }), at(4_000, { round: 2, phase: 'combat' })]).round).toBe(2);
+    // A score the lower round cannot have goes with it.
+    const scored = run([at(0, { round: 2, phase: 'combat', scores: [1, 0] }), at(1_000, { round: 3, phase: 'combat', scores: [2, 1] }),
+      ...[2_000, 3_000, 4_000].map(ms => at(ms, { round: 2, phase: 'combat' }))]);
+    expect(scored).toMatchObject({ round: 2, scores: null });
+  });
+  it('starts the next match clean when the last one ended without a post-match frame (review repro)', () => {
+    const matchA = [at(0, { round: 3, phase: 'draft', pickStage: 1 }), at(30_000, { round: 3, phase: 'combat', scores: [1, 1] }), at(90_000, { phase: 'combat' })];
+    // Without the new-match signal, match B's first draft would be round 4 and its "ROUND 2" ignored.
+    const carried = run([...matchA, at(200_000, { phase: 'combat' }), at(260_000, { phase: 'draft', pickStage: 1 })]);
+    expect(carried.round).toBe(4);
+    // The reader saw match B's loading screen (new roster epoch): round, score and stage are forgotten, the session kept.
+    const forgotten = forgetMatchRound(run(matchA));
+    expect(forgotten).toMatchObject({ round: null, scores: null, pickStage: null, sessionId: 'test-reader-a', retiredSessionIds: [] });
+    const matchB = [at(260_000, { phase: 'draft', pickStage: 1 }), at(300_000, { round: 1, phase: 'combat', scores: [0, 0] }),
+      at(400_000, { round: 2, phase: 'combat', scores: [1, 0] })].reduce((state, value) => reduceScreenMatchContext(state, value, value.receivedAt), forgotten);
+    expect(matchB).toMatchObject({ round: 2, scores: [1, 0] });
+  });
+  it('does not advance the round from a draft long after the previous one (a different match)', () => {
+    const state = run([at(0, { round: 3, phase: 'draft', pickStage: 1 }), at(60_000, { phase: 'combat' }), at(700_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(3);
   });
 });

@@ -145,10 +145,8 @@ describe('source identity and event ordering', () => {
     expect(decisionBlockers(state, testCatalog, NOW)).toEqual([]);
   });
 
-  it('uses a reset to clear synthetic state before returning to Live', () => {
-    const synthetic = { ...advised(), mode: 'demo' as const };
-    const reset = reduceTelemetry(synthetic, { type: 'reset', reason: 'Exit Demo', at: NOW });
-    const live = { ...reset, mode: 'live' as const };
+  it('clears the match on a reset', () => {
+    const live = reduceTelemetry(advised(), { type: 'reset', reason: 'New match', at: NOW });
     expect(live.match).toBeNull();
     expect(live.players).toEqual([]);
     expect(live.draft).toBeNull();

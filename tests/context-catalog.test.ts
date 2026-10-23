@@ -8,6 +8,10 @@ import { CONTEXT_CATALOG, contextCatalogCompatible } from '../src/shared/context
 import type { Catalog } from '../src/shared/types';
 
 const catalog = baseCatalogData as Catalog;
+// Counts follow the pinned patch: every released hero has four signature abilities and three portraits.
+const manifest = JSON.parse(await fs.readFile(path.join(process.cwd(), 'data/catalog-manifest.json'), 'utf8')) as { clientVersion: number; sourceRevision: number };
+const PINNED = { clientVersion: String(manifest.clientVersion), revision: String(manifest.sourceRevision) };
+const HEROES = catalog.heroes.length, ABILITIES = HEROES * 4, IMAGES = HEROES * 7 + 5;
 const root = process.cwd();
 const catalogScript = await import(pathToFileURL(path.join(root, 'scripts/sync-context-catalog.mjs')).href);
 const iconScript = await import(pathToFileURL(path.join(root, 'scripts/sync-context-icons.mjs')).href);
@@ -34,7 +38,7 @@ describe('source-backed context definitions', () => {
     expect(contextCatalogCompatible(catalog)).toBe(true);
     expect(CONTEXT_CATALOG.heroes.map(hero => hero.id)).toEqual(catalog.heroes.map(hero => hero.id));
     expect(CONTEXT_CATALOG.items.map(item => item.id)).toEqual(catalog.items.map(item => item.id));
-    expect(CONTEXT_CATALOG.abilities).toHaveLength(164);
+    expect(CONTEXT_CATALOG.abilities).toHaveLength(ABILITIES);
     expect(CONTEXT_CATALOG.heroes.every(hero => hero.abilityIds.length === 4)).toBe(true);
   });
   it('refuses definitions with either a different client or source revision', () => {
@@ -101,14 +105,14 @@ describe('source-backed context definitions', () => {
 describe('offline provenance and cached image integrity', () => {
   it('rebuilds exact definitions and validates all public PNGs with network access disabled', async () => {
     const fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network disabled in offline integrity test'));
-    expect(await catalogScript.verifyContextCatalog(root)).toMatchObject({ heroes: 41, abilities: 164, items: 173, clientVersion: '6774', revision: '11112755' });
-    expect(await iconScript.verifyContextIcons(root)).toMatchObject({ images: 292, clientVersion: '6774', revision: '11112755' });
+    expect(await catalogScript.verifyContextCatalog(root)).toMatchObject({ heroes: HEROES, abilities: ABILITIES, items: catalog.items.length, ...PINNED });
+    expect(await iconScript.verifyContextIcons(root)).toMatchObject({ images: IMAGES, ...PINNED });
     expect((await glyphScript.verifyStaticContextGlyphs(root)).manifest.glyphs).toHaveLength(5);
     expect(fetch).not.toHaveBeenCalled(); fetch.mockRestore();
   });
   it('maps all released heroes to three local portrait variants and all signature slots to PNGs', () => {
     const expected = iconScript.expectedContextAssets(CONTEXT_CATALOG) as { role: string; heroId: string; slot?: number; file: string }[];
-    expect(expected).toHaveLength(292);
+    expect(expected).toHaveLength(IMAGES);
     for (const hero of CONTEXT_CATALOG.heroes) {
       expect(expected.filter(asset => asset.heroId === hero.id && asset.role !== 'ability').map(asset => asset.role)).toEqual(['hero-card', 'hero-small', 'hero-vertical']);
       expect(expected.filter(asset => asset.heroId === hero.id && asset.role === 'ability').map(asset => asset.slot)).toEqual([0, 1, 2, 3]);
@@ -125,8 +129,8 @@ describe('offline provenance and cached image integrity', () => {
   });
   it('generates lightweight renderer labels from exact hero signature IDs without stats or inferred state', async () => {
     const labels = catalogScript.buildAbilityLabels(CONTEXT_CATALOG);
-    expect(labels.clientVersion).toBe('6774'); expect(labels.revision).toBe('11112755');
-    expect(labels.abilities).toHaveLength(164);
+    expect(labels.clientVersion).toBe(PINNED.clientVersion); expect(labels.revision).toBe(PINNED.revision);
+    expect(labels.abilities).toHaveLength(ABILITIES);
     expect(Object.keys(labels.abilities[0])).toEqual(['id', 'numericId', 'heroId', 'slot', 'name']);
     expect(await fs.readFile(path.join(root, 'src/renderer/ability-labels.json'), 'utf8')).toBe(`${JSON.stringify(labels, null, 2)}\n`);
   });

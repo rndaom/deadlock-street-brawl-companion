@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS, validateSettingsPatch } from '../src/shared/settings'
 import type { AppSettings, DisplayInfo } from '../src/shared/types';
 import { startOverwolfProvider } from './overwolf-provider';
 import { createScreenReader } from './screen-reader';
+import { createOverlay } from './overlay';
 import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion, type ScreenReaderState } from '../src/shared/screen-reading';
 import { loadLocalPlayerNames } from './local-identity';
 import { isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
@@ -23,6 +24,7 @@ app.disableHardwareAcceleration();
 
 const APP_ORIGIN = 'companion://app';
 const APP_DOCUMENT = `${APP_ORIGIN}/index.html`;
+const OVERLAY_DOCUMENT = `${APP_DOCUMENT}?view=overlay`;
 const mainDirectory = dirname(fileURLToPath(import.meta.url));
 const controller = createController(APP_CATALOG, { applicationVersion: app.getVersion() });
 let mainWindow: BrowserWindow | null = null;
@@ -33,6 +35,7 @@ let settingsWrites: Promise<void> = Promise.resolve();
 let unsubscribeController: (() => void) | null = null;
 let quitting = false;
 let screenReader: ReturnType<typeof createScreenReader> | null = null;
+let overlay: ReturnType<typeof createOverlay> | null = null;
 let readerPreferences = { enabled: true, crop: { ...DEFAULT_CAPTURE_REGION } as CaptureRegion };
 let readerPreferenceWrites: Promise<void> = Promise.resolve();
 
@@ -132,11 +135,26 @@ function refreshStreetBrawlData(): Promise<void> {
   return streetBrawlRefresh;
 }
 
+let pendingReaderState: ScreenReaderState | null = null;
+let trayTip = '';
+/** One read publishes several partial updates in the same tick; send the windows only the last one,
+ * so each read costs one IPC message and one render per window instead of five or six. */
 function publishScreenReader(state: ScreenReaderState): void {
+  const scheduled = pendingReaderState !== null;
+  pendingReaderState = state;
+  if (!scheduled) setImmediate(flushScreenReader);
+}
+
+function flushScreenReader(): void {
+  const state = pendingReaderState;
+  pendingReaderState = null;
+  if (!state) return;
   if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send('companion:screen-reader', state);
   }
-  tray?.setToolTip(`Street Brawl companion · ${state.status === 'ready' ? 'Offers read' : state.enabled ? 'Screen reading' : 'Paused'}`);
+  overlay?.update(state);
+  const tip = `Street Brawl companion · ${state.status === 'ready' ? 'Offers read' : state.enabled ? 'Screen reading' : 'Paused'}`;
+  if (tip !== trayTip) { trayTip = tip; tray?.setToolTip(tip); }
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -229,6 +247,7 @@ function updateSettings(input: unknown): Promise<AppSettings> {
     const monitorChanged = next.displayId !== settings.displayId;
     settings = next;
     mainWindow?.setAlwaysOnTop(settings.alwaysOnTop);
+    overlay?.setEnabled(settings.overlay);
     moveToSelectedDisplay(monitorChanged);
     return { ...settings };
   });
@@ -236,29 +255,32 @@ function updateSettings(input: unknown): Promise<AppSettings> {
   return operation;
 }
 
-function trustedSender(event: IpcMainInvokeEvent): void {
+/** The overlay may only read state; every request that changes something must come from the companion window. */
+function trustedSender(event: IpcMainInvokeEvent, allowOverlay = false): void {
   const window = mainWindow;
-  if (!window || window.isDestroyed() || event.sender !== window.webContents
-    || !event.senderFrame || event.senderFrame !== window.webContents.mainFrame) {
+  const fromMain = !!window && !window.isDestroyed() && event.sender === window.webContents;
+  const overlayContents = allowOverlay ? overlay?.contents() ?? null : null;
+  const fromOverlay = !fromMain && overlayContents !== null && event.sender === overlayContents;
+  if ((!fromMain && !fromOverlay) || !event.senderFrame || event.senderFrame !== event.sender.mainFrame) {
     throw new Error('This request is not from the companion window.');
   }
   const document = new URL(event.senderFrame.url);
   if (document.protocol !== 'companion:' || document.hostname !== 'app'
-    || document.pathname !== '/index.html' || document.username || document.password || document.port) {
+    || document.pathname !== '/index.html' || document.username || document.password || document.port
+    || (fromOverlay && document.search !== '?view=overlay')) {
     throw new Error('This request is not from the local companion document.');
   }
 }
 
-function handle(channel: string, callback: (event: IpcMainInvokeEvent, argument: unknown) => unknown): void {
+function handle(channel: string, callback: (event: IpcMainInvokeEvent, argument: unknown) => unknown, allowOverlay = false): void {
   ipcMain.handle(channel, (event, argument) => {
-    trustedSender(event);
+    trustedSender(event, allowOverlay);
     return callback(event, argument);
   });
 }
 
 /** The companion always reads the live game. */
 function startLive(): void {
-  controller.setMode('live');
   void screenReader?.setEnabled(readerPreferences.enabled).catch(() => {
     // The reader reports its own actionable startup/error status without game payload logs.
   });
@@ -268,11 +290,12 @@ function startLive(): void {
 
 function registerBridge(): void {
   handle('companion:get-state', () => controller.getState());
-  handle('companion:get-catalog', () => controller.getCatalog());
-  handle('companion:get-settings', () => ({ ...settings }));
+  handle('companion:get-catalog', () => controller.getCatalog(), true);
+  handle('companion:get-settings', () => ({ ...settings }), true);
+  handle('companion:get-overlay', () => overlay?.status() ?? { panel: false, hotkey: null }, true);
   handle('companion:update-settings', (_event, value) => updateSettings(value));
   handle('companion:get-displays', () => displays());
-  handle('companion:get-screen-reader', () => screenReader!.getState());
+  handle('companion:get-screen-reader', () => screenReader!.getState(), true);
   handle('companion:screen-enabled', async (_event, value) => {
     if (typeof value !== 'boolean') throw new TypeError('Choose pause or resume.');
     readerPreferences = { ...readerPreferences, enabled: value };
@@ -453,7 +476,10 @@ async function createWindow(): Promise<void> {
   mainWindow.webContents.on('will-attach-webview', (event) => event.preventDefault());
   mainWindow.once('ready-to-show', () => mainWindow?.showInactive());
   mainWindow.webContents.on('did-finish-load', () => { publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
-  mainWindow.on('closed', () => { mainWindow = null; });
+  // The hidden overlay window must not keep the app running once the companion is closed.
+  mainWindow.on('closed', () => { mainWindow = null; app.quit(); });
+  overlay =createOverlay({ session: localSession, preload: join(mainDirectory, 'preload.cjs'), url: OVERLAY_DOCUMENT });
+  overlay.setEnabled(settings.overlay);
   await mainWindow.loadURL(APP_DOCUMENT);
 }
 
@@ -476,6 +502,7 @@ if (!app.requestSingleInstanceLock()) {
     stopProvider?.();
     unsubscribeController?.();
     controller.dispose();
+    overlay?.dispose();
     tray?.destroy();
     void Promise.allSettled([screenReader?.dispose(), readerPreferenceWrites, settingsWrites]).then(() => app.quit());
   });

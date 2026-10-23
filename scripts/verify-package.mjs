@@ -6,7 +6,8 @@ import { createHash } from 'node:crypto';
 import { extractFile } from '@electron/asar';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const resources = path.join(root, 'release/win-unpacked/resources');
+// An optional argument checks a build packaged elsewhere, e.g. release/next/win-unpacked.
+const resources = path.join(root, process.argv[2] ?? 'release/win-unpacked', 'resources');
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const expected = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
 const packed = JSON.parse(extractFile(path.join(resources, 'app.asar'), 'package.json').toString('utf8'));
@@ -26,13 +27,15 @@ const contextManifest = JSON.parse(await fs.readFile(path.join(resources, 'conte
 const sourceContext = JSON.parse(await fs.readFile(path.join(root, 'assets/context-icons/manifest.json'), 'utf8'));
 const catalogBytes = await fs.readFile(path.join(root, 'data/public-catalog.json'));
 const contextBytes = await fs.readFile(path.join(root, 'data/context-catalog.json'));
-if (contextManifest.assets.length !== 278 || contextManifest.catalogSha256 !== digest(catalogBytes)
+const contextCatalog = JSON.parse(contextBytes.toString('utf8'));
+const heroCount = contextCatalog.heroes.length, abilityCount = contextCatalog.abilities.length, glyphCount = contextCatalog.hudGlyphs.length;
+if (contextManifest.assets.length !== heroCount * 3 + abilityCount + glyphCount || contextManifest.catalogSha256 !== digest(catalogBytes)
   || contextManifest.contextCatalogSha256 !== digest(contextBytes)
   || JSON.stringify(contextManifest) !== JSON.stringify(sourceContext)) throw new Error('Packaged context definitions/templates are incomplete or mismatched.');
 const roles = Object.fromEntries(['hero-card', 'hero-small', 'hero-vertical', 'ability', 'hud-glyph'].map(role =>
   [role, contextManifest.assets.filter(asset => asset.role === role).length]));
-if (roles['hero-card'] !== 39 || roles['hero-small'] !== 39 || roles['hero-vertical'] !== 39
-  || roles.ability !== 156 || roles['hud-glyph'] !== 5) throw new Error('Packaged context template coverage is incomplete.');
+if (roles['hero-card'] !== heroCount || roles['hero-small'] !== heroCount || roles['hero-vertical'] !== heroCount
+  || roles.ability !== abilityCount || roles['hud-glyph'] !== glyphCount) throw new Error('Packaged context template coverage is incomplete.');
 const contextRoot = path.resolve(resources, 'context-icons') + path.sep;
 const seen = new Set();
 for (const asset of contextManifest.assets) {

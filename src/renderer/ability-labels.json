@@ -1,6 +1,6 @@
 {
-  "clientVersion": "6774",
-  "revision": "11112755",
+  "clientVersion": "6807",
+  "revision": "11154106",
   "abilities": [
     {
       "id": "citadel_ability_bull_heal",
@@ -197,6 +197,34 @@
       "heroId": "hero_unicorn",
       "slot": 3,
       "name": "Shining Wonder"
+    },
+    {
+      "id": "ability_deadpack_chargeblast",
+      "numericId": "2603013853",
+      "heroId": "hero_deadpack",
+      "slot": 0,
+      "name": "Strix Salvo"
+    },
+    {
+      "id": "ability_deadpack_rocketeer",
+      "numericId": "1904698842",
+      "heroId": "hero_deadpack",
+      "slot": 1,
+      "name": "Chimera Mk1"
+    },
+    {
+      "id": "ability_deadpack_flamethrower",
+      "numericId": "374042410",
+      "heroId": "hero_deadpack",
+      "slot": 2,
+      "name": "Jettison Fuel"
+    },
+    {
+      "id": "ability_deadpack_ultimate",
+      "numericId": "1026127931",
+      "heroId": "hero_deadpack",
+      "slot": 3,
+      "name": "Close The Deal"
     },
     {
       "id": "drifter_blood_blast",
@@ -619,6 +647,34 @@
       "name": "Combo"
     },
     {
+      "id": "ability_nurse_leech_therapy",
+      "numericId": "267712790",
+      "heroId": "hero_nurse",
+      "slot": 0,
+      "name": "Leech Therapy"
+    },
+    {
+      "id": "ability_nurse_adrenaline_rush",
+      "numericId": "3621314027",
+      "heroId": "hero_nurse",
+      "slot": 1,
+      "name": "Wretched Vapors"
+    },
+    {
+      "id": "ability_nurse_healing_needles",
+      "numericId": "683490631",
+      "heroId": "hero_nurse",
+      "slot": 2,
+      "name": "Healing Needles"
+    },
+    {
+      "id": "ability_nurse_fear",
+      "numericId": "3427093887",
+      "heroId": "hero_nurse",
+      "slot": 3,
+      "name": "Lurking Terrors"
+    },
+    {
       "id": "ability_bookworm_dragonfire",
       "numericId": "604448162",
       "heroId": "hero_bookworm",
@@ -1009,6 +1065,34 @@
       "heroId": "hero_hornet",
       "slot": 3,
       "name": "Assassinate"
+    },
+    {
+      "id": "ability_artist_homingbrush",
+      "numericId": "836615329",
+      "heroId": "hero_artist",
+      "slot": 0,
+      "name": "Living Ink"
+    },
+    {
+      "id": "ability_artist_rollingprojectile",
+      "numericId": "3389503777",
+      "heroId": "hero_artist",
+      "slot": 1,
+      "name": "Flow State"
+    },
+    {
+      "id": "ability_artist_tether",
+      "numericId": "3612874202",
+      "heroId": "hero_artist",
+      "slot": 2,
+      "name": "Still Life"
+    },
+    {
+      "id": "ability_artist_bamboogrove",
+      "numericId": "2516700978",
+      "heroId": "hero_artist",
+      "slot": 3,
+      "name": "Abstract Landscape"
     },
     {
       "id": "viscous_goo_grenade",

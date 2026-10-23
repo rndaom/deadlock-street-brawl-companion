@@ -2,8 +2,9 @@ import {
   createInitialScreenMatchContext, SCREEN_CAPTURE_FRESHNESS_MS, SCREEN_CONTEXT_MAX_AGE_MS,
   type ScreenAbilityState, type ScreenCompleteness, type ScreenContextObservation, type ScreenInventoryItem,
   type ScreenMatchContext, type ScreenMatchFieldObservations, type ScreenMatchObservation,
-  type ScreenObservedPlayer, type ScreenPlayerObservation,
+  type ScreenObservedPlayer, type ScreenPlayerObservation, type ScreenRoundTracking,
 } from '../shared/screen-reading';
+import { CONTEXT_CATALOG } from '../shared/context-catalog';
 
 const fields = ['viewMode', 'matchId', 'phase', 'round', 'scores', 'localSeat', 'localHeroId', 'localTeam',
   'localAbilityPoints', 'rerollsRemaining', 'rerollAvailable', 'pickStage', 'deadlineAt'] as const;
@@ -32,8 +33,17 @@ export function resetScreenMatchContext(state: ScreenMatchContext): ScreenMatchC
     retiredSessionIds: retire(state.retiredSessionIds, state.sessionId),
     retiredGameSessionIds: retire(state.retiredGameSessionIds, state.gameSessionId) };
 }
+/**
+ * A death cam shows "SPECTATING" on every frame. Once frames stop showing it (respawn,
+ * draft, own HUD), the spectator verdict ends; other frames never write "not spectating".
+ */
+export const SPECTATOR_HOLD_MS = 4_000;
 /** Historical pixels remain inspectable; an expired ownership proof is not a current participant claim. */
 export function expireScreenMatchContext(state: ScreenMatchContext, now: number): ScreenMatchContext {
+  if (state.viewMode === 'spectator') {
+    const age = screenObservationAge(state.observations.viewMode, now);
+    return age !== null && age <= SPECTATOR_HOLD_MS ? state : { ...state, viewMode: 'unknown', revision: state.revision + 1 };
+  }
   if (state.viewMode !== 'participant') return state;
   const age = screenObservationAge(state.observations.viewMode, now);
   if (age !== null && age <= SCREEN_CONTEXT_MAX_AGE_MS) return state;
@@ -161,6 +171,97 @@ function clearOwn(context: ScreenMatchContext): ScreenMatchContext {
     observations: { ...context.observations, localSeat: null, localHeroId: null, localTeam: null, localAbilityPoints: null } };
 }
 
+/** First to `scoreToWin` round wins: at most 2 * 3 - 1 = 5 rounds. */
+export const MAX_STREET_BRAWL_ROUNDS = Math.max(1, 2 * (CONTEXT_CATALOG.streetBrawl.scoreToWin || 3) - 1);
+/** A draft that opens this long after the previous draft frame, with combat in between, is the next round's. */
+export const ROUND_DRAFT_GAP_MS = 20_000;
+/** The round is advanced by a new draft only when the previous draft was this recent (a round is a few minutes). */
+export const ROUND_DRAFT_MAX_GAP_MS = 300_000;
+/** A lower score replaces the kept one only after this many agreeing reads (a past misread stays correctable). */
+const SCORE_LOWER_READS = 3;
+/** A lower round (not 1) replaces the kept one after this many agreeing reads: a one-off "ROUND N+1" misread
+ * would otherwise stick for the whole round, since a read one above is accepted at once. */
+const ROUND_LOWER_READS = 3;
+const initialTracking = (): ScreenRoundTracking => ({ candidate: null, candidateCount: 0, scoreCandidate: null, scoreCandidateCount: 0,
+  lastDraftAt: null, roundAtLastDraft: null, combatSinceDraft: false, inferredAt: null });
+/** Round wins on the HUD pips (left + right) are N-1 during round N, or N once it has been decided. */
+function pipsFitRound(scores: readonly [number, number], round: number): boolean {
+  return scores[0] + scores[1] >= round - 1 && scores[0] + scores[1] <= round;
+}
+function validScores(scores: unknown): scores is [number, number] {
+  return Array.isArray(scores) && scores.length === 2 && scores.every(value => Number.isInteger(value) && value >= 0
+    && value <= (CONTEXT_CATALOG.streetBrawl.scoreToWin || 3));
+}
+interface RoundDecision { round: number | undefined; inferred: boolean; restart: boolean; lowered: boolean; scores: [number, number] | undefined; tracking: ScreenRoundTracking }
+/**
+ * The round only moves forward one step at a time (real 2026-10-18 logs: a misread "ROUND 13" was
+ * taken in round 3, and a round-3 draft ran as round 2 for 40 s until "ROUND 3" was read):
+ *  - a read above the maximum, or contradicting the round pips on the same frame, is ignored;
+ *  - the same round or the next one is accepted; a larger jump needs a second agreeing read or the pips;
+ *  - a lower round is a new match only when "ROUND 1" is read twice (or with empty pips); another lower round
+ *    replaces the kept one after three agreeing reads (a one-off "ROUND N+1" misread does not stick);
+ *  - a new "Choice 1 of 3" draft after combat advances the round by one when the round has not
+ *    advanced since the previous draft, and that draft was within a few minutes;
+ *  - a score is kept only when left + right is N-1 or N in round N, and never falls on one read.
+ */
+function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): RoundDecision {
+  const tracking = { ...(state.roundTracking ?? initialTracking()) };
+  const previous = state.round;
+  const usable = (field: 'round' | 'scores' | 'phase' | 'pickStage') => has(frame, field) && !!frame.fields?.[field] && frame.fields[field]!.confidence >= 0.85;
+  const pips = usable('scores') && validScores(frame.scores) ? frame.scores : null;
+  let round: number | undefined; let inferred = false; let restart = false; let lowered = false;
+  const read = usable('round') && Number.isInteger(frame.round) ? frame.round! : null;
+  if (read !== null && read >= 1 && read <= MAX_STREET_BRAWL_ROUNDS && !(pips && !pipsFitRound(pips, read))) {
+    if (previous === null || read === previous || read === previous + 1) { round = read; tracking.candidate = null; tracking.candidateCount = 0; }
+    else {
+      tracking.candidateCount = tracking.candidate === read ? tracking.candidateCount + 1 : 1; tracking.candidate = read;
+      if (read > previous && (tracking.candidateCount >= 2 || pips)) round = read;
+      else if (read === 1 && (tracking.candidateCount >= 2 || !!pips && pips[0] + pips[1] === 0)) restart = true;
+      else if (read > 1 && read < previous && tracking.candidateCount >= ROUND_LOWER_READS) { round = read; lowered = true; }
+      if (round !== undefined || restart) { tracking.candidate = null; tracking.candidateCount = 0; }
+    }
+  }
+  const phase = usable('phase') ? frame.phase : undefined;
+  if (phase === 'draft') {
+    const stage = usable('pickStage') ? frame.pickStage ?? null : null;
+    if (tracking.combatSinceDraft && stage !== null) {
+      if (stage === 1 && read === null && previous !== null && tracking.roundAtLastDraft === previous && previous < MAX_STREET_BRAWL_ROUNDS
+        && tracking.lastDraftAt !== null && frame.capturedAt - tracking.lastDraftAt <= ROUND_DRAFT_MAX_GAP_MS) {
+        round = previous + 1; inferred = true;
+      }
+      tracking.combatSinceDraft = false;
+    }
+    tracking.lastDraftAt = frame.capturedAt; tracking.roundAtLastDraft = round ?? previous;
+  } else if (phase === 'combat' && (tracking.lastDraftAt === null || frame.capturedAt - tracking.lastDraftAt >= ROUND_DRAFT_GAP_MS)) {
+    tracking.combatSinceDraft = true;
+  }
+  if (round !== undefined && round !== previous) tracking.inferredAt = inferred ? frame.capturedAt : null;
+  let scores: [number, number] | undefined;
+  const current = round ?? previous;
+  if (pips && current !== null && pipsFitRound(pips, current)) {
+    const old = state.scores;
+    if (!old || pips[0] >= old[0] && pips[1] >= old[1]) { scores = [pips[0], pips[1]]; tracking.scoreCandidate = null; tracking.scoreCandidateCount = 0; }
+    else {
+      tracking.scoreCandidateCount = equal(tracking.scoreCandidate, pips) ? tracking.scoreCandidateCount + 1 : 1;
+      tracking.scoreCandidate = [pips[0], pips[1]];
+      if (tracking.scoreCandidateCount >= SCORE_LOWER_READS) { scores = [pips[0], pips[1]]; tracking.scoreCandidate = null; tracking.scoreCandidateCount = 0; }
+    }
+  }
+  return { round, inferred, restart, lowered, scores, tracking };
+}
+
+/**
+ * A new match was recognized another way (its loading screen, a new match number or your hero changing): forget
+ * the old match's round, score, draft stage and round evidence. Unlike resetScreenMatchContext this keeps the
+ * reader session, so the new match's frames still apply. (2026-10-18 review: a match left before its post-match
+ * screen gave the next match round 4 from its first draft, ignored its "ROUND 2", and kept the old 1-1 score.)
+ */
+export function forgetMatchRound(context: ScreenMatchContext): ScreenMatchContext {
+  if (context.round === null && context.scores === null && context.pickStage === null && !context.roundTracking) return context;
+  return { ...context, round: null, scores: null, pickStage: null, roundTracking: initialTracking(),
+    observations: { ...context.observations, round: null, scores: null, pickStage: null } };
+}
+
 /** Atomic merge of one visible frame. Omission is unknown, not an empty inventory or rank zero. */
 export function reduceScreenMatchContext(state: ScreenMatchContext, frame: ScreenMatchObservation, now = Date.now()): ScreenMatchContext {
   if (!frameValid(frame, now) || state.retiredSessionIds.includes(frame.sessionId)
@@ -169,10 +270,33 @@ export function reduceScreenMatchContext(state: ScreenMatchContext, frame: Scree
   if (!sourceChanged && state.lastObservedAt !== null && frame.capturedAt <= state.lastObservedAt) return state;
   const gameChanged = frame.gameSessionId != null && state.gameSessionId !== null && state.gameSessionId !== frame.gameSessionId;
   const matchChanged = frame.matchId != null && state.matchId !== null && frame.matchId !== state.matchId;
-  const roundRestart = frame.round != null && state.round !== null && frame.round < state.round;
   const finishedRestart = state.phase === 'finished' && frame.phase !== undefined && frame.phase !== 'finished' && frame.phase !== 'unknown';
   const explicitReset = !!frame.resetReason && !!frame.resetObservation && frame.resetObservation.confidence >= .94;
-  let result = sourceChanged || gameChanged || matchChanged || roundRestart || finishedRestart || explicitReset ? createInitialScreenMatchContext() : { ...state };
+  const restarted = sourceChanged || gameChanged || matchChanged || finishedRestart || explicitReset;
+  let decision = decideRound(restarted ? createInitialScreenMatchContext() : state, frame);
+  // "ROUND 1" confirmed below the current round: a new match in the same game window.
+  const roundRestart = decision.restart;
+  if (roundRestart) decision = decideRound(createInitialScreenMatchContext(), frame);
+  let result = restarted || roundRestart ? createInitialScreenMatchContext() : { ...state };
+  // Only the round and score this frame proves (see decideRound) reach the generic field merge.
+  {
+    const fieldsIn = frame.fields ?? {};
+    const { round: _round, scores: _scores, ...rest } = frame;
+    const { round: roundObservation, scores: scoresObservation, ...otherFields } = fieldsIn;
+    const fieldsOut: Partial<ScreenMatchFieldObservations> = { ...otherFields };
+    const proved: ScreenMatchObservation = { ...rest, fields: fieldsOut };
+    if (decision.round !== undefined) {
+      const source = decision.inferred ? fieldsIn.pickStage ?? fieldsIn.phase : roundObservation;
+      if (source) { proved.round = decision.round; fieldsOut.round = decision.inferred ? { ...source, method: 'layout-association', round: decision.round } : source; }
+    }
+    if (decision.scores && scoresObservation) { proved.scores = decision.scores; fieldsOut.scores = scoresObservation; }
+    frame = proved;
+  }
+  result.roundTracking = decision.tracking;
+  // A lowered round drops a kept score it cannot have (more wins than rounds played).
+  if (decision.lowered && result.scores && result.scores[0] + result.scores[1] > decision.round!) {
+    result = { ...result, scores: null, observations: { ...result.observations, scores: null } };
+  }
   result = expireScreenMatchContext(result, now);
   result = { ...result, observations: { ...result.observations }, sessionId: frame.sessionId,
     gameSessionId: frame.gameSessionId ?? result.gameSessionId,

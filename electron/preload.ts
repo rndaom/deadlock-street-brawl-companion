@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { CompanionBridge, MatchState } from '../src/shared/types';
+import type { CompanionBridge, MatchState, OverlayStatus } from '../src/shared/types';
 import type { ScreenReaderState } from '../src/shared/screen-reading';
 
 // Never expose ipcRenderer, event objects, channel selection, or a generic invoke.
@@ -27,6 +27,13 @@ const bridge: CompanionBridge = {
   setScreenReaderCrop: crop => ipcRenderer.invoke('companion:screen-crop', crop),
   retryScreenReader: () => ipcRenderer.invoke('companion:screen-retry'),
   previewScreenReader: () => ipcRenderer.invoke('companion:screen-preview'),
+  getOverlayStatus: () => ipcRenderer.invoke('companion:get-overlay'),
+  subscribeOverlay(listener) {
+    if (typeof listener !== 'function') throw new TypeError('An overlay listener is required.');
+    const receive = (_event: Electron.IpcRendererEvent, status: OverlayStatus) => listener(status);
+    ipcRenderer.on('companion:overlay', receive);
+    return () => ipcRenderer.removeListener('companion:overlay', receive);
+  },
 };
 
 contextBridge.exposeInMainWorld('companion', Object.freeze(bridge));

@@ -132,6 +132,7 @@ export function Sheet(props: SheetProps) {
             </select></label>
           <label className="slider"><span>Text size<strong className="num">{Math.round(settings.textScale * 100)}%</strong></span>
             <input type="range" min="0.8" max="1.5" step="0.05" value={settings.textScale} onChange={(event) => onSettings({ textScale: Number(event.target.value) })} /></label>
+          <Toggle checked={settings.overlay} onChange={(overlay) => onSettings({ overlay })} label="In-game overlay" help="Marks the pick on the draft screen inside Deadlock, so one monitor is enough. Press F7 in game for your leveling plan. Needs Deadlock in borderless or windowed mode." />
           <Toggle checked={settings.alwaysOnTop} onChange={(alwaysOnTop) => onSettings({ alwaysOnTop })} label="Keep on top" help="Stays above other windows. Deadlock keeps the game input." />
         </div>}
         {tab === 'area' && <ReadingArea {...props} />}
@@ -144,7 +145,7 @@ export function Sheet(props: SheetProps) {
             <li>Hidden information stays unknown. Builds refresh whenever the scoreboard is open.</li>
           </ul>
           <dl className="facts-list"><div><dt>Item catalogue</dt><dd>Build {catalog.clientVersion} · {catalog.items.length} items · {catalog.heroes.length} heroes</dd></div>
-            <div><dt>Companion</dt><dd>Version 0.4.0</dd></div></dl>
+            <div><dt>Companion</dt><dd>Version {__APP_VERSION__}</dd></div></dl>
         </div>}
       </div>
     </div>

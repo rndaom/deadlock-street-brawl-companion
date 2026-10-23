@@ -21,10 +21,10 @@ export function createInitialState(mode: AppMode = 'live'): MatchState {
     mode,
     source: {
       sessionId: null,
-      provider: mode === 'demo' ? 'synthetic-demo' : 'unavailable',
+      provider: 'unavailable',
       status: 'unavailable', runtimeVersion: null, capabilities: [], noImageMethodVerified: false,
       sequence: null, lastReceivedAt: null, deliveryBoundMs: null, continuity: 'unknown',
-      message: mode === 'demo' ? 'Choose a clearly labelled synthetic scenario.' : 'Automatic participant telemetry has not been verified.',
+      message: 'Automatic participant telemetry has not been verified.',
     },
     match: null, players: [], draft: null, rosterCompleteness: 'unknown',
     retiredMatchIds: [], retiredSourceSessionIds: [], closedDrafts: [], revision: 0, decisionRevision: 0, advice: null,
@@ -290,7 +290,6 @@ function usableDecisionContext(state: MatchState, now: number): boolean {
     || state.rosterCompleteness !== 'complete' || state.players.length !== 8) return false;
   const usable = (observation: Observation | null | undefined) => {
     if (!provenanceMatches(state.source, observation) || observation.visibility !== 'participant') return false;
-    if (state.mode === 'demo') return true;
     const age = ageBound(state.source, observation, now);
     return age !== null && age <= MAX_SOURCE_AGE_MS;
   };

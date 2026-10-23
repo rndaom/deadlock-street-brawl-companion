@@ -53,18 +53,24 @@ internal sealed class ItemSlotMatcher
       {
         // The triangle above the corner's diagonal.
         if ((x - box.X) / box.Width - (y - box.Y) / box.Height < .66) continue;
-        int index = (y * width + x) * 4; samples++;
-        double b = pixels[index] / 255d, g = pixels[index + 1] / 255d, r = pixels[index + 2] / 255d;
-        double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), delta = max - min;
-        if (max <= 0 || delta <= 0) continue;
-        double saturation = delta / max, hue = max == r ? 60 * (((g - b) / delta + 6) % 6) : max == g ? 60 * ((b - r) / delta + 2) : 60 * ((r - g) / delta + 4);
-        if (hue is >= 25 and <= 50 && saturation >= .6 && max >= .4) weapon++;
-        else if (hue is >= 68 and <= 105 && saturation >= .5 && max >= .25) vitality++;
-        else if (hue is >= 250 and <= 310 && saturation >= .22 && max >= .45) spirit++;
+        samples++;
+        switch (TierHue(pixels, (y * width + x) * 4)) { case 1: weapon++; break; case 2: vitality++; break; case 3: spirit++; break; }
       }
     if (samples < 4) return null;
     int best = Math.Max(weapon, Math.Max(vitality, spirit));
     if (best < samples * .55) return null;
     return best == weapon ? "weapon" : best == vitality ? "vitality" : "spirit";
+  }
+  /** Tier corner colour of one BGRA pixel: 1 weapon orange, 2 vitality green, 3 spirit purple, 0 none. */
+  public static int TierHue(byte[] pixels, int index)
+  {
+    double b = pixels[index] / 255d, g = pixels[index + 1] / 255d, r = pixels[index + 2] / 255d;
+    double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b)), delta = max - min;
+    if (max <= 0 || delta <= 0) return 0;
+    double saturation = delta / max, hue = max == r ? 60 * (((g - b) / delta + 6) % 6) : max == g ? 60 * ((b - r) / delta + 2) : 60 * ((r - g) / delta + 4);
+    if (hue is >= 25 and <= 50 && saturation >= .6 && max >= .4) return 1;
+    if (hue is >= 68 and <= 105 && saturation >= .5 && max >= .25) return 2;
+    if (hue is >= 250 and <= 310 && saturation >= .22 && max >= .45) return 3;
+    return 0;
   }
 }

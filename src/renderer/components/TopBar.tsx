@@ -29,18 +29,22 @@ export function TopBar({ view, onMenu, onPause, onRetry, readerEnabled }: {
 
 export function MatchStrip({ view }: { view: CompanionView }) {
   const { match, me } = view;
-  const hasAny = match.round !== null || match.scores !== null || match.rerollsLeft !== null || !!me.hero;
+  const hasAny = match.round !== null || match.scores !== null || match.choice !== null || !!me.hero;
   if (!hasAny) return null;
+  // During a draft the choice and the rerolls left decide a reroll; between drafts the reroll count means nothing (it resets each round).
+  const rerolls = match.rerollsLeft;
+  const drafting = match.choice !== null || (!!view.cards && rerolls !== null);
   return <section className="match-strip" aria-label="Match">
     {me.hero && <div className="strip-cell strip-hero"><HeroArt hero={me.hero} variant="small" /><span><small>Playing</small><strong>{me.hero.name}</strong></span></div>}
     <div className="strip-cell"><small>Round</small><strong className="num">{match.round ?? '–'}</strong></div>
-    {match.scores
-      ? <div className="strip-cell strip-score" aria-label={`${match.scores.labels[0]} ${match.scores.ours}, ${match.scores.labels[1]} ${match.scores.theirs}`}>
-        <span><small>{match.scores.labels[0]}</small><strong className="num ally">{match.scores.ours}</strong></span>
-        <i aria-hidden="true" />
-        <span><small>{match.scores.labels[1]}</small><strong className="num enemy">{match.scores.theirs}</strong></span>
-      </div>
-      : <div className="strip-cell"><small>Score</small><strong className="num muted">–</strong></div>}
-    <div className="strip-cell"><small>Rerolls</small><strong className="num">{match.rerollsLeft ?? '–'}</strong></div>
+    {match.scores && <div className="strip-cell strip-score" aria-label={`Round wins: ${match.scores.labels[0]} ${match.scores.ours}, ${match.scores.labels[1]} ${match.scores.theirs}`}>
+      <span><small>{match.scores.labels[0]}</small><strong className="num ally">{match.scores.ours}</strong></span>
+      <i aria-hidden="true" />
+      <span><small>{match.scores.labels[1]}</small><strong className="num enemy">{match.scores.theirs}</strong></span>
+    </div>}
+    {drafting && <div className="strip-cell strip-choice" aria-label={`Choice ${match.choice ?? 'not read'} of 3${rerolls !== null ? `, ${rerolls} ${rerolls === 1 ? 'reroll' : 'rerolls'} left` : ''}`}>
+      <small>Choice</small><strong className="num">{match.choice ?? '–'}<span className="strip-of">/3</span></strong>
+      {rerolls !== null && <span className={`strip-rerolls ${rerolls === 0 ? 'strip-rerolls-none' : ''}`}>{rerolls === 0 ? 'No rerolls' : `${rerolls} ${rerolls === 1 ? 'reroll' : 'rerolls'}`}</span>}
+    </div>}
   </section>;
 }

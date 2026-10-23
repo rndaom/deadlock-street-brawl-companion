@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { evaluateDecision } from '../src/core/scoring';
-import { createInitialState, reduceTelemetry } from '../src/core/store';
-import { DEMO_CATALOG, getDemoEvents } from '../src/demo/scenarios';
 import type { Catalog, ItemInstance, MatchState, PlayerState } from '../src/shared/types';
 import { draft, item, match, NOW, observation, player, source } from './fixtures';
 
@@ -25,24 +23,22 @@ const catalog: Catalog = {
   ],
 };
 
-function demoObservation(sequence: number) {
-  return observation(sequence, { provider: 'synthetic-demo' });
-}
+
 function fixturePlayer(seat: number, overrides: Partial<PlayerState> = {}): PlayerState {
   return player(seat, {
     heroId: seat === 0 ? 'mystic' : seat < 4 ? 'gunner' : 'neutral',
-    heroName: null, observation: demoObservation(2),
-    inventoryObservation: demoObservation(2), abilityObservation: demoObservation(2),
+    heroName: null, observation: observation(2),
+    inventoryObservation: observation(2), abilityObservation: observation(2),
     inventory: seat === 0 ? [item('spirit', 'owned-spirit')] : [], ...overrides,
   });
 }
 function fixture(): MatchState {
   return {
-    mode: 'demo', source: source({ provider: 'synthetic-demo', sequence: 3 }),
-    match: match({ observation: demoObservation(1) }),
+    mode: 'live', source: source({ sequence: 3 }),
+    match: match({ observation: observation(1) }),
     players: Array.from({ length: 8 }, (_, seat) => fixturePlayer(seat)),
     draft: draft({
-      observation: demoObservation(3),
+      observation: observation(3),
       // Deliberately shuffled: a preference must never reorder game positions.
       offers: [
         { position: 2, item: item('neutral', 'offer-neutral'), available: true },
@@ -60,91 +56,13 @@ function replaceOffer(state: MatchState, position: number, overrides: Partial<It
 }
 
 describe('synthetic decision evaluator', () => {
-  it('evaluates the shipped demonstration through the actual telemetry reducer', () => {
-    const state = getDemoEvents('draft', NOW).reduce(reduceTelemetry, createInitialState('demo'));
-    const result = evaluateDecision(state, DEMO_CATALOG, NOW);
-    expect(result?.kind).toBe('pick');
-    expect(result?.preferredPosition).toBe(0);
-    expect(result?.reasons.join(' ')).toContain('Extra Spirit');
-    expect(result?.reasons).toHaveLength(2);
-    expect(result?.reasons.every(reason => reason.length <= 150)).toBe(true);
-    expect(result?.reasons.join(' ')).not.toMatch(/tags|synthetic profile|measured effectiveness/);
-    expect(result?.evidence).toBe('synthetic');
-    expect(DEMO_CATALOG.liveModelValidated).toBe(false);
-
-    const rerolled = getDemoEvents('rerolled', NOW).reduce(reduceTelemetry, createInitialState('demo'));
-    const afterReroll = evaluateDecision(rerolled, DEMO_CATALOG, NOW);
-    expect(afterReroll?.key.generation).toBe(2);
-    expect(afterReroll?.reroll.reason).toContain('Zero rerolls remain');
-    expect(afterReroll?.reroll.kind).toBe('withheld');
-  });
-
-  it.each(['waiting', 'combat', 'interrupted', 'unknown-item', 'unknown-ranks', 'post-match'] as const)
-    ('produces no pick for the shipped %s demonstration', scenario => {
-      const state = getDemoEvents(scenario, NOW).reduce(reduceTelemetry, createInitialState('demo'));
-      expect(evaluateDecision(state, DEMO_CATALOG, NOW)?.kind).not.toBe('pick');
-    });
-
-  it('uses the observed hero and confirmed loadout, preserves positions, and leaves the snapshot unchanged', () => {
+  it('withholds the tag baseline in the live app (it only ever ran in the removed demo mode)', () => {
     const state = fixture();
     const before = structuredClone(state);
     const result = evaluateDecision(state, catalog, NOW);
-
-    expect(result?.kind).toBe('pick');
-    expect(result?.preferredPosition).toBe(1);
-    expect(result?.evidence).toBe('synthetic');
-    expect(result?.ranked.map(offer => offer.position)).toEqual([2, 0, 1]);
-    expect(result?.reasons).toHaveLength(2);
-    expect(result?.reasons.join(' ')).toContain('Observed Mystic');
-    expect(result?.reasons.join(' ')).toContain('confirmed Spirit Amplifier');
-    expect(result?.limitations.join(' ')).toContain('not win probabilities');
-    expect(result?.key.catalogRevision).toBe(catalog.revision);
+    expect(result?.kind).toBe('withheld');
+    expect(result?.ranked).toEqual([]);
     expect(state).toEqual(before);
-
-    state.players[0]!.heroId = 'gunner';
-    state.players[0]!.inventory = [item('weapon', 'owned-weapon')];
-    expect(evaluateDecision(state, catalog, NOW)?.preferredPosition).toBe(0);
-  });
-
-  it('evaluates bonus items against observed enemy healing instead of scoring only the main item', () => {
-    const state = fixture();
-    state.players[0] = fixturePlayer(0, { heroId: 'neutral', inventory: [] });
-    state.players[4] = fixturePlayer(4, { heroId: 'healer', inventory: [item('healing', 'enemy-healing')] });
-    const beforeBonus = evaluateDecision(state, catalog, NOW);
-    expect(beforeBonus?.preferredPosition).toBe(0);
-
-    replaceOffer(state, 2, { bonusIds: ['antiheal'] });
-    const result = evaluateDecision(state, catalog, NOW);
-    expect(result?.kind).toBe('pick');
-    expect(result?.preferredPosition).toBe(2);
-    expect(result?.reasons.join(' ')).toContain('Observed Healer with Observed Regeneration');
-    expect(result?.reasons.join(' ')).toContain('includes Healing Suppression');
-    expect(result?.ranked.find(offer => offer.position === 2)!.score)
-      .toBeGreaterThan(beforeBonus!.ranked.find(offer => offer.position === 2)!.score);
-  });
-
-  it('uses team contribution only from observed profiles', () => {
-    const state = fixture();
-    state.players[0] = fixturePlayer(0, { heroId: 'neutral', inventory: [] });
-    replaceOffer(state, 1, { id: 'support' });
-    const withDamageTeam = evaluateDecision(state, catalog, NOW);
-    expect(withDamageTeam?.preferredPosition).toBe(1);
-    expect(withDamageTeam?.reasons.join(' ')).toContain('teammates Observed Gunner');
-
-    for (const teammate of state.players.filter(candidate => candidate.team === 0 && !candidate.isLocal)) {
-      teammate.heroId = 'neutral';
-    }
-    const withoutDamageTeam = evaluateDecision(state, catalog, NOW);
-    expect(withoutDamageTeam?.ranked.find(offer => offer.position === 1)!.score)
-      .toBeLessThan(withDamageTeam!.ranked.find(offer => offer.position === 1)!.score);
-  });
-
-  it('withholds reroll comparison despite observing one available reroll', () => {
-    const result = evaluateDecision(fixture(), catalog, NOW);
-    expect(result?.kind).toBe('pick');
-    expect(result?.reroll.kind).toBe('withheld');
-    expect(result?.reroll.reason).toContain('1 reroll observed');
-    expect(result?.reroll.reason).toContain('verified replacement');
   });
 
   it('explicitly reports zero rerolls instead of inventing a keep-versus-reroll comparison', () => {

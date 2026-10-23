@@ -1,8 +1,8 @@
 {
-  "clientVersion": "6774",
-  "revision": "11112755",
+  "clientVersion": "6807",
+  "revision": "11154106",
   "source": "Community Deadlock API parsing Valve assets; not an official Valve API",
-  "retrievedAt": "2026-10-11T16:18:03.098Z",
+  "retrievedAt": "2026-10-21T10:44:29.952Z",
   "items": [
     {
       "id": "upgrade_active_reload",
@@ -185,7 +185,7 @@
       "tags": [
         "weapon"
       ],
-      "description": "Briefly gain Fire Rate and Move Speed when one of your bullets hits an enemy hero.",
+      "description": "Briefly gain Fire Rate and Move Speed when one of your bullets hits a hero.",
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/items/weapon/burst_fire.png"
     },
     {
@@ -523,7 +523,7 @@
         "bullet-resist",
         "weapon"
       ],
-      "description": "Grants Bullet Resist when your bullets hit an enemy hero. Each shot can only grant one stack.",
+      "description": "Grants Bullet Resist when your bullets hit a hero. Each shot can only grant one stack.",
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/items/weapon/escalating_resilience.png"
     },
     {
@@ -1891,7 +1891,7 @@
         "spirit",
         "weapon"
       ],
-      "description": "Gain bonus Fire Rate, Spirit Power and Spirit Lifesteal by charging up when shooting enemy heroes.",
+      "description": "Gain bonus Fire Rate, Spirit Power and Spirit Lifesteal by charging up when shooting heroes.",
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/items/weapon/spiritual_overflow.png"
     },
     {
@@ -2310,6 +2310,17 @@
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/unicorn_sm.webp"
     },
     {
+      "id": "hero_deadpack",
+      "numericId": "78",
+      "name": "Deadman Danny",
+      "role": "marksman",
+      "tags": [
+        "crowd-control",
+        "weapon"
+      ],
+      "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/deadpack_sm.webp"
+    },
+    {
       "id": "hero_drifter",
       "numericId": "64",
       "name": "Drifter",
@@ -2487,6 +2498,19 @@
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/digger_sm.webp"
     },
     {
+      "id": "hero_nurse",
+      "numericId": "87",
+      "name": "Nurse Harrow",
+      "role": "marksman",
+      "tags": [
+        "crowd-control",
+        "healing",
+        "support",
+        "weapon"
+      ],
+      "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nurse_sm.webp"
+    },
+    {
       "id": "hero_bookworm",
       "numericId": "67",
       "name": "Paige",
@@ -2652,6 +2676,17 @@
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/hornet_sm.webp"
     },
     {
+      "id": "hero_artist",
+      "numericId": "86",
+      "name": "Violet",
+      "role": "mystic",
+      "tags": [
+        "crowd-control",
+        "spirit"
+      ],
+      "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/artist_sm.webp"
+    },
+    {
       "id": "hero_viscous",
       "numericId": "35",
       "name": "Viscous",
@@ -2715,5 +2750,5 @@
     }
   ],
   "liveModelValidated": false,
-  "modelVersion": "descriptive-tags-v1-client-6774"
+  "modelVersion": "descriptive-tags-v1-client-6807"
 }

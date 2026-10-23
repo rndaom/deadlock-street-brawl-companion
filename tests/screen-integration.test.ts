@@ -13,7 +13,7 @@ import {
 import { parseScreenOffers } from '../src/screen/offer-parser';
 import { parseScreenMatchObservation } from '../src/screen/match-parser';
 import { evaluateScreenOffers } from '../src/screen/screen-advice';
-import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion } from '../src/shared/screen-reading';
+import { DEFAULT_CAPTURE_REGION, SCREEN_CARD_BACKGROUND_HOLD_MS, validateCaptureRegion, type CaptureRegion } from '../src/shared/screen-reading';
 import { newestScreenReaderState } from '../src/renderer/screen-state';
 import type { Catalog } from '../src/shared/types';
 
@@ -508,7 +508,7 @@ describe('actual-reading coordinator with an injected native process', () => {
   it('uses hidden pipes, warms with synthetic pixels, then shows cards and a pick from the first current real card view', async () => {
     const { reader, processes, spawnProcess } = setup();
     await reader.pollOnce();
-    expect(spawnProcess).toHaveBeenCalledWith('synthetic-test-helper.exe', [], { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
+    expect(spawnProcess).toHaveBeenCalledWith('synthetic-test-helper.exe', [], { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'], env: expect.objectContaining({ DOTNET_GCgen0size: '0x1000000' }) });
     expect(processes[0]?.requests[0]?.op).toBe('fixture');
     // The synthetic warm-up is never shown as game evidence.
     expect(reader.getState()).toMatchObject({ engineReady: true, status: 'waiting-game', offers: [], advice: null });
@@ -518,7 +518,7 @@ describe('actual-reading coordinator with an injected native process', () => {
     expect(reader.getState().offers.map(value => value.position)).toEqual([0, 1, 2]);
     expect(reader.getState().advice?.ranked.map(value => value.position)).toEqual([0, 1, 2]);
     expect(processes[0]!.requests.filter(isCardRead)).toHaveLength(1);
-    expect(reader.getState().offers.every(value => value.variant === 'unknown' && value.bonusIds === null)).toBe(true);
+    expect(reader.getState().offers.every(value => value.variant === 'base' && value.bonusIds === null)).toBe(true);
     // Unread bonuses/variants are a caveat, not a reason to withhold the best known card.
     const advice = reader.getState().advice!;
     expect(advice.preferredPosition).not.toBeNull();
@@ -563,9 +563,12 @@ describe('actual-reading coordinator with an injected native process', () => {
     const { reader, processes } = setup();
     await untilReady(reader);
     const shown = reader.getState();
-    processes[0]!.respond = request => nativeReply(request, { status, foreground: status === 'not_foreground' || status === 'minimized' ? false : true, capturedAt: null, hash: null, blocks: [] });
+    const background = status === 'not_foreground' || status === 'minimized';
+    processes[0]!.respond = request => nativeReply(request, { status, foreground: !background, capturedAt: null, hash: null, blocks: [] });
+    // Alt-tabbing to the companion holds the cards longer: nothing can re-read them until the game is back.
+    const hold = background ? SCREEN_CARD_BACKGROUND_HOLD_MS : SCREEN_READER_LIMITS.cardHoldMs;
     // Looking at the companion or a covering window does not change the cards in the game.
-    while (Date.now() < shown.observedAt! + SCREEN_READER_LIMITS.cardHoldMs - 1000) {
+    while (Date.now() < shown.observedAt! + hold - 1000) {
       await vi.advanceTimersByTimeAsync(500); await reader.pollOnce();
       expect(reader.getState()).toMatchObject({ status: 'ready', generation: shown.generation, observedAt: shown.observedAt });
       expect(reader.getState().offers.map(value => value.name)).toEqual(names);
@@ -675,7 +678,8 @@ describe('actual-reading coordinator with an injected native process', () => {
     await untilReady(reader);
     expect(reader.getState().offers[0]?.bonusIds).toBeNull();
     expect(reader.getState().advice?.preferredPosition).not.toBeNull();
-    expect(reader.getState().advice?.caveat).toMatch(/bonuses/i);
+    // The read Bonus! marker makes the unidentified second slot a named caveat.
+    expect(reader.getState().advice?.caveat).toMatch(/bonus/i);
     expect(reader.getState().advice?.limitations.join(' ')).toMatch(/bonus/i);
   });
   it('replaces the previous generation and its pick as soon as a reroll changes the visible names', async () => {
@@ -830,9 +834,10 @@ describe.skipIf(process.platform !== 'win32' || !existsSync(nativePath))('publis
       expect(nativeContexts.some(context => context.heroes.some(hero => hero.role === 'local'
         && hero.status === 'recognized' && hero.heroId === 'hero_chrono' && hero.confidence >= .94))).toBe(true);
       expect(nativeContexts.some(context => context.abilities.map(ability => ability.slot).sort().join(',') === '0,1,2,3')).toBe(true);
+      // An eight-seat board is Street Brawl's: its item grid is read by the fixed-layout Brawl reader (context.brawl),
+      // so the older 6v6 pose search no longer spends its 40-100 ms slice on it and emits no player-inventory items.
       const knownItems = nativeContexts.flatMap(context => context.items.filter(item => item.role === 'player-inventory' && item.status === 'recognized'));
-      expect(knownItems.length).toBeGreaterThan(0);
-      expect(knownItems.every(item => catalog.items.some(known => known.id === item.itemId))).toBe(true);
+      expect(knownItems).toEqual([]);
       const inventoryRegions = nativeContexts.flatMap(context => context.regions.filter(region => region.kind === 'inventory'));
       expect(inventoryRegions.length).toBeGreaterThan(0);
       expect(inventoryRegions.every(region => region.complete === false)).toBe(true);
@@ -867,7 +872,7 @@ describe.skipIf(process.platform !== 'win32' || !existsSync(nativePath))('publis
         const productionParsed = parseScreenOffers(blocksForScreenParser(reply), catalog, { conservativeUnmarkedDetails: true });
         expect(productionParsed.offers.map(value => value.name)).toEqual(names);
         expect(productionParsed.incomplete).toBe(true);
-        expect(productionParsed.offers.every(value => value.variant === 'unknown' && value.bonusIds === null)).toBe(true);
+        expect(productionParsed.offers.every(value => value.variant === 'base' && value.bonusIds === null)).toBe(true);
         const production = evaluateScreenOffers(productionParsed.offers, catalog, { heroId: null, round: null, rerolls: null });
         expect(production?.preferredPosition).not.toBeNull();
         expect(production?.caveat).toMatch(/not read/i);

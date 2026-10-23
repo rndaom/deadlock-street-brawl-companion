@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import packageJson from './package.json' with { type: 'json' };
 
 /** Dev only: serve the cached game art at the same paths the desktop app's companion:// protocol uses. */
 function localGameArt(): Plugin {
@@ -33,6 +34,7 @@ function localGameArt(): Plugin {
 
 export default defineConfig({
   plugins: [react(), localGameArt()],
+  define: { __APP_VERSION__: JSON.stringify(packageJson.version) },
   base: './',
   server: { host: '127.0.0.1', port: 5173, strictPort: true },
   build: { target: 'es2022', sourcemap: false },

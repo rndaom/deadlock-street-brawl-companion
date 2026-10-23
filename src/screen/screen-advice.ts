@@ -1,11 +1,17 @@
 import type { Catalog, CatalogHero, CatalogItem } from '../shared/types';
 import type { ScreenAdvice, ScreenMatchContext, ScreenOffer } from '../shared/screen-reading';
 import { evaluateContextOffers } from './context-advice';
-import { streetBrawlFit } from './street-brawl-fit';
+import { bestOfThree, draftPool, enhancedOfferRate, enhancedPoints, poolMean, poolPercentile, rerollPlan, streetBrawlFit, WIN_RATE_WEIGHT,
+  type BestOfThree, type PoolCard } from './street-brawl-fit';
+import { CHOICE_TIERS, draftTierOf } from '../shared/draft-tiers';
+import { streetBrawlData } from './street-brawl-data';
 import { imbueTarget } from './imbue-advice';
+import { absorbedComponents } from './item-bundles';
 
 export interface ScreenOfferContext {
   heroId: string | null; round: number | null; rerolls: number | null;
+  /** Which of the round's three choices is on screen ("Choice N of 3"), 1-3; the reroll expires after choice 3. */
+  choice?: number | null;
   /** Enemy heroes identified in this match; their Street Brawl counter data is applied. */
   enemyHeroIds?: readonly string[];
   /** Items read in your own inventory this match. */
@@ -15,6 +21,14 @@ export interface ScreenOfferContext {
   matchContext?: ScreenMatchContext;
   now?: number;
 }
+/** One advised card. Besides the shared fields, two Street Brawl numbers for the interface. */
+export type AdvisedOffer = ScreenAdvice['ranked'][number] & {
+  /** Card value minus the average card of its tier pool for this hero and enemies, in win-rate percentage points. */
+  edge?: number;
+  /** 0-100: where the card ranks in its tier pool for this hero and enemies (by how often each card is drawn). */
+  tierPercentile?: number;
+};
+export interface StreetBrawlAdvice extends ScreenAdvice { ranked: AdvisedOffer[] }
 type Direction = 'weapon' | 'spirit' | 'melee';
 type FixedStat = 'health' | 'spiritPower' | 'weaponPower' | 'fireRate' | 'bulletResist' | 'spiritResist' | 'regen' | 'bulletLifesteal' | 'spiritLifesteal' | 'statusResist';
 interface BaseFacts { fixed: Partial<Record<FixedStat, number>>; traits: string[]; active: boolean }
@@ -25,11 +39,11 @@ interface ItemProfile {
 interface OfferComparison { offer: ScreenOffer; main: ItemProfile | null; profiles: ItemProfile[]; score: number; reasons: string[]; problems: string[] }
 
 const READ_QUALITY_MINIMUM = 0.85;
-const PINNED_CLIENT = '6774';
-const PINNED_REVISION = '11112755';
+const PINNED_CLIENT = '6807';
+const PINNED_REVISION = '11154106';
 /**
- * Extracted from the saved client-6774 Valve-asset snapshot (items SHA-256
- * 31c96630cba83b9fdbbedf62bb76a70cc3334667f05d2694c58d1d73791fe596).
+ * Extracted from the saved client-6807 Valve-asset snapshot (items SHA-256
+ * 0c4cb42a7ff4d08c47fb715410cf33c5cb7fbcc0b85304b16eca38fbd689f5ee).
  * Only positive own innate allowlisted properties, without upgrade requirements,
  * negative attributes, or conditional flags are retained. Fixed amounts also
  * exclude scaling functions. Explicit Street Brawl values override normal ones.
@@ -157,8 +171,11 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
  * Points express general utility and an observed hero's broad damage direction;
  * they are not measured marginal value, win odds, or a complete-match optimum.
  */
-export function evaluateScreenOffers(offers: ScreenOffer[], catalog: Catalog, context: ScreenOfferContext): ScreenAdvice | null {
-  if (offers.length === 0) return null;
+export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog, context: ScreenOfferContext): StreetBrawlAdvice | null {
+  if (liveOffers.length === 0) return null;
+  // Once a card of this draft is taken it counts as owned while the cards are still shown;
+  // the advice keeps the draft as it was before the pick instead of jumping to another card.
+  const { offers, ownedItemIds } = stableDraft(liveOffers, context);
   const items = new Map(catalog.items.map(item => [item.id, item]));
   const contextual = context.matchContext ? evaluateContextOffers(offers, catalog, context.matchContext, context.now ?? Date.now()) : null;
   // An unverified match context has no hero of its own; fall back to the hero we were given.
@@ -166,6 +183,8 @@ export function evaluateScreenOffers(offers: ScreenOffer[], catalog: Catalog, co
   const hero = heroId === null ? null : catalog.heroes.find(candidate => candidate.id === heroId) ?? null;
   const usePinnedFacts = catalog.clientVersion === PINNED_CLIENT && catalog.revision === PINNED_REVISION;
   const comparisons = offers.map(offer => compareOffer(offer, items, hero, usePinnedFacts));
+  /** Offer-only heuristic score of each card, kept before an observed-context score replaces it (anchors card values to the tier pool). */
+  const offerOnlyScores = comparisons.map(comparison => comparison.score);
   if (contextual?.hasContext) for (const comparison of comparisons) {
     const actual = contextual.ranked.find(entry => entry.position === comparison.offer.position);
     if (actual) { comparison.score = actual.score; comparison.reasons = actual.reasons; }
@@ -205,7 +224,6 @@ export function evaluateScreenOffers(offers: ScreenOffer[], catalog: Catalog, co
   const hasComparisonBasis = baseComparison ? hasGroundedFacts && baseComparison.materialProblems.length === 0 : offerOnlyBase !== null;
   const comparisonPosition = baseBest && baseOther && hasComparisonBasis && baseBest.score > 0 && baseBest.score - baseOther.score >= 0.25
     ? baseBest.position : null;
-  const provisionalName = comparisonPosition === null ? null : items.get(offers.find(offer => offer.position === comparisonPosition)!.itemId)?.name;
   const unreadEffects = offers.some(offer => offer.variant !== 'base' || offer.bonusIds === null
     || offer.bonusIds.some(id => !items.has(id)) || !!offer.warning?.trim());
   const excludedBonuses = offers.some(offer => !!offer.bonusIds?.length);
@@ -223,72 +241,100 @@ export function evaluateScreenOffers(offers: ScreenOffer[], catalog: Catalog, co
   if (comparisonPosition !== null) limitations.push('Main-item base effects only: every bonus and special modifier is excluded from this provisional comparison.'
     + (unreadEffects ? ' Unread effects may change the order.' : excludedBonuses ? ' Excluded bonuses may change the order.' : ' Build and team context may change the choice.'));
 
-  let reasons: string[];
-  if (!best) {
-    reasons = ['No offered item can be resolved to the local catalogue.', 'Read the item names and complete bonus/modifier details before comparing choices.'];
-  } else if (comparisonPosition !== null && baseBest) {
-    const qualifier = unreadEffects ? 'Bonuses or special effects are unread and could change this choice.'
-      : excludedBonuses ? 'Known bonuses are excluded and could change this choice.' : 'Only the main item is compared.';
-    reasons = [baseComparison ? baseBest.reasons[0] : `${provisionalName} base effects: ${baseBest.reasons[0]}`,
-      baseComparison ? qualifier : `Offer-only guidance: your build and teams are unverified. ${qualifier}`];
-  } else if (problems.length) {
-    reasons = [
-      'Comparison only: at least one card, bonus bundle or modifier is not fully identified.',
-      contextual?.hasContext ? (best.reasons.find(reason => !reason.startsWith('Comparison of known')) ?? best.reasons[0])
-        : `${best.main!.item.name} base effects: ${best.main!.notes[0]}`,
-    ];
-  } else {
-    const comparison = contextual?.hasContext
-      ? best.reasons[1] ?? (alternative?.reasons[0] ? `Alternative ${alternative.main!.item.name}: ${alternative.reasons[0]}` : comparativeReason(best, alternative, hero))
-      : comparativeReason(best, alternative, hero);
-    reasons = [best.reasons[0], comparison];
-    if (unclearValue) reasons[1] = `These offers have similar ${contextual?.hasContext ? 'contextual comparison scores' : 'general value'}. ${comparison}`;
-  }
   // Always name the best readable card. Unread bonuses and unverified context are
-  // shown as caveats; withholding a pick left the player with no guidance at all.
-  // Real Street Brawl evidence (Valve's per-hero Good bucket and match win rates) is
-  // added to every card, whichever comparison produced its base score.
+  // shown as the caveat; withholding a pick left the player with no guidance at all.
+  // Real Street Brawl evidence (hero win rate, Valve's per-hero Good bucket, genuine
+  // counters to the identified enemies) is added to every card, whichever comparison
+  // produced its base score. Reasons are short statements about the card itself.
   const baseScores = comparisonPosition !== null ? baseRanked
     : comparisons.map(comparison => ({ position: comparison.offer.position, score: comparison.score, reasons: comparison.reasons }));
   const contextScored = comparisonPosition !== null ? !!baseComparison : !!contextual?.hasContext;
-  const ranked = baseScores.map((entry, index) => {
+  const enemyHeroIds = context.enemyHeroIds ?? [];
+  const owned = new Set(ownedItemIds);
+  const draftTier = draftTierOf(offers.map(offer => ({ tier: items.get(offer.itemId)?.tier, rare: offer.rare })));
+  const pools = heroId && streetBrawlData().heroes[heroId] ? draftPools(heroId, hero, usePinnedFacts, enemyHeroIds, owned, context, items, bonusMechanicsFor(items, hero, usePinnedFacts)) : null;
+  const slotPool = draftTier === null ? null : pools?.(draftTier) ?? null;
+  const slotMean = slotPool ? poolMean(slotPool) : null;
+  // Measured Street Brawl results lead; the offer-only heuristic only breaks ties, while
+  // scores from the observed match (own build, enemy kits) keep their full weight.
+  const weight = contextScored ? CONTEXT_WEIGHT : HEURISTIC_WEIGHT;
+  /**
+   * Card value: the pick score without the tier points every card of the draft shares, so the
+   * recommended card always has the highest value, edge and tierPercentile among the shown cards.
+   * The tier pool can only be scored with the offer-only heuristic (see draftPools), so the
+   * comparison term (observed-context or base-effects score) is moved by one constant per draft —
+   * the shown cards' average offer-only term minus their average comparison term. That keeps the
+   * order among the shown cards and puts their level on the pool's scale.
+   */
+  const judged = baseScores.map((entry, index) => {
+    const offer = offers[index];
+    return offer && items.has(offer.itemId) ? { term: weight * entry.score, offerOnly: HEURISTIC_WEIGHT * (offerOnlyScores[index] ?? 0) } : null;
+  }).filter((entry): entry is { term: number; offerOnly: number } => entry !== null);
+  const anchor = judged.length ? judged.reduce((sum, entry) => sum + entry.offerOnly - entry.term, 0) / judged.length : 0;
+  const bonusMechanics = bonusMechanicsFor(items, hero, usePinnedFacts);
+  const cardValues = new Map<number, number>();
+  const ranked: AdvisedOffer[] = baseScores.map((entry, index) => {
     const offer = offers[index];
     if (!offer || !items.has(offer.itemId)) return entry;
-    const fit = streetBrawlFit(offer.itemId, heroId, context.enemyHeroIds ?? []);
-    const build = buildFit(items.get(offer.itemId)!, context, items);
-    fit.points += build.points; fit.reasons.push(...build.reasons);
-    // An Enhanced card is the same item with extra stats.
-    if (offer.variant === 'enhanced') { fit.points += ENHANCED_POINTS; fit.reasons.push('Enhanced: carries bonus stats on top of the base item.'); }
-    // Measured Street Brawl results lead; the offer-only heuristic only breaks ties, while
-    // scores from the observed match (own build, enemy kits) keep their full weight.
-    const weight = contextScored ? CONTEXT_WEIGHT : HEURISTIC_WEIGHT;
+    const item = items.get(offer.itemId)!;
+    const fit = streetBrawlFit(offer.itemId, heroId, enemyHeroIds);
+    const build = buildFit(item, context, items);
+    // A "Bonus!" card gives a second, free item; an Enhanced card is the same item with extra stats.
+    const bonus = bonusValue(offer, items, bonusMechanics);
+    const enhanced = offer.variant === 'enhanced';
+    const enhancedExtra = enhanced ? enhancedPoints(offer.itemId) : 0;
+    const extra = build.points + bonus.points + enhancedExtra;
+    // A RARE card sits above the draft's tier: real extra power over the other cards.
+    const aboveTier = draftTier !== null && item.tier !== null && Number.isFinite(item.tier) ? Math.max(0, item.tier - draftTier) : 0;
+    const value = weight * entry.score + anchor + fit.points + extra + aboveTier * TIER_POINTS;
+    cardValues.set(index, value);
+    const standing = slotPool && slotMean !== null ? {
+      edge: Math.round((value - slotMean) / WIN_RATE_WEIGHT * 1_000) / 10,
+      tierPercentile: Math.round(poolPercentile(value, slotPool)),
+    } : {};
     const imbue = imbueTarget(offer.itemId, heroId);
-    const imbueLine = imbue ? [`Imbue it on ${imbue.ability}: ${imbue.reason}.`] : [];
-    return { position: entry.position, score: roundPoints(weight * entry.score + fit.points + tierPoints(items.get(offer.itemId)!)),
-      reasons: [...fit.reasons.slice(0, 1), ...imbueLine, ...fit.reasons.slice(1), ...entry.reasons, ...fit.concerns] };
+    const [lead, ...support] = [...fit.reasons, ...bonus.reasons, ...build.reasons,
+      ...(enhanced ? [enhancedLine(offer.itemId, enhancedExtra)] : []), ...confidentReasons(entry.reasons)];
+    // The strongest evidence leads; a real weakness follows straight after it, ahead of supporting detail.
+    const reasons = [...new Set([...(lead ? [lead] : []), ...fit.concerns, ...(imbue ? [`Imbue it on ${imbue.ability}: ${imbue.reason}.`] : []), ...support])];
+    return { position: entry.position, score: roundPoints(weight * entry.score + fit.points + extra + tierPoints(item)), reasons, ...standing };
   });
   // ranked follows the offers array order, so each entry keeps its own offer even
   // when OCR reports two cards at one position.
-  const pickOrder = ranked.map((entry, index) => ({ ...entry, offer: offers[index]! }))
+  const resolved = ranked.map((entry, index) => ({ ...entry, offer: offers[index]! }))
     .filter(entry => items.has(entry.offer.itemId)).sort((a, b) => b.score - a.score || a.position - b.position);
+  // A draft never offers an item you already own, so such a card is a likely misread: it is
+  // kept in the ranking but does not become the pick while another card is readable.
+  const misread = resolved.filter(entry => owned.has(entry.offer.itemId));
+  for (const entry of misread) {
+    limitations.push(`Offer ${entry.position + 1}: ${items.get(entry.offer.itemId)!.name} is already owned; a draft does not offer owned items, so this read is treated as a likely misread.`);
+  }
+  const trusted = resolved.filter(entry => !owned.has(entry.offer.itemId));
+  const pickOrder = trusted.length ? trusted : resolved;
   // Cards are only read while a draft is visible, which only a player in the match sees; an ended match has no pick.
   const ownView = context.matchContext?.phase !== 'finished';
   const pickEntry = !ownView ? undefined : pickOrder[0];
-  if (pickEntry) {
-    // Lead with the pick's own reasons; drop older summary lines that describe another card.
-    const otherNames = offers.filter(offer => offer !== pickEntry.offer).map(offer => items.get(offer.itemId)?.name).filter((name): name is string => !!name)
-      .filter(name => name !== items.get(pickEntry.offer.itemId)?.name);
-    const own = pickEntry.reasons;
-    reasons = [...own, ...reasons.filter(reason => !own.includes(reason) && !otherNames.some(name => reason.includes(name)))];
-  }
   const pick = pickEntry?.position ?? null;
   const pickName = pickEntry ? items.get(pickEntry.offer.itemId)?.name ?? null : null;
   const margin = pickEntry && pickOrder.length > 1 ? pickEntry.score - Math.max(...pickOrder.filter(entry => entry !== pickEntry).map(entry => entry.score)) : null;
   const closeCall = margin !== null && margin < 0.25;
-  const reroll = rerollDecision(context.rerolls, pickEntry?.score ?? null, closeCall);
-  if (closeCall && pickName) reasons = [`Close call: ${pickName} edges out the alternatives.`, ...reasons];
+  const reasons = !best ? ['No offered item can be resolved to the local catalogue.', 'Read the item names and complete bonus/modifier details before comparing choices.']
+    : !pickEntry ? ['The match has ended; there is no pick to make.']
+    : [...(closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
+  // The reroll call compares the whole draft with what this tier usually offers, so it needs
+  // three distinct resolved cards, none of them a likely misread.
+  const fullDraft = shapeComplete && offers.length === 3 && resolved.length === 3 && misread.length === 0;
+  // The reroll call weighs the card you would take against what a fresh draft is worth, on the same scale.
+  const pickValue = pickEntry ? cardValues.get(offers.indexOf(pickEntry.offer)) ?? null : null;
+  const reroll = rerollDecision({
+    rerolls: context.rerolls, choice: context.choice ?? null, round: context.round, pools: pickEntry ? pools : null,
+    heroName: heroId ? streetBrawlData().heroes[heroId]?.name ?? hero?.name ?? null : null, tier: draftTier,
+    currentValue: fullDraft && cardValues.size === 3 ? pickValue : null,
+  });
   const weakName = offers.some(offer => !items.has(offer.itemId) || !(offer.confidence >= READ_QUALITY_MINIMUM));
-  const caveat = unreadEffects ? 'Bonuses or special effects on the cards were not read; check them in game.'
+  const unidentifiedBonus = offers.some(offer => offer.bonusExpected && offer.bonusIds === null);
+  const caveat = unidentifiedBonus ? 'A Bonus! card\'s free item was not read; check it in game.'
+    : unreadEffects ? 'Bonuses or special effects on the cards were not read; check them in game.'
     : weakName ? 'One card name was not read clearly; check it in game.' : null;
   return {
     preferredPosition: pick,
@@ -323,14 +369,10 @@ function compareOffer(offer: ScreenOffer, items: Map<string, CatalogItem>, hero:
   const profiles = [item, ...bonusIds.map(id => items.get(id))].filter((entry): entry is CatalogItem => !!entry)
     .map(entry => profileItem(entry, hero, usePinnedFacts));
   const main = item ? profiles[0] : null;
-  const score = roundPoints(profiles.reduce((total, profile) => total + profile.points, 0));
-  const reasons = main ? [main.notes[0], main.condition ?? main.notes[1]] : ['Item name is not identified; no item value is assumed.'];
-  if (bonusIds.length) {
-    const known = bonusIds.map(id => items.get(id)?.name).filter((name): name is string => !!name);
-    if (known.length) reasons.push(`Comes with ${quantityNames(known)}.`);
-  }
-  if (offer.bonusIds === null) reasons.push('Bonus details not read; compared on the main item.');
-  if (offer.variant !== 'base') reasons.unshift('Base mechanics only; the shown variant can change the comparison.');
+  // Bonus items are valued once, as free items, by bonusValue (as a fresh draft's Bonus! card is).
+  const score = roundPoints(main?.points ?? 0);
+  // What the main item does (bonus items are described by bonusValue; unread details go to the caveat).
+  const reasons = main ? [...main.notes] : ['Item name is not identified; no item value is assumed.'];
   return { offer, main, profiles, score, reasons, problems };
 }
 
@@ -365,11 +407,8 @@ function profileItem(item: CatalogItem, hero: CatalogHero | null, usePinnedFacts
   if (!hero || heroDirections.includes('weapon')) points += Math.min((fixed.weaponPower ?? 0) / 40 + (fixed.fireRate ?? 0) / 40, 1.5);
   if (!hero || heroDirections.includes('spirit')) points += Math.min((fixed.spiritPower ?? 0) / 40, 1.5);
   if (condition) points -= /costs health/i.test(condition) ? 1.25 : 0.45;
-  const notes = [mechanicsNote(item, facts, traits)];
-  if (matches.length) notes.push(`Matches observed ${hero!.name}'s ${matches.join('/')} damage.`);
-  else if (condition) notes.push(condition);
-  else notes.push('General-purpose pick; no specific synergy with your hero.');
-  if (condition && !notes.includes(condition)) notes.push(condition);
+  // What it does for this hero first, then what it does, then what it asks of the player.
+  const notes = [...(matches.length ? [`Complements ${hero!.name}'s ${matches.join('/')} damage.`] : []), mechanicsNote(item, facts, traits), ...(condition ? [condition] : [])];
   return { item, facts, traits, directions, condition, points: Math.max(0, points), notes };
 }
 
@@ -390,26 +429,10 @@ function mechanicsNote(item: CatalogItem, facts: BaseFacts | null, traits: Set<s
       : traits.has('spirit-lifesteal') ? 'Spirit lifesteal rewards landing spirit damage.' : null;
   if (leech) return snippets.length ? `${leech} Base stats: ${snippets.slice(0, 2).join(', ')}.` : leech;
   const description = compactDescription(item.description);
-  if (snippets.length && description.length < 75) return `Base stats: ${snippets.slice(0, 2).join(', ')}. ${description || traitDescription(traits)}`;
+  // A bare label ("Spirit Power.") would only repeat the stat.
+  const label = description.split(/\s+/).length <= 3;
+  if (snippets.length && description.length < 75) return `Base stats: ${snippets.slice(0, 2).join(', ')}.${label ? '' : ` ${description}`}`;
   return description || (snippets.length ? `Base stats: ${snippets.slice(0, 2).join(', ')}.` : traitDescription(traits));
-}
-
-function comparativeReason(best: OfferComparison, other: OfferComparison | undefined, hero: CatalogHero | null): string {
-  const main = best.main!;
-  const knownBonuses = best.profiles.slice(1).map(profile => profile.item.name);
-  const bonus = knownBonuses.length ? ` Includes ${quantityNames(knownBonuses)}.` : '';
-  if (!other?.main) return `Only this named base item is understood; compare the remaining card details.${bonus}`;
-  const otherMain = other.main;
-  const heroDirections = hero ? damageDirections(new Set(hero.tags.map(normalize))) : [];
-  const ownFit = main.directions.filter(direction => heroDirections.includes(direction));
-  const otherFit = otherMain.directions.filter(direction => heroDirections.includes(direction));
-  if (hero && ownFit.length && !otherFit.length) {
-    return `${hero.name}'s observed ${ownFit.join('/')} direction favors this over ${otherMain.item.name}'s ${shortFocus(otherMain)} focus.${bonus}`;
-  }
-  if (otherMain.condition && !main.condition) {
-    return `${otherMain.item.name}: ${otherMain.condition} This offer emphasizes ${shortFocus(main)}.${bonus}`;
-  }
-  return `Compared with ${otherMain.item.name}: ${shortFocus(main)} versus ${shortFocus(otherMain)}.${bonus}`;
 }
 
 function executionCondition(description: string, facts: BaseFacts | null): string | null {
@@ -424,17 +447,6 @@ function executionCondition(description: string, facts: BaseFacts | null): strin
   if (/heavy\s+melee/i.test(description)) return 'Its conditional benefit requires a heavy melee connection.';
   if (/hero\s+dies|after\s+(?:a\s+)?kill|on\s+kill/i.test(description)) return 'Its kill-triggered payoff is conditional.';
   return facts?.active ? 'Requires manual activation and a suitable timing window.' : null;
-}
-function shortFocus(profile: ItemProfile): string {
-  const traits = profile.traits;
-  if (traits.has('bullet-lifesteal') && traits.has('spirit-lifesteal')) return 'sustain for both damage routes';
-  if (traits.has('healing')) return profile.directions.length ? `${profile.directions.join('/')} sustain` : 'sustain';
-  if (traits.has('crowd-control') || traits.has('control')) return 'control';
-  if (traits.has('control-resist')) return 'debuff protection';
-  if (profile.directions.length) return profile.directions.join('/');
-  if (traits.has('bullet-resist') || traits.has('spirit-resist')) return 'damage protection';
-  if (traits.has('mobility')) return 'mobility';
-  return 'general utility';
 }
 function traitDescription(traits: Set<string>): string {
   const features = ['weapon', 'spirit', 'melee', 'healing', 'anti-heal', 'crowd-control', 'bullet-resist', 'spirit-resist', 'mobility']
@@ -465,7 +477,6 @@ function roundPoints(points: number): number { return Math.round(points * 100) /
 function buildFit(item: CatalogItem, context: ScreenOfferContext, items: Map<string, CatalogItem>): { points: number; reasons: string[] } {
   const reasons: string[] = []; let points = 0;
   const tags = new Set(item.tags.map(normalize));
-  if (context.ownedItemIds?.includes(item.id)) reasons.push(`You already own ${item.name}.`);
   const enemy = (context.enemyItemIds ?? []).map(id => items.get(id)).filter((entry): entry is CatalogItem => !!entry);
   if (enemy.length >= 3) {
     const enemyTags = enemy.map(entry => new Set(entry.tags.map(normalize)));
@@ -478,29 +489,181 @@ function buildFit(item: CatalogItem, context: ScreenOfferContext, items: Map<str
   }
   return { points, reasons };
 }
+/** Base value of one free bonus item, on top of its tier. */
+const BONUS_ITEM_POINTS = 0.75;
+/**
+ * A card that upgrades an owned item absorbs that item and adds a lower-tier bonus item
+ * ("Bonus!"). The upgrade keeps the absorbed item's effects, so the bonus is pure extra value.
+ * An expected but unidentified bonus is credited as an item of the absorbed item's tier.
+ */
+/**
+ * Weighted offer-only mechanics of one free bonus item: the item's own when identified, else the
+ * average item of its tier. Counted once, here (compareOffer and the observed-context score value
+ * only the main item), so a shown Bonus! card and a fresh one are valued the same way.
+ */
+interface BonusMechanics { known(item: CatalogItem): number; expected(tier: number): number }
+function bonusMechanicsFor(items: Map<string, CatalogItem>, hero: CatalogHero | null, usePinnedFacts: boolean): BonusMechanics {
+  const byTier = new Map<number, number>();
+  const known = (item: CatalogItem) => HEURISTIC_WEIGHT * profileItem(item, hero, usePinnedFacts).points;
+  return {
+    known,
+    expected(tier) {
+      if (!byTier.has(tier)) {
+        const sameTier = [...items.values()].filter(item => item.tier === tier);
+        byTier.set(tier, sameTier.length ? sameTier.reduce((sum, item) => sum + known(item), 0) / sameTier.length : 0);
+      }
+      return byTier.get(tier)!;
+    },
+  };
+}
+function bonusValue(offer: ScreenOffer, items: Map<string, CatalogItem>, mechanics: BonusMechanics): { points: number; reasons: string[] } {
+  const reasons: string[] = []; let points = 0;
+  const absorbed = (offer.absorbsIds ?? []).map(id => items.get(id)).filter((entry): entry is CatalogItem => !!entry);
+  const known = (offer.bonusIds ?? []).map(id => items.get(id)).filter((entry): entry is CatalogItem => !!entry);
+  if (known.length) {
+    for (const bonus of known) points += BONUS_ITEM_POINTS + tierPoints(bonus) + mechanics.known(bonus);
+    reasons.push(`Bonus! Also gives ${quantityNames(known.map(bonus => bonus.name))} for free.`);
+  } else if (offer.bonusExpected && offer.bonusIds === null) {
+    const main = items.get(offer.itemId);
+    const tier = absorbed.length ? Math.min(...absorbed.map(entry => entry.tier ?? 1)) : Math.max(1, (main?.tier ?? 2) - 1);
+    points += BONUS_ITEM_POINTS + tierPoints({ tier } as CatalogItem) + mechanics.expected(tier);
+    reasons.push('Bonus! card: it also gives a free lower-tier item.');
+  }
+  if (absorbed.length) reasons.push(`Upgrades your ${quantityNames(absorbed.map(entry => entry.name))}, which it absorbs.`);
+  return { points: roundPoints(points), reasons };
+}
 /** Weight of the offer-only mechanics/hero-direction heuristic next to measured Street
  * Brawl data. Observed-context scores (own build, enemy kits) keep full weight. */
 const HEURISTIC_WEIGHT = 0.35;
-/** Extra value of an Enhanced card over the plain item. */
-const ENHANCED_POINTS = 1;
 /** Win rates average over every enemy line-up; counters to the enemies actually read
  * (and the own build actually read) outweigh them. */
 const CONTEXT_WEIGHT = 2;
-/** A RARE card is one tier above its slot; the higher tier is real extra power. */
-function tierPoints(item: CatalogItem): number { return item.tier === null || !Number.isFinite(item.tier) ? 0 : Math.max(0, Math.min(5, item.tier) - 1) * 0.6; }
-/** Best-card score below which a reroll is suggested: about the weakest fifth of random
- * draws (sampled over all tiers and several heroes). There is one reroll per round,
- * so it is spent only on clearly weak sets. */
-const REROLL_SCORE_THRESHOLD = 1;
-function rerollDecision(rerolls: number | null, bestScore: number | null, closeCall: boolean): { suggest: boolean; reason: string } {
-  if (rerolls === 0) return { suggest: false, reason: 'No rerolls left — take the best card.' };
-  const known = rerolls !== null && Number.isSafeInteger(rerolls) && rerolls > 0;
-  // With several rerolls left, spending one on a weak set costs less.
-  const threshold = REROLL_SCORE_THRESHOLD + (known && rerolls! >= 2 ? 0.5 : 0);
-  if (bestScore === null) return { suggest: false, reason: 'Cards are not fully read yet.' };
-  const budget = known ? `${rerolls} reroll${rerolls === 1 ? '' : 's'} left. ` : 'Reroll count not read. ';
-  if (bestScore < threshold) {
-    return { suggest: true, reason: `${budget}None of these cards fits your hero or the fight well — a reroll is likely to offer something better.` };
+/** General-value points per item tier above tier 1 (also what a RARE card earns per tier above its draft). */
+const TIER_POINTS = 0.6;
+/** Higher tiers carry larger stats and effects. Within one draft every card shares a tier, except a
+ * RARE card (one tier above the choice) and a free Bonus! item, so this mainly values those. */
+function tierPoints(item: CatalogItem): number { return item.tier === null || !Number.isFinite(item.tier) ? 0 : Math.max(0, Math.min(5, item.tier) - 1) * TIER_POINTS; }
+/**
+ * Tiers of this choice and the round's later choices. The read round and choice place the draft
+ * in the table when they agree with the draft's tier; an unread choice is the one closest to the
+ * middle that offers this tier; without a usable table entry the later choices share this tier
+ * (an unknown choice counts as choice 2).
+ */
+export function remainingChoiceTiers(round: number | null, choice: number | null, tier: number): number[] {
+  const row = round !== null ? CHOICE_TIERS[round] : undefined;
+  const known = choice === 1 || choice === 2 || choice === 3 ? choice : null;
+  if (row && known !== null && row[known - 1] === tier) return row.slice(known - 1);
+  if (row && known === null) {
+    const matches = [0, 1, 2].filter(index => row[index] === tier).sort((a, b) => Math.abs(a - 1) - Math.abs(b - 1) || a - b);
+    if (matches.length) return row.slice(matches[0]);
   }
-  return { suggest: false, reason: `${budget}${closeCall ? 'The top cards are close, but either is a solid pick' : 'The suggested card is a solid pick'} — keep your rerolls.` };
+  return new Array<number>(known === null ? 2 : 4 - known).fill(tier);
+}
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V'];
+type Pools = (tier: number) => PoolCard[] | null;
+/**
+ * Tier pools for this hero and enemy team, valued like the cards on screen: measured value, the
+ * weighted offer-only heuristic, and the extras a fresh card would carry — a Bonus! item when it
+ * upgrades something you own, the enemy-build bonus, and the Enhanced uplift times the chance a
+ * card is Enhanced. A RARE card's chance is not published, so a fresh draft is given none (a shown
+ * RARE keeps its tier bonus).
+ */
+function draftPools(heroId: string, hero: CatalogHero | null, usePinnedFacts: boolean, enemyHeroIds: readonly string[], owned: ReadonlySet<string>,
+  context: ScreenOfferContext, items: Map<string, CatalogItem>, mechanics: BonusMechanics): Pools {
+  const ownedList = [...owned];
+  const enhancedRate = enhancedOfferRate();
+  const extra = (itemId: string) => {
+    const item = items.get(itemId);
+    const heuristic = item ? HEURISTIC_WEIGHT * profileItem(item, hero, usePinnedFacts).points : 0;
+    const absorbed = absorbedComponents(itemId, ownedList).map(id => items.get(id)?.tier)
+      .filter((tier): tier is number => typeof tier === 'number' && Number.isFinite(tier));
+    // Its free item's identity is unknown: the average item of the absorbed tier, as for an unread bonus on screen.
+    const bonusTier = absorbed.length ? Math.min(...absorbed) : null;
+    const bonus = bonusTier !== null ? BONUS_ITEM_POINTS + tierPoints({ tier: bonusTier } as CatalogItem) + mechanics.expected(bonusTier) : 0;
+    return heuristic + (item ? buildFit(item, context, items).points : 0) + bonus + enhancedRate * enhancedPoints(itemId);
+  };
+  const cache = new Map<number, PoolCard[] | null>();
+  return tier => {
+    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra }));
+    return cache.get(tier)!;
+  };
+}
+interface RerollInput {
+  rerolls: number | null; choice: number | null; round: number | null; heroName: string | null; tier: number | null;
+  /** Tier pools for the identified hero; null without one. */
+  pools: Pools | null;
+  /** Card value of the card you would take; null unless all three cards are resolved. */
+  currentValue: number | null;
+}
+/**
+ * Reroll when a fresh draft, played on optimally over the round's remaining choices and
+ * rerolls (rerollPlan), is worth more than taking the card on screen and keeping the rerolls.
+ * Every reroll counts, including the Random Hero bonus reroll.
+ */
+function rerollDecision(input: RerollInput): { suggest: boolean; reason: string } {
+  if (input.rerolls === 0) return { suggest: false, reason: 'No rerolls left — take the best card.' };
+  const count = input.rerolls !== null && Number.isSafeInteger(input.rerolls) && input.rerolls > 0 ? input.rerolls : null;
+  const budget = count === null ? '' : `${count} reroll${count === 1 ? '' : 's'} left.`;
+  // Without a hero, or a fully read draft, there is nothing to measure the draft against: say nothing.
+  const quiet = { suggest: false, reason: budget };
+  if (!input.pools || input.tier === null || input.currentValue === null) return quiet;
+  const current = input.pools(input.tier);
+  if (!current) return quiet;
+  const currentBest = bestOfThree(current);
+  // A later choice whose pool cannot be valued is treated like this one.
+  const stages: BestOfThree[] = remainingChoiceTiers(input.round, input.choice, input.tier).map((tier, index) => {
+    if (index === 0) return currentBest;
+    const pool = input.pools!(tier);
+    return pool ? bestOfThree(pool) : currentBest;
+  });
+  // An unread count means at least the round's one reroll.
+  const plan = rerollPlan(input.currentValue, count ?? 1, stages);
+  const prefix = budget ? `${budget} ` : '';
+  const last = stages.length === 1;
+  if (plan.reroll) {
+    return { suggest: true, reason: `${prefix}Weak draft for ${input.heroName ?? 'your hero'}: a fresh tier ${ROMAN[input.tier] ?? input.tier} draft is worth more than these cards. `
+      + (last ? 'Reroll — it expires after this choice.' : 'Reroll (lost at round end).') };
+  }
+  return { suggest: false, reason: `${prefix}${last ? 'Solid draft — no reroll needed.' : `Solid draft — keep your reroll${(count ?? 1) > 1 ? 's' : ''}.`}` };
+}
+/** The draft on screen when last evaluated, and what was owned before any of its cards was taken. */
+let draftMemory: { key: string; owned: readonly string[]; offers: ScreenOffer[] } | null = null;
+/**
+ * A draft never offers an owned item, so an offered card that becomes owned while the same
+ * cards are on screen was just taken. From then on the draft is evaluated as it was before the
+ * pick (ownership and card details), so the advice does not jump to another card. A card that is
+ * already owned when the draft is first seen stays a likely misread.
+ */
+function stableDraft(offers: ScreenOffer[], context: ScreenOfferContext): { offers: ScreenOffer[]; ownedItemIds: readonly string[] } {
+  const owned = context.ownedItemIds ?? [];
+  const key = JSON.stringify([context.heroId, context.round, offers.map(offer => `${offer.position}:${offer.itemId}:${offer.rare ? 1 : 0}`).sort()]);
+  const memory = draftMemory?.key === key ? draftMemory : null;
+  if (memory && offers.some(offer => !!offer.itemId && owned.includes(offer.itemId) && !memory.owned.includes(offer.itemId))) {
+    return { offers: memory.offers, ownedItemIds: memory.owned };
+  }
+  draftMemory = { key, owned: [...owned], offers };
+  return { offers, ownedItemIds: owned };
+}
+/** Forget the remembered draft (tests). */
+export function resetDraftMemory(): void { draftMemory = null; }
+function enhancedLine(itemId: string, points: number): string {
+  const stat = streetBrawlData().enhanced?.items[itemId];
+  if (!stat || stat.matches < 500) return 'Enhanced: carries bonus stats on top of the base item.';
+  const change = Math.round(points / WIN_RATE_WEIGHT * 1000) / 10;
+  return `Enhanced: wins ${Math.round(stat.winRate * 100)}% of ${stat.matches.toLocaleString('en-US')} games${Math.abs(change) >= 0.5 ? ` (${change > 0 ? '+' : ''}${change} over the plain item)` : ''}.`;
+}
+/** Lines that only qualify a comparison; real read problems are carried by `caveat` instead. */
+const FILLER_REASON = /^(?:Comparison of known base mechanics|A repeat may upgrade|Read bonuses:|Base mechanics only|Bonus details not read|Comes with |General-purpose pick)/;
+/** A clause that hedges about what was not read, observed or measured. */
+const HEDGE_CLAUSE = /\b(?:un(?:observed|read|known|measured|modell?ed|verified|confirmed)|not (?:known|read|assumed|observed|confirmed|verified|modell?ed|measured))\b/i;
+/** Keeps card reasons short and confident: drops qualifier lines and hedging clauses, and "observed". */
+function confidentReasons(reasons: readonly string[]): string[] {
+  return reasons.flatMap(reason => {
+    if (FILLER_REASON.test(reason)) return [];
+    const text = reason.split(/;\s+/).filter(clause => !HEDGE_CLAUSE.test(clause)).join('; ')
+      .replace(/\bobserved\s+/gi, '').replace(/\s{2,}/g, ' ').trim().replace(/[;,]$/, '');
+    if (!text) return [];
+    const sentence = text[0]!.toUpperCase() + text.slice(1);
+    return [/[.!?…]$/.test(sentence) ? sentence : `${sentence}.`];
+  });
 }

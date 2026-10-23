@@ -40,7 +40,19 @@ npm ci
 npm run package:dir
 ```
 
-The packaged app includes its self-contained reader and needs no .NET SDK. `npm start` opens the built desktop app, `npm run dev` serves a browser preview of the interface (it cannot read the game), and `npm test` runs the checks.
+The packaged app includes its self-contained reader and needs no .NET SDK. `npm start` opens the built desktop app, `npm run dev` serves a browser preview of the interface (it cannot read the game; add `?sample=pick`, `?sample=between`, `?sample=reroll` … to see it with sample match data, or `&view=overlay&panel` for the in-game overlay), and `npm test` runs the checks.
+
+## After a Deadlock patch or a new hero
+
+One command fetches the new heroes, items, ability art and Street Brawl statistics, repins every source and rebuilds the reader's templates:
+
+```powershell
+node scripts/refresh-patch.mjs
+npm test
+npm run package:dir
+```
+
+Close the companion before packaging. Win rates, matchups and upgrade orders also refresh on their own once a day while the app runs; only new heroes or items need the command above.
 
 ## More
 

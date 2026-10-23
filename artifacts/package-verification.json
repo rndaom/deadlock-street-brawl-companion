@@ -1,33 +1,35 @@
 {
   "schemaVersion": 1,
-  "applicationVersion": "0.3.0",
+  "applicationVersion": "0.5.0",
   "passed": true,
   "unsigned": true,
-  "nativeReaderSha256": "225c167a9c8a658d0b80ade5e37a942a69e76b8e50d05c00720ae2b3bd74ba84",
-  "nativeReaderBytes": 58021850,
+  "nativeReaderSha256": "574f4bc23427a6f3a53edb7adb48db56c76f537d3a78f33b6b4d20490a9ea11f",
+  "nativeReaderBytes": 58048829,
   "packagedIconsVerified": 173,
-  "catalogSha256": "7957e66aa664062d749c3f6fce49206026c267d5cb4db9c88b3535a6fc33dece",
-  "packagedContextAssetsVerified": 278,
+  "catalogSha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
+  "packagedContextAssetsVerified": 313,
   "contextAssetRoles": {
-    "hero-card": 39,
-    "hero-small": 39,
-    "hero-vertical": 39,
-    "ability": 156,
+    "hero-card": 44,
+    "hero-small": 44,
+    "hero-vertical": 44,
+    "ability": 176,
     "hud-glyph": 5
   },
-  "contextCatalogSha256": "129deff1d10339b791a3ffadf10e2c0a7a51a5e4bae2d2c0f404d3d1d6d80576",
+  "contextCatalogSha256": "0ac5f586220491b28c0187bc0c2bee37c999d3e9056f3a6bb196bb29c384fa2b",
   "staticDescriptorCaches": [
     {
       "directory": "context-icons",
-      "templateCount": 688,
-      "bytes": 1621341,
-      "sha256": "86850c8db985b1201f15e02e7eb663c7b4241e62fe06d2158fa2d532b5cf58f5"
+      "algorithmVersion": 2,
+      "templateCount": 861,
+      "bytes": 2029768,
+      "sha256": "9714475663cae1d459e7a33416fd244171a019c96d299a80218eb4527c1d0ee8"
     },
     {
       "directory": "reader-icons",
+      "algorithmVersion": 2,
       "templateCount": 173,
       "bytes": 404775,
-      "sha256": "963aeceb463958490c1f57d97474ad509c3e78f3e5352e0ea4ec90cd267e6f15"
+      "sha256": "b5ad8e1eea2c631509b15723a45d6fd1f5beba92d76d93755135cfdff1dffadd"
     }
   ]
 }

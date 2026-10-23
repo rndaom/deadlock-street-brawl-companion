@@ -1,6 +1,6 @@
 import type { ScreenReaderBridge } from './screen-reading';
 /** Normalized application contracts. Proposed draft capabilities are not GEP APIs. */
-export type AppMode = 'live' | 'demo';
+export type AppMode = 'live';
 export type Phase = 'waiting' | 'draft' | 'combat' | 'transition' | 'finished';
 export type SourceStatus = 'unavailable' | 'connecting' | 'connected' | 'interrupted';
 export type CapabilityName = 'participant_match' | 'street_brawl_round' | 'own_draft_offers' | 'offer_modifiers' | 'own_reroll_state' | 'current_inventories' | 'purchased_items' | 'ability_investment' | 'corruption_decision' | 'source_continuity';
@@ -105,11 +105,17 @@ export type TelemetryEvent =
   | { type: 'abilities'; matchId: string; seat: number; abilities: AbilityInvestment[]; complete: boolean; observation: Observation }
   | { type: 'purchases'; matchId: string; seat: number; items: PurchasedItemHistoryEntry[]; complete: boolean; observation: Observation };
 export interface DisplayInfo { id: string; label: string; width: number; height: number; primary: boolean }
-export interface AppSettings { textScale: number; hidePlayerNames: boolean; alwaysOnTop: boolean; displayId: string | null }
-export type DemoScenarioId = 'draft' | 'rerolled' | 'combat' | 'interrupted' | 'unknown-item' | 'unknown-ranks' | 'post-match' | 'waiting';
+export interface AppSettings { textScale: number; hidePlayerNames: boolean; alwaysOnTop: boolean; displayId: string | null;
+  /** Draw the pick (and, on the hotkey, the leveling plan) over the game, for one-monitor play. */
+  overlay: boolean }
+/** In-game overlay status: whether the hotkey info panel is open and which key toggles it (null = key unavailable). */
+export interface OverlayStatus { panel: boolean; hotkey: string | null }
 export interface CompanionBridge extends ScreenReaderBridge {
   getState(): Promise<MatchState>; getCatalog(): Promise<Catalog>;
   subscribe(listener: (state: MatchState) => void): () => void;
   getSettings(): Promise<AppSettings>; updateSettings(settings: Partial<AppSettings>): Promise<AppSettings>;
   getDisplays(): Promise<DisplayInfo[]>; exportDiagnostics(): Promise<string>;
+  /** Only the desktop app has an in-game overlay. */
+  getOverlayStatus?(): Promise<OverlayStatus>;
+  subscribeOverlay?(listener: (status: OverlayStatus) => void): () => void;
 }
