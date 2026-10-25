@@ -8,6 +8,8 @@ Goal: run on Omarchy/Hyprland 0.56 with Deadlock under Proton. Nothing committed
 - Packaging: `npm run package:linux` → `release/linux-unpacked`, `./start-companion.sh`; verify-package passes.
 - Verified with a stand-in window (class `steam_app_1422450` showing a synthetic draft): offers read, pick shown, overlay matches the game rect on both monitors without taking focus, SIGTERM/SIGINT/SIGHUP quit in ~50 ms.
 
+- 2026-10-25 overlay offset fix: Chromium multiplied GNOME `text-scaling-factor` (0.9091 here) into its device scale (dpr 0.90625), so the overlay page filled only the top-left 1740×980 of its 1920×1080 window and the marks sat up and left. Startup now forces `force-device-scale-factor` to the Hyprland monitors' shared scale (`hyprlandDeviceScale`); `--disable-features=WaylandUiScale` has no effect in Electron 44. Mixed-scale setups are left alone (unverified there), and the main window now ignores the desktop text scale on Linux too.
+
 Open: not yet tried with the real game. Check that the overlay shows above a fullscreen Deadlock (no rule field for above-fullscreen; borderless windowed is the safe setting), the toplevel copy of the Proton/XWayland game window, and OCR accuracy on live frames. `refresh-patch.mjs` has only been run on Windows.
 
 # 2026-10-18 review round (multi-agent), packaged 2026-10-18 ~21:10 local

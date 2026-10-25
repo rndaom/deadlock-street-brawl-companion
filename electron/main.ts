@@ -12,6 +12,7 @@ import type { AppSettings, DisplayInfo } from '../src/shared/types';
 import { startOverwolfProvider } from './overwolf-provider';
 import { createScreenReader } from './screen-reader';
 import { createOverlay } from './overlay';
+import { hyprlandDeviceScale } from './hyprland';
 import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion, type ScreenReaderState } from '../src/shared/screen-reading';
 import { loadLocalPlayerNames } from './local-identity';
 import { isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
@@ -498,6 +499,11 @@ function onDisplayChange(): void {
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
+  // Hyprland: keep the desktop's text scaling out of Chromium's device scale, or the overlay draws shrunk (see hyprland.ts).
+  if (process.platform === 'linux' && !app.commandLine.hasSwitch('force-device-scale-factor')) {
+    const scale = hyprlandDeviceScale();
+    if (scale) app.commandLine.appendSwitch('force-device-scale-factor', String(scale));
+  }
   app.on('second-instance', () => showFromUserAction());
   app.on('before-quit', (event) => {
     if (quitting) return;

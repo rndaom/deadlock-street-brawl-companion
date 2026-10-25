@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { connect } from 'node:net';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -45,6 +46,27 @@ export function parseMonitors(json: string): HyprlandMonitor[] {
     monitors.push({ name, bounds: { x: x as number, y: y as number, width: Math.round(w / scale), height: Math.round(h / scale) } });
   }
   return monitors;
+}
+
+/** The scale every monitor in `j/monitors` shares; null when they differ or none is listed. */
+export function sharedMonitorScale(json: string): number | null {
+  let parsed: unknown;
+  try { parsed = JSON.parse(json); } catch { return null; }
+  if (!Array.isArray(parsed)) return null;
+  const scales = new Set((parsed as Record<string, unknown>[]).map(entry => entry?.scale).filter((scale): scale is number => typeof scale === 'number' && Number.isFinite(scale) && scale > 0));
+  return scales.size === 1 ? [...scales][0] : null;
+}
+
+/**
+ * Chromium on Linux multiplies the desktop's text-scaling factor (GNOME `text-scaling-factor`) into its
+ * device scale, so with a factor of 0.91 a window sized 1920×1080 by the compositor drew its page into the
+ * top-left 1740×980 pixels and the overlay's marks landed up and left of the game's cards. Startup pins the
+ * device scale to the monitors' own scale with this; it must run before `ready`, hence the synchronous hyprctl.
+ */
+export function hyprlandDeviceScale(socket = hyprlandSocket()): number | null {
+  if (!socket) return null;
+  try { return sharedMonitorScale(execFileSync('hyprctl', ['-j', 'monitors'], { encoding: 'utf8', timeout: 1_000 })); }
+  catch { return null; }
 }
 
 /** The monitor holding the rectangle's centre, which is the monitor the game client is on. */

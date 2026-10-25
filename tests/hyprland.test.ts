@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { monitorFor, overlayRuleLua, parseMonitors } from '../electron/hyprland';
+import { monitorFor, overlayRuleLua, parseMonitors, sharedMonitorScale } from '../electron/hyprland';
 
 const portrait = { name: 'DP-2', bounds: { x: -1080, y: -420, width: 1080, height: 1920 } };
 
@@ -30,5 +30,12 @@ describe('Hyprland overlay placement rule', () => {
     expect(monitorFor(monitors, { x: 480, y: 270, width: 960, height: 540 })?.name).toBe('DP-1');
     expect(monitorFor(monitors, { x: 9000, y: 0, width: 960, height: 540 })).toBeNull();
     expect(parseMonitors('not json')).toEqual([]);
+  });
+  it('finds the scale shared by every monitor, if there is one', () => {
+    expect(sharedMonitorScale(JSON.stringify([{ name: 'DP-1', scale: 1 }, { name: 'DP-2', scale: 1 }]))).toBe(1);
+    expect(sharedMonitorScale(JSON.stringify([{ name: 'DP-1', scale: 1.5 }]))).toBe(1.5);
+    expect(sharedMonitorScale(JSON.stringify([{ name: 'DP-1', scale: 1 }, { name: 'HDMI-A-1', scale: 2 }]))).toBeNull();
+    expect(sharedMonitorScale('[]')).toBeNull();
+    expect(sharedMonitorScale('not json')).toBeNull();
   });
 });
