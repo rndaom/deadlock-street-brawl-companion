@@ -1,4 +1,4 @@
-# Windows screen reader helper
+# Screen reader helper
 
 `ScreenReader.exe` is a dedicated CPU worker for the application. It uses installed Windows OCR, one engine instance, BelowNormal priority, and one allowed logical processor where Windows permits affinity. It has no polling loop: the main application schedules one request at a time over UTF-8 JSON lines.
 
@@ -9,6 +9,22 @@ dotnet publish native/ScreenReader/ScreenReader.csproj -c Release -r win-x64 --s
 ```
 
 The self-contained executable needs no separately installed .NET runtime or OCR model download. Windows must already have an OCR recognition language installed. The worker prefers `en-US`, then an installed user-profile language. The packaged executable is approximately 58 MB; Windows OCR is supplied by the OS.
+
+## Linux build
+
+`ReaderPlatform` in the project selects the build and defaults to the build machine's OS (`-p:ReaderPlatform=windows` cross-checks the Windows build on Linux). The Linux build is a self-contained `linux-x64` executable named `ScreenReader`:
+
+```bash
+node scripts/build-native.mjs
+```
+
+It shares the recognizer, the protocol and every static descriptor with the Windows build. Platform code is split into:
+
+- `TextEngine.cs` (the common OCR result shape), `TextEngine.Windows.cs` (Windows OCR) and `TextEngine.Linux.cs` (Tesseract 5 through its C API: LSTM engine, sparse-text page mode, English model from the system `tessdata`). Tesseract reads dark text on light backgrounds, so mostly dark images are inverted first, and pure black-and-white upscaled fields are softened slightly because the recognizer misreads their stair-stepped edges. `OMP_THREAD_LIMIT=1` keeps Tesseract's worker threads from competing on the reader's single core.
+- `Native.Windows.cs` (Win32 discovery and GDI capture) and `Native.Linux.cs` (Hyprland IPC discovery, `grim` capture). The game is the client whose class is `steam_app_1422450` or whose process is `deadlock.exe` under Proton. `grim -T` copies the game toplevel's own buffer, so the stacking and overlap checks only run when it falls back to copying the screen area after three failed window copies.
+- `Drawing.Linux.cs`: the small part of `System.Drawing` the recognizer uses, implemented on SkiaSharp. Text rendering differs slightly from GDI+, which is why the descriptors shipped from Windows are kept while their hashes still match.
+
+Status names and their meanings are the same on both platforms. A Hyprland window that is pinned counts as shown on its monitor's current workspace.
 
 ## Protocol 1
 

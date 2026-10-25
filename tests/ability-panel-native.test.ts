@@ -3,8 +3,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const nativePath = resolve('native/ScreenReader/publish/ScreenReader.exe');
-const runnable = process.platform === 'win32' && existsSync(nativePath);
+const nativePath = resolve('native/ScreenReader/publish', process.platform === 'win32' ? 'ScreenReader.exe' : 'ScreenReader');
+const runnable = (process.platform === 'win32' || process.platform === 'linux') && existsSync(nativePath);
 
 interface Reply { context?: { abilityPoints?: { value: number | null } | null; brawl?: { abilityRanks?: (number | null)[] | null; roundPips?: number[] | null } } }
 

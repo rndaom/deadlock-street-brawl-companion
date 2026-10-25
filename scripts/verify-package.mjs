@@ -1,4 +1,4 @@
-// Read-only integrity check of the unsigned Windows directory build.
+// Read-only integrity check of the unsigned directory build (release/win-unpacked or release/linux-unpacked).
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,13 +7,15 @@ import { extractFile } from '@electron/asar';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 // An optional argument checks a build packaged elsewhere, e.g. release/next/win-unpacked.
-const resources = path.join(root, process.argv[2] ?? 'release/win-unpacked', 'resources');
+const windows = process.platform === 'win32';
+const helper = windows ? 'ScreenReader.exe' : 'ScreenReader';
+const resources = path.join(root, process.argv[2] ?? (windows ? 'release/win-unpacked' : 'release/linux-unpacked'), 'resources');
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const expected = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
 const packed = JSON.parse(extractFile(path.join(resources, 'app.asar'), 'package.json').toString('utf8'));
 if (packed.version !== expected.version) throw new Error('Packaged application version does not match source.');
-const native = await fs.readFile(path.join(root, 'native/ScreenReader/publish/ScreenReader.exe'));
-const packagedNative = await fs.readFile(path.join(resources, 'screen-reader/ScreenReader.exe'));
+const native = await fs.readFile(path.join(root, 'native/ScreenReader/publish', helper));
+const packagedNative = await fs.readFile(path.join(resources, 'screen-reader', helper));
 if (digest(native) !== digest(packagedNative)) throw new Error('Packaged native reader differs from the tested helper.');
 const manifest = JSON.parse(await fs.readFile(path.join(resources, 'reader-icons/manifest.json'), 'utf8'));
 const sourceManifest = JSON.parse(await fs.readFile(path.join(root, 'assets/reader-icons/manifest.json'), 'utf8'));
@@ -67,5 +69,6 @@ const report = {
   contextCatalogSha256: contextManifest.contextCatalogSha256,
   staticDescriptorCaches: descriptors,
 };
-await fs.writeFile(path.join(root, 'artifacts/package-verification.json'), JSON.stringify(report, null, 2) + '\n');
+// Each platform keeps its own record, so a Linux check never replaces the Windows package's.
+await fs.writeFile(path.join(root, windows ? 'artifacts/package-verification.json' : 'artifacts/package-verification.linux.json'), JSON.stringify(report, null, 2) + '\n');
 process.stdout.write(JSON.stringify(report) + '\n');

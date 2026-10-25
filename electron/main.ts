@@ -65,13 +65,14 @@ function saveReaderPreferences(): Promise<void> {
 }
 
 function readerPaths(): { helperPath: string; iconDirectory: string; contextIconDirectory: string } {
+  const helper = process.platform === 'win32' ? 'ScreenReader.exe' : 'ScreenReader';
   return app.isPackaged
-    ? { helperPath: join(process.resourcesPath, 'screen-reader', 'ScreenReader.exe'), iconDirectory: join(process.resourcesPath, 'reader-icons'), contextIconDirectory: join(process.resourcesPath, 'context-icons') }
-    : { helperPath: resolve(mainDirectory, '../native/ScreenReader/publish/ScreenReader.exe'), iconDirectory: resolve(mainDirectory, '../assets/reader-icons'), contextIconDirectory: resolve(mainDirectory, '../assets/context-icons') };
+    ? { helperPath: join(process.resourcesPath, 'screen-reader', helper), iconDirectory: join(process.resourcesPath, 'reader-icons'), contextIconDirectory: join(process.resourcesPath, 'context-icons') }
+    : { helperPath: resolve(mainDirectory, '../native/ScreenReader/publish', helper), iconDirectory: resolve(mainDirectory, '../assets/reader-icons'), contextIconDirectory: resolve(mainDirectory, '../assets/context-icons') };
 }
 
 /**
- * Local troubleshooting record in Documents\Street Brawl Companion\diagnostics:
+ * Local troubleshooting record in Documents\Street Brawl Companion\diagnostics (~/Documents/... on Linux):
  * reader-log.jsonl holds one line per screen read (status, timing, read text, decision);
  * frames\ keeps the most recent draft images so misreads can be replayed offline.
  * Nothing leaves this computer.
@@ -148,7 +149,8 @@ function publishScreenReader(state: ScreenReaderState): void {
 function flushScreenReader(): void {
   const state = pendingReaderState;
   pendingReaderState = null;
-  if (!state) return;
+  // Reader updates published while quitting (the reader stopping) must not touch the destroyed tray or overlay.
+  if (!state || quitting) return;
   if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send('companion:screen-reader', state);
   }
@@ -475,6 +477,8 @@ async function createWindow(): Promise<void> {
   });
   mainWindow.webContents.on('will-attach-webview', (event) => event.preventDefault());
   mainWindow.once('ready-to-show', () => mainWindow?.showInactive());
+  // Wayland paints nothing for a window that was never mapped, so ready-to-show may never fire there.
+  if (process.platform === 'linux') mainWindow.webContents.once('did-finish-load', () => { if (mainWindow && !mainWindow.isVisible()) mainWindow.showInactive(); });
   mainWindow.webContents.on('did-finish-load', () => { publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
   // The hidden overlay window must not keep the app running once the companion is closed.
   mainWindow.on('closed', () => { mainWindow = null; app.quit(); });
@@ -504,10 +508,15 @@ if (!app.requestSingleInstanceLock()) {
     controller.dispose();
     overlay?.dispose();
     tray?.destroy();
+    tray = null;
     void Promise.allSettled([screenReader?.dispose(), readerPreferenceWrites, settingsWrites]).then(() => app.quit());
   });
   app.on('window-all-closed', () => app.quit());
   void app.whenReady().then(async () => {
+    // Logout and `kill` send SIGTERM on Linux. Chromium's own handler (installed before ready, so replaced
+    // here) stops the message loop without the cleanup above, leaving the reader unreaped and the app hung;
+    // signals take the same quit path as the tray's Quit instead.
+    if (process.platform !== 'win32') for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) process.on(signal, () => app.quit());
     const [, , localPlayerNames] = await Promise.all([loadSettings(), loadReaderPreferences(), loadLocalPlayerNames()]);
     void refreshStreetBrawlData();
     setInterval(() => { void refreshStreetBrawlData(); }, 6 * 60 * 60 * 1000).unref();

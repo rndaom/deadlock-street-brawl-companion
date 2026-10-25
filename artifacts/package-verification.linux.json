@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "applicationVersion": "0.5.0",
+  "passed": true,
+  "unsigned": true,
+  "nativeReaderSha256": "72b7d9657fb5e73758ed70bb69386ae3b5ba7b0e26d967a15ad1b649f742d90a",
+  "nativeReaderBytes": 43491615,
+  "packagedIconsVerified": 173,
+  "catalogSha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
+  "packagedContextAssetsVerified": 313,
+  "contextAssetRoles": {
+    "hero-card": 44,
+    "hero-small": 44,
+    "hero-vertical": 44,
+    "ability": 176,
+    "hud-glyph": 5
+  },
+  "contextCatalogSha256": "0ac5f586220491b28c0187bc0c2bee37c999d3e9056f3a6bb196bb29c384fa2b",
+  "staticDescriptorCaches": [
+    {
+      "directory": "context-icons",
+      "algorithmVersion": 2,
+      "templateCount": 861,
+      "bytes": 2029768,
+      "sha256": "9714475663cae1d459e7a33416fd244171a019c96d299a80218eb4527c1d0ee8"
+    },
+    {
+      "directory": "reader-icons",
+      "algorithmVersion": 2,
+      "templateCount": 173,
+      "bytes": 404775,
+      "sha256": "b5ad8e1eea2c631509b15723a45d6fd1f5beba92d76d93755135cfdff1dffadd"
+    }
+  ]
+}

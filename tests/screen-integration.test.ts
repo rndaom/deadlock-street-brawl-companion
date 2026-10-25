@@ -789,8 +789,8 @@ describe('actual-reading coordinator with an injected native process', () => {
   });
 });
 
-const nativePath = resolve('native/ScreenReader/publish/ScreenReader.exe');
-describe.skipIf(process.platform !== 'win32' || !existsSync(nativePath))('published Windows OCR helper, synthetic pixels only', () => {
+const nativePath = resolve('native/ScreenReader/publish', process.platform === 'win32' ? 'ScreenReader.exe' : 'ScreenReader');
+describe.skipIf(!['win32', 'linux'].includes(process.platform) || !existsSync(nativePath))('published native OCR helper, synthetic pixels only', () => {
   it('recognizes current catalogue offers through actual OCR, crop adapter, parser and limited guidance', async () => {
     vi.useRealTimers();
     const worker = spawn(nativePath, ['--icons', resolve('assets/reader-icons'), '--context-icons', resolve('assets/context-icons')],

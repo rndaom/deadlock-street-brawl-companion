@@ -3,14 +3,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Windows.Globalization;
-using Windows.Graphics.Imaging;
-using Windows.Media.Ocr;
 
 namespace Deadlock.ScreenReader;
 
@@ -39,7 +35,7 @@ internal static class Program
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
   };
-  private static OcrEngine? _engine;
+  private static ITextEngine? _engine;
   private static bool _engineAttempted;
   private static bool? _ocrSupported;
   private static readonly List<CachedOcr> Cache = [];
@@ -122,7 +118,7 @@ internal static class Program
         request = JsonSerializer.Deserialize<Request>(line, Json);
         if (request is null || !ValidRequest(request)) throw new ArgumentException("request_shape");
         var response = request.Op == "stop"
-          ? new Reply(1, request.Id, "stopped", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.RecognizerLanguage.LanguageTag)
+          ? new Reply(1, request.Id, "stopped", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.LanguageTag)
           : await Handle(request);
         await Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, Json));
         await Console.Out.FlushAsync();
@@ -131,7 +127,7 @@ internal static class Program
       catch
       {
         var id = request?.Id is { Length: > 0 and <= 128 } ? request.Id : "invalid";
-        var response = new Reply(1, id, "invalid_request", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.RecognizerLanguage.LanguageTag, ErrorCode: "request_rejected");
+        var response = new Reply(1, id, "invalid_request", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.LanguageTag, ErrorCode: "request_rejected");
         await Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, Json));
         await Console.Out.FlushAsync();
       }
@@ -168,8 +164,7 @@ internal static class Program
       if (_engine is null) throw new InvalidOperationException("review_ocr");
       if (index == 0)
       {
-        using var software = SoftwareBitmap.CreateCopyFromBuffer(pixels.AsBuffer(), BitmapPixelFormat.Bgra8, width, height, BitmapAlphaMode.Ignore);
-        var ocr = await _engine.RecognizeAsync(software);
+        var ocr = await _engine.RecognizeAsync(pixels, width, height);
         blocks = ExtractBlocks(ocr, crop, width, height);
       }
       var refinement = await RefineContextText(bitmap, crop, clientWidth, clientHeight, blocks, fineCoverage, watch);
@@ -236,7 +231,7 @@ internal static class Program
     try
     {
       // Prefer English for the game's item catalogue; use an already installed profile language if unavailable.
-      _engine = OcrEngine.TryCreateFromLanguage(new Language("en-US")) ?? OcrEngine.TryCreateFromUserProfileLanguages();
+      _engine = TextEngines.TryCreate();
     }
     catch { _engine = null; }
     _ocrSupported = _engine is not null;
@@ -245,7 +240,7 @@ internal static class Program
   private static bool OcrAvailable()
   {
     if (_ocrSupported is { } known) return known;
-    try { _ocrSupported = OcrEngine.AvailableRecognizerLanguages.Count > 0; }
+    try { _ocrSupported = TextEngines.Available(); }
     catch { _ocrSupported = false; }
     return _ocrSupported.Value;
   }
@@ -342,8 +337,7 @@ internal static class Program
         Cache.Remove(cached); Cache.Add(cached with { Context = cachedContext ?? cached.Context,Blocks=numeric.Blocks,FineCoverage=refined.Coverage,NumericCoverage=numeric.Coverage });
         return Response("unchanged", game, request, watch, capturedAt, hash, numeric.Blocks, synthetic, actualCrop, metrics with { Unchanged = true,OcrMs=Math.Round(fineOcrMs,2) }, unchanged: true, preview: preview, icons: cached.Icons, context: cachedContext);
       }
-      using var software = SoftwareBitmap.CreateCopyFromBuffer(pixels.AsBuffer(), BitmapPixelFormat.Bgra8, imageWidth, imageHeight, BitmapAlphaMode.Ignore);
-      var result = await _engine.RecognizeAsync(software);
+      var result = await _engine.RecognizeAsync(pixels, imageWidth, imageHeight);
       if (!synthetic)
       {
         var afterOcr = Native.VerifyGame(game);
@@ -410,18 +404,18 @@ internal static class Program
         WorkingSetMb = Math.Round(process.WorkingSet64 / 1048576d, 2), PrivateMemoryMb = Math.Round(process.PrivateMemorySize64 / 1048576d, 2) };
     }
     return new(1, request.Id, status, game.Present, game.Foreground, game.Client.Width, game.Client.Height, capturedAt,
-      Math.Round(watch.Elapsed.TotalMilliseconds, 2), hash, blocks, available, _engine?.RecognizerLanguage.LanguageTag,
+      Math.Round(watch.Elapsed.TotalMilliseconds, 2), hash, blocks, available, _engine?.LanguageTag,
       crop, metrics, error, synthetic, unchanged, preview, icons, context,
       game.Present ? game.Client.X : null, game.Present ? game.Client.Y : null);
   }
 
   private static void ClearCachedText() { Cache.Clear(); }
 
-  private static IReadOnlyList<OcrBlock> ExtractBlocks(OcrResult result,NormalizedRect crop,int width,int height)
+  private static IReadOnlyList<OcrBlock> ExtractBlocks(RecognizedPage result,NormalizedRect crop,int width,int height)
   {
     return result.Lines.Take(256).Select(line=>
     {
-      var words=line.Words.Take(64).Select(word=>new TextWord(word.Text,MapBounds(word.BoundingRect,crop,width,height,result.TextAngle.GetValueOrDefault())))
+      var words=line.Words.Take(64).Select(word=>new TextWord(word.Text,MapBounds(word.Bounds,crop,width,height,result.TextAngle)))
         .Where(word=>!string.IsNullOrWhiteSpace(word.Text)&&word.Bounds.Width>0&&word.Bounds.Height>0).ToArray();
       if(words.Length==0)return null;
       double left=words.Min(word=>word.Bounds.X),top=words.Min(word=>word.Bounds.Y),right=words.Max(word=>word.Bounds.X+word.Bounds.Width),bottom=words.Max(word=>word.Bounds.Y+word.Bounds.Height);
@@ -457,7 +451,7 @@ internal static class Program
       if(requestWatch.Elapsed.TotalMilliseconds>900)break;
       var source=new RectangleF((float)((strip.Bounds.X-crop.X)/crop.Width*captured.Width),(float)((strip.Bounds.Y-crop.Y)/crop.Height*captured.Height),
         (float)(strip.Bounds.Width/crop.Width*captured.Width),(float)(strip.Bounds.Height/crop.Height*captured.Height));
-      double scale=Math.Min(strip.Bit==16?4.0:strip.Bit>=4?4.0:strip.Bit==1?3.0:2.4,Math.Min((double)OcrEngine.MaxImageDimension/source.Width,Math.Sqrt((strip.Bit==2?750000d:1_000_000d)/(source.Width*source.Height))));
+      double scale=Math.Min(strip.Bit==16?4.0:strip.Bit>=4?4.0:strip.Bit==1?3.0:2.4,Math.Min((double)_engine.MaxImageDimension/source.Width,Math.Sqrt((strip.Bit==2?750000d:1_000_000d)/(source.Width*source.Height))));
       int width=Math.Max(1,(int)Math.Floor(source.Width*scale)),height=Math.Max(1,(int)Math.Floor(source.Height*scale));
       using var patch=new Bitmap(width,height,PixelFormat.Format32bppArgb);
       using(var graphics=Graphics.FromImage(patch))
@@ -478,8 +472,7 @@ internal static class Program
         blocks=blocks.Concat(await ReadHeaderMosaic(pixels,width,height,strip.Bounds,clientWidth,clientHeight)).Take(256).ToArray();
         coverage|=strip.Bit;continue;
       }
-      using var software=SoftwareBitmap.CreateCopyFromBuffer(pixels.AsBuffer(),BitmapPixelFormat.Bgra8,width,height,BitmapAlphaMode.Ignore);
-      var result=await _engine.RecognizeAsync(software);
+      var result=await _engine.RecognizeAsync(pixels,width,height);
       var fine=ExtractBlocks(result,strip.Bounds,width,height);
       // Prefer the full fine word rows. Dropped/truncated words remain detectable by parser's
       // text-versus-word check. Never concatenate unrelated OCR fragments into a player's name.
@@ -524,9 +517,8 @@ internal static class Program
         }
       }
     }
-    using var software=SoftwareBitmap.CreateCopyFromBuffer(canvas.AsBuffer(),BitmapPixelFormat.Bgra8,canvasWidth,canvasHeight,BitmapAlphaMode.Ignore);
-    var result=await _engine.RecognizeAsync(software);
-    var words=result.Lines.SelectMany(line=>line.Words).Select(word=>(Text:word.Text.Trim(),Center:word.BoundingRect.X+word.BoundingRect.Width/2,Left:word.BoundingRect.X)).ToArray();
+    var result=await _engine.RecognizeAsync(canvas,canvasWidth,canvasHeight);
+    var words=result.Lines.SelectMany(line=>line.Words).Select(word=>(Text:word.Text.Trim(),Center:word.Bounds.X+word.Bounds.Width/2,Left:word.Bounds.X)).ToArray();
     var found=new List<OcrBlock>();
     for(int seat=0;seat<centers.Length;seat++)
     {
@@ -617,8 +609,7 @@ internal static class Program
       }
     }
     var canvasPixels=Pixels(canvas);
-    using var software=SoftwareBitmap.CreateCopyFromBuffer(canvasPixels.AsBuffer(),BitmapPixelFormat.Bgra8,canvas.Width,canvas.Height,BitmapAlphaMode.Ignore);
-    var result=await _engine.RecognizeAsync(software);
+    var result=await _engine.RecognizeAsync(canvasPixels,canvas.Width,canvas.Height);
     var observed=ExtractBlocks(result,new NormalizedRect(0,0,1,1),canvas.Width,canvas.Height);
     var derived=new List<OcrBlock>();
     foreach(var placement in placements)
@@ -651,7 +642,7 @@ internal static class Program
     return new Rectangle(client.X + x, client.Y + y, right - x, bottom - y);
   }
 
-  private static NormalizedRect MapBounds(Windows.Foundation.Rect bounds, NormalizedRect crop, int width, int height, double textAngle = 0)
+  private static NormalizedRect MapBounds(TextBox bounds, NormalizedRect crop, int width, int height, double textAngle = 0)
   {
     if (!double.IsFinite(bounds.X) || !double.IsFinite(bounds.Y) || !double.IsFinite(bounds.Width) || !double.IsFinite(bounds.Height)
       || bounds.Width <= 0 || bounds.Height <= 0) return new(crop.X, crop.Y, 0, 0);
@@ -784,171 +775,4 @@ internal static class Program
     bitmap.Save(output, ImageFormat.Png);
     return Convert.ToBase64String(output.ToArray());
   }
-}
-
-internal static class Native
-{
-  private static GameWindow? _knownGame;
-  private const uint QueryLimitedInformation = 0x1000;
-  private const uint SourceCopy = 0x00CC0020;
-  private const uint NoMirrorBitmap = 0x80000000;
-  private const uint GaRoot = 2;
-  private const uint GwHwndPrevious = 3;
-  private const int GwlExStyle = -20;
-  private const int WsExTransparent = 0x20, WsExToolWindow = 0x80, WsExLayered = 0x80000, WsExNoActivate = 0x08000000;
-  [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; public readonly Rectangle ToRectangle() => Rectangle.FromLTRB(Left, Top, Right, Bottom); }
-  [StructLayout(LayoutKind.Sequential)] private struct Point { public int X, Y; }
-  [StructLayout(LayoutKind.Sequential)] private struct MonitorInfo { public int Size; public Rect Monitor, Work; public uint Flags; }
-  private delegate bool EnumWindowCallback(nint window, nint parameter);
-
-  internal static GameWindow FindGame()
-  {
-    if (_knownGame is { } known && IsWindow(known.Handle))
-    {
-      GetWindowThreadProcessId(known.Handle, out var currentProcessId);
-      if (currentProcessId == known.ProcessId)
-      {
-        var latest = known with { Client = ClientRectangle(known.Handle) };
-        _knownGame = latest;
-        return VerifyGame(latest);
-      }
-    }
-    var windows = new List<(nint Handle, uint ProcessId, Rectangle Client)>();
-    EnumWindows((window, _) =>
-    {
-      GetWindowThreadProcessId(window, out var processId);
-      if (IsDeadlock(processId) && ClientRectangle(window) is { Width: >= 320, Height: >= 240 } client)
-        windows.Add((window, processId, client));
-      return true;
-    }, 0);
-    if (windows.Count == 0)
-    {
-      var present = Process.GetProcessesByName("deadlock").Any(process => { using (process) return IsDeadlock((uint)process.Id); });
-      return new GameWindow(0, 0, Rectangle.Empty, present ? "no_window" : "not_found", present, false);
-    }
-    var foreground = GetAncestor(GetForegroundWindow(), GaRoot);
-    var best = windows.OrderByDescending(window => window.Handle == foreground).ThenByDescending(window => window.Client.Width * (long)window.Client.Height).First();
-    _knownGame = new GameWindow(best.Handle, best.ProcessId, best.Client, "ok", true, best.Handle == foreground);
-    return VerifyGame(_knownGame.Value);
-  }
-
-  internal static GameWindow VerifyGame(GameWindow game)
-  {
-    var foreground = GetAncestor(GetForegroundWindow(), GaRoot) == game.Handle;
-    GetWindowThreadProcessId(game.Handle, out var actualProcessId);
-    if (!IsWindow(game.Handle) || actualProcessId != game.ProcessId || !IsDeadlock(actualProcessId)) return game with { Status = "not_found", Present = false, Foreground = false };
-    if (IsIconic(game.Handle)) return game with { Status = "minimized", Foreground = false };
-    if (!IsWindowVisible(game.Handle) || Cloaked(game.Handle)) return game with { Status = "no_window", Foreground = false };
-    // A game that lost focus but is still fully visible (two monitors: the player clicked the companion on the other
-    // one) is still captured; the reply carries Foreground = false. A covered background game stays "not_foreground".
-    var covered = foreground ? "occluded" : "not_foreground";
-    var client = ClientRectangle(game.Handle);
-    if (client.Width < 320 || client.Height < 240 || client != game.Client) return game with { Status = "capture_failed", Client = client, Foreground = foreground };
-    var monitor = MonitorFromWindow(game.Handle, 0);
-    var information = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
-    if (monitor == 0 || !GetMonitorInfo(monitor, ref information) || !information.Monitor.ToRectangle().Contains(client))
-      return game with { Status = "offscreen", Foreground = foreground };
-    // Every visible top-level window above the game is checked, including always-on-top overlays.
-    // There is no desktop image capture when another application's window intersects the game.
-    for (var above = GetWindow(game.Handle, GwHwndPrevious); above != 0; above = GetWindow(above, GwHwndPrevious))
-    {
-      if (!IsWindowVisible(above) || IsIconic(above) || Cloaked(above)) continue;
-      // Click-through overlays (Discord, NVIDIA, Game Bar, helper tools) do not hide the game's panels.
-      var extended = GetWindowLong(above, GwlExStyle);
-      if ((extended & WsExTransparent) != 0 || ((extended & WsExLayered) != 0 && (extended & (WsExToolWindow | WsExNoActivate)) != 0)) continue;
-      var overlap = Rectangle.Intersect(WindowRectangle(above), client);
-      // Small intersections (a taskbar edge, a notification corner) do not hide the draft cards.
-      if (overlap.Width * (long)overlap.Height > client.Width * (long)client.Height / 20) return game with { Status = covered, Foreground = foreground };
-    }
-    // Draft cards and the scoreboard occupy the middle of the window; corners may carry small widgets.
-    var hidden = 0;
-    foreach (var point in new[] {
-      new Point { X = client.Left + client.Width / 4, Y = client.Top + client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Top + client.Height / 3 },
-      new Point { X = client.Left + client.Width / 4, Y = client.Bottom - client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Bottom - client.Height / 3 },
-      new Point { X = client.Left + client.Width / 2, Y = client.Top + client.Height / 2 },
-    })
-      if (GetAncestor(WindowFromPoint(point), GaRoot) != game.Handle) hidden++;
-    if (hidden >= 2) return game with { Status = covered, Foreground = foreground };
-    return game with { Status = "ok", Foreground = foreground };
-  }
-
-  internal static Bitmap Capture(GameWindow game, Rectangle source, int width, int height)
-  {
-    if (VerifyGame(game).Status != "ok") throw new InvalidOperationException("visibility_changed");
-    var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-    try
-    {
-      using var graphics = Graphics.FromImage(bitmap);
-      var screen = GetDC(0);
-      if (screen == 0) throw new InvalidOperationException("screen_dc_unavailable");
-      nint destination = 0;
-      try
-      {
-        destination = graphics.GetHdc();
-        SetStretchBltMode(destination, 4);
-        SetBrushOrgEx(destination, 0, 0, out _);
-        if (!StretchBlt(destination, 0, 0, width, height, screen, source.X, source.Y, source.Width, source.Height, SourceCopy | NoMirrorBitmap))
-          throw new InvalidOperationException("capture_failed");
-      }
-      finally { if (destination != 0) graphics.ReleaseHdc(destination); ReleaseDC(0, screen); }
-      return bitmap;
-    }
-    catch { bitmap.Dispose(); throw; }
-  }
-
-  private static Rectangle ClientRectangle(nint window)
-  {
-    if (!GetClientRect(window, out var rectangle)) return Rectangle.Empty;
-    var origin = new Point();
-    if (!ClientToScreen(window, ref origin)) return Rectangle.Empty;
-    return new Rectangle(origin.X, origin.Y, Math.Max(0, rectangle.Right - rectangle.Left), Math.Max(0, rectangle.Bottom - rectangle.Top));
-  }
-
-  private static Rectangle WindowRectangle(nint window)
-  {
-    if (DwmGetWindowAttribute(window, 9, out Rect rectangle, Marshal.SizeOf<Rect>()) == 0) return rectangle.ToRectangle();
-    return GetWindowRect(window, out rectangle) ? rectangle.ToRectangle() : Rectangle.Empty;
-  }
-
-  private static bool Cloaked(nint window) => DwmGetWindowAttribute(window, 14, out int cloak, sizeof(int)) == 0 && cloak != 0;
-
-  private static bool IsDeadlock(uint processId)
-  {
-    var process = OpenProcess(QueryLimitedInformation, false, processId);
-    if (process == 0) return false;
-    try
-    {
-      var path = new StringBuilder(1024);
-      var length = (uint)path.Capacity;
-      return QueryFullProcessImageName(process, 0, path, ref length) && string.Equals(Path.GetFileName(path.ToString()), "deadlock.exe", StringComparison.OrdinalIgnoreCase);
-    }
-    finally { CloseHandle(process); }
-  }
-
-  [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowCallback callback, nint parameter);
-  [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(nint window, out uint processId);
-  [DllImport("user32.dll")] private static extern nint GetForegroundWindow();
-  [DllImport("user32.dll")] private static extern nint GetAncestor(nint window, uint flags);
-  [DllImport("user32.dll")] private static extern nint GetWindow(nint window, uint command);
-  [DllImport("user32.dll")] private static extern nint WindowFromPoint(Point point);
-  [DllImport("user32.dll")] private static extern bool IsWindow(nint window);
-  [DllImport("user32.dll")] private static extern bool IsWindowVisible(nint window);
-  [DllImport("user32.dll")] private static extern int GetWindowLong(nint window, int index);
-  [DllImport("user32.dll")] private static extern bool IsIconic(nint window);
-  [DllImport("user32.dll")] private static extern bool GetClientRect(nint window, out Rect rectangle);
-  [DllImport("user32.dll")] private static extern bool GetWindowRect(nint window, out Rect rectangle);
-  [DllImport("user32.dll")] private static extern bool ClientToScreen(nint window, ref Point point);
-  [DllImport("user32.dll")] private static extern nint MonitorFromWindow(nint window, uint flags);
-  [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
-  [DllImport("dwmapi.dll")] private static extern int DwmGetWindowAttribute(nint window, uint attribute, out Rect value, int size);
-  [DllImport("dwmapi.dll")] private static extern int DwmGetWindowAttribute(nint window, uint attribute, out int value, int size);
-  [DllImport("kernel32.dll")] private static extern nint OpenProcess(uint access, bool inheritHandle, uint processId);
-  [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern bool QueryFullProcessImageName(nint process, uint flags, StringBuilder path, ref uint size);
-  [DllImport("kernel32.dll")] private static extern bool CloseHandle(nint handle);
-  [DllImport("user32.dll")] internal static extern bool SetProcessDpiAwarenessContext(nint context);
-  [DllImport("user32.dll")] private static extern nint GetDC(nint window);
-  [DllImport("user32.dll")] private static extern int ReleaseDC(nint window, nint dc);
-  [DllImport("gdi32.dll")] private static extern int SetStretchBltMode(nint dc, int mode);
-  [DllImport("gdi32.dll")] private static extern bool SetBrushOrgEx(nint dc, int x, int y, out Point previous);
-  [DllImport("gdi32.dll", SetLastError = true)] private static extern bool StretchBlt(nint destination, int x, int y, int width, int height, nint source, int sourceX, int sourceY, int sourceWidth, int sourceHeight, uint operation);
 }

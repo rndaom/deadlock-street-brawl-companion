@@ -1,7 +1,7 @@
 {
   "name": "deadlock-street-brawl-companion",
   "version": "0.5.0",
-  "description": "Windows Street Brawl companion with visible team and build tracking and contextual item guidance",
+  "description": "Street Brawl companion for Windows and Linux with visible team and build tracking and contextual item guidance",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
@@ -20,6 +20,7 @@
     "start": "node scripts/launch.mjs",
     "start:overwolf": "node scripts/launch.mjs --overwolf",
     "package:dir": "npm run build && electron-builder --dir --win --x64",
+    "package:linux": "npm run build && electron-builder --dir --linux --x64",
     "catalog:sync": "node scripts/sync-catalog.mjs",
     "reader:build": "node scripts/build-native.mjs",
     "reader:icons": "node scripts/sync-reader-icons.mjs --verify",
@@ -60,7 +61,8 @@
         "from": "native/ScreenReader/publish",
         "to": "screen-reader",
         "filter": [
-          "ScreenReader.exe"
+          "ScreenReader.exe",
+          "ScreenReader"
         ]
       },
       {
@@ -90,6 +92,11 @@
     "win": {
       "target": "dir",
       "signAndEditExecutable": false
+    },
+    "linux": {
+      "target": "dir",
+      "executableName": "street-brawl-companion",
+      "category": "Game"
     }
   }
 }

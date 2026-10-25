@@ -1,3 +1,15 @@
+# 2026-10-24 Linux port (Hyprland)
+
+Goal: run on Omarchy/Hyprland 0.56 with Deadlock under Proton. Nothing committed.
+
+- Native: `ReaderPlatform` csproj switch; Tesseract engine, Hyprland/grim capture, SkiaSharp `System.Drawing` shim (see native/ScreenReader/README.md). All native tests pass on Linux, including the 27 real-frame ability-panel tests; draft OCR ~110 ms, full scoreboard ~300 ms.
+- Electron: overlay placed by a runtime Hyprland Lua window rule (`electron/hyprland.ts`; `move` is monitor-relative, so the rule names the game's monitor); the overlay window is created at the game size because Hyprland keeps a non-resizable window's creation size. Signal handlers installed after `ready` replace Chromium's, which stopped the loop without cleanup. Reader updates are ignored once quitting (a queued update used to hit the destroyed tray: "Tray is destroyed" dialog, also possible on Windows).
+- Local identity reads Steam's `loginusers.vdf` from `~/.steam/steam`, `~/.local/share/Steam` or the Flatpak path.
+- Packaging: `npm run package:linux` → `release/linux-unpacked`, `./start-companion.sh`; verify-package passes.
+- Verified with a stand-in window (class `steam_app_1422450` showing a synthetic draft): offers read, pick shown, overlay matches the game rect on both monitors without taking focus, SIGTERM/SIGINT/SIGHUP quit in ~50 ms.
+
+Open: not yet tried with the real game. Check that the overlay shows above a fullscreen Deadlock (no rule field for above-fullscreen; borderless windowed is the safe setting), the toplevel copy of the Proton/XWayland game window, and OCR accuracy on live frames. `refresh-patch.mjs` has only been run on Windows.
+
 # 2026-10-18 review round (multi-agent), packaged 2026-10-18 ~21:10 local
 
 Reviewers audited the 3 live matches of 2026-10-18, the native diff and pick logic/UI; fixes were then independently reviewed and the confirmed findings fixed. 1015 tests pass, verify-package passed. Pre-session snapshot: dangling commit 18277596c13b69ba24273278dd0e1d4f02592ac5. Nothing committed.
