@@ -486,7 +486,112 @@ internal static class Program
         : fine.Concat(blocks.Where(block=>!NativeMatchReader.Contains(strip.Bounds,block.Bounds))).Take(256).ToArray();
       coverage|=strip.Bit;
     }
+    if((coverage&32)==0&&requestWatch.Elapsed.TotalMilliseconds<=900)
+    {
+      blocks=await ReadDraftLabels(captured,crop,clientWidth,clientHeight,blocks);
+      coverage|=32;
+    }
     return(blocks,coverage);
+  }
+
+  // Street Brawl option panels at 1080p design (IconMatcher.CardPanels): each card's name row sits 240-295px below its panel's top.
+  private static readonly (double X,double Y)[] DraftPanels=[(334,476),(761,228),(1187,476)];
+  private static readonly System.Text.RegularExpressions.Regex DraftChoice=new("^choice ?([1-3]) ?[o0]f ?3$");
+  private static string LabelKey(string text)=>System.Text.RegularExpressions.Regex.Replace(text.ToLowerInvariant(),"[^a-z0-9]+"," ").Trim();
+
+  /**
+   * Bit 32: the Street Brawl draft. Full-frame Tesseract drops the stylized card names on the textured
+   * rings (14 of 33 cards on the first real Linux draft frames) and often the SELECT ITEMS title. The
+   * magenta "CHOICE N OF 3" label proves the draft by pixels alone (15% of its box on every draft frame,
+   * none elsewhere); the label, the title and each card's name row are then read on their own with the
+   * text colour isolated. Fixed labels are reported in their canonical spelling; a card's name row
+   * replaces the full-frame words inside it when it holds a word.
+   */
+  private static async Task<IReadOnlyList<OcrBlock>> ReadDraftLabels(Bitmap captured,NormalizedRect crop,int clientWidth,int clientHeight,IReadOnlyList<OcrBlock> blocks)
+  {
+    var choiceBounds=NativeMatchReader.Design(60,280,320,50,clientWidth,clientHeight);
+    if(!NativeMatchReader.Contains(crop,choiceBounds))return blocks;
+    static byte White(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,Math.Min(green,blue))-110)*3,0,255));
+    static byte Magenta(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,blue)-green-30)*4,0,255));
+    var gate=InkPatch(captured,crop,NativeMatchReader.Design(70,285,300,40,clientWidth,clientHeight),1);
+    if(gate is null)return blocks;
+    int magenta=0;
+    for(int index=0;index+3<gate.Value.Pixels.Length;index+=4)if(Math.Min(gate.Value.Pixels[index],gate.Value.Pixels[index+2])-gate.Value.Pixels[index+1]>60)magenta++;
+    if(magenta<gate.Value.Pixels.Length/4*.08)return blocks;
+    var result=blocks.ToList();
+    // A found label replaces every full-frame fragment on its row: OCR noise beside the title
+    // ("SELECT ITEMS ree") joins it into one line that the parser no longer recognizes.
+    void Label(string text,NormalizedRect area,NormalizedRect bounds)
+    {
+      var row=new NormalizedRect(area.X,bounds.Y-bounds.Height*.25,area.Width,bounds.Height*1.5);
+      result.RemoveAll(block=>Inside(row,block.Bounds));
+      result.Add(new(text,bounds,[new TextWord(text,bounds)]));
+    }
+    var choice=await ReadInkStrip(captured,crop,choiceBounds,2,Magenta);
+    var choiceMatch=DraftChoice.Match(LabelKey(string.Join(" ",choice.Select(line=>line.Text))));
+    if(choiceMatch.Success)Label($"CHOICE {choiceMatch.Groups[1].Value} OF 3",choiceBounds,Union(choice.Select(line=>line.Bounds)));
+    var titleBounds=NativeMatchReader.Design(60,180,520,150,clientWidth,clientHeight);
+    var title=(await ReadInkStrip(captured,crop,titleBounds,2,White)).FirstOrDefault(line=>LabelKey(line.Text) is "select items" or "select item");
+    if(title is not null)Label("SELECT ITEMS",titleBounds,title.Bounds);
+    foreach(var (panelX,panelY) in DraftPanels)
+    {
+      var row=NativeMatchReader.Design(panelX+20,panelY+240,360,55,clientWidth,clientHeight);
+      if(!NativeMatchReader.Contains(crop,row))continue;
+      var name=(await ReadInkStrip(captured,crop,row,2,White,.02)).Select(CardName).Where(line=>System.Text.RegularExpressions.Regex.IsMatch(line.Text,"[A-Za-z]{3}")).ToArray();
+      if(name.Length==0)continue;
+      result.RemoveAll(block=>Inside(row,block.Bounds));
+      result.AddRange(name);
+      // The blue ENHANCED label under the name: full-frame OCR returns it as "ea ANAED" or not at all on some frames.
+      var labelRow=NativeMatchReader.Design(panelX+60,panelY+292,280,40,clientWidth,clientHeight);
+      if(!NativeMatchReader.Contains(crop,labelRow))continue;
+      var label=(await ReadInkStrip(captured,crop,labelRow,2,Blue,.02)).FirstOrDefault(line=>EnhancedLabel.IsMatch(LabelKey(line.Text)));
+      if(label is not null)Label("ENHANCED",labelRow,label.Words.FirstOrDefault(word=>EnhancedLabel.IsMatch(LabelKey(word.Text)))?.Bounds??label.Bounds);
+    }
+    return result.Take(256).ToArray();
+  }
+  private static readonly System.Text.RegularExpressions.Regex EnhancedLabel=new("^[a-z]?nhanc|^enha|hanced");
+  static byte Blue(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((blue-red-60)*3,0,255));
+  /** Card names are letters, digits, spaces, apostrophes and hyphens; stray glyphs ("Spirit Ren”") stop the name match. */
+  private static OcrBlock CardName(OcrBlock line)
+  {
+    static string Clean(string text)=>System.Text.RegularExpressions.Regex.Replace(text,@"[^A-Za-z0-9' \-]+","").Trim();
+    var words=line.Words.Select(word=>new TextWord(Clean(word.Text),word.Bounds)).Where(word=>word.Text.Length>0).ToArray();
+    return new(Clean(line.Text),line.Bounds,words);
+  }
+  private static bool Inside(NormalizedRect area,NormalizedRect box)
+  {double x=box.X+box.Width/2,y=box.Y+box.Height/2;return x>=area.X&&x<=area.X+area.Width&&y>=area.Y&&y<=area.Y+area.Height;}
+  private static NormalizedRect Union(IEnumerable<NormalizedRect> boxes)
+  {
+    var list=boxes.ToArray();
+    double left=list.Min(box=>box.X),top=list.Min(box=>box.Y),right=list.Max(box=>box.X+box.Width),bottom=list.Max(box=>box.Y+box.Height);
+    return new(left,top,right-left,bottom-top);
+  }
+
+  /** One area of the captured crop, upsampled; null when it falls outside the capture. */
+  private static (byte[] Pixels,int Width,int Height)? InkPatch(Bitmap captured,NormalizedRect crop,NormalizedRect bounds,double scale)
+  {
+    var source=new RectangleF((float)((bounds.X-crop.X)/crop.Width*captured.Width),(float)((bounds.Y-crop.Y)/crop.Height*captured.Height),
+      (float)(bounds.Width/crop.Width*captured.Width),(float)(bounds.Height/crop.Height*captured.Height));
+    if(source.Width<4||source.Height<4)return null;
+    if(_engine is not null)scale=Math.Min(scale,(double)_engine.MaxImageDimension/source.Width);
+    int width=Math.Max(1,(int)Math.Floor(source.Width*scale)),height=Math.Max(1,(int)Math.Floor(source.Height*scale));
+    using var patch=new Bitmap(width,height,PixelFormat.Format32bppArgb);
+    using(var graphics=Graphics.FromImage(patch))
+    {graphics.InterpolationMode=InterpolationMode.HighQualityBicubic;graphics.DrawImage(captured,new Rectangle(0,0,width,height),source,GraphicsUnit.Pixel);}
+    return(Pixels(patch),width,height);
+  }
+  /**
+   * OCR of one fixed area with its text colour turned into dark-on-white ink (pixels are B,G,R,A). An area whose
+   * ink covers less than `minimumInk` of it holds no text of that colour and is not sent to OCR.
+   */
+  private static async Task<IReadOnlyList<OcrBlock>> ReadInkStrip(Bitmap captured,NormalizedRect crop,NormalizedRect bounds,double scale,Func<byte,byte,byte,byte> ink,double minimumInk=0)
+  {
+    if(_engine is null||InkPatch(captured,crop,bounds,scale) is not { } patch)return [];
+    var pixels=patch.Pixels;int dark=0;
+    for(int index=0;index+3<pixels.Length;index+=4)
+    {byte value=ink(pixels[index+2],pixels[index+1],pixels[index]);if(value<128)dark++;pixels[index]=pixels[index+1]=pixels[index+2]=value;pixels[index+3]=255;}
+    if(dark<pixels.Length/4*minimumInk)return [];
+    return ExtractBlocks(await _engine.RecognizeAsync(pixels,patch.Width,patch.Height),bounds,patch.Width,patch.Height);
   }
 
   /**

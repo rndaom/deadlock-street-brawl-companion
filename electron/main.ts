@@ -84,10 +84,20 @@ function createReaderDiagnostics() {
   const log = join(directory, 'reader-log.jsonl');
   const MAX_LOG_BYTES = 8_000_000;
   const MAX_FRAMES = 60;
+  // With the companion left open, the once-a-second "Waiting for Deadlock" probe filled the log and rotated a
+  // whole evening's matches out by the next morning; an unchanged idle read is logged once a minute instead.
+  const IDLE_LOG_MS = 60_000;
+  let idle: { key: string; at: number } | null = null;
   let writes: Promise<void> = mkdir(frames, { recursive: true }).then(() => undefined, () => undefined);
   const queue = (work: () => Promise<void>) => { writes = writes.then(work).catch(() => undefined); };
   return {
     trace(entry: Record<string, unknown>) {
+      const result = entry.result as { status?: unknown } | undefined;
+      if (result?.status === 'waiting-game') {
+        const key = `${String(entry.op)}:${String(entry.status)}`;
+        if (idle?.key === key && Date.now() - idle.at < IDLE_LOG_MS) return;
+        idle = { key, at: Date.now() };
+      } else idle = null;
       queue(async () => {
         try { if ((await stat(log)).size > MAX_LOG_BYTES) await rename(log, `${log}.old`); } catch { /* No log yet. */ }
         await appendFile(log, `${JSON.stringify(entry)}\n`, 'utf8');

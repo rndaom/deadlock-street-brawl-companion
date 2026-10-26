@@ -1,0 +1,23 @@
+{
+ "client": "1920x1080",
+ "crop": {
+  "x": 0.020833333333333332,
+  "y": 0.1574074074074074,
+  "width": 0.8125,
+  "height": 0.6203703703703703
+ },
+ "truth": {
+  "cards": [
+   "Bullet Resist Shredder",
+   "Recharging Rush",
+   "Opening Rounds"
+  ],
+  "variants": [
+   "base",
+   "enhanced",
+   "enhanced"
+  ],
+  "choice": 1
+ },
+ "source": "real 2026-10-26 Linux (Tesseract) draft frame draft-2026-10-26T18-10-21-682Z, cropped to the draft labels and card names"
+}

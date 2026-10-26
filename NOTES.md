@@ -1,3 +1,13 @@
+# 2026-10-26 first real Linux matches: draft reading fixed
+
+- Measured on 14 saved draft frames from the 2026-10-26 matches: full-frame Tesseract read 14 of 33 cards and missed the SELECT ITEMS title on 4 frames, so cards showed 5-20 s late or never (log: median 5.5 s from draft to three cards). Windows OCR did not have this problem.
+- Fix (`Program.cs` `ReadDraftLabels`, coverage bit 32): the magenta CHOICE N OF 3 label proves a draft by pixels (about 15% of its box on every draft frame, 0 elsewhere); then the label, the title, each card's name row (white text isolated, 2x) and the blue ENHANCED row are OCR'd on their own. Fixed labels are emitted in canonical spelling and replace OCR noise on their row (a "SELECT ITEMS ree" merge hid the draft). Result: 33/33 cards on the draft frames, all 7 other draft frames found, no false drafts on 39 non-draft frames; about +50-70 ms per draft read. Regression test: `tests/draft-cards-native.test.ts` with cropped real frames in `tests/fixtures/draft-cards`.
+- Pick model checked (split-window test on the API, 8 heroes): shrunk per-hero item deltas correlate 0.92 between 09-29..10-13 and 10-13..now; following them is worth about +1.4 win-rate points per pick over a random card. Round-aware stats gave no gain; the API refuses badge filters for Street Brawl. Model left as is.
+- Idle "Waiting for Deadlock" probes are logged once a minute (they rotated a whole evening of match logs out overnight).
+- `scripts/replay-frames.ts` runs on Linux and prints variant/rare/bonus flags.
+- Not verified on real frames: Bonus! cards (no saved frame had one). Legendary items are in the catalog, icons and win-rate data.
+- `tests/replay/real-draft-replay.test.ts` fails on this machine only because `optimization/captures` (Windows-local evidence) is absent.
+
 # 2026-10-24 Linux port (Hyprland)
 
 Goal: run on Omarchy/Hyprland 0.56 with Deadlock under Proton. Nothing committed.
