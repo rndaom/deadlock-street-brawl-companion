@@ -11,7 +11,7 @@
 //  3. Rebuild the catalogue from the saved archive, then the context catalogue, icon caches and
 //     Street Brawl statistics (games since STREET_BRAWL_PATCH_START in src/screen/street-brawl-fetch.ts).
 //  4. Repin the item base-fact table in src/screen/screen-advice.ts to the new snapshot.
-//  5. Rebuild the native reader's descriptor caches so new heroes reach the fast template path.
+//  5. Rebuild the native reader's descriptor caches (scripts/build-native.mjs) so new heroes reach the fast template path.
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
@@ -153,10 +153,9 @@ async function main() {
   console.log('\n> repin item base facts');
   await repinBaseFacts(clientVersion, archive);
 
-  const helper = path.join(root, 'native/ScreenReader/publish/ScreenReader.exe');
+  // build-native.mjs builds the reader when needed and prepares the descriptors (on Linux only when the icons changed).
   try {
-    await fs.access(helper);
-    await run(helper, ['--prepare-descriptors', path.join(root, 'assets/context-icons'), path.join(root, 'assets/reader-icons')], 'prepare reader descriptors');
+    await node('scripts/build-native.mjs');
   } catch (error) {
     console.warn(`\nReader descriptors were not rebuilt (${error.message}). Run node scripts/build-native.mjs.`);
   }

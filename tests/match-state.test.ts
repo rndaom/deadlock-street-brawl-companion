@@ -338,6 +338,24 @@ describe('round number evidence (real 2026-10-18 matches)', () => {
       at(100_000, { round: 2, phase: 'combat' }), at(105_000, { phase: 'draft', pickStage: 1 })]);
     expect(state.round).toBe(2);
   });
+  it('does not advance when the draft\'s first frame has no "Choice N of 3" read yet (2026-11-01 02:37:41)', () => {
+    const state = run([at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(60_000, { round: 2, phase: 'combat' }),
+      at(100_000, { round: 3, phase: 'combat' }), at(105_000, { phase: 'draft' }), at(106_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(3);
+    // Unread HUD round: the label read on a later frame of the draft still advances it once.
+    const unread = run([at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(60_000, { round: 2, phase: 'combat' }),
+      at(130_000, { phase: 'draft' }), at(131_000, { phase: 'draft', pickStage: 1 }), at(140_000, { phase: 'draft', pickStage: 2 })]);
+    expect(unread.round).toBe(3);
+  });
+  it('corrects an inferred round on one lower HUD read, and the next round\'s draft still advances it', () => {
+    const inferred = [at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(60_000, { phase: 'combat' }), at(130_000, { phase: 'draft', pickStage: 1 })];
+    expect(run(inferred).round).toBe(3);
+    expect(run([...inferred, at(140_000, { round: 2, phase: 'combat' })]).round).toBe(2);
+    // A one-off "ROUND 4" misread during the round-3 draft, lowered by three reads: the round-4 draft still advances.
+    const misread = run([at(0, { round: 3, phase: 'draft', pickStage: 1 }), at(5_000, { round: 4, phase: 'draft', pickStage: 1 }),
+      ...[60_000, 61_000, 62_000].map(ms => at(ms, { round: 3, phase: 'combat' })), at(200_000, { phase: 'draft', pickStage: 1 })]);
+    expect(misread.round).toBe(4);
+  });
   it('does not treat the next choice of the same draft as a new round', () => {
     const state = run([at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(5_000, { phase: 'combat' }), at(8_000, { phase: 'draft', pickStage: 1 })]);
     expect(state.round).toBe(2);
@@ -378,6 +396,19 @@ describe('round number evidence (real 2026-10-18 matches)', () => {
     const matchB = [at(260_000, { phase: 'draft', pickStage: 1 }), at(300_000, { round: 1, phase: 'combat', scores: [0, 0] }),
       at(400_000, { round: 2, phase: 'combat', scores: [1, 0] })].reduce((state, value) => reduceScreenMatchContext(state, value, value.receivedAt), forgotten);
     expect(matchB).toMatchObject({ round: 2, scores: [1, 0] });
+  });
+  it('takes a new match\'s first draft as round 1 only when the match start was seen and no combat came first', () => {
+    const fresh = (frames: ScreenMatchObservation[]) => frames.reduce((state, value) => reduceScreenMatchContext(state, value, value.receivedAt),
+      forgetMatchRound(createInitialScreenMatchContext(), true));
+    expect(fresh([at(0, { phase: 'draft', pickStage: 1 })]).round).toBe(1);
+    expect(fresh([at(0, { phase: 'draft' }), at(1_000, { phase: 'draft', pickStage: 2 })]).round).toBe(1);
+    // The app started mid-match, or a new match was told apart without its loading screen: no match start was seen.
+    expect(run([at(0, { phase: 'draft', pickStage: 1 })]).round).toBeNull();
+    expect(reduceScreenMatchContext(forgetMatchRound(createInitialScreenMatchContext()), at(0, { phase: 'draft', pickStage: 1 }), START + 10).round).toBeNull();
+    // Combat before the draft: this is not the opening draft.
+    expect(fresh([at(0, { phase: 'combat' }), at(30_000, { phase: 'draft', pickStage: 1 })]).round).toBeNull();
+    // The HUD title still decides once read.
+    expect(fresh([at(0, { phase: 'draft', pickStage: 1 }), at(60_000, { round: 1, phase: 'combat' }), at(200_000, { round: 2, phase: 'combat' })]).round).toBe(2);
   });
   it('does not advance the round from a draft long after the previous one (a different match)', () => {
     const state = run([at(0, { round: 3, phase: 'draft', pickStage: 1 }), at(60_000, { phase: 'combat' }), at(700_000, { phase: 'draft', pickStage: 1 })]);

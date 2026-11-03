@@ -323,16 +323,16 @@ describe('native protocol → visible context → current decisions', () => {
     expect(state.localHeroId).toBeNull();
   });
 
-  it('an undecoded owned-item repeat withdraws the main-item highlight; the named pick stays hedged', () => {
+  it('an undecoded owned-item repeat withdraws the main-item highlight but still names a pick', () => {
     const native = { ...scoreboardContext('synthetic-window-a', ['upgrade_rapid_rounds']), panel: 'draft' as const };
     const state = observe(createInitialScreenMatchContext(), native, publicDraftBlocks(['Extra Spirit', 'Rapid Rounds', 'Monster Rounds']));
     const result = advice(state);
     // No confident base-effects comparison is claimed for a set containing an undecoded repeat.
     expect(result.comparisonPosition ?? null).toBeNull();
     expect(result.comparisonBasis).toBeUndefined();
-    // The best readable card is still named, but only as a comparison with the repeat caveat carried.
+    // The best readable card is still named; the repeat is carried as a limitation, as in context-advice.
     expect([0, 1, 2]).toContain(result.preferredPosition);
-    expect(result.title).not.toMatch(/^Pick /);
+    expect(result.title).toMatch(/^(Pick|Slight edge:) /);
     // The undecoded repeat is a diagnostic limitation, not a hedge in the shown reasons.
     expect(result.reasons.join(' ')).not.toMatch(/Comparison only|unobserved|unread/);
     expect(result.limitations.join(' ')).toContain('no decoded Street Brawl upgrade/stacking state');

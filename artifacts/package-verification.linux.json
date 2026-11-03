@@ -3,10 +3,10 @@
   "applicationVersion": "0.5.0",
   "passed": true,
   "unsigned": true,
-  "nativeReaderSha256": "e28552ddbd2aa666dfc5309f3619d7115b8d4afde0d7cc4b341cd49c3c989e68",
-  "nativeReaderBytes": 43495254,
+  "nativeReaderSha256": "3800d4b85d3bd8cb0ca44097536d5140405909ce9217ccb320d2f30d86fd4678",
+  "nativeReaderBytes": 43498926,
   "packagedIconsVerified": 173,
-  "catalogSha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
+  "catalogSha256": "448ff5c8198e610a111928a99d4072b599635f4141884ac20b05681e64b8aa96",
   "packagedContextAssetsVerified": 313,
   "contextAssetRoles": {
     "hero-card": 44,
@@ -15,14 +15,14 @@
     "ability": 176,
     "hud-glyph": 5
   },
-  "contextCatalogSha256": "0ac5f586220491b28c0187bc0c2bee37c999d3e9056f3a6bb196bb29c384fa2b",
+  "contextCatalogSha256": "abc9f2ea186853f8ccabb3fdcb852537a25fd777e493ec74e7208e302da1e285",
   "staticDescriptorCaches": [
     {
       "directory": "context-icons",
       "algorithmVersion": 2,
       "templateCount": 861,
       "bytes": 2029768,
-      "sha256": "9714475663cae1d459e7a33416fd244171a019c96d299a80218eb4527c1d0ee8"
+      "sha256": "409bfb3f6558b5846f9704497a144e498727d07602f3b619113992f11ba756eb"
     },
     {
       "directory": "reader-icons",

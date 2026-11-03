@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "clientVersion": "6807",
-  "revision": "11154106",
-  "catalogSha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
-  "retrievedAt": "2026-10-21T10:44:33.519Z",
+  "clientVersion": "6844",
+  "revision": "11201066",
+  "catalogSha256": "448ff5c8198e610a111928a99d4072b599635f4141884ac20b05681e64b8aa96",
+  "retrievedAt": "2026-11-03T22:27:06.693Z",
   "source": "Static public Deadlock API item images; mirrored Valve assets, not a game capture",
   "totalBytes": 8199521,
   "featureGrid": 16,

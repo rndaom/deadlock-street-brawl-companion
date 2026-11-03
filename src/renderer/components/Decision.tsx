@@ -10,6 +10,7 @@ const CATEGORY_NAMES = { weapon: 'Weapon', vitality: 'Vitality', spirit: 'Spirit
 const KICKERS = {
   pick: (side: string) => `Take the ${side.toLowerCase()} card`,
   close: (side: string) => `Close call · lean ${side.toLowerCase()}`,
+  partial: (side: string) => `Best so far · the ${side.toLowerCase()} card`,
   reroll: () => 'Reroll suggested',
   consider: (side: string) => `Consider the ${side.toLowerCase()} card`,
 };
@@ -102,6 +103,7 @@ export const CallPanel = memo(function CallPanel({ call, generation, hopes = [],
       <div className="call-kicker">
         <span className="call-flag">{call.kind === 'reroll' ? <RefreshCw size={13} aria-hidden="true" /> : <Sparkles size={13} aria-hidden="true" />}{KICKERS[call.kind](call.positionLabel)}</span>
         {call.kind === 'close' && <span className="call-note">Either top card is solid</span>}
+        {call.kind === 'partial' && <span className="call-note">Still reading a card</span>}
       </div>
       {call.kind === 'reroll' ? <>
         <div className="call-hero">

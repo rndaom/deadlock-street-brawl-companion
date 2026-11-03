@@ -29,7 +29,8 @@ export type Tone = 'live' | 'ready' | 'idle' | 'warn' | 'off';
 export type NoticeAction = 'resume' | 'retry' | 'read-again' | 'reading-area';
 export type NoticeKind = 'unavailable' | 'paused' | 'auto-paused' | 'starting' | 'waiting-game' | 'background'
   | 'stalled' | 'reading' | 'unconfirmed' | 'stale' | 'spectator' | 'finished' | 'between' | 'source' | 'idle';
-export type CallKind = 'pick' | 'close' | 'reroll' | 'consider';
+/** 'partial': a card is still unread, so the pick is only the best of the cards read so far. */
+export type CallKind = 'pick' | 'close' | 'partial' | 'reroll' | 'consider';
 export type ReasonKind = 'stat' | 'counter' | 'concern' | 'enhanced' | 'imbue' | 'build' | 'text';
 
 export interface WinStat { winRate: number; games: string; hero: string | null; delta: string; positive: boolean; valve: boolean }
@@ -372,7 +373,7 @@ function counterOf(reasons: readonly string[] | undefined): CounterMark | null {
 }
 
 function deriveCards(state: ScreenReaderState, index: CatalogIndex, advice: ScreenAdvice | null, call: CallView | null): CardView[] {
-  const marked = (kind: 'pick' | 'consider' | 'fallback') => call && (kind === 'pick' ? call.kind === 'pick' || call.kind === 'close' : kind === 'consider' ? call.kind === 'consider' : call.kind === 'reroll') ? call.position : null;
+  const marked = (kind: 'pick' | 'consider' | 'fallback') => call && (kind === 'pick' ? call.kind === 'pick' || call.kind === 'close' || call.kind === 'partial' : kind === 'consider' ? call.kind === 'consider' : call.kind === 'reroll') ? call.position : null;
   const pick = marked('pick'), consider = marked('consider'), fallback = marked('fallback');
   const offers = state.offers.slice().sort((a, b) => a.position - b.position);
   const ranked = advice?.ranked ?? [];
@@ -412,7 +413,8 @@ function deriveCall(state: ScreenReaderState, index: CatalogIndex, advice: Scree
   const comparison = offers.find((offer) => offer.position === advice.comparisonPosition && index.item(offer.itemId));
   const offer = preferred ?? comparison;
   if (!offer) return null;
-  const kind: CallKind = !preferred ? 'consider' : advice.rerollSuggested ? 'reroll' : advice.title.startsWith('Slight edge') ? 'close' : 'pick';
+  const kind: CallKind = !preferred ? 'consider' : advice.rerollSuggested ? 'reroll'
+    : advice.title.startsWith('Best so far') ? 'partial' : advice.title.startsWith('Slight edge') ? 'close' : 'pick';
   const imbue = parseImbue(advice.imbue, index.abilities(heroId));
   const seen = new Set<string>();
   const all = advice.reasons.filter((text) => {

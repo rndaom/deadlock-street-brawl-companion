@@ -75,6 +75,8 @@ const CARD_LABEL = { test: (key: string) => CARD_LABEL_EXACT.test(key) || isBonu
 const TOOLTIP_MARKER = /^(?:passive|active|upgrades (?:from|to)\s*:?|see details|hold to view modified stats|components?\s*:?)$/;
 const UPGRADE_LINK = /^upgrades (?:from|to)\s*:?$/;
 const UNKNOWN_MODIFIER = /^(?:enchanted|empowered|upgraded|cursed|mutated|modified)(?:\s+item)?$|^(?:enhancement|modifier)\s*:/;
+/** The native reader marks each end of a card name that the expanded scoreboard covers with this character. */
+const CLIPPED = '\u2026';
 
 /** Whole label normalization, not substring extraction from tooltips or descriptions. */
 export function normalizeOfferText(text: string): string {
@@ -82,7 +84,9 @@ export function normalizeOfferText(text: string): string {
     .replace(/[’']/g, '').replace(/[^a-z0-9/:+]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 function compact(text: string): string { return text.replace(/\s+/g, ''); }
-function glyphKey(text: string): string { return compact(text).replace(/[1il]/g, 'l').replace(/[0o]/g, 'o').replace(/[5s]/g, 's'); }
+// Tesseract reads the card font's O as Q ("Spiritual Querflow") and its y and v as u ("Lucku Shot", "Ouerflow").
+const GLYPH_GROUPS = ['1il', '0oq', '5s', 'uvy'];
+function glyphKey(text: string): string { return compact(text).replace(/[1il]/g, 'l').replace(/[0oq]/g, 'o').replace(/[5s]/g, 's').replace(/[uvy]/g, 'u'); }
 function cx(line: CaptureRegion): number { return line.x + line.width / 2; }
 function cy(line: CaptureRegion): number { return line.y + line.height / 2; }
 function validBounds(value: CaptureRegion): boolean {
@@ -124,7 +128,12 @@ function prepareLines(blocks: readonly NativeOcrBlock[], maxBlocks: number): { l
       const last = run.at(-1);
       const gap = last ? part.x - (last.x + last.width) : 0;
       const span = run.length ? part.x + part.width - run[0]!.x : part.width;
-      if (last && (gap > Math.min(0.045, Math.max(0.018, part.height * 1.5)) || gap < -0.01 || span > 0.4)) emit();
+      // Text of very different sizes is not one line: a card name beside a tooltip's small stat text on the same row
+      // ("Radius" and "Toxic Bullets" on a real 2026-11-01 frame) would otherwise read as one unknown name.
+      const sized = !last || Math.min(last.height, part.height) >= Math.max(last.height, part.height) * 0.5;
+      // A "…" end is where an overlay covers a card name: what lies beyond it is the overlay, not more of the name.
+      const covered = !!last && (last.text.endsWith(CLIPPED) || part.text.startsWith(CLIPPED));
+      if (last && (gap > Math.min(0.045, Math.max(0.018, part.height * 1.5)) || gap < -0.01 || span > 0.4 || !sized || covered)) emit();
       run.push(part);
     }
     emit();
@@ -160,7 +169,7 @@ function glyphDifference(a: string, b: string): number | null {
   if (a.length !== b.length) return null; let differences = 0;
   for (let index = 0; index < a.length; index++) {
     if (a[index] === b[index]) continue;
-    if (!['1il', '0o', '5s'].some(group => group.includes(a[index]!) && group.includes(b[index]!))) return null;
+    if (!GLYPH_GROUPS.some(group => group.includes(a[index]!) && group.includes(b[index]!))) return null;
     differences++;
   }
   return differences;
@@ -193,6 +202,45 @@ function matchName(key: string, index: CatalogIndex): NameMatch | null {
     }
   }
   if (index.cache.size >= 1024) index.cache.clear(); index.cache.set(key, result); return result;
+}
+/**
+ * A card name with one or both ends covered (marked "…" by the native reader), as the visible part of exactly one
+ * catalogue name: "…thereal Shif…" is Ethereal Shift, "…apid Rechart…" Rapid Recharge (real 2026-11-01 pick-1 frames,
+ * where the open scoreboard hid the middle card's name ends for the whole pick). The glyph at a covered end may be cut
+ * and misread, so it may be dropped. At least six letters and half the name must be visible, within one OCR
+ * correction for ten or more letters, and no other name may fit as well.
+ */
+function clippedName(text: string, index: CatalogIndex): NameMatch | null {
+  const trimmed = text.trim(); const left = trimmed.startsWith(CLIPPED); const right = trimmed.endsWith(CLIPPED);
+  if (!left && !right) return null;
+  const visible = glyphKey(normalizeOfferText(trimmed.split(CLIPPED).join(' ')));
+  const tries = new Set([visible, left ? visible.slice(1) : '', right ? visible.slice(0, -1) : '', left && right ? visible.slice(1, -1) : ''].filter(value => value.length >= 6));
+  let best: { item: CatalogItem; distance: number; shown: number } | null = null; let tied = false;
+  for (const candidate of index.candidates) {
+    const name = glyphKey(candidate.key); let distance = Infinity; let shown = 0;
+    for (const value of tries) {
+      const found = partialDistance(value, name, left, right);
+      if (found > (value.length >= 10 ? 1 : 0) || found > distance) continue;
+      shown = found < distance ? value.length : Math.max(shown, value.length); distance = found;
+    }
+    if (distance === Infinity) continue;
+    // Every name the visible part fits counts against uniqueness ("…Headshot…" fits three names), however long it is.
+    if (!best || distance < best.distance) { best = { item: candidate.item, distance, shown: shown / name.length }; tied = false; }
+    else if (distance === best.distance && candidate.item.id !== best.item.id) tied = true;
+  }
+  return best && !tied && best.shown >= 0.5 ? { item: best.item, confidence: 0.9 - best.distance * 0.03, corrected: true } : null;
+}
+/** Edits from `part` to `name` when the name may continue past the part on a covered left and/or right end. */
+function partialDistance(part: string, name: string, left: boolean, right: boolean): number {
+  let previous = Array.from({ length: name.length + 1 }, (_, column) => left ? 0 : column);
+  for (let row = 1; row <= part.length; row++) {
+    const current = [row];
+    for (let column = 1; column <= name.length; column++) {
+      current[column] = Math.min(current[column - 1]! + 1, previous[column]! + 1, previous[column - 1]! + (part[row - 1] === name[column - 1] ? 0 : 1));
+    }
+    previous = current;
+  }
+  return right ? Math.min(...previous) : previous[name.length]!;
 }
 function cues(lines: readonly TextLine[]): { closed: boolean; title: boolean; choice: boolean; reroll: boolean; useReroll: boolean; skip: boolean; shop: boolean } {
   const keys = lines.map(line => line.key);
@@ -283,7 +331,8 @@ function collectHits(lines: readonly TextLine[], index: CatalogIndex): { hits: I
   const statValue = /^(?:[•·+]\s*\d+(?:[.,]\d+)?\s*%?|[-+]?\d+(?:[.,]\d+)?\s*%)$/;
   const statLine = (line: TextLine) => /^\s*[•·]|^\s*[+-]?\d+(?:[.,]\d+)?\s*%/.test(line.text)
     || lines.some(other => other !== line && Math.abs(cy(other) - cy(line)) <= Math.max(0.006, line.height * 0.6)
-      && other.x < line.x && line.x - (other.x + other.width) <= 0.04 && statValue.test(other.text.trim()));
+      && other.x < line.x && line.x - (other.x + other.width) <= 0.04 && other.height >= line.height * 0.5 && other.height <= line.height * 2
+      && statValue.test(other.text.trim()));
   for (const line of candidates) {
     if (cy(line) < 0.1 || cy(line) > 0.95 || line.width > 0.43 || line.height > 0.16) continue;
     if (statLine(line)) continue;
@@ -291,7 +340,7 @@ function collectHits(lines: readonly TextLine[], index: CatalogIndex): { hits: I
     for (const [segmentIndex, segment] of segments.entries()) {
       const parsed = decorated(segment); const bonus = segmentIndex > 0 || parsed.bonus;
       if (!parsed.key || CARD_LABEL.test(parsed.key) || parsed.key.length > 60) continue;
-      const match = matchName(parsed.key, index);
+      const match = matchName(parsed.key, index) ?? (bonus ? null : clippedName(segment, index));
       if (!match) { if (bonus) unresolvedBonuses.push({ line, segment: segmentIndex }); continue; }
       const hit: ItemHit = { ...match, line, bonus, variants: parsed.variants, segment: segmentIndex };
       const previous = hits.find(existing => existing.item.id === hit.item.id && existing.bonus === hit.bonus && existing.segment === hit.segment

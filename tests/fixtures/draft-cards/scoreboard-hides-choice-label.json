@@ -1,0 +1,23 @@
+{
+ "client": "1920x1080",
+ "crop": {
+  "x": 0.020833333333333332,
+  "y": 0.1574074074074074,
+  "width": 0.8125,
+  "height": 0.6203703703703703
+ },
+ "truth": {
+  "cards": [
+   "Lifestrike",
+   "Swift Striker",
+   "Spirit Shielding"
+  ],
+  "variants": [
+   "base",
+   "base",
+   "base"
+  ],
+  "choice": 1
+ },
+ "source": "real 2026-11-01 Linux (Tesseract) draft frame draft-2026-11-02T02-37-45-331Z, cropped to the draft labels and card names: a pick-1 scoreboard frame: the draft pass ran after the slow scoreboard passes and missed its time budget, and a too-tall SELECT ITEMS read removed the CHOICE 1 OF 3 label"
+}

@@ -220,7 +220,7 @@ describe('bounded real-reader lifecycle', () => {
     work.behavior((request, process) => process.send(request, { blocks: [], context: { sessionId: 'test-window', panel: 'scoreboard',
       viewMode: 'unknown', heroes: [], items: [], abilities: [], regions: [] } }));
     await work.step(); expect(work.process.requests.at(-1)).toMatchObject({ context: true, crop: DRAFT_HINT_REGION });
-    const count = work.process.requests.length; await work.step(500); expect(work.process.requests).toHaveLength(count);
+    // Tab was just pressed: the whole-window read follows at the draft pace.
     await work.step(500); expect(work.process.requests.at(-1)).toMatchObject({ context: true, crop: MATCH_CONTEXT_REGION });
     expect(work.spawnProcess).toHaveBeenCalledOnce();
   });
@@ -903,6 +903,30 @@ describe('Street Brawl Tab scoreboard', () => {
     expect(tabRead).toBeGreaterThan(-1);
     expect(reads.slice(tabRead + 1).some(request => JSON.stringify(request.crop) === JSON.stringify(MATCH_CONTEXT_REGION))).toBe(true);
   });
+  it('reads the scoreboard at the draft pace when Tab is first seen, before a short hold ends (2026-11-01 matches)', async () => {
+    // In a match (the round title is on screen) and not dead.
+    const work = fixture(); await work.warm();
+    const sent: { crop: string; at: number; tab: boolean }[] = []; let tab = false;
+    const kills = { text: 'KILLS', bounds: { x: 0.49, y: 0.155, width: 0.02, height: 0.01 }, words: [{ text: 'KILLS', bounds: { x: 0.49, y: 0.155, width: 0.02, height: 0.01 } }] };
+    work.behavior((request, process) => {
+      if (request.op === 'fixture') process.send(request, { blocks: [], gamePresent: false, foreground: false });
+      else if (request.op === 'probe') process.send(request);
+      else { sent.push({ crop: JSON.stringify(request.crop), at: Date.now(), tab }); process.send(request, { blocks: [block('ROUND 3', .45, .08, .1, .025, request.crop), ...(tab ? [kills] : [])] }); }
+    });
+    for (let step = 0; step < 40; step++) await work.step(50);
+    tab = true;
+    for (let step = 0; step < 80; step++) await work.step(50);
+    const cue = sent.findIndex(entry => entry.tab);
+    const full = sent.findIndex((entry, index) => index > cue && entry.crop === JSON.stringify(MATCH_CONTEXT_REGION));
+    expect(cue).toBeGreaterThan(-1);
+    expect(sent[cue]!.crop).toBe(JSON.stringify(DRAFT_HINT_REGION));
+    expect(full).toBeGreaterThan(cue);
+    expect(sent[full]!.at - sent[cue]!.at).toBeLessThanOrEqual(500);
+    // While Tab stays held, later scoreboard reads keep the usual spacing.
+    const later = sent.slice(full + 1).filter(entry => entry.crop === JSON.stringify(MATCH_CONTEXT_REGION));
+    expect(later.length).toBeGreaterThan(0);
+    for (const [index, entry] of later.entries()) expect(entry.at - (index ? later[index - 1]! : sent[full]!).at).toBeGreaterThanOrEqual(1_000);
+  });
 });
 
 /** A word at real 1920x1080 draft geometry (client coordinates, the native reader's frame). */
@@ -1010,6 +1034,14 @@ describe('2026-10-18 live match reads', () => {
     work.behavior((request, process) => process.send(request, { foreground: false, status: 'blank_capture', blocks: [] }));
     for (let index = 0; index < 3; index++) await work.step(1_000);
     expect(work.reader.getState().message).toMatch(/black/);
+  });
+  it('calls a short black image a loading screen, and gives display-mode advice only when it lasts', async () => {
+    const work = fixture(); await work.warm();
+    work.behavior((request, process) => process.send(request, { status: 'blank_capture', blocks: [] }));
+    await work.step(1_000);
+    expect(work.reader.getState().message).toMatch(/loading screen or a transition/);
+    for (let index = 0; index < 6; index++) await work.step(1_000);
+    expect(work.reader.getState().message).toMatch(/borderless windowed/);
   });
   it('keeps the shown cards through a frame that shows only the choice label (no "panel no longer visible")', async () => {
     const work = fixture(); await work.warm(); let labelOnly = false;

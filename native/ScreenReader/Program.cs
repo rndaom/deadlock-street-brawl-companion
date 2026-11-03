@@ -441,6 +441,14 @@ internal static class Program
       // local-contrast stretch. Plain or brightness-thresholded OCR never returned these letters on
       // real Street Brawl scoreboards, so the scoreboard/eight-seat layout proof was unavailable.
       (Bit:16,Bounds:NativeMatchReader.Design(470,158,980,24,clientWidth,clientHeight))};
+    // Bit 32, the draft labels and card names, comes first: it is what a draft read is for, and it costs about
+    // 60-100ms. Behind the scoreboard strips it missed the soft budget on real pick-1 reads (the expanded
+    // scoreboard makes the full-frame and strip passes slow), which left every card to full-frame OCR.
+    if((coverage&32)==0)
+    {
+      blocks=await ReadDraftLabels(captured,crop,clientWidth,clientHeight,blocks);
+      coverage|=32;
+    }
     foreach(var strip in strips)
     {
       if((coverage&strip.Bit)!=0||!NativeMatchReader.Contains(crop,strip.Bounds))continue;
@@ -486,11 +494,6 @@ internal static class Program
         : fine.Concat(blocks.Where(block=>!NativeMatchReader.Contains(strip.Bounds,block.Bounds))).Take(256).ToArray();
       coverage|=strip.Bit;
     }
-    if((coverage&32)==0&&requestWatch.Elapsed.TotalMilliseconds<=900)
-    {
-      blocks=await ReadDraftLabels(captured,crop,clientWidth,clientHeight,blocks);
-      coverage|=32;
-    }
     return(blocks,coverage);
   }
 
@@ -511,7 +514,6 @@ internal static class Program
   {
     var choiceBounds=NativeMatchReader.Design(60,280,320,50,clientWidth,clientHeight);
     if(!NativeMatchReader.Contains(crop,choiceBounds))return blocks;
-    static byte White(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,Math.Min(green,blue))-110)*3,0,255));
     static byte Magenta(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,blue)-green-30)*4,0,255));
     var gate=InkPatch(captured,crop,NativeMatchReader.Design(70,285,300,40,clientWidth,clientHeight),1);
     if(gate is null)return blocks;
@@ -521,11 +523,15 @@ internal static class Program
     var result=blocks.ToList();
     // A found label replaces every full-frame fragment on its row: OCR noise beside the title
     // ("SELECT ITEMS ree") joins it into one line that the parser no longer recognizes.
+    // An earlier label is never such a fragment: a SELECT ITEMS line read too tall (the scoreboard cuts the title on
+    // pick-1 frames) reached down over CHOICE 1 OF 3 and removed it.
+    var labels=new HashSet<OcrBlock>(ReferenceEqualityComparer.Instance);
     void Label(string text,NormalizedRect area,NormalizedRect bounds)
     {
       var row=new NormalizedRect(area.X,bounds.Y-bounds.Height*.25,area.Width,bounds.Height*1.5);
-      result.RemoveAll(block=>Inside(row,block.Bounds));
-      result.Add(new(text,bounds,[new TextWord(text,bounds)]));
+      result.RemoveAll(block=>Inside(row,block.Bounds)&&!labels.Contains(block));
+      var label=new OcrBlock(text,bounds,[new TextWord(text,bounds)]);
+      labels.Add(label);result.Add(label);
     }
     var choice=await ReadInkStrip(captured,crop,choiceBounds,2,Magenta);
     var choiceMatch=DraftChoice.Match(LabelKey(string.Join(" ",choice.Select(line=>line.Text))));
@@ -535,11 +541,16 @@ internal static class Program
     if(title is not null)Label("SELECT ITEMS",titleBounds,title.Bounds);
     foreach(var (panelX,panelY) in DraftPanels)
     {
-      var row=NativeMatchReader.Design(panelX+20,panelY+240,360,55,clientWidth,clientHeight);
+      // The name row reaches below the resting name: a hovered card tilts and grows, and its name sat on the old row's bottom edge.
+      var row=NativeMatchReader.Design(panelX+10,panelY+236,380,78,clientWidth,clientHeight);
       if(!NativeMatchReader.Contains(crop,row))continue;
-      var name=(await ReadInkStrip(captured,crop,row,2,White,.02)).Select(CardName).Where(line=>System.Text.RegularExpressions.Regex.IsMatch(line.Text,"[A-Za-z]{3}")).ToArray();
+      var name=await ReadCardName(captured,crop,row,panelY==DraftPanels[1].Y?panelY:null,clientWidth,clientHeight);
       if(name.Length==0)continue;
-      result.RemoveAll(block=>Inside(row,block.Bounds));
+      // Full-frame words in this row down to the name's foot (fragments of the name, scoreboard icon noise beside it) give
+      // way to it; the ENHANCED label below the name keeps its full-frame read.
+      var named=Union(name.Select(line=>line.Bounds));
+      var replaced=new NormalizedRect(row.X,row.Y,row.Width,Math.Max(0,named.Y+named.Height*1.1-row.Y));
+      RemoveWordsInside(result,replaced);
       result.AddRange(name);
       // The blue ENHANCED label under the name: full-frame OCR returns it as "ea ANAED" or not at all on some frames.
       var labelRow=NativeMatchReader.Design(panelX+60,panelY+292,280,40,clientWidth,clientHeight);
@@ -551,6 +562,165 @@ internal static class Program
   }
   private static readonly System.Text.RegularExpressions.Regex EnhancedLabel=new("^[a-z]?nhanc|^enha|hanced");
   static byte Blue(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((blue-red-60)*3,0,255));
+  static byte White(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,Math.Min(green,blue))-110)*3,0,255));
+  /** The right edge of the left team's last scoreboard column and the left edge of the right team's first, at 1080p design. */
+  private const double ScoreboardLeftEdge=855,ScoreboardRightEdge=1063;
+
+  /**
+   * One card's name. The light text is isolated as for the labels, then three kinds of foreign ink are dropped, all seen on
+   * real 2026-11-01 draft frames where the middle or right card stayed unread:
+   * - ink cut by the row's top or bottom edge and confined to that edge's side: the hovered right card's tooltip title,
+   *   which sits just above the middle card's name ("1lbane" read for the middle card under a Healbane tooltip);
+   * - words smaller than the card-name font (every catalogue name word starts with a capital or has an ascender, so its
+   *   box is at least the cap height): tooltip stat lines and descriptions crossing the row ("50 Bonus Health");
+   * - on the middle card, the expanded scoreboard's player columns, which are drawn over the card and cover both ends
+   *   of a long name ("thereal Shif" for Ethereal Shift). Their item icons are blanked, and a name that runs into a
+   *   column edge is marked clipped there with "…", so the parser may match the visible part of a catalogue name.
+   * <param name="middlePanelY">the middle card's panel top (design px) when this is the middle card, else null.</param>
+   */
+  private static async Task<OcrBlock[]> ReadCardName(Bitmap captured,NormalizedRect crop,NormalizedRect row,double? middlePanelY,int clientWidth,int clientHeight)
+  {
+    if(_engine is null||InkPatch(captured,crop,row,2) is not { } patch)return [];
+    var (pixels,width,height)=patch;
+    var ink=new byte[width*height];
+    for(int index=0;index<ink.Length;index++)ink[index]=White(pixels[index*4+2],pixels[index*4+1],pixels[index*4]);
+    int PatchColumn(double designX)=>(int)Math.Round((NativeMatchReader.Design(designX,0,0,0,clientWidth,clientHeight).X-row.X)/row.Width*width);
+    bool coveredLeft=false,coveredRight=false;
+    if(middlePanelY is { } panelY)
+    {
+      coveredLeft=ScoreboardColumnEdge(captured,crop,ScoreboardLeftEdge,-1,panelY,clientWidth,clientHeight);
+      coveredRight=ScoreboardColumnEdge(captured,crop,ScoreboardRightEdge,1,panelY,clientWidth,clientHeight);
+      int left=coveredLeft?Math.Clamp(PatchColumn(ScoreboardLeftEdge),0,width):0,right=coveredRight?Math.Clamp(PatchColumn(ScoreboardRightEdge),0,width):width;
+      for(int y=0;y<height;y++)
+      {
+        for(int x=0;x<left;x++)ink[y*width+x]=255;
+        for(int x=right;x<width;x++)ink[y*width+x]=255;
+      }
+    }
+    DropEdgeInk(ink,width,height);
+    int dark=0;
+    for(int index=0;index<ink.Length;index++){if(ink[index]<128)dark++;pixels[index*4]=pixels[index*4+1]=pixels[index*4+2]=ink[index];pixels[index*4+3]=255;}
+    if(dark<ink.Length*.02)return [];
+    double nameHeight=CardNameMinimumHeight/1080d;
+    var words=ExtractBlocks(await _engine.RecognizeAsync(pixels,width,height),row,width,height).Select(CardName)
+      .SelectMany(line=>line.Words).Where(word=>word.Bounds.Height>=nameHeight).OrderBy(word=>word.Bounds.X).ToList();
+    // One name is one line of text, but a hovered card tilts it and Tesseract may return it as two lines ("point Bl" and
+    // "ank"). Words that share their height band form one line, which is reported as one word: the screen parser
+    // regroups separate words into rows by height and could split such a tilted name again.
+    var groups=new List<List<TextWord>>();
+    foreach(var word in words)
+    {
+      var group=groups.FirstOrDefault(candidate=>Overlap(Union(candidate.Select(member=>member.Bounds)),word.Bounds)>=word.Bounds.Height*.4);
+      if(group is null)groups.Add([word]);else group.Add(word);
+    }
+    double leftEdge=NativeMatchReader.Design(ScoreboardLeftEdge,0,0,0,clientWidth,clientHeight).X,rightEdge=NativeMatchReader.Design(ScoreboardRightEdge,0,0,0,clientWidth,clientHeight).X,
+      near=NativeMatchReader.Design(0,0,6,0,clientWidth,clientHeight).Width;
+    var result=new List<OcrBlock>();
+    foreach(var group in groups)
+    {
+      var text=new StringBuilder();
+      for(int index=0;index<group.Count;index++)
+      {
+        // Pieces of one word split by the tilt touch; real word gaps are wider than a quarter of the letter height.
+        if(index>0&&(group[index].Bounds.X-(group[index-1].Bounds.X+group[index-1].Bounds.Width))*clientWidth>=Math.Min(group[index].Bounds.Height,group[index-1].Bounds.Height)*clientHeight*.25)text.Append(' ');
+        text.Append(group[index].Text);
+      }
+      if(!System.Text.RegularExpressions.Regex.IsMatch(text.ToString(),"[A-Za-z]{3}"))continue;
+      var bounds=Union(group.Select(word=>word.Bounds));
+      if(coveredLeft&&bounds.X-leftEdge<=near)text.Insert(0,'\u2026');
+      if(coveredRight&&rightEdge-(bounds.X+bounds.Width)<=near)text.Append('\u2026');
+      result.Add(new(text.ToString(),bounds,[new TextWord(text.ToString(),bounds)]));
+    }
+    return result.ToArray();
+  }
+  /** Drops the words centred in this area; a full-frame line that runs out of it keeps its other words. */
+  private static void RemoveWordsInside(List<OcrBlock> blocks,NormalizedRect area)
+  {
+    for(int index=blocks.Count-1;index>=0;index--)
+    {
+      var block=blocks[index];
+      if(block.Words.Count==0){if(Inside(area,block.Bounds))blocks.RemoveAt(index);continue;}
+      var kept=block.Words.Where(word=>!Inside(area,word.Bounds)).ToArray();
+      if(kept.Length==block.Words.Count)continue;
+      if(kept.Length==0)blocks.RemoveAt(index);
+      else blocks[index]=new(string.Join(' ',kept.Select(word=>word.Text)),Union(kept.Select(word=>word.Bounds)),kept);
+    }
+  }
+  /** Height shared by two boxes' vertical extents. */
+  private static double Overlap(NormalizedRect a,NormalizedRect b)=>Math.Max(0,Math.Min(a.Y+a.Height,b.Y+b.Height)-Math.Max(a.Y,b.Y));
+  /** Card-name words are at least this tall (design px): the cap height of the smallest name font is about 26px; tooltip text is 10-18px. */
+  private const double CardNameMinimumHeight=18;
+
+  /**
+   * True when an expanded scoreboard column covers the middle card's name row from this edge (side -1: the column lies
+   * left of the edge). The column is a flat panel whose plain margin (2-8px beside its edge, outside the item cells)
+   * steps sharply to the card: that holds on most rows above the name and at the name's height on real scoreboard
+   * frames, and on almost none of the draft frames without it (the blurred background has no such straight edge).
+   */
+  private static bool ScoreboardColumnEdge(Bitmap captured,NormalizedRect crop,double edge,int side,double panelY,int clientWidth,int clientHeight)
+  {
+    var area=NativeMatchReader.Design(edge-10,panelY+126,20,166,clientWidth,clientHeight);
+    if(!NativeMatchReader.Contains(crop,area)||InkPatch(captured,crop,area,1) is not { } patch)return false;
+    var (pixels,width,height)=patch;
+    int Column(double designX)=>Math.Clamp((int)Math.Round((designX-(edge-10))/20*width),0,width-1);
+    int above=0,aboveRows=0,band=0,bandRows=0;
+    for(int y=0;y<height;y++)
+    {
+      double designY=panelY+126+(y+.5)/height*166;
+      bool inBand=designY>=panelY+250&&designY<panelY+292,inAbove=designY<panelY+236;
+      if(!inBand&&!inAbove)continue;
+      double low=double.MaxValue,high=double.MinValue;double[] panel=new double[3],card=new double[3];
+      for(int k=2;k<=8;k++)
+      {
+        int offset=(y*width+Column(edge+side*k))*4;double luminance=(pixels[offset]+pixels[offset+1]+pixels[offset+2])/3d;
+        low=Math.Min(low,luminance);high=Math.Max(high,luminance);
+        for(int channel=0;channel<3;channel++)panel[channel]+=pixels[offset+channel]/7d;
+      }
+      for(int k=2;k<=5;k++){int offset=(y*width+Column(edge-side*k))*4;for(int channel=0;channel<3;channel++)card[channel]+=pixels[offset+channel]/4d;}
+      bool step=high-low<=24&&Math.Abs(panel[0]-card[0])+Math.Abs(panel[1]-card[1])+Math.Abs(panel[2]-card[2])>=30;
+      if(inBand){bandRows++;if(step)band++;}else{aboveRows++;if(step)above++;}
+    }
+    return aboveRows>0&&bandRows>0&&above>=aboveRows*.7&&band>=bandRows*.6;
+  }
+
+  /**
+   * Removes ink that is cut by the patch's top or bottom edge and stays on that side of its middle (text of the line above
+   * or below, ring arcs), with its anti-aliased fringe. Card names sit across the middle of the name row and are kept.
+   */
+  private static void DropEdgeInk(byte[] ink,int width,int height)
+  {
+    var label=new int[ink.Length];var drop=new bool[ink.Length];var keep=new bool[ink.Length];
+    var queue=new Queue<int>();var members=new List<int>();int next=0;
+    for(int start=0;start<ink.Length;start++)
+    {
+      if(ink[start]>=160||label[start]!=0)continue;
+      next++;label[start]=next;queue.Enqueue(start);members.Clear();int top=height,bottom=0;
+      while(queue.Count>0)
+      {
+        int index=queue.Dequeue();members.Add(index);int x=index%width,y=index/width;top=Math.Min(top,y);bottom=Math.Max(bottom,y);
+        for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)
+        {
+          int nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=width||ny>=height)continue;
+          int neighbour=ny*width+nx;if(ink[neighbour]<160&&label[neighbour]==0){label[neighbour]=next;queue.Enqueue(neighbour);}
+        }
+      }
+      bool cut=top==0&&bottom<height*.42||bottom==height-1&&top>height*.58;
+      foreach(var index in members)(cut?drop:keep)[index]=true;
+    }
+    if(!drop.Contains(true))return;
+    // Blank the dropped strokes and their fringe (within 2px), unless that fringe belongs to kept ink.
+    var dropNear=Dilate(drop,width,height,2);var keepNear=Dilate(keep,width,height,2);
+    for(int index=0;index<ink.Length;index++)if(drop[index]||dropNear[index]&&!keepNear[index])ink[index]=255;
+  }
+  private static bool[] Dilate(bool[] mask,int width,int height,int radius)
+  {
+    var rows=new bool[mask.Length];var result=new bool[mask.Length];
+    for(int y=0;y<height;y++)for(int x=0;x<width;x++)
+    {if(!mask[y*width+x])continue;for(int dx=Math.Max(0,x-radius);dx<=Math.Min(width-1,x+radius);dx++)rows[y*width+dx]=true;}
+    for(int y=0;y<height;y++)for(int x=0;x<width;x++)
+    {if(!rows[y*width+x])continue;for(int dy=Math.Max(0,y-radius);dy<=Math.Min(height-1,y+radius);dy++)result[dy*width+x]=true;}
+    return result;
+  }
   /** Card names are letters, digits, spaces, apostrophes and hyphens; stray glyphs ("Spirit Ren”") stop the name match. */
   private static OcrBlock CardName(OcrBlock line)
   {

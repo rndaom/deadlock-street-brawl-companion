@@ -50,6 +50,14 @@ export const SCREEN_READER_LIMITS = Object.freeze({
 export const OUTSIDE_MESSAGE = 'Not in a match. The last match stays shown until the next one starts.';
 /** A missing game window resets the match only after this long (a fullscreen toggle or a crash and rejoin keeps it). */
 export const GAME_GONE_MS = 15_000;
+/** A black game image is a loading screen or transition until it lasts this long; then the display mode is the likely cause. */
+export const BLANK_ADVICE_MS = 5_000;
+export const OCR_UNAVAILABLE_MESSAGE = process.platform === 'win32'
+  ? 'Windows OCR is unavailable. Install an English OCR language and choose Retry.'
+  : 'Tesseract OCR is unavailable. Install tesseract and tesseract-data-eng, then choose Retry.';
+const OCR_PREPARE_FAILED_MESSAGE = process.platform === 'win32'
+  ? 'Windows OCR could not be prepared. Choose Retry after checking installed OCR languages.'
+  : 'Tesseract OCR could not be prepared. Choose Retry after checking that tesseract and tesseract-data-eng are installed.';
 
 /**
  * The death screen: the HUD belongs to the teammate being watched. The native reader's spectator
@@ -347,6 +355,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
   let fullReadDue = false;
   let footerFallbackDue = false;
   let scoreboardReadDue = false;
+  /** The last cue read showed the Tab scoreboard: Tab is still held. */
+  let scoreboardHeld = false;
+  /** When the game image turned black (it does for a moment at every loading screen and match end). */
+  let blankSince: number | null = null;
   let lastFullContextAt = -Infinity;
   let nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
   let lastCardParse: ScreenOfferParseResult | null = null;
@@ -421,7 +433,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     epoch++;
     contextEpochAnchor = epochNow(); contextWallAnchor = wallNow();
     draftHint = false; hintAt = null; lastHintStart = -Infinity; lastClientSize = null; fullReadDue = false; footerFallbackDue = false;
-    scoreboardReadDue = false; lastFullContextAt = -Infinity; cueMisses = 0;
+    scoreboardReadDue = false; scoreboardHeld = false; lastFullContextAt = -Infinity; cueMisses = 0;
     nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
     if (contextExpiryTimer !== null) clearTimeout(contextExpiryTimer); contextExpiryTimer = null;
     // A retired acquisition epoch cannot hydrate a new match context.
@@ -902,15 +914,18 @@ export function createScreenReader(options: ScreenReaderOptions) {
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
       return;
     }
+    if (reply.status === 'blank_capture') blankSince ??= wallNow(); else blankSince = null;
     if (reply.status !== 'ok' && reply.status !== 'unchanged') {
       draftHint = false; hintAt = null; fullReadDue = false;
       const unavailable = reply.status === 'ocr_unavailable' || reply.status === 'invalid_request';
       if (unavailable) retryRequired = true;
       publish({ abilityAdvice: null });
       if (cardsShown && !unavailable) { note('decision', `capture ${reply.status}; kept shown cards`); nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs); return; }
-      clearDecision(unavailable ? 'Windows OCR is unavailable. Install an English OCR language and choose Retry.'
+      clearDecision(unavailable ? OCR_UNAVAILABLE_MESSAGE
         : reply.status === 'occluded' ? 'Another window is covering Deadlock. Move it off the game screen (click-through overlays are fine).'
-        : reply.status === 'blank_capture' ? 'The game image is black. Switch Deadlock to borderless windowed mode.'
+        // Real 2026-11-01 matches: one or two black frames at each match start and end, which the advice did not fit.
+        : reply.status === 'blank_capture' ? wallNow() - blankSince! < BLANK_ADVICE_MS ? 'The game image is black (a loading screen or a transition).'
+          : 'The game image is black. Switch Deadlock to borderless windowed mode.'
         : 'The game image is unavailable. Keep the game visible in borderless or windowed mode.', unavailable ? 'unavailable' : 'interrupted');
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
       return;
@@ -949,7 +964,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
       build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null;
       forgetChoices();
       // The old match's round, score and draft stage too (keeping the reader session: this frame is the new match's).
-      const forgotten = forgetMatchRound(state.matchContext);
+      const forgotten = forgetMatchRound(state.matchContext, known.phase === 'loading');
       if (forgotten !== state.matchContext) publish({ matchContext: forgotten });
     }
     const frameAt = reply.capturedAt ?? epochNow();
@@ -997,7 +1012,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     if (outside) {
       // Between matches there are no cards to read: look less often (a new match announces itself with its
       // loading screen, read on the next look) and say so once.
-      draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; scoreboardReadDue = false;
+      draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; scoreboardReadDue = false; scoreboardHeld = false;
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.outsideReadSpacingMs);
       if (state.message !== OUTSIDE_MESSAGE || state.offers.length) clearDecision(OUTSIDE_MESSAGE, 'waiting-draft');
       return;
@@ -1026,7 +1041,12 @@ export function createScreenReader(options: ScreenReaderOptions) {
       // Street Brawl's scoreboard shows a KILLS label between the teams while Tab is held.
       const killsLabel = reply.blocks.some(block => /^kills$/i.test(block.text.trim()) && !!block.bounds && block.bounds.y < 0.25 && block.bounds.x > 0.4 && block.bounds.x < 0.6);
       scoreboardReadDue = !draftHint && (killsLabel || reply.context?.panel === 'scoreboard' || detectScoreboardHint(reply.blocks, reply.crop));
-      if (scoreboardReadDue) nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
+      // Tab is often held for only a second or two (real 2026-11-01 matches: 40 of 121 scoreboard reads waited a
+      // full second and caught the plain HUD): the first cue of a hold is read at the draft pace, later ones as before.
+      const tabPressed = scoreboardReadDue && !scoreboardHeld;
+      if (tabPressed) nextRequestAt = Math.min(nextRequestAt, Math.max(wallNow() + 50, draftPaceAt));
+      else if (scoreboardReadDue) nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
+      scoreboardHeld = scoreboardReadDue;
       if (!draftHint) {
         cueMisses++;
         // The title can be hidden for a frame by effects; a draft only closes after repeated
@@ -1038,7 +1058,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
           rerolls.stage = null;
           clearDecision('Waiting for the item-choice screen.', 'waiting-draft');
         } else note('decision', 'draft cue missed once; kept shown cards');
-        nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
+        if (!tabPressed) nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
         return;
       }
       // Small cue strips supply no cards. A full discovery/scoreboard frame can
@@ -1168,7 +1188,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
       if (operation === 'fixture') {
         // Warm the OS engine with helper-generated text only. It is never game evidence.
         if (!reply.synthetic || (reply.status !== 'ok' && reply.status !== 'unchanged') || reply.ocrAvailable !== true) {
-          retryRequired = true; clearDecision('Windows OCR could not be prepared. Choose Retry after checking installed OCR languages.', 'unavailable');
+          retryRequired = true; clearDecision(OCR_PREPARE_FAILED_MESSAGE, 'unavailable');
           await stopHelper(); return;
         }
         publish({ engineReady: true, status: 'waiting-game', message: 'Waiting for Deadlock.' });

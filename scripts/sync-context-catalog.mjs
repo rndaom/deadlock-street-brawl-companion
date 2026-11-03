@@ -11,7 +11,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT = 'data/context-catalog.json';
 const ABILITY_LABELS_OUTPUT = 'src/renderer/ability-labels.json';
 const PINNED_NAMES = ['steam-info', 'items', 'heroes', 'generic-data'];
-const AUX_COMMIT = '3207c1601bf83515155a1108b4b8def7338b1b29';
+const AUX_COMMIT = '55b2f6b152cb0970fb03b9e591cc1697909ce2e3';
 const AUX_ARCHIVE = `context-sources/steamtracking-${AUX_COMMIT}`;
 function ensure(value, message) { if (!value) throw new Error(message); }
 export function contextHash(bytes) { return createHash('sha256').update(bytes).digest('hex'); }

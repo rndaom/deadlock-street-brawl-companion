@@ -19,8 +19,12 @@ export interface MatchBuild {
   hiddenEnemyItems: number;
 }
 
-/** After the death screen (spectating a teammate) ends, its HUD can linger for a moment. */
-export const SPECTATOR_GRACE_MS = 4_000;
+/**
+ * After a death-screen read, reads stay the spectated teammate's for this long: its HUD can linger, and the
+ * "SPECTATING" banner is missed on some reads (real 2026-11-01 deaths: 16 of 182 gaps between death-screen
+ * verdicts were over 4 s, 3 over 10 s; a bottom-strip read 5 s after one put a teammate's 9 items in your build).
+ */
+export const SPECTATOR_GRACE_MS = 10_000;
 
 export interface BuildObservation {
   /** The death screen is up: the HUD shows the spectated teammate's items and ranks, not yours. */
@@ -128,6 +132,8 @@ export function createBuildTracker() {
       if (!layout) return;
       const at = observation.at ?? Date.now();
       if (observation.spectating) spectatedAt = at;
+      // Only a player in the match gets an item draft: a draft on screen is your own view again.
+      else if (abilityContext.draft) spectatedAt = -Infinity;
       // The scoreboard is the same for everyone; your own inventory and upgrade panel are not.
       const own = !observation.spectating && !(at >= spectatedAt && at - spectatedAt < SPECTATOR_GRACE_MS);
       if (own) {

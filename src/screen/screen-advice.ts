@@ -39,11 +39,11 @@ interface ItemProfile {
 interface OfferComparison { offer: ScreenOffer; main: ItemProfile | null; profiles: ItemProfile[]; score: number; reasons: string[]; problems: string[] }
 
 const READ_QUALITY_MINIMUM = 0.85;
-const PINNED_CLIENT = '6807';
-const PINNED_REVISION = '11154106';
+const PINNED_CLIENT = '6844';
+const PINNED_REVISION = '11201066';
 /**
- * Extracted from the saved client-6807 Valve-asset snapshot (items SHA-256
- * 0c4cb42a7ff4d08c47fb715410cf33c5cb7fbcc0b85304b16eca38fbd689f5ee).
+ * Extracted from the saved client-6844 Valve-asset snapshot (items SHA-256
+ * 93eb4974c9b1b64a50c2d15ebf81767f3d26a440062863d16363ec3fb9484558).
  * Only positive own innate allowlisted properties, without upgrade requirements,
  * negative attributes, or conditional flags are retained. Fixed amounts also
  * exclude scaling functions. Explicit Street Brawl values override normal ones.
@@ -100,17 +100,16 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
   "upgrade_headshot_booster2": {"fixed":{"health":60},"traits":["health"],"active":false},
   "upgrade_healbane": {"fixed":{"spiritPower":7},"traits":["spirit"],"active":false},
   "upgrade_healbuff": {"fixed":{"spiritResist":10,"regen":6},"traits":["healing","spirit-resist"],"active":false},
-  "upgrade_healing_booster": {"fixed":{"regen":3},"traits":["healing"],"active":false},
   "upgrade_health": {"fixed":{"health":210},"traits":["health"],"active":false},
   "upgrade_health_nova": {"fixed":{"spiritPower":8},"traits":["spirit"],"active":true},
-  "upgrade_health_stealing_magic": {"fixed":{"spiritPower":6,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
+  "upgrade_health_stealing_magic": {"fixed":{"spiritPower":8,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
   "upgrade_health_stimpak": {"fixed":{},"traits":[],"active":true},
   "upgrade_hollow_point_rounds": {"fixed":{"health":125},"traits":["health"],"active":false},
   "upgrade_improved_spirit": {"fixed":{"spiritPower":10},"traits":["spirit"],"active":false},
   "upgrade_infinite_rounds": {"fixed":{"fireRate":35},"traits":["weapon"],"active":false},
-  "upgrade_infuser": {"fixed":{"spiritPower":6,"health":100},"traits":["health","spirit","spirit-lifesteal"],"active":true},
+  "upgrade_infuser": {"fixed":{"spiritPower":8,"health":100},"traits":["health","spirit","spirit-lifesteal"],"active":true},
   "upgrade_inhibitor": {"fixed":{"health":150},"traits":["health"],"active":false},
-  "upgrade_juggernaut": {"fixed":{"regen":8},"traits":["healing"],"active":false},
+  "upgrade_juggernaut": {"fixed":{"regen":15},"traits":["healing"],"active":false},
   "upgrade_magic_carpet": {"fixed":{"spiritPower":14,"health":125},"traits":["health","spirit"],"active":true},
   "upgrade_magic_shield": {"fixed":{"spiritResist":18},"traits":["spirit-resist"],"active":false},
   "upgrade_magic_shock": {"fixed":{"health":50},"traits":["health"],"active":false},
@@ -134,7 +133,7 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
   "upgrade_rescue_beam": {"fixed":{},"traits":[],"active":true},
   "upgrade_resonant_healing": {"fixed":{"health":90},"traits":["health"],"active":false},
   "upgrade_restorative_locket": {"fixed":{"spiritResist":8},"traits":["spirit-resist"],"active":true},
-  "upgrade_return_fire": {"fixed":{},"traits":[],"active":true},
+  "upgrade_return_fire": {"fixed":{"bulletResist":10},"traits":["bullet-resist"],"active":true},
   "upgrade_ricochet": {"fixed":{"fireRate":18},"traits":["weapon"],"active":false},
   "upgrade_rocket_booster": {"fixed":{},"traits":[],"active":true},
   "upgrade_rupture": {"fixed":{"spiritPower":8,"health":65},"traits":["health","spirit"],"active":true},
@@ -150,9 +149,9 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
   "upgrade_suppressor": {"fixed":{"spiritPower":6,"bulletResist":8},"traits":["bullet-resist","spirit"],"active":false},
   "upgrade_surging_power": {"fixed":{"health":100},"traits":["bullet-lifesteal","health"],"active":true},
   "upgrade_target_stun": {"fixed":{"health":75},"traits":["health"],"active":true},
-  "upgrade_targeted_silence": {"fixed":{"health":50},"traits":["health"],"active":true},
+  "upgrade_targeted_silence": {"fixed":{"health":90},"traits":["health"],"active":true},
   "upgrade_tech_damage_pulse": {"fixed":{"health":100},"traits":["health"],"active":false},
-  "upgrade_tech_overflow": {"fixed":{"spiritPower":6,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
+  "upgrade_tech_overflow": {"fixed":{"spiritPower":8,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
   "upgrade_thermal_detonator": {"fixed":{"spiritPower":10},"traits":["spirit"],"active":true},
   "upgrade_ultimate_burst": {"fixed":{"health":50},"traits":["health"],"active":false},
   "upgrade_unstable_concoction": {"fixed":{},"traits":[],"active":true},
@@ -338,7 +337,9 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
     : weakName ? 'One card name was not read clearly; check it in game.' : null;
   return {
     preferredPosition: pick,
-    title: pickName === null ? 'Compare the readable cards' : reroll.suggest ? `Reroll — or take ${pickName}` : closeCall ? `Slight edge: ${pickName}` : `Pick ${pickName}`,
+    // Until all three cards are read (and none is a likely misread), the unread card may still beat the pick.
+    title: pickName === null ? 'Compare the readable cards' : reroll.suggest ? `Reroll — or take ${pickName}`
+      : !fullDraft ? `Best so far: ${pickName}` : closeCall ? `Slight edge: ${pickName}` : `Pick ${pickName}`,
     reasons, limitations,
     // Preserve the original game positions and array order, including unknown cards.
     ranked,

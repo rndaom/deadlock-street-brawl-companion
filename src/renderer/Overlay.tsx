@@ -10,10 +10,11 @@ import { ROMAN } from './catalog-index';
 import { ItemArt } from './components/Art';
 
 const CATEGORY_NAMES = { weapon: 'Weapon', vitality: 'Vitality', spirit: 'Spirit', unknown: 'Item' } as const;
-const MARK_LABELS = { pick: 'Pick', close: 'Lean', consider: 'Consider', reroll: 'If kept' } as const;
+const MARK_LABELS = { pick: 'Pick', close: 'Lean', partial: 'So far', consider: 'Consider', reroll: 'If kept' } as const;
 const KICKERS = {
   pick: (side: string) => `Take the ${side.toLowerCase()} card`,
   close: (side: string) => `Close call · lean ${side.toLowerCase()}`,
+  partial: (side: string) => `Best so far · the ${side.toLowerCase()} card`,
   reroll: () => 'Reroll suggested',
   consider: (side: string) => `Consider the ${side.toLowerCase()} card`,
 };

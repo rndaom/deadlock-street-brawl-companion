@@ -538,3 +538,34 @@ describe('2026-10-18 live draft reads', () => {
     expect(namedItems(blocks, catalog, ['upgrade_warp_stone'])).toEqual([]);
   });
 });
+
+describe('2026-11-01 Linux draft misreads', () => {
+  const withMiddle = (...middle: NativeOcrBlock[]) => observedSelectionFrame().filter(entry => entry.text !== 'Tesla Bullets').concat(middle);
+  const middleName = (blocks: NativeOcrBlock[]) => parseScreenOffers(blocks, catalog).offers[1]?.name;
+
+  it('matches the visible part of a middle card name whose ends the open scoreboard covers', () => {
+    // The native reader marks each covered end with "…"; the scoreboard columns cover x<0.445 and x>0.554 here.
+    expect(middleName(withMiddle(block('…thereal Shif…', 0.446, 0.429, 0.108, 0.04)))).toBe('Ethereal Shift');
+    expect(middleName(withMiddle(block('…apid Rechart…', 0.446, 0.447, 0.108, 0.03)))).toBe('Rapid Recharge');
+    expect(middleName(withMiddle(block('…ritual Querfl…', 0.446, 0.447, 0.108, 0.03)))).toBe('Spiritual Overflow');
+    expect(middleName(withMiddle(block('Surge of Pow…', 0.47, 0.447, 0.084, 0.03)))).toBe('Surge of Power');
+  });
+
+  it('keeps a covered name unread when its visible part is unmarked, too short or fits several names', () => {
+    expect(middleName(withMiddle(block('thereal Shif', 0.446, 0.429, 0.108, 0.04)))).toBe('Unread item choice');
+    expect(middleName(withMiddle(block('…Headshot…', 0.46, 0.447, 0.08, 0.03)))).toBe('Unread item choice');
+    expect(middleName(withMiddle(block('…Charge…', 0.47, 0.447, 0.06, 0.03)))).toBe('Unread item choice');
+  });
+
+  it('never joins a card name with smaller tooltip text beside it on the same row', () => {
+    // A tooltip's "Damage Per Second  Radius" stat captions ended 0.044 left of the right card's name (real: Toxic Bullets).
+    const blocks = observedSelectionFrame().filter(entry => entry.text !== 'Spiritual Ouerflow')
+      .concat(block('Radius', 0.6, 0.685, 0.022, 0.01), block('Metal Skin', 0.666, 0.663, 0.1, 0.043));
+    expect(parseScreenOffers(blocks, catalog).offers.map(offer => offer.name)).toEqual(['Toxic Bullets', 'Tesla Bullets', 'Metal Skin']);
+  });
+
+  it('reads the card font\'s O as Q and y or v as u', () => {
+    expect(middleName(withMiddle(block('Spiritual Querflow', 0.42, 0.447, 0.16, 0.03)))).toBe('Spiritual Overflow');
+    expect(middleName(withMiddle(block('Lucku Shot', 0.455, 0.447, 0.09, 0.03)))).toBe('Lucky Shot');
+  });
+});

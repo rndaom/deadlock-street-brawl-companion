@@ -1,3 +1,18 @@
+# 2026-11-03 client 6844 and the 2026-11-01 match audit
+
+- Data refreshed to client 6844 (Nov 3 patch, no published notes): no new heroes or items; item stats changed (Juggernaut regen 8 -> 15, Healing Booster lost its regen, Leech lifesteal 28 -> 30%, Bullet Lifesteal 13 -> 15%, Essence Bomb spirit scaling 1.22 -> 1.35, several +2 spirit). Valve added a Healer hero type (Dynamo, Ivy, Kelvin, Nurse Harrow, Paige, Rem; the API sends no `hero_type` for them) and moved Grey Talon, Infernus and Mina to Mystic, Viscous to Brawler. Heroes whose type names no damage direction (assassin, healer) now take it from their Street Brawl "Good" draft list (`goodBucketDirection` in sync-catalog.mjs, tagRuleVersion 2): most healers and assassins get spirit, Drifter and Vyper weapon, Ivy and Mirage none. `STREET_BRAWL_PATCH_START` left at 2026-09-29: the patch is hours old; move it to 2026-11-03 in about a week, once games have built up.
+- `refresh-patch.mjs` runs on Linux (descriptor step goes through build-native.mjs). Descriptors were re-prepared on Linux because hero art changed (Deadpack, Orion).
+- 2026-11-01 log audit (2 evening + 2 morning matches, 16 drafts, all caught, no false drafts, rosters right). Fixed:
+  - Round tracker false +1 (HUD 3, shown 4 for 63 s; HUD 4, shown 5 for 39 s): the first draft frame, before "Choice N of 3" was read, overwrote the previous draft's round. Kept until the label decides; an inferred round is corrected by one lower HUD read; a lowered round lowers `roundAtLastDraft`.
+  - A new match's first draft is round 1 when its loading screen was seen and no combat came first (was unknown for 53 s).
+  - Spectated teammate's items in your build (8 -> 15): the SPECTATING banner OCR flaps; 16 of 182 gaps between death-screen verdicts were over the 4 s grace. Grace 10 s; a visible draft ends it at once.
+  - Tab reads: 40 of 121 caught the plain HUD (waited 1 s after the cue). The first scoreboard cue of a hold now reads at the draft pace (~250 ms).
+  - A pick named while a card is unread or a likely misread is now "Best so far: X" (call kind `partial`, overlay mark "So far"); dev sample `?sample=unread`.
+  - Short black frames at match boundaries no longer say "switch to borderless" (only after 5 s); OCR-unavailable messages name Tesseract on Linux.
+  - Draft cards (middle unread in 29% of parses, right 24%): on pick 1 the expanded scoreboard covers both ends of the middle card's name ("thereal Shif"); a tooltip's small captions joined the right card's name; the draft pass was skipped after slow scoreboard work (900 ms gate); Tesseract reads this font's O as Q and y/v as u. Native `RefineContextText` runs the draft pass first; `ReadCardName` blanks scoreboard ink (`ScoreboardColumnEdge`) and marks covered ends with "…"; offer-parser resolves a clipped name only when exactly one catalogue name fits at least half visible (`clippedName`), splits rows of very different text heights, glyph groups `0oq`/`uvy`. Saved 11-01 frames: 16/19 -> 19/19 cards, 0/47 false drafts, mean native 522 -> 493 ms. Three new fixtures in tests/fixtures/draft-cards.
+- Packaged 2026-11-03 18:16: `release/linux-unpacked`, verify-package passed, 1035 tests pass (replay suite needs the Windows captures).
+- Not fixed: an open tooltip's title can still read as a card (02:30:30, "Extra Spirit"); enemy item lists ~78% complete after Tab (tooltips over the columns, "?" placeholders); ability ranks only come from Tab reads, so a round with missed Tab reads stays stale; match 1 went straight to the menu, so it was never flagged finished (the next match started cleanly).
+
 # 2026-10-26 first real Linux matches: draft reading fixed
 
 - Measured on 14 saved draft frames from the 2026-10-26 matches: full-frame Tesseract read 14 of 33 cards and missed the SELECT ITEMS title on 4 frames, so cards showed 5-20 s late or never (log: median 5.5 s from draft to three cards). Windows OCR did not have this problem.
@@ -19,6 +34,8 @@ Goal: run on Omarchy/Hyprland 0.56 with Deadlock under Proton. Nothing committed
 - Verified with a stand-in window (class `steam_app_1422450` showing a synthetic draft): offers read, pick shown, overlay matches the game rect on both monitors without taking focus, SIGTERM/SIGINT/SIGHUP quit in ~50 ms.
 
 - 2026-10-25 overlay offset fix: Chromium multiplied GNOME `text-scaling-factor` (0.9091 here) into its device scale (dpr 0.90625), so the overlay page filled only the top-left 1740×980 of its 1920×1080 window and the marks sat up and left. Startup now forces `force-device-scale-factor` to the Hyprland monitors' shared scale (`hyprlandDeviceScale`); `--disable-features=WaylandUiScale` has no effect in Electron 44. Mixed-scale setups are left alone (unverified there), and the main window now ignores the desktop text scale on Linux too.
+
+- 2026-11-01 Hyprland 0.57: `j/monitors` now leaves `id` out of an empty `specialWorkspace` (`{"address":"","type":"","name":""}`). The reader threw on it, the whole snapshot failed and every probe said `no_window` with the game open. Workspace ids are now read as optional (`WorkspaceId` in Native.Linux.cs); repackaged and verified with the real game (status ok, foreground, 100-300 ms reads).
 
 Open: not yet tried with the real game. Check that the overlay shows above a fullscreen Deadlock (no rule field for above-fullscreen; borderless windowed is the safe setting), the toplevel copy of the Proton/XWayland game window, and OCR accuracy on live frames. `refresh-patch.mjs` has only been run on Windows.
 

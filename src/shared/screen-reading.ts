@@ -170,6 +170,8 @@ export interface ScreenRoundTracking {
   combatSinceDraft: boolean;
   /** The round was advanced by a new draft rather than read ("ROUND N" not visible yet). */
   inferredAt: number | null;
+  /** A new match's loading screen was seen and no combat or round since: its first draft is round 1's. */
+  matchStart?: boolean;
 }
 export interface ScreenPlayerObservation {
   seat: number; team?: ScreenTeam | null; heroId?: string | null; isLocal?: boolean | null;
