@@ -239,8 +239,7 @@ internal static class Hyprland
     if (element.TryGetProperty("transform", out var transform) && transform.GetInt32() % 2 == 1) (width, height) = (height, width);
     return new Monitor(element.GetProperty("id").GetInt32(), String(element, "name"),
       new Rectangle(element.GetProperty("x").GetInt32(), element.GetProperty("y").GetInt32(), (int)Math.Round(width / scale), (int)Math.Round(height / scale)),
-      element.GetProperty("activeWorkspace").GetProperty("id").GetInt64(),
-      element.TryGetProperty("specialWorkspace", out var special) ? special.GetProperty("id").GetInt64() : 0);
+      WorkspaceId(element, "activeWorkspace"), WorkspaceId(element, "specialWorkspace"));
   }
 
   private static Layer[] ReadLayers(JsonElement root)
@@ -262,6 +261,10 @@ internal static class Hyprland
 
   private static string String(JsonElement element, string name) => element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : "";
   private static bool Bool(JsonElement element, string name) => element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
+  // Hyprland 0.57 leaves the id out of a monitor's special workspace while none is shown.
+  private static long WorkspaceId(JsonElement monitor, string name) =>
+    monitor.TryGetProperty(name, out var workspace) && workspace.ValueKind == JsonValueKind.Object && workspace.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.Number
+      ? id.GetInt64() : 0;
 
   private static nint ParseAddress(string? text) =>
     text is { Length: > 2 } && text.StartsWith("0x", StringComparison.Ordinal) && long.TryParse(text.AsSpan(2), System.Globalization.NumberStyles.HexNumber, null, out long value) ? (nint)value : 0;
