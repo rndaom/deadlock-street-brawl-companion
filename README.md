@@ -4,7 +4,7 @@ A Windows and Linux (Hyprland) companion for Deadlock's **Street Brawl** mode. I
 
 ## Use it
 
-1. Double-click **Start Companion.cmd** (or `release/win-unpacked/Street Brawl Companion.exe`; keep the whole `win-unpacked` folder together). On Linux, run `./start-companion.sh` (it starts `release/linux-unpacked/street-brawl-companion`).
+1. Double-click **Start Companion.cmd** (or `release/win-unpacked/Street Brawl Companion.exe`; keep the whole `win-unpacked` folder together). On Linux, run `./start-companion.sh` (it starts `release/linux-unpacked/street-brawl-companion`), or run `scripts/install-desktop-entry.sh` once to add **Street Brawl Companion** to the app launcher (`--remove` takes it out again).
 2. Put the companion on your second monitor. Run Deadlock in **borderless windowed** mode with the English interface, and click back into the game.
 3. Play normally. Within a second or two of a draft opening, the companion shows:
    - **the pick panel**: the card to take, its win rate on your hero, why, and whether to reroll;
