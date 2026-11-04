@@ -218,16 +218,21 @@ internal static class Hyprland
     catch (Exception error) when (error is JsonException or InvalidOperationException or KeyNotFoundException or FormatException or IOException or SocketException) { return null; }
   }
 
+  // A window Hyprland describes oddly is skipped rather than failing the whole snapshot (which would hide the game too).
   private static Client? ReadClient(JsonElement element)
   {
-    var at = element.GetProperty("at"); var size = element.GetProperty("size");
-    var address = ParseAddress(element.GetProperty("address").GetString());
-    if (address == 0) return null;
-    return new Client(address, String(element, "stableId"), element.GetProperty("pid").GetInt32(), String(element, "class"), String(element, "initialClass"), String(element, "title"),
-      Bool(element, "mapped"), Bool(element, "hidden"), Bool(element, "floating"), Bool(element, "pinned"), Bool(element, "allowedOverFullscreen"),
-      element.TryGetProperty("fullscreen", out var fullscreen) && fullscreen.ValueKind == JsonValueKind.Number ? fullscreen.GetInt32() : 0,
-      element.GetProperty("workspace").GetProperty("id").GetInt64(), element.GetProperty("monitor").GetInt32(),
-      new Rectangle(at[0].GetInt32(), at[1].GetInt32(), size[0].GetInt32(), size[1].GetInt32()));
+    try
+    {
+      var at = element.GetProperty("at"); var size = element.GetProperty("size");
+      var address = ParseAddress(String(element, "address"));
+      if (address == 0) return null;
+      return new Client(address, String(element, "stableId"), element.GetProperty("pid").GetInt32(), String(element, "class"), String(element, "initialClass"), String(element, "title"),
+        Bool(element, "mapped"), Bool(element, "hidden"), Bool(element, "floating"), Bool(element, "pinned"), Bool(element, "allowedOverFullscreen"),
+        element.TryGetProperty("fullscreen", out var fullscreen) && fullscreen.ValueKind == JsonValueKind.Number ? fullscreen.GetInt32() : 0,
+        WorkspaceId(element, "workspace"), element.GetProperty("monitor").GetInt32(),
+        new Rectangle(at[0].GetInt32(), at[1].GetInt32(), size[0].GetInt32(), size[1].GetInt32()));
+    }
+    catch (Exception error) when (error is InvalidOperationException or KeyNotFoundException or FormatException or IndexOutOfRangeException) { return null; }
   }
 
   private static Monitor ReadMonitor(JsonElement element)
@@ -252,8 +257,12 @@ internal static class Hyprland
       {
         if (!int.TryParse(level.Name, out int index)) continue;
         foreach (var layer in level.Value.EnumerateArray())
-          result.Add(new Layer(monitor.Name, index, layer.TryGetProperty("pid", out var pid) ? pid.GetInt32() : 0,
-            new Rectangle(layer.GetProperty("x").GetInt32(), layer.GetProperty("y").GetInt32(), layer.GetProperty("w").GetInt32(), layer.GetProperty("h").GetInt32())));
+        {
+          if (!layer.TryGetProperty("x", out var x) || !layer.TryGetProperty("y", out var y) || !layer.TryGetProperty("w", out var w) || !layer.TryGetProperty("h", out var h)
+            || x.ValueKind != JsonValueKind.Number || y.ValueKind != JsonValueKind.Number || w.ValueKind != JsonValueKind.Number || h.ValueKind != JsonValueKind.Number) continue;
+          result.Add(new Layer(monitor.Name, index, layer.TryGetProperty("pid", out var pid) && pid.ValueKind == JsonValueKind.Number ? pid.GetInt32() : 0,
+            new Rectangle(x.GetInt32(), y.GetInt32(), w.GetInt32(), h.GetInt32())));
+        }
       }
     }
     return result.ToArray();
@@ -261,9 +270,10 @@ internal static class Hyprland
 
   private static string String(JsonElement element, string name) => element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : "";
   private static bool Bool(JsonElement element, string name) => element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.True;
-  // Hyprland 0.57 leaves the id out of a monitor's special workspace while none is shown.
-  private static long WorkspaceId(JsonElement monitor, string name) =>
-    monitor.TryGetProperty(name, out var workspace) && workspace.ValueKind == JsonValueKind.Object && workspace.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.Number
+  // Hyprland 0.57 leaves the id out of a monitor's special workspace while none is shown, and out of named
+  // special workspaces such as "special:minimized" that hold a window. 0 is never a real workspace id.
+  private static long WorkspaceId(JsonElement element, string name) =>
+    element.TryGetProperty(name, out var workspace) && workspace.ValueKind == JsonValueKind.Object && workspace.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.Number
       ? id.GetInt64() : 0;
 
   private static nint ParseAddress(string? text) =>
