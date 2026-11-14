@@ -44,17 +44,20 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - os: windows-latest
+          - name: Windows installer
+            os: windows-latest
             script: package:win
             files: |
               release/*.exe
               release/*.exe.blockmap
               release/latest.yml
-          - os: ubuntu-latest
+          - name: Linux AppImage
+            os: ubuntu-latest
             script: package:appimage
             files: |
               release/*.AppImage
               release/latest-linux.yml
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     steps:
       # The icon manifests are hashed byte for byte; keep Windows from rewriting line endings.
