@@ -18,6 +18,7 @@ import { loadLocalPlayerNames } from './local-identity';
 import { coversCurrentWindow, isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 import { fetchStreetBrawlData } from '../src/screen/street-brawl-fetch';
 import { CONTEXT_CATALOG } from '../src/shared/context-catalog';
+import { startUpdater, type UpdateState } from './updater';
 
 // The companion UI is static paint with only one-shot transitions, so software compositing
 // costs almost nothing and keeps the GPU (and its memory) entirely for Deadlock.
@@ -469,6 +470,21 @@ function showFromUserAction(): void {
   mainWindow.focus();
 }
 
+let updateState: UpdateState = { readyVersion: null };
+let installUpdate: () => void = () => undefined;
+
+function setTrayMenu(): void {
+  if (!tray) return;
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: 'Show companion', click: showFromUserAction },
+    ...(updateState.readyVersion
+      ? [{ type: 'separator' as const }, { label: `Restart to update to ${updateState.readyVersion}`, click: () => installUpdate() }]
+      : []),
+    { type: 'separator' },
+    { label: `Quit (version ${app.getVersion()})`, click: () => app.quit() },
+  ]));
+}
+
 function createTray(): void {
   try {
     // A small code-generated icon; no file/capture dependencies.
@@ -482,11 +498,7 @@ function createTray(): void {
       pixels[index + 3] = 255;
     }
     tray = new Tray(nativeImage.createFromBitmap(pixels, { width: 16, height: 16 }));
-    tray.setContextMenu(Menu.buildFromTemplate([
-      { label: 'Show companion', click: showFromUserAction },
-      { type: 'separator' },
-      { label: 'Quit', click: () => app.quit() },
-    ]));
+    setTrayMenu();
     tray.on('double-click', showFromUserAction);
     // Windows users expect one click on a tray icon to open the app.
     if (process.platform === 'win32') tray.on('click', showFromUserAction);
@@ -571,6 +583,7 @@ if (!app.requestSingleInstanceLock()) {
     startLive();
     await createWindow();
     createTray();
+    installUpdate = startUpdater(state => { updateState = state; setTrayMenu(); }).installNow;
     screen.on('display-added', onDisplayChange);
     screen.on('display-removed', onDisplayChange);
     screen.on('display-metrics-changed', onDisplayChange);

@@ -1,6 +1,6 @@
 {
   "name": "deadlock-street-brawl-companion",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Street Brawl companion for Windows and Linux with visible team and build tracking and contextual item guidance",
   "author": "Street Brawl Companion",
   "private": true,
@@ -21,14 +21,16 @@
     "start": "node scripts/launch.mjs",
     "start:overwolf": "node scripts/launch.mjs --overwolf",
     "package:dir": "npm run build && node scripts/build-native.mjs --target windows && electron-builder --dir --win --x64",
-    "package:win": "npm run build && node scripts/build-native.mjs --target windows && electron-builder --win zip --x64",
+    "package:win": "npm run build && node scripts/build-native.mjs --target windows && electron-builder --win nsis --x64 --publish never",
     "package:linux": "npm run build && node scripts/build-native.mjs --target linux && electron-builder --dir --linux --x64",
     "catalog:sync": "node scripts/sync-catalog.mjs",
     "reader:build": "node scripts/build-native.mjs",
     "reader:icons": "node scripts/sync-reader-icons.mjs --verify",
-    "reader:context-icons": "node scripts/sync-context-icons.mjs --verify"
+    "reader:context-icons": "node scripts/sync-context-icons.mjs --verify",
+    "package:appimage": "npm run build && node scripts/build-native.mjs --target linux && electron-builder --linux AppImage --x64 --publish never"
   },
   "dependencies": {
+    "electron-updater": "6.8.11",
     "lucide-react": "1.51.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -83,11 +85,18 @@
       }
     ],
     "asar": true,
-    "publish": null,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "rndaom",
+        "repo": "deadlock-street-brawl-companion",
+        "releaseType": "release"
+      }
+    ],
     "win": {
       "target": [
         {
-          "target": "zip",
+          "target": "nsis",
           "arch": [
             "x64"
           ]
@@ -95,7 +104,7 @@
       ],
       "icon": "build/icon.ico",
       "signExecutable": false,
-      "artifactName": "Street-Brawl-Companion-${version}-win-${arch}.${ext}",
+      "artifactName": "Street-Brawl-Companion-Setup-${version}.${ext}",
       "extraResources": [
         {
           "from": "native/ScreenReader/publish",
@@ -107,7 +116,14 @@
       ]
     },
     "linux": {
-      "target": "dir",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "executableName": "street-brawl-companion",
       "category": "Game",
       "icon": "build/icon.png",
@@ -119,7 +135,21 @@
             "ScreenReader"
           ]
         }
-      ]
+      ],
+      "artifactName": "Street-Brawl-Companion-${version}-x86_64.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Street Brawl Companion",
+      "deleteAppDataOnUninstall": false
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rndaom/deadlock-street-brawl-companion.git"
+  },
+  "homepage": "https://github.com/rndaom/deadlock-street-brawl-companion"
 }
