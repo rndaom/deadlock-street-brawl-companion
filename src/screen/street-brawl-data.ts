@@ -27,6 +27,13 @@ export interface HeroData {
   /** This hero's own rows come from the wider fallback window (too few games in the patch window). */
   wideWindow?: boolean;
 }
+/**
+ * All-hero item pairs (see item-synergy.ts). `rows` is flat, four numbers per pair: the index of
+ * each item in `items`, the pair's lift over what the two items' own win rates predict (win-rate
+ * points × 10,000, the per-item part removed) and the player-matches holding both. Compact on
+ * purpose: about 14k pairs.
+ */
+export interface ItemPairs { priorMatches: number; minMatches: number; items: string[]; rows: number[] }
 export interface StreetBrawlData {
   /** Download format; 2 = raw per-hero deltas with estimated shrinkage (see street-brawl-fetch.ts). */
   schemaVersion?: number;
@@ -39,6 +46,8 @@ export interface StreetBrawlData {
   goodPrior?: number;
   /** Enhanced-card results; share is the fraction of drafted copies that were Enhanced. */
   enhanced?: { share: number; meanUplift: number; priorMatches: number; items: Record<string, EnhancedStat> };
+  /** Item-pair synergy; absent in downloads from before it was fetched, or when its request failed. */
+  itemPairs?: ItemPairs;
   items: Record<string, { id: number; name: string; tier: number; slot: string; active: boolean }>;
   globalItemStats: Record<string, ItemStat>;
   heroes: Record<string, HeroData>;
@@ -62,6 +71,12 @@ export function isStreetBrawlData(value: unknown): value is StreetBrawlData {
   // The API sometimes answers the per-hero requests with empty lists; such a download would replace
   // good upgrade orders and enemy-item results with nothing. Most heroes must have both.
   const heroes = Object.values(data.heroes);
+  // Fields the pick maths reads without checks: a damaged file must not turn card values into NaN.
+  if (!heroes.every(hero => hero && Array.isArray(hero.good)) || !data.items || typeof data.items !== 'object'
+    || (data.enhanced !== undefined && !(Number.isFinite(data.enhanced?.meanUplift) && Number.isFinite(data.enhanced?.share)
+      && !!data.enhanced?.items && typeof data.enhanced.items === 'object'))
+    || (data.itemPairs !== undefined && !(Array.isArray(data.itemPairs?.items) && Array.isArray(data.itemPairs?.rows)
+      && data.itemPairs.rows.length % 4 === 0 && Number.isFinite(data.itemPairs.priorMatches)))) return false;
   // The same holds for each hero's own item results and win rate (a failed hero-stats request is
   // caught as an empty list), and for matchups once the counter request answered at all.
   const most = (has: (hero: HeroData) => boolean) => heroes.filter(has).length >= 0.8 * heroes.length;
@@ -69,6 +84,11 @@ export function isStreetBrawlData(value: unknown): value is StreetBrawlData {
     && most(hero => Object.keys(hero.itemStats ?? {}).length > 0)
     && most(hero => Number.isFinite(hero.winRate) && (hero.matches ?? 0) > 0)
     && (!heroes.some(hero => Object.keys(hero.matchups ?? {}).length > 0) || most(hero => Object.keys(hero.matchups ?? {}).length > 0));
+}
+/** A saved download counts only when it covers the same patch window as (or a later one than) the data in use. */
+export function coversCurrentWindow(saved: StreetBrawlData, inUse: StreetBrawlData = current): boolean {
+  const savedSince = Date.parse(saved.window?.since ?? ''), usedSince = Date.parse(inUse.window?.since ?? '');
+  return Number.isNaN(usedSince) || savedSince >= usedSince;
 }
 export function setStreetBrawlData(data: StreetBrawlData): boolean {
   if (!isStreetBrawlData(data)) return false;

@@ -1,19 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- ReaderPlatform selects the build: windows (Windows OCR, GDI capture) or linux (Tesseract, Hyprland + grim capture).
+       It defaults to the build machine's OS; pass -p:ReaderPlatform=windows on Linux to cross-check the Windows build. -->
   <PropertyGroup>
+    <ReaderPlatform Condition="'$(ReaderPlatform)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">windows</ReaderPlatform>
+    <ReaderPlatform Condition="'$(ReaderPlatform)' == ''">linux</ReaderPlatform>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
-    <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>ScreenReader</AssemblyName>
     <RootNamespace>Deadlock.ScreenReader</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(ReaderPlatform)' == 'windows'">
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(ReaderPlatform)' == 'linux'">
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(ReaderPlatform)' == 'linux'">
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.1" />
+  </ItemGroup>
 </Project>

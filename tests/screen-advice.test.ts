@@ -178,7 +178,7 @@ describe('visible screen-offer guidance', () => {
     const advice = evaluateScreenOffers(offers, catalog, unknownContext);
     expect(advice).not.toBeNull();
     expect(advice?.preferredPosition).toBe(0);
-    expect(advice?.title).toBe('Pick Leech');
+    expect(advice?.title).toBe('Best so far: Leech');
     expect(advice?.caveat).toContain('not read');
     expect(advice?.ranked).toHaveLength(3);
     expect(advice?.ranked.find(entry => entry.position === 2)!.reasons.join(' ')).toContain('Item name is not identified');
@@ -199,7 +199,7 @@ describe('visible screen-offer guidance', () => {
     expect(one.ranked.slice(0, 2).every(entry => entry.reasons.join(' ').includes('Item name is not identified'))).toBe(true);
     if (resolvedId === 'upgrade_headshot_booster') expect(one.ranked[2]!.score).toBeLessThan(0);
     expect(one.preferredPosition).toBe(2);
-    expect(one.title).toBe(`Pick ${offers[2]!.name}`);
+    expect(one.title).toBe(`Best so far: ${offers[2]!.name}`);
     expect(one.rerollReason).toBe('No rerolls left — take the best card.');
     offers[2]!.itemId = 'unread-c';
     const none = evaluateScreenOffers(offers, unpinned, { ...unknownContext, rerolls: 2 })!;
@@ -218,7 +218,7 @@ describe('visible screen-offer guidance', () => {
     if (failure === 'warning') offers[2]!.warning = 'Bonus icon is ambiguous.';
     const advice = evaluateScreenOffers(offers, catalog, unknownContext);
     expect(advice?.preferredPosition).toBe(0);
-    expect(advice?.title).toBe('Pick Leech');
+    expect(advice?.title).toBe(failure === 'item' ? 'Best so far: Leech' : 'Pick Leech');
     expect(advice?.ranked).toHaveLength(3);
     // The pick's own reason leads; the comparison qualifiers follow it.
     expect(advice?.reasons[0]).toBe(pickReason(advice));
@@ -432,7 +432,7 @@ describe('visible screen-offer guidance', () => {
   it('names the best known card when only two positions are read', () => {
     const advice = evaluateScreenOffers(baseOffers().slice(0, 2), catalog, unknownContext)!;
     expect(advice.preferredPosition).toBe(0);
-    expect(advice.title).toBe('Pick Leech');
+    expect(advice.title).toBe('Best so far: Leech');
     expect(advice.limitations.join(' ')).toContain('All three distinct offer positions have not been identified');
     expect(evaluateScreenOffers([], catalog, unknownContext)).toBeNull();
   });
@@ -444,7 +444,7 @@ describe('visible screen-offer guidance', () => {
     const advice = evaluateScreenOffers(duplicate, catalog, unknownContext)!;
     expect(advice.limitations.join(' ')).toContain('All three distinct offer positions have not been identified');
     expect(advice.preferredPosition).toBe(0);
-    expect(advice.title).toBe('Pick Leech');
+    expect(advice.title).toBe('Best so far: Leech');
   });
 
   it('flags a close call between equivalent offers and keeps a deterministic pick', () => {

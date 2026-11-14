@@ -6,6 +6,7 @@ import { enemyThreat } from '../shared/enemy-threat';
 import type { EnemyThreat } from '../shared/enemy-threat';
 import { indexCatalog, POSITION_NAMES, ROMAN } from './catalog-index';
 import type { AbilityLabel, CatalogIndex } from './catalog-index';
+import type { AbilityNudge } from '../shared/overlay';
 
 /*
  * Everything the companion shows is derived here from one reader publication, so the
@@ -29,7 +30,8 @@ export type Tone = 'live' | 'ready' | 'idle' | 'warn' | 'off';
 export type NoticeAction = 'resume' | 'retry' | 'read-again' | 'reading-area';
 export type NoticeKind = 'unavailable' | 'paused' | 'auto-paused' | 'starting' | 'waiting-game' | 'background'
   | 'stalled' | 'reading' | 'unconfirmed' | 'stale' | 'spectator' | 'finished' | 'between' | 'source' | 'idle';
-export type CallKind = 'pick' | 'close' | 'reroll' | 'consider';
+/** 'partial': a card is still unread, so the pick is only the best of the cards read so far. */
+export type CallKind = 'pick' | 'close' | 'partial' | 'reroll' | 'consider';
 export type ReasonKind = 'stat' | 'counter' | 'concern' | 'enhanced' | 'imbue' | 'build' | 'text';
 
 export interface WinStat { winRate: number; games: string; hero: string | null; delta: string; positive: boolean; valve: boolean }
@@ -324,6 +326,20 @@ export function abilityStep(plan: PlanView | null, abilities: AbilityView[], poi
   return { spend: false, points, title: `Next: ${label}${plan.cost !== null ? ` · ${plan.cost} AP` : ''}`, detail: later.length ? `Then ${later.join(', ')}` : null };
 }
 
+/** The in-game ability marker's words: which ability, which tier, and whether to buy it now. */
+export interface AbilityNudgeView { slot: number; tier: number | null; name: string; ready: boolean; title: string; detail: string }
+
+/** "Upgrade Fixation II now" / "Next: Sleep Dagger III" with what it costs against the unspent points. */
+export function abilityNudgeView(me: CompanionView['me'], nudge: AbilityNudge): AbilityNudgeView {
+  const ability = me.abilities[nudge.slot];
+  const name = ability?.label?.name ?? (me.plan?.slot === nudge.slot ? me.plan.ability : null) ?? ability?.name ?? `Ability ${nudge.slot + 1}`;
+  const tier = nudge.tier ?? (ability?.rank != null && ability.rank < 3 ? ability.rank + 1 : null);
+  const label = tier !== null ? `${name} ${ROMAN[tier] ?? tier}` : name;
+  return nudge.ready
+    ? { slot: nudge.slot, tier, name, ready: true, title: `Upgrade ${label} now`, detail: `Hold Tab · ${nudge.cost} AP of your ${nudge.points}` }
+    : { slot: nudge.slot, tier, name, ready: false, title: `Next: ${label}`, detail: `Needs ${nudge.cost - nudge.points} more AP · ${nudge.points} of ${nudge.cost}` };
+}
+
 /** Tier costs bottom to top on the upgrade panel. */
 export const TIER_COSTS = [1, 2, 5] as const;
 /** The HUD's unspent-points counter is trusted for this long after it was read. */
@@ -372,7 +388,7 @@ function counterOf(reasons: readonly string[] | undefined): CounterMark | null {
 }
 
 function deriveCards(state: ScreenReaderState, index: CatalogIndex, advice: ScreenAdvice | null, call: CallView | null): CardView[] {
-  const marked = (kind: 'pick' | 'consider' | 'fallback') => call && (kind === 'pick' ? call.kind === 'pick' || call.kind === 'close' : kind === 'consider' ? call.kind === 'consider' : call.kind === 'reroll') ? call.position : null;
+  const marked = (kind: 'pick' | 'consider' | 'fallback') => call && (kind === 'pick' ? call.kind === 'pick' || call.kind === 'close' || call.kind === 'partial' : kind === 'consider' ? call.kind === 'consider' : call.kind === 'reroll') ? call.position : null;
   const pick = marked('pick'), consider = marked('consider'), fallback = marked('fallback');
   const offers = state.offers.slice().sort((a, b) => a.position - b.position);
   const ranked = advice?.ranked ?? [];
@@ -412,7 +428,8 @@ function deriveCall(state: ScreenReaderState, index: CatalogIndex, advice: Scree
   const comparison = offers.find((offer) => offer.position === advice.comparisonPosition && index.item(offer.itemId));
   const offer = preferred ?? comparison;
   if (!offer) return null;
-  const kind: CallKind = !preferred ? 'consider' : advice.rerollSuggested ? 'reroll' : advice.title.startsWith('Slight edge') ? 'close' : 'pick';
+  const kind: CallKind = !preferred ? 'consider' : advice.rerollSuggested ? 'reroll'
+    : advice.title.startsWith('Best so far') ? 'partial' : advice.title.startsWith('Slight edge') ? 'close' : 'pick';
   const imbue = parseImbue(advice.imbue, index.abilities(heroId));
   const seen = new Set<string>();
   const all = advice.reasons.filter((text) => {

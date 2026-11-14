@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import publicCatalog from '../../data/public-catalog.json';
 import { createScreenReader, type ScreenReaderProcess } from '../../electron/screen-reader';
@@ -8,9 +8,11 @@ import type { CaptureRegion, ScreenReaderState } from '../../src/shared/screen-r
 import type { Catalog } from '../../src/shared/types';
 
 /** OCR replies recorded from a real Street Brawl round-4 draft (frame 1 is mid-reveal). */
-const draftFrames = [1, 2, 3, 4].map(i => JSON.parse(readFileSync(`optimization/captures/draft-review/frame-${i}.json`, 'utf8')).raw);
+/** The captures are local evidence (gitignored); without them the suite is skipped, not failed. */
+const hasCaptures = existsSync('optimization/captures/draft-review/frame-1.json') && existsSync('optimization/captures/live-review/frame-3.json');
+const draftFrames = hasCaptures ? [1, 2, 3, 4].map(i => JSON.parse(readFileSync(`optimization/captures/draft-review/frame-${i}.json`, 'utf8')).raw) : [];
 /** A real in-combat capture: HUD numbers only, no draft panel. */
-const combatFrame = JSON.parse(readFileSync('optimization/captures/live-review/frame-3.json', 'utf8')).raw;
+const combatFrame = hasCaptures ? JSON.parse(readFileSync('optimization/captures/live-review/frame-3.json', 'utf8')).raw : { blocks: [] };
 type Req = { id: string; op: string; crop: CaptureRegion };
 type Block = { bounds: CaptureRegion };
 function inside(bounds: CaptureRegion, crop: CaptureRegion) {
@@ -50,7 +52,7 @@ function start(elapsed: number) {
 }
 const shown = (state: ScreenReaderState) => state.status === 'ready' && state.offers.length === 3;
 
-describe('recorded Street Brawl draft replay', () => {
+describe.skipIf(!hasCaptures)('recorded Street Brawl draft replay', () => {
   it.each([60, 250, 500, 900])('shows the three real cards with a pick and keeps them stable at %ims native reads', async elapsed => {
     const run = start(elapsed);
     await run.run(2_000);

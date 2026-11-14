@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { steamDisplayNamesFromVdf } from '../electron/local-identity';
+import { linuxActiveSteamAccount, linuxSteamAutoLoginUser, steamDisplayNamesFromVdf, windowsRegistryValue } from '../electron/local-identity';
 
 const fixture = `"users" {
   "76561197960265729" { "PersonaName" "Older account" "MostRecent" "1" }
@@ -26,5 +26,39 @@ describe('local Steam name hints', () => {
     for (const account of [-1, 1.2, NaN, 0x100000000]) expect(steamDisplayNamesFromVdf(fixture, account)).toEqual([]);
     expect(steamDisplayNamesFromVdf('"users" { "76561197960265729" { "PersonaName" " " } }', 1)).toEqual([]);
     expect(steamDisplayNamesFromVdf('"users" { "76561197960265729" { "PersonaName" "A\u0000B" } }', 1)).toEqual([]);
+  });
+});
+
+describe('Linux Steam active account', () => {
+  const users = (entries: string) => `"users" { ${entries} }`;
+  it('takes the account Steam marked as most recent', () => {
+    expect(linuxActiveSteamAccount(fixture, null)).toBe(1);
+  });
+  it('falls back to the auto-login account, then to the only remembered account', () => {
+    const two = users('"76561197960265729" { "AccountName" "first" "PersonaName" "A" } "76561197960265730" { "AccountName" "Second" "PersonaName" "B" }');
+    expect(linuxActiveSteamAccount(two, 'second')).toBe(2);
+    expect(linuxActiveSteamAccount(two, null)).toBe(0);
+    expect(linuxActiveSteamAccount(users('"76561197960265731" { "PersonaName" "Solo" }'), null)).toBe(3);
+  });
+  it('selects nobody when several accounts are marked or the file is malformed', () => {
+    expect(linuxActiveSteamAccount(users('"76561197960265729" { "MostRecent" "1" } "76561197960265730" { "MostRecent" "1" }'), null)).toBe(0);
+    expect(linuxActiveSteamAccount('"users" {', null)).toBe(0);
+  });
+  it('reads the auto-login user from a deeply nested registry.vdf', () => {
+    const registry = '"Registry" { "HKCU" { "Software" { "Valve" { "Steam" { "language" "english" "AutoLoginUser" "someone" } } } } }';
+    expect(linuxSteamAutoLoginUser(registry)).toBe('someone');
+    expect(linuxSteamAutoLoginUser('"Registry" { }')).toBeNull();
+  });
+});
+
+describe('Windows registry values from reg.exe', () => {
+  const output = '\r\nHKEY_CURRENT_USER\\Software\\Valve\\Steam\r\n    SteamPath    REG_SZ    c:/program files (x86)/steam\r\n    ActiveUser    REG_DWORD    0x1a2b3c\r\n\r\n';
+  it('reads text and DWORD values', () => {
+    expect(windowsRegistryValue(output, 'SteamPath')).toBe('c:/program files (x86)/steam');
+    expect(windowsRegistryValue(output, 'ActiveUser')).toBe(0x1a2b3c);
+  });
+  it('returns null for a missing or empty value', () => {
+    expect(windowsRegistryValue(output, 'AutoLoginUser')).toBeNull();
+    expect(windowsRegistryValue('', 'SteamPath')).toBeNull();
   });
 });

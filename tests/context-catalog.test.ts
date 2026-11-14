@@ -55,7 +55,7 @@ describe('source-backed context definitions', () => {
   it('retains the actual Street Brawl radius override and spirit coefficient of Essence Bomb', () => {
     const ability = CONTEXT_CATALOG.abilities.find(entry => entry.id === 'ability_blood_bomb')!;
     expect(ability.properties.find(property => property.name === 'Radius')).toMatchObject({ normalValue: '7m', streetBrawlValue: '6m', effectiveValue: '6m', numericValue: 6, modeOverride: true, unit: 'meters' });
-    expect(ability.properties.find(property => property.name === 'Damage')).toMatchObject({ numericValue: 90, scale: { specific_stat_scale_type: 'ETechPower', stat_scale: 1.22 } });
+    expect(ability.properties.find(property => property.name === 'Damage')).toMatchObject({ numericValue: 90, scale: { specific_stat_scale_type: 'ETechPower', stat_scale: 1.35 } });
   });
   it('preserves zero mode overrides and null inheritance distinctly', () => {
     expect(catalogScript.normalizeContextProperty('Damage', { value: '12', street_brawl_value: 0 }, 'fixture')).toMatchObject({ numericValue: 0, effectiveValue: 0, modeOverride: true });
@@ -82,7 +82,7 @@ describe('source-backed context definitions', () => {
     expect(upgraded.some(property => property.upgradeType === 'EAddToScale' && property.scaleStatFilter === 'ETechPower')).toBe(true);
     expect(CONTEXT_CATALOG.abilities.flatMap(ability => ability.properties).some(property => property.requiredUpgradeBits.length > 0)).toBe(true);
     const leech = CONTEXT_CATALOG.items.find(item => item.id === 'upgrade_damage_recycler')!;
-    expect(leech.properties.find(property => property.name === 'AbilityLifestealPercentHero')).toMatchObject({ numericValue: 28, scale: { specific_stat_scale_type: 'EHealingOutput' } });
+    expect(leech.properties.find(property => property.name === 'AbilityLifestealPercentHero')).toMatchObject({ numericValue: 30, scale: { specific_stat_scale_type: 'EHealingOutput' } });
   });
   it('preserves static gun baselines and hero spirit scaling without claiming measured damage', () => {
     const haze = CONTEXT_CATALOG.heroes.find(hero => hero.id === 'hero_haze')!;

@@ -127,8 +127,22 @@ describe('match build tracker', () => {
     expect(build.snapshot().abilityRanks).toEqual([1, 1, 0, 0]);
     // The scoreboard is the same for everyone.
     expect(build.snapshot().seatItems[4]).toEqual(['upgrade_toxic_bullets']);
-    build.observe(layout([[0, 'upgrade_close_range'], [1, 'upgrade_healbane'], [2, 'upgrade_silencer']]), {}, { at: 20_000 });
-    build.observe(layout([[0, 'upgrade_close_range'], [1, 'upgrade_healbane'], [2, 'upgrade_silencer']]), {}, { at: 20_500 });
+    build.observe(layout([[0, 'upgrade_close_range'], [1, 'upgrade_healbane'], [2, 'upgrade_silencer']]), {}, { at: 23_000 });
+    build.observe(layout([[0, 'upgrade_close_range'], [1, 'upgrade_healbane'], [2, 'upgrade_silencer']]), {}, { at: 23_500 });
+    expect(build.snapshot().myItems).toContain('upgrade_silencer');
+  });
+
+  it("keeps a teammate's strip out when the death-screen banner is missed for a few seconds (real 2026-11-01 02:25:28)", () => {
+    const build = createBuildTracker();
+    const mine: [number, string][] = [[0, 'upgrade_close_range'], [1, 'upgrade_healbane']];
+    for (let read = 0; read < 5; read++) build.observe(layout(mine), {}, { at: 1_000 + read });
+    const theirs: [number, string][] = [[0, 'upgrade_return_fire'], [1, 'upgrade_express_shot'], [2, 'upgrade_magic_shock']];
+    build.observe(layout(theirs), {}, { spectating: true, at: 10_000 });
+    for (const at of [15_000, 17_000]) build.observe(layout(theirs), {}, { at });
+    expect(build.snapshot().myItems).toEqual(['upgrade_close_range', 'upgrade_healbane']);
+    // A draft on screen is your own view again at once.
+    const drafted: [number, string][] = [...mine, [2, 'upgrade_silencer']];
+    for (const at of [18_000, 18_500]) build.observe(layout(drafted), { draft: true }, { at });
     expect(build.snapshot().myItems).toContain('upgrade_silencer');
   });
 

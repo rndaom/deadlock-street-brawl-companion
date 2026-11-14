@@ -17,7 +17,7 @@ const build = createBuildTracker();
 const item = (id: string) => catalog.items.find(entry => entry.id === id)?.name ?? id;
 const name = (id: string | null) => catalog.heroes.find(hero => hero.id === id)?.name ?? id ?? '?';
 for (const frame of process.argv.slice(2)) {
-  const run = spawnSync(path.join(root, 'native/ScreenReader/publish/ScreenReader.exe'), ['--icons', path.join(root, 'assets/reader-icons'),
+  const run = spawnSync(path.join(root, 'native/ScreenReader/publish', process.platform === 'win32' ? 'ScreenReader.exe' : 'ScreenReader'), ['--icons', path.join(root, 'assets/reader-icons'),
     '--context-icons', path.join(root, 'assets/context-icons'), '--review-image', path.resolve(frame)], { encoding: 'utf8', windowsHide: true });
   const lines = run.stdout.trim().split('\n').filter(Boolean);
   for (const line of lines) {
@@ -38,7 +38,7 @@ for (const frame of process.argv.slice(2)) {
   console.log(`\n== ${path.basename(frame)} (${reply.elapsedMs} ms)`);
   console.log(`  seats: ${known.seats.map(name).join(', ')}`);
   console.log(`  you: ${name(known.localHeroId)} (side ${known.localSide}) | allies: ${known.allies.map(name).join(', ')} | enemies: ${known.enemies.map(name).join(', ')}`);
-  console.log(`  draft: ${parsed.isDraft} round ${parsed.round} rerolls ${parsed.rerolls} | cards: ${parsed.offers.map(offer => `${offer.name}${offer.variant === 'enhanced' ? ' [Enhanced]' : ''}`).join(' / ')}`);
+  console.log(`  draft: ${parsed.isDraft} round ${parsed.round} rerolls ${parsed.rerolls} | cards: ${parsed.offers.map(offer => `${offer.name}${offer.variant !== 'base' && offer.variant !== 'unknown' ? ` [${offer.variant}]` : ''}${offer.rare ? ' [rare]' : ''}${offer.bonusIds?.length ? ` [bonus: ${offer.bonusIds.map(item).join('+')}]` : offer.bonusExpected ? ' [bonus unread]' : ''}`).join(' / ')}`);
   if (advice) {
     console.log(`  => ${advice.title} | ${advice.rerollReason}`);
     for (const entry of advice.ranked) console.log(`     ${entry.score.toFixed(2)}  ${parsed.offers.find(offer => offer.position === entry.position)?.name}: ${entry.reasons.slice(0, 2).join(' / ')}`);

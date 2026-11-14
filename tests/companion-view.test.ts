@@ -120,6 +120,12 @@ describe('companion view: call kinds', () => {
     expect(result.call?.reasons.some((reason) => reason.text.startsWith('Close call'))).toBe(false);
   });
 
+  it('only suggests the best card read so far while another card is unread', () => {
+    const result = view(reader({ advice: { ...advice, title: 'Best so far: Toxic Bullets' } }));
+    expect(result.call?.kind).toBe('partial');
+    expect(result.cards?.map((card) => [card.isPick, card.isConsider])).toEqual([[true, false], [false, false], [false, false]]);
+  });
+
   it('leads with the reroll and marks the best card only as the fallback', () => {
     const result = view(reader({ rerollsLeft: 2, advice: { ...advice, title: 'Reroll — or take Toxic Bullets', rerollSuggested: true, rerollReason: '2 rerolls left. None of these cards fits.' } }));
     expect(result.call?.kind).toBe('reroll');
@@ -240,7 +246,7 @@ describe('sample match states render through the interface', () => {
       createElement(Decision, { view: result, generation: 1, onAction: noop }),
       createElement(Loadout, { view: result }), createElement(Teams, { view: result }),
       result.hasMatchData ? null : createElement(Guide)));
-    if (['pick', 'imbue', 'close', 'reroll'].includes(id)) {
+    if (['pick', 'imbue', 'close', 'reroll', 'unread'].includes(id)) {
       expect(result.call).not.toBeNull();
       expect(html).toContain(result.call!.kind === 'reroll' ? '>Reroll<' : `>${result.call!.item.name}<`);
       expect(html).toContain(result.call!.kind === 'reroll' ? 'best card if you keep these' : 'suggested pick');

@@ -1,0 +1,23 @@
+{
+ "client": "1920x1080",
+ "crop": {
+  "x": 0.020833333333333332,
+  "y": 0.1574074074074074,
+  "width": 0.8125,
+  "height": 0.6203703703703703
+ },
+ "truth": {
+  "cards": [
+   "Spellbreaker",
+   "Spirit Resilience",
+   "Toxic Bullets"
+  ],
+  "variants": [
+   "base",
+   "base",
+   "base"
+  ],
+  "choice": 3
+ },
+ "source": "real 2026-11-01 Linux (Tesseract) draft frame draft-2026-11-02T02-35-02-960Z, cropped to the draft labels and card names: an open tooltip's small stat captions on the right card's name row were joined with 'Toxic Bullets'"
+}

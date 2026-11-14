@@ -207,12 +207,19 @@ interface RoundDecision { round: number | undefined; inferred: boolean; restart:
 function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): RoundDecision {
   const tracking = { ...(state.roundTracking ?? initialTracking()) };
   const previous = state.round;
+  const draftRoundBefore = tracking.roundAtLastDraft;
   const usable = (field: 'round' | 'scores' | 'phase' | 'pickStage') => has(frame, field) && !!frame.fields?.[field] && frame.fields[field]!.confidence >= 0.85;
   const pips = usable('scores') && validScores(frame.scores) ? frame.scores : null;
   let round: number | undefined; let inferred = false; let restart = false; let lowered = false;
   const read = usable('round') && Number.isInteger(frame.round) ? frame.round! : null;
   if (read !== null && read >= 1 && read <= MAX_STREET_BRAWL_ROUNDS && !(pips && !pipsFitRound(pips, read))) {
-    if (previous === null || read === previous || read === previous + 1) { round = read; tracking.candidate = null; tracking.candidateCount = 0; }
+    if (previous === null || read === previous || read === previous + 1) {
+      round = read; tracking.candidate = null; tracking.candidateCount = 0;
+      // The HUD agrees with an inferred round: it is confirmed, and one later lower misread no longer undoes it.
+      if (read === previous) tracking.inferredAt = null;
+    }
+    // A HUD read one below a round that was only inferred from a draft corrects it at once.
+    else if (read === previous - 1 && tracking.inferredAt !== null) { round = read; lowered = true; tracking.candidate = null; tracking.candidateCount = 0; }
     else {
       tracking.candidateCount = tracking.candidate === read ? tracking.candidateCount + 1 : 1; tracking.candidate = read;
       if (read > previous && (tracking.candidateCount >= 2 || pips)) round = read;
@@ -224,6 +231,8 @@ function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): 
   const phase = usable('phase') ? frame.phase : undefined;
   if (phase === 'draft') {
     const stage = usable('pickStage') ? frame.pickStage ?? null : null;
+    // A new match's first draft, before any combat or round title, is round 1's (real 2026-11-01 match: 53 s without a round).
+    if (tracking.matchStart && stage !== null && read === null && previous === null) { round = 1; inferred = true; }
     if (tracking.combatSinceDraft && stage !== null) {
       if (stage === 1 && read === null && previous !== null && tracking.roundAtLastDraft === previous && previous < MAX_STREET_BRAWL_ROUNDS
         && tracking.lastDraftAt !== null && frame.capturedAt - tracking.lastDraftAt <= ROUND_DRAFT_MAX_GAP_MS) {
@@ -231,9 +240,20 @@ function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): 
       }
       tracking.combatSinceDraft = false;
     }
-    tracking.lastDraftAt = frame.capturedAt; tracking.roundAtLastDraft = round ?? previous;
+    // A draft's first frames can come before its "Choice N of 3" label is read (real 2026-11-01 logs): the
+    // previous draft's time and round are kept until the label decides whether this draft opens a new round.
+    if (!tracking.combatSinceDraft) { tracking.lastDraftAt = frame.capturedAt; tracking.roundAtLastDraft = round ?? previous; }
   } else if (phase === 'combat' && (tracking.lastDraftAt === null || frame.capturedAt - tracking.lastDraftAt >= ROUND_DRAFT_GAP_MS)) {
     tracking.combatSinceDraft = true;
+  }
+  if (phase === 'combat' || previous !== null || round !== undefined || restart) tracking.matchStart = false;
+  // A lowered round also lowers the round of the last draft, so the next round's draft still advances it.
+  // If that lower read was the misread (the HUD returns to the old round before another draft), the draft's round comes back.
+  if (lowered && round !== undefined && draftRoundBefore !== null && draftRoundBefore > round) {
+    tracking.roundAtLastDraft = round; tracking.loweredDraftRound = draftRoundBefore;
+  } else if (round !== undefined && round !== previous) {
+    if (!inferred && tracking.loweredDraftRound === round && tracking.roundAtLastDraft === previous) tracking.roundAtLastDraft = round;
+    tracking.loweredDraftRound = null;
   }
   if (round !== undefined && round !== previous) tracking.inferredAt = inferred ? frame.capturedAt : null;
   let scores: [number, number] | undefined;
@@ -256,9 +276,12 @@ function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): 
  * reader session, so the new match's frames still apply. (2026-10-18 review: a match left before its post-match
  * screen gave the next match round 4 from its first draft, ignored its "ROUND 2", and kept the old 1-1 score.)
  */
-export function forgetMatchRound(context: ScreenMatchContext): ScreenMatchContext {
-  if (context.round === null && context.scores === null && context.pickStage === null && !context.roundTracking) return context;
-  return { ...context, round: null, scores: null, pickStage: null, roundTracking: initialTracking(),
+/** @param loadingSeen the new match's loading screen is on screen, so its first draft will be round 1's. */
+export function forgetMatchRound(context: ScreenMatchContext, loadingSeen = false): ScreenMatchContext {
+  // A start seen just before (no combat or round since) still holds: the loading screen can name your hero a moment later.
+  const matchStart = loadingSeen || !!context.roundTracking?.matchStart;
+  if (context.round === null && context.scores === null && context.pickStage === null && !context.roundTracking && !matchStart) return context;
+  return { ...context, round: null, scores: null, pickStage: null, roundTracking: { ...initialTracking(), ...(matchStart ? { matchStart } : {}) },
     observations: { ...context.observations, round: null, scores: null, pickStage: null } };
 }
 

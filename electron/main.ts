@@ -7,16 +7,18 @@ import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path
 import { fileURLToPath } from 'node:url';
 import { createController } from '../src/app/controller';
 import { APP_CATALOG } from '../src/app/catalog';
-import { DEFAULT_SETTINGS, validateSettingsPatch } from '../src/shared/settings';
+import { DEFAULT_SETTINGS, readStoredSettings, validateSettingsPatch } from '../src/shared/settings';
 import type { AppSettings, DisplayInfo } from '../src/shared/types';
 import { startOverwolfProvider } from './overwolf-provider';
 import { createScreenReader } from './screen-reader';
 import { createOverlay } from './overlay';
+import { hyprlandDeviceScale } from './hyprland';
 import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion, type ScreenReaderState } from '../src/shared/screen-reading';
 import { loadLocalPlayerNames } from './local-identity';
-import { isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
+import { coversCurrentWindow, isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 import { fetchStreetBrawlData } from '../src/screen/street-brawl-fetch';
 import { CONTEXT_CATALOG } from '../src/shared/context-catalog';
+import { startUpdater, type UpdateState } from './updater';
 
 // The companion UI is static paint with only one-shot transitions, so software compositing
 // costs almost nothing and keeps the GPU (and its memory) entirely for Deadlock.
@@ -46,8 +48,10 @@ async function loadReaderPreferences(): Promise<void> {
     const value: unknown = JSON.parse(await readFile(path, 'utf8'));
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return;
     const record = value as Record<string, unknown>;
-    readerPreferences = { enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
-      crop: validateCaptureRegion(record.crop ?? DEFAULT_CAPTURE_REGION) };
+    // A bad saved area falls back on its own; it must not also undo a saved pause.
+    let crop = { ...DEFAULT_CAPTURE_REGION } as CaptureRegion;
+    try { crop = validateCaptureRegion(record.crop ?? DEFAULT_CAPTURE_REGION); } catch { /* default area */ }
+    readerPreferences = { enabled: typeof record.enabled === 'boolean' ? record.enabled : true, crop };
   } catch { /* Safe defaults; image pixels and match readings are never loaded from disk. */ }
 }
 
@@ -65,34 +69,50 @@ function saveReaderPreferences(): Promise<void> {
 }
 
 function readerPaths(): { helperPath: string; iconDirectory: string; contextIconDirectory: string } {
+  const helper = process.platform === 'win32' ? 'ScreenReader.exe' : 'ScreenReader';
   return app.isPackaged
-    ? { helperPath: join(process.resourcesPath, 'screen-reader', 'ScreenReader.exe'), iconDirectory: join(process.resourcesPath, 'reader-icons'), contextIconDirectory: join(process.resourcesPath, 'context-icons') }
-    : { helperPath: resolve(mainDirectory, '../native/ScreenReader/publish/ScreenReader.exe'), iconDirectory: resolve(mainDirectory, '../assets/reader-icons'), contextIconDirectory: resolve(mainDirectory, '../assets/context-icons') };
+    ? { helperPath: join(process.resourcesPath, 'screen-reader', helper), iconDirectory: join(process.resourcesPath, 'reader-icons'), contextIconDirectory: join(process.resourcesPath, 'context-icons') }
+    : { helperPath: resolve(mainDirectory, '../native/ScreenReader/publish', helper), iconDirectory: resolve(mainDirectory, '../assets/reader-icons'), contextIconDirectory: resolve(mainDirectory, '../assets/context-icons') };
 }
 
 /**
- * Local troubleshooting record in Documents\Street Brawl Companion\diagnostics:
+ * Local troubleshooting record in Documents\Street Brawl Companion\diagnostics (~/Documents/... on Linux):
  * reader-log.jsonl holds one line per screen read (status, timing, read text, decision);
  * frames\ keeps the most recent draft images so misreads can be replayed offline.
  * Nothing leaves this computer.
  */
 function createReaderDiagnostics() {
-  const directory = join(app.getPath('documents'), 'Street Brawl Companion', 'diagnostics');
+  let documents: string;
+  // A Documents folder Windows cannot resolve (a broken OneDrive or folder redirection) must not stop the app.
+  try { documents = app.getPath('documents'); } catch { documents = app.getPath('userData'); }
+  const directory = join(documents, 'Street Brawl Companion', 'diagnostics');
   const frames = join(directory, 'frames');
   const log = join(directory, 'reader-log.jsonl');
   const MAX_LOG_BYTES = 8_000_000;
   const MAX_FRAMES = 60;
-  let writes: Promise<void> = mkdir(frames, { recursive: true }).then(() => undefined, () => undefined);
+  // With the companion left open, the once-a-second "Waiting for Deadlock" probe filled the log and rotated a
+  // whole evening's matches out by the next morning; an unchanged idle read is logged once a minute instead.
+  const IDLE_LOG_MS = 60_000;
+  let idle: { key: string; at: number } | null = null;
+  let writes: Promise<void> = mkdir(directory, { recursive: true }).then(() => undefined, () => undefined);
   const queue = (work: () => Promise<void>) => { writes = writes.then(work).catch(() => undefined); };
   return {
     trace(entry: Record<string, unknown>) {
+      const result = entry.result as { status?: unknown } | undefined;
+      if (result?.status === 'waiting-game') {
+        const key = `${String(entry.op)}:${String(entry.status)}`;
+        if (idle?.key === key && Date.now() - idle.at < IDLE_LOG_MS) return;
+        idle = { key, at: Date.now() };
+      } else idle = null;
       queue(async () => {
         try { if ((await stat(log)).size > MAX_LOG_BYTES) await rename(log, `${log}.old`); } catch { /* No log yet. */ }
         await appendFile(log, `${JSON.stringify(entry)}\n`, 'utf8');
       });
     },
     frame(png: string, entry: Record<string, unknown>) {
+      if (!settings.saveScreenshots) return;
       queue(async () => {
+        await mkdir(frames, { recursive: true });
         const name = `${entry.snapshot ? "screen" : entry.scoreboard ? "tab" : "draft"}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
         await writeFile(join(frames, `${name}.png`), Buffer.from(png, 'base64'));
         await writeFile(join(frames, `${name}.json`), JSON.stringify(entry, null, 1), 'utf8');
@@ -120,7 +140,8 @@ function refreshStreetBrawlData(): Promise<void> {
   streetBrawlRefresh = (async () => {
     try {
       const saved: unknown = JSON.parse(await readFile(file, 'utf8'));
-      if (isStreetBrawlData(saved) && Date.parse(saved.fetchedAt) > Date.parse(streetBrawlData().fetchedAt)) setStreetBrawlData(saved);
+      // A download from before a patch-window change (an app update moved it) does not replace the newer bundled data.
+      if (isStreetBrawlData(saved) && Date.parse(saved.fetchedAt) > Date.parse(streetBrawlData().fetchedAt) && coversCurrentWindow(saved)) setStreetBrawlData(saved);
     } catch { /* No saved download yet. */ }
     if (age() < STREET_BRAWL_REFRESH_MS) return;
     try {
@@ -137,6 +158,7 @@ function refreshStreetBrawlData(): Promise<void> {
 
 let pendingReaderState: ScreenReaderState | null = null;
 let trayTip = '';
+let sentPreview: string | null = null;
 /** One read publishes several partial updates in the same tick; send the windows only the last one,
  * so each read costs one IPC message and one render per window instead of five or six. */
 function publishScreenReader(state: ScreenReaderState): void {
@@ -148,9 +170,14 @@ function publishScreenReader(state: ScreenReaderState): void {
 function flushScreenReader(): void {
   const state = pendingReaderState;
   pendingReaderState = null;
-  if (!state) return;
+  // Reader updates published while quitting (the reader stopping) must not touch the destroyed tray or overlay.
+  if (!state || quitting) return;
   if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
-    mainWindow.webContents.send('companion:screen-reader', state);
+    // The reading-area preview is a large image that stays in the state; send it once, then leave it
+    // out (undefined = unchanged, see newestScreenReaderState) so every read is not megabytes of IPC.
+    const preview = state.previewDataUrl ?? null;
+    mainWindow.webContents.send('companion:screen-reader', preview !== null && preview === sentPreview ? { ...state, previewDataUrl: undefined } : state);
+    sentPreview = preview;
   }
   overlay?.update(state);
   const tip = `Street Brawl companion · ${state.status === 'ready' ? 'Offers read' : state.enabled ? 'Screen reading' : 'Paused'}`;
@@ -169,7 +196,7 @@ async function loadSettings(): Promise<void> {
   try {
     if ((await stat(settingsFile())).size > 16_384) return;
     const value: unknown = JSON.parse(await readFile(settingsFile(), 'utf8'));
-    settings = { ...DEFAULT_SETTINGS, ...validateSettingsPatch(value) };
+    settings = { ...DEFAULT_SETTINGS, ...readStoredSettings(value) };
   } catch {
     // Missing or invalid preferences use defaults; participant state is never read from disk.
     settings = { ...DEFAULT_SETTINGS };
@@ -212,12 +239,21 @@ function initialBounds(display: Display): Rectangle {
   return { x: area.x + Math.round((area.width - width) / 2), y: area.y + Math.round((area.height - height) / 2), width, height };
 }
 
+/** 600x720 DIP, but never more than the work area: a 1080p laptop at 150% scaling has about 670 DIP above the taskbar. */
+function minimumSize(display: Display): { minWidth: number; minHeight: number } {
+  return { minWidth: Math.min(600, display.workArea.width), minHeight: Math.min(720, display.workArea.height) };
+}
+
 function moveToSelectedDisplay(force = false): void {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  const display = chosenDisplay();
-  const area = display.workArea;
   const old = mainWindow.getBounds();
   const occupyingDisplay = screen.getDisplayMatching(old);
+  // With no display chosen, the window stays where the user put it: a display change (taskbar, DPI,
+  // the game switching mode) must not pull it back to the automatic pick.
+  const display = settings.displayId === null && !force ? occupyingDisplay : chosenDisplay();
+  const minimum = minimumSize(display);
+  mainWindow.setMinimumSize(minimum.minWidth, minimum.minHeight);
+  const area = display.workArea;
   if (force || occupyingDisplay.id !== display.id) {
     mainWindow.setBounds(initialBounds(display), false);
     return;
@@ -248,6 +284,7 @@ function updateSettings(input: unknown): Promise<AppSettings> {
     settings = next;
     mainWindow?.setAlwaysOnTop(settings.alwaysOnTop);
     overlay?.setEnabled(settings.overlay);
+    if (patch.maxActiveItems !== undefined) screenReader?.refreshAdvice();
     moveToSelectedDisplay(monitorChanged);
     return { ...settings };
   });
@@ -433,6 +470,21 @@ function showFromUserAction(): void {
   mainWindow.focus();
 }
 
+let updateState: UpdateState = { readyVersion: null };
+let installUpdate: () => void = () => undefined;
+
+function setTrayMenu(): void {
+  if (!tray) return;
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: 'Show companion', click: showFromUserAction },
+    ...(updateState.readyVersion
+      ? [{ type: 'separator' as const }, { label: `Restart to update to ${updateState.readyVersion}`, click: () => installUpdate() }]
+      : []),
+    { type: 'separator' },
+    { label: `Quit (version ${app.getVersion()})`, click: () => app.quit() },
+  ]));
+}
+
 function createTray(): void {
   try {
     // A small code-generated icon; no file/capture dependencies.
@@ -446,12 +498,12 @@ function createTray(): void {
       pixels[index + 3] = 255;
     }
     tray = new Tray(nativeImage.createFromBitmap(pixels, { width: 16, height: 16 }));
-    tray.setContextMenu(Menu.buildFromTemplate([
-      { label: 'Show companion', click: showFromUserAction },
-      { type: 'separator' },
-      { label: 'Quit', click: () => app.quit() },
-    ]));
+    setTrayMenu();
     tray.on('double-click', showFromUserAction);
+    // Windows users expect one click on a tray icon to open the app.
+    if (process.platform === 'win32') tray.on('click', showFromUserAction);
+    // The reader usually reports before the tray exists; without this the tooltip stayed empty until the status changed.
+    tray.setToolTip(trayTip || 'Street Brawl companion');
     publishState();
   } catch { tray = null; }
 }
@@ -459,7 +511,7 @@ function createTray(): void {
 async function createWindow(): Promise<void> {
   const localSession = await prepareLocalSession();
   mainWindow = new BrowserWindow({
-    ...initialBounds(chosenDisplay()), minWidth: 600, minHeight: 720, show: false,
+    ...initialBounds(chosenDisplay()), ...minimumSize(chosenDisplay()), show: false,
     title: 'Deadlock Street Brawl companion', backgroundColor: '#111318',
     alwaysOnTop: settings.alwaysOnTop, autoHideMenuBar: true,
     webPreferences: {
@@ -475,7 +527,9 @@ async function createWindow(): Promise<void> {
   });
   mainWindow.webContents.on('will-attach-webview', (event) => event.preventDefault());
   mainWindow.once('ready-to-show', () => mainWindow?.showInactive());
-  mainWindow.webContents.on('did-finish-load', () => { publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
+  // Wayland paints nothing for a window that was never mapped, so ready-to-show may never fire there.
+  if (process.platform === 'linux') mainWindow.webContents.once('did-finish-load', () => { if (mainWindow && !mainWindow.isVisible()) mainWindow.showInactive(); });
+  mainWindow.webContents.on('did-finish-load', () => { sentPreview = null; publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
   // The hidden overlay window must not keep the app running once the companion is closed.
   mainWindow.on('closed', () => { mainWindow = null; app.quit(); });
   overlay =createOverlay({ session: localSession, preload: join(mainDirectory, 'preload.cjs'), url: OVERLAY_DOCUMENT });
@@ -494,6 +548,11 @@ function onDisplayChange(): void {
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
+  // Hyprland: keep the desktop's text scaling out of Chromium's device scale, or the overlay draws shrunk (see hyprland.ts).
+  if (process.platform === 'linux' && !app.commandLine.hasSwitch('force-device-scale-factor')) {
+    const scale = hyprlandDeviceScale();
+    if (scale) app.commandLine.appendSwitch('force-device-scale-factor', String(scale));
+  }
   app.on('second-instance', () => showFromUserAction());
   app.on('before-quit', (event) => {
     if (quitting) return;
@@ -504,21 +563,27 @@ if (!app.requestSingleInstanceLock()) {
     controller.dispose();
     overlay?.dispose();
     tray?.destroy();
+    tray = null;
     void Promise.allSettled([screenReader?.dispose(), readerPreferenceWrites, settingsWrites]).then(() => app.quit());
   });
   app.on('window-all-closed', () => app.quit());
   void app.whenReady().then(async () => {
+    // Logout and `kill` send SIGTERM on Linux. Chromium's own handler (installed before ready, so replaced
+    // here) stops the message loop without the cleanup above, leaving the reader unreaped and the app hung;
+    // signals take the same quit path as the tray's Quit instead.
+    if (process.platform !== 'win32') for (const signal of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) process.on(signal, () => app.quit());
     const [, , localPlayerNames] = await Promise.all([loadSettings(), loadReaderPreferences(), loadLocalPlayerNames()]);
     void refreshStreetBrawlData();
     setInterval(() => { void refreshStreetBrawlData(); }, 6 * 60 * 60 * 1000).unref();
     const diagnostics = createReaderDiagnostics();
     screenReader = createScreenReader({ ...readerPaths(), localPlayerNames, catalog: APP_CATALOG, initialCrop: readerPreferences.crop, autoStart: false, onState: publishScreenReader,
-      onTrace: diagnostics.trace, onDraftFrame: diagnostics.frame });
+      onTrace: diagnostics.trace, onDraftFrame: diagnostics.frame, wantsFrames: () => settings.saveScreenshots, maxActiveItems: () => settings.maxActiveItems });
     registerBridge();
     unsubscribeController = controller.subscribe(publishState);
     startLive();
     await createWindow();
     createTray();
+    installUpdate = startUpdater(state => { updateState = state; setTrayMenu(); }).installNow;
     screen.on('display-added', onDisplayChange);
     screen.on('display-removed', onDisplayChange);
     screen.on('display-metrics-changed', onDisplayChange);

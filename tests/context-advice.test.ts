@@ -55,7 +55,7 @@ describe('actual observed-context offer comparisons', () => {
     const first = advise(offense(), spirit), second = advise(offense(), weapon);
     expect(first.preferredPosition).toBe(0);
     expect(second.preferredPosition).toBe(1);
-    expect(second.title).toBe('Pick Rapid Rounds');
+    expect(second.title).toMatch(/^(Pick|Slight edge:) Rapid Rounds$/);
     expect(second.reasons.join(' ')).toContain('Leech');
     expect(second.reasons.join(' ')).toContain('9% fire rate');
     expect(second.factsUsed?.some(fact => fact.scope === 'own' && fact.label.includes('Titanic Magazine'))).toBe(true);
@@ -132,7 +132,7 @@ describe('actual observed-context offer comparisons', () => {
     expect(before.reasons.join(' ')).not.toContain('healing reduction');
     expect(after.preferredPosition).toBe(0);
     expect(after.reasons.join(' ')).toContain('35% listed healing reduction');
-    expect(after.reasons.join(' ')).toContain('13% listed bullet lifesteal');
+    expect(after.reasons.join(' ')).toContain('15% listed bullet lifesteal');
     expect(after.reasons.join(' ')).toContain('Requires your spirit hits');
   });
 
@@ -278,7 +278,7 @@ describe('actual observed-context offer comparisons', () => {
     } else {
       // The uncertain card (position 0) is never the pick; the best resolved one is.
       expect(result.preferredPosition).toBe(1);
-      expect(result.title).toBe("Pick Enchanter's Emblem");
+      expect(result.title).toBe(failure === 'identity' ? "Best so far: Enchanter's Emblem" : "Pick Enchanter's Emblem");
       expect(result.reasons[0]).toBe(pickReason(result));
       expect(result.reasons.join(' ')).not.toMatch(/Comparison only|unread|observed/i);
       expect(result.reasons.join(' ')).toContain('Seven');

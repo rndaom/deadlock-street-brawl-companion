@@ -45,11 +45,33 @@ export const SCREEN_READER_LIMITS = Object.freeze({
   outsideReadSpacingMs: 3_000,
   /** One full-window diagnostic snapshot (HUD, scoreboard or draft) at most this often. */
   snapshotSpacingMs: 45_000,
+  /** In a match with no draft shown, the helper looks for the draft's magenta CHOICE label by its pixels alone this often,
+   * between reads (a 300x40 copy, 3-5 ms, no OCR). Matches 2026-11-05..14: the once-a-second OCR cue scan and the duty-share
+   * pause after it put the first draft read 1.0 s (median) behind the read before the draft opened. */
+  draftWatchMs: 125,
+  /** After a watch whose read found no draft, the watch rests this long, so a magenta scene cannot chain full reads. */
+  draftWatchBackoffMs: 3_000,
 });
 /** Shown between matches; the last match's build and roster stay on screen until the next match starts. */
 export const OUTSIDE_MESSAGE = 'Not in a match. The last match stays shown until the next one starts.';
 /** A missing game window resets the match only after this long (a fullscreen toggle or a crash and rejoin keeps it). */
 export const GAME_GONE_MS = 15_000;
+/** A black game image is a loading screen or transition until it lasts this long; then the display mode is the likely cause. */
+export const BLANK_ADVICE_MS = 5_000;
+export const OCR_UNAVAILABLE_MESSAGE = process.platform === 'win32'
+  ? 'Windows OCR is unavailable. Install an English OCR language and choose Retry.'
+  : 'Tesseract OCR is unavailable. Install tesseract and tesseract-data-eng, then choose Retry.';
+/** The OCR engine reads another language: the English card names, labels and catalogue matching would all fail quietly. */
+export const OCR_NOT_ENGLISH_MESSAGE = process.platform === 'win32'
+  ? 'Windows text recognition has no English language. Add English (United States) in Settings > Time & language > Language & region, then choose Retry.'
+  : 'Tesseract has no English language data. Install tesseract-data-eng, then choose Retry.';
+/** The helper could not be started at all: deleted, quarantined by antivirus or blocked by Smart App Control. */
+export const HELPER_BLOCKED_MESSAGE = process.platform === 'win32'
+  ? 'The screen reader (ScreenReader.exe) is missing or was blocked, often by antivirus or Smart App Control. Extract the whole zip again, allow the file, then choose Retry.'
+  : 'The screen reader could not be started (missing or not executable). Reinstall the companion, then choose Retry.';
+const OCR_PREPARE_FAILED_MESSAGE = process.platform === 'win32'
+  ? 'Windows OCR could not be prepared. Choose Retry after checking installed OCR languages.'
+  : 'Tesseract OCR could not be prepared. Choose Retry after checking that tesseract and tesseract-data-eng are installed.';
 
 /**
  * The death screen: the HUD belongs to the teammate being watched. The native reader's spectator
@@ -104,6 +126,10 @@ export interface ScreenReaderOptions {
   onTrace?: (entry: ScreenReaderTrace) => void;
   /** Receives an occasional PNG of a draft read so misreads can be replayed offline. */
   onDraftFrame?: (png: string, entry: ScreenReaderTrace) => void;
+  /** False while screenshots are not wanted, so the helper is not asked to encode them. Default: always. */
+  wantsFrames?: () => boolean;
+  /** The most active items the player wants to own (0-4; 4 or unset = no limit), read at each evaluation so a change applies at once. */
+  maxActiveItems?: () => number;
 }
 export interface NormalizedNativeReply extends NativeReadResult { synthetic: boolean; unchanged: boolean }
 
@@ -238,11 +264,14 @@ export function normalizeNativeReply(input: unknown, requestedCrop: CaptureRegio
     if (!Array.isArray(data.icons) || data.icons.length > 32) throw new TypeError('Too many screen-reader icons.');
     icons = data.icons.map(value => {
       const icon = object(value);
-      if (icon.role !== undefined && icon.role !== 'bonus') throw new TypeError('Invalid icon role.');
-      if (icon.slot !== undefined && icon.slot !== 0 && icon.slot !== 1) throw new TypeError('Invalid icon slot.');
+      if (icon.role !== undefined && icon.role !== 'bonus' && icon.role !== 'card') throw new TypeError('Invalid icon role.');
+      // A card's Bonus! slots are 0 and 1; the cards themselves are 0 to 2, left to right.
+      if (icon.slot !== undefined && icon.slot !== 0 && icon.slot !== 1 && !(icon.slot === 2 && icon.role === 'card')) throw new TypeError('Invalid icon slot.');
+      if (icon.enhanced !== undefined && typeof icon.enhanced !== 'boolean') throw new TypeError('Invalid icon detail.');
       return { itemId: text(icon.itemId, 128), confidence: number(icon.confidence, 0, 1), bounds: nativeRegion(icon.bounds),
-        ...(icon.role === 'bonus' ? { role: 'bonus' as const } : {}),
-        ...(icon.slot === 0 || icon.slot === 1 ? { slot: icon.slot } : {}) };
+        ...(icon.role === 'bonus' || icon.role === 'card' ? { role: icon.role } : {}),
+        ...(icon.slot === 0 || icon.slot === 1 || icon.slot === 2 ? { slot: icon.slot } : {}),
+        ...(icon.role === 'card' && icon.enhanced === true ? { enhanced: true } : {}) };
     });
   }
   const metricsData = data.metrics === undefined || data.metrics === null ? null : object(data.metrics);
@@ -270,6 +299,8 @@ export function normalizeNativeReply(input: unknown, requestedCrop: CaptureRegio
     ocrLanguage: data.ocrLanguage === undefined || data.ocrLanguage === null ? null : text(data.ocrLanguage, 40),
     errorCode: data.errorCode === undefined || data.errorCode === null ? null : text(data.errorCode, 128), previewPng,
     synthetic: data.synthetic === undefined ? false : bool(data.synthetic), unchanged,
+    ...(data.draftLabel === undefined || data.draftLabel === null ? {} : { draftLabel: bool(data.draftLabel) }),
+    ...(data.draftWatch === undefined || data.draftWatch === null ? {} : { draftWatch: bool(data.draftWatch) }),
   };
 }
 
@@ -293,7 +324,7 @@ export function blocksForScreenParser(reply: NativeReadResult): NativeOcrBlock[]
 class ReaderFailure extends Error {
   constructor(readonly kind: 'timeout' | 'interrupted' | 'protocol' | 'process') { super(kind); }
 }
-type Operation = 'probe' | 'read' | 'fixture';
+type Operation = 'probe' | 'read' | 'fixture' | 'watch';
 interface PendingRequest {
   id: string; operation: Operation; crop: CaptureRegion; debug: boolean;
   startedAt: number; deadlineMs: number; timer: ReturnType<typeof setTimeout>;
@@ -347,6 +378,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
   let fullReadDue = false;
   let footerFallbackDue = false;
   let scoreboardReadDue = false;
+  /** The last cue read showed the Tab scoreboard: Tab is still held. */
+  let scoreboardHeld = false;
+  /** When the game image turned black (it does for a moment at every loading screen and match end). */
+  let blankSince: number | null = null;
   let lastFullContextAt = -Infinity;
   let nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
   let lastCardParse: ScreenOfferParseResult | null = null;
@@ -392,6 +427,16 @@ export function createScreenReader(options: ScreenReaderOptions) {
   let cueMisses = 0;
   let lastFrameCaptureAt = -Infinity;
   let lastSnapshotAt = -Infinity;
+  /** The draft-label watch (see draftWatchMs): when it may look next, and whether its last look asks for a read now. */
+  let nextWatchAt = 0;
+  let watchReadDue = false;
+  let watchFiredAt = -Infinity;
+  /** The helper said at warm-up that it can watch, and has not since answered that it cannot copy the label cheaply.
+   * Without it (an older helper, a scaled Linux monitor) reads go on as before. */
+  let watchSupported = false;
+  /** Helper CPU spent on watches since the last read, counted into that read's CPU sample. */
+  let watchCpuMs = 0;
+  let lastReadStartedAt = -Infinity;
   /** Decision notes for the current read; emitted once through onTrace. */
   let trace: ScreenReaderTrace | null = null;
   const note = (key: string, value: unknown) => { if (trace) trace[key] = value; };
@@ -421,19 +466,29 @@ export function createScreenReader(options: ScreenReaderOptions) {
     epoch++;
     contextEpochAnchor = epochNow(); contextWallAnchor = wallNow();
     draftHint = false; hintAt = null; lastHintStart = -Infinity; lastClientSize = null; fullReadDue = false; footerFallbackDue = false;
-    scoreboardReadDue = false; lastFullContextAt = -Infinity; cueMisses = 0;
+    scoreboardReadDue = false; scoreboardHeld = false; lastFullContextAt = -Infinity; cueMisses = 0; watchReadDue = false;
     nextContextDiscoveryAt = wallNow() + SCREEN_READER_LIMITS.contextDiscoverySpacingMs;
     if (contextExpiryTimer !== null) clearTimeout(contextExpiryTimer); contextExpiryTimer = null;
     // A retired acquisition epoch cannot hydrate a new match context.
     clearDecision(message, status, true, { matchContext: resetScreenMatchContext(state.matchContext), abilityAdvice: null });
   }
   function eligible() { return !disposed && state.enabled && !retryRequired && !pressurePaused && !workloadPressured && !terminationFailed; }
+  /** Watch for the draft label only while it would open a draft: in a match (or its loading screen, which round 1's
+   * draft follows), with the game readable, no draft or cards shown and no read already asked for. */
+  function watchArmed() {
+    if (!watchSupported || !state.engineReady || !state.gamePresent || !state.foreground && !backgroundReadable) return false;
+    if (previewPending || draftHint || fullReadDue || watchReadDue || state.status === 'ready') return false;
+    const phase = roster.snapshot().phase;
+    return phase === 'match' || phase === 'loading';
+  }
+  const watchDue = () => wallNow() >= nextWatchAt && watchArmed();
   function schedule() {
     clearTimer('loop');
     if (!loopStarted || !eligible() || stopping || inFlight) return;
+    const wakeAt = watchArmed() ? Math.min(nextRequestAt, nextWatchAt) : nextRequestAt;
     // Node truncates fractional delays. Round upward, and still tolerate an early
     // wake in pollOnce so a single timer cannot permanently end acquisition.
-    loopTimer = setTimeout(() => { loopTimer = null; void pollOnce(); }, Math.ceil(Math.max(0, nextRequestAt - wallNow())));
+    loopTimer = setTimeout(() => { loopTimer = null; void pollOnce(); }, Math.ceil(Math.max(0, wakeAt - wallNow())));
   }
   function rejectPending(kind: ReaderFailure['kind']) {
     if (!pending) return;
@@ -442,12 +497,23 @@ export function createScreenReader(options: ScreenReaderOptions) {
   function protocolFailure() { rejectPending('protocol'); void stopHelper(); }
   function launch(): Helper {
     if (helper || stopping || terminationFailed || !eligible()) throw new ReaderFailure('interrupted');
+    // Each helper says at warm-up whether it can watch.
+    watchSupported = false;
     const args = [...(options.iconDirectory ? ['--icons', options.iconDirectory] : []),
       ...(options.contextIconDirectory ? ['--context-icons', options.contextIconDirectory] : [])];
     // A 16 MB GC nursery halves the helper's peak memory (240 -> 136 MB private) at the same read speed;
     // .NET otherwise sizes it from the CPU cache, which is huge on X3D processors.
-    const process = spawnProcess(options.helperPath, args, { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...globalThis.process.env, DOTNET_GCgen0size: '0x1000000' } });
+    let process: ScreenReaderProcess;
+    try {
+      process = spawnProcess(options.helperPath, args, { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'],
+        env: { ...globalThis.process.env, DOTNET_GCgen0size: '0x1000000' } });
+    } catch {
+      // Some Windows refusals (a blocked or invalid executable) throw here instead of emitting 'error'; Retry is the way out.
+      retryRequired = true; fence(HELPER_BLOCKED_MESSAGE, 'unavailable');
+      throw new ReaderFailure('process');
+    }
+    // Set when the OS could not start the helper at all (ENOENT, EACCES, EPERM ...), which no automatic restart fixes.
+    let spawnFailed = false;
     let resolveExit!: () => void;
     const current: Helper = { process, exit: new Promise<void>(resolve => { resolveExit = resolve; }),
       resolveExit: () => resolveExit(), exited: false, buffer: '', bufferedBytes: 0, decoder: new StringDecoder('utf8') };
@@ -462,13 +528,15 @@ export function createScreenReader(options: ScreenReaderOptions) {
           rejectPending('process'); terminationFailed = false; void retry();
         } else if (!stopping && !disposed) {
           rejectPending('process'); retryRequired = true;
-          fence('The screen-reader process stopped. Choose Retry to start it again.', 'unavailable');
+          fence(spawnFailed ? HELPER_BLOCKED_MESSAGE : 'The screen-reader process stopped. Choose Retry to start it again.', 'unavailable');
         }
       }
     };
     process.once('exit', onExit);
     process.once('close', onExit);
-    process.once('error', () => {
+    // Not `once`: a failed spawn can be followed by a failed kill, and an 'error' without a listener is an uncaught exception.
+    process.on('error', (error: NodeJS.ErrnoException) => {
+      if (error?.syscall?.startsWith('spawn')) spawnFailed = true;
       rejectPending('process');
       // A failed spawn has no OS process to wait for. A running child still needs termination.
       if (process.exitCode !== null) onExit();
@@ -553,7 +621,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
     const current = helper ?? launch();
     const id = `screen-${epoch}-${++requestId}`;
     const deadlineMs = operation === 'fixture' ? SCREEN_READER_LIMITS.startupTimeoutMs
-      : operation === 'probe' ? SCREEN_READER_LIMITS.probeTimeoutMs : SCREEN_READER_LIMITS.readTimeoutMs;
+      : operation === 'probe' || operation === 'watch' ? SCREEN_READER_LIMITS.probeTimeoutMs : SCREEN_READER_LIMITS.readTimeoutMs;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { rejectPending('timeout'); void stopHelper(); }, deadlineMs);
       pending = { id, operation, crop, debug, startedAt: wallNow(), deadlineMs, timer, resolve, reject };
@@ -568,9 +636,11 @@ export function createScreenReader(options: ScreenReaderOptions) {
     const finishedAt = wallNow();
     const elapsed = Math.max(0, finishedAt - startedAt, reply.elapsedMs);
     const measuredCpu = reply.metrics?.cpuMs;
+    if (operation === 'read') lastReadStartedAt = startedAt;
     if (measuredCpu !== undefined) {
       const wallMs = Math.max(1, elapsed, lastCpuAt === null ? elapsed : finishedAt - lastCpuAt);
-      lastCpuAt = finishedAt; cpuSamples.push({ cpuMs: measuredCpu, wallMs });
+      // The watches since the last sample ran inside this sample's wall time.
+      lastCpuAt = finishedAt; cpuSamples.push({ cpuMs: measuredCpu + watchCpuMs, wallMs }); watchCpuMs = 0;
       if (cpuSamples.length > 8) cpuSamples.shift();
     }
     const oneCoreCpuPercent = cpuSamples.length ? 100 * cpuSamples.reduce((sum, sample) => sum + sample.cpuMs, 0)
@@ -622,6 +692,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
       rerolls: rerolls.count ?? parsed.rerolls ?? context.rerollsRemaining, choice: rerolls.stage === null ? null : Number(rerolls.stage),
       enemyHeroIds: known.enemies,
       ownedItemIds: build.snapshot().myItems, enemyItemIds: enemyItems(), matchContext: context, now: contextNow(),
+      maxActiveItems: options.maxActiveItems?.(),
+      // The pick already shown for these cards stays unless another card clearly beats it.
+      shownPick: state.status === 'ready' && state.advice ? { offers: state.offers, position: state.advice.preferredPosition } : null,
     });
   }
   function currentCardAdvice(context = state.matchContext) {
@@ -630,12 +703,19 @@ export function createScreenReader(options: ScreenReaderOptions) {
       || epochNow() - state.observedAt >= (state.gamePresent && !state.foreground && !backgroundReadable ? cardHoldMs(state) : SCREEN_READER_LIMITS.cardHoldMs)) return null;
     return adviceFor(lastCardParse, context);
   }
+  /** Re-advises the cards on screen, for a changed preference (the next read would do it anyway). */
+  function refreshAdvice() {
+    const advice = state.status === 'ready' && state.offers.length ? currentCardAdvice() : null;
+    if (advice) publish({ advice });
+  }
   function trackRerolls(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply, cardsChanged: boolean) {
     const stage = reply.blocks.map(block => block.text.match(/choice\s*(\d)\s*(?:of|\/)\s*3/i)?.[1]).find(Boolean) ?? null;
     // The match state's round (checked and inferred across frames), not this frame's raw title (a "ROUND 13" misread).
     const round = state.matchContext.round ?? parsed.round;
     if (round !== null && rerolls.round !== null && round !== rerolls.round) { rerolls.count = null; rerolls.stage = null; }
     if (round !== null) rerolls.round = round;
+    // "Choice 1" after choice 2 or 3 is the next round's draft even when the round itself was not read.
+    if (stage !== null && rerolls.stage !== null && Number(stage) < Number(rerolls.stage)) rerolls.count = null;
     if (parsed.rerolls !== null) rerolls.count = parsed.rerolls;
     // New cards while the same choice is still open means a reroll was spent.
     else if (cardsChanged && stage !== null && stage === rerolls.stage && rerolls.count !== null && rerolls.count > 0) rerolls.count--;
@@ -765,7 +845,11 @@ export function createScreenReader(options: ScreenReaderOptions) {
       && offers.every(offer => [0, 1, 2].includes(offer.position)) && ids.length >= 1
       // The same item on two cards is a half-drawn reveal/reroll animation, not a real set.
       && new Set(ids).size === ids.length;
-    note('parse', { isDraft: parsed.isDraft, message: parsed.message, offers: offers.map(offer => offer.name), readable });
+    note('parse', { isDraft: parsed.isDraft, message: parsed.message, offers: offers.map(offer => offer.name), readable,
+      ...(offers.some(offer => offer.byIcon) ? { byIcon: offers.map(offer => offer.byIcon === true) } : {}),
+      // Modifier, Rare! and Bonus! reads change a card's score: logged so a changed pick can be traced to them.
+      ...(offers.some(offer => offer.itemId && (offer.variant !== 'base' || offer.rare || offer.bonusExpected || offer.bonusIds?.length))
+        ? { details: offers.map(offer => `${offer.variant}${offer.rare ? '+rare' : ''}${offer.bonusExpected || offer.bonusIds?.length ? `+bonus:${offer.bonusIds === null ? '?' : offer.bonusIds.join(',')}` : ''}`) } : {}) });
     if (!readable) {
       // One unreadable frame inside an open draft is not a new draft: keep the shown cards.
       if (shown && parsed.isDraft) { note('decision', 'kept shown cards through unreadable frame'); return; }
@@ -831,7 +915,8 @@ export function createScreenReader(options: ScreenReaderOptions) {
     if (choiceSet && choiceSet.stage === currentStage) { choiceSet.ids = ids; choiceSet.byPosition = byPosition; choiceSet.round = context.round; }
     else choiceSet = { stage: currentStage, round: context.round, ids, byPosition, credited: false };
     closingSet = null;
-    note('advice', advice ? { preferred: advice.preferredPosition, title: advice.title, reroll: advice.rerollReason, choice: rerolls.stage } : null);
+    note('advice', advice ? { preferred: advice.preferredPosition, title: advice.title, reroll: advice.rerollReason, choice: rerolls.stage,
+      scores: advice.ranked.map(entry => [entry.position, entry.score]) } : null);
     const unread = parsed.offers.filter(offer => !offer.itemId).length;
     publish({ generation, status: 'ready', message: unread === 0 ? 'Item choices read from the game screen.'
       : unread === 1 && parsed.offers.some(offer => offer.name === 'Ambiguous item name' || offer.warning === 'The main item name was not recognized.')
@@ -850,9 +935,12 @@ export function createScreenReader(options: ScreenReaderOptions) {
     if (!set || set.credited || set.byPosition.filter(Boolean).length < 3) return;
     const crop = reply.crop ?? { ...DEFAULT_CAPTURE_REGION };
     const aspect = reply.clientWidth / Math.max(1, reply.clientHeight);
-    const inPlace = new Set(namedItemCenters(blocks, options.catalog, set.ids)
+    // In its place by its name, or by its icon (the reader's card matches: the name is often unread while the card leaves).
+    const inPlace = new Set([...namedItemCenters(blocks, options.catalog, set.ids)
       .filter(entry => { const slot = cardSlotAt(crop.x + entry.x * crop.width, aspect); return slot !== null && set.byPosition[slot] === entry.itemId; })
-      .map(entry => entry.itemId));
+      .map(entry => entry.itemId),
+    ...(reply.icons ?? []).filter(icon => icon.role === 'card' && icon.slot !== undefined && !!icon.itemId && set.byPosition[icon.slot] === icon.itemId)
+      .map(icon => icon.itemId)]);
     if (inPlace.size !== 1) { if (inPlace.size > 1) lingerCandidate = null; return; }
     const itemId = [...inPlace][0]!;
     lingerCandidate = lingerCandidate && lingerCandidate.set === set && lingerCandidate.itemId === itemId
@@ -872,14 +960,17 @@ export function createScreenReader(options: ScreenReaderOptions) {
     publish({ gamePresent: reply.gamePresent, foreground: reply.foreground, ...(boundsChanged ? { gameBounds: bounds } : {}) });
     if (!reply.gamePresent) {
       absentSince ??= wallNow();
-      if (wallNow() - absentSince >= GAME_GONE_MS) {
+      const gone = wallNow() - absentSince >= GAME_GONE_MS;
+      if (gone) {
         roster.reset(); build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null;
         forgetChoices();
-        if (state.roster || state.build) publish({ roster: null, rerollsLeft: null, build: null, abilityPlan: null, insights: null, abilityPoints: null });
+        if (state.roster || state.build || state.rerollsLeft != null) publish({ roster: null, rerollsLeft: null, build: null, abilityPlan: null, insights: null, abilityPoints: null });
         lastInsightsKey = null;
       }
       draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; backgroundReadable = false;
-      if (state.matchContext.sessionId !== null) fence('Waiting for Deadlock.', 'waiting-game');
+      // A single missed probe (a compositor hiccup, a mode switch) keeps the match's round, score and draft
+      // stage, like the roster and build: they are only dropped once the game has really gone.
+      if (gone && state.matchContext.sessionId !== null) fence('Waiting for Deadlock.', 'waiting-game');
       else clearDecision('Waiting for Deadlock.', 'waiting-game');
       publish({ abilityAdvice: null });
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
@@ -902,15 +993,18 @@ export function createScreenReader(options: ScreenReaderOptions) {
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
       return;
     }
+    if (reply.status === 'blank_capture') blankSince ??= wallNow(); else blankSince = null;
     if (reply.status !== 'ok' && reply.status !== 'unchanged') {
       draftHint = false; hintAt = null; fullReadDue = false;
       const unavailable = reply.status === 'ocr_unavailable' || reply.status === 'invalid_request';
       if (unavailable) retryRequired = true;
       publish({ abilityAdvice: null });
       if (cardsShown && !unavailable) { note('decision', `capture ${reply.status}; kept shown cards`); nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs); return; }
-      clearDecision(unavailable ? 'Windows OCR is unavailable. Install an English OCR language and choose Retry.'
+      clearDecision(unavailable ? OCR_UNAVAILABLE_MESSAGE
         : reply.status === 'occluded' ? 'Another window is covering Deadlock. Move it off the game screen (click-through overlays are fine).'
-        : reply.status === 'blank_capture' ? 'The game image is black. Switch Deadlock to borderless windowed mode.'
+        // Real 2026-11-01 matches: one or two black frames at each match start and end, which the advice did not fit.
+        : reply.status === 'blank_capture' ? wallNow() - blankSince! < BLANK_ADVICE_MS ? 'The game image is black (a loading screen or a transition).'
+          : 'The game image is black. Switch Deadlock to borderless windowed mode.'
         : 'The game image is unavailable. Keep the game visible in borderless or windowed mode.', unavailable ? 'unavailable' : 'interrupted');
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.phaseSpacingMs);
       return;
@@ -947,9 +1041,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
     // build and reroll count belong to the previous match.
     if (known.epoch !== epochBefore) {
       build.reset(); rerolls.count = null; rerolls.stage = null; rerolls.round = null;
+      if (state.rerollsLeft != null) publish({ rerollsLeft: null });
       forgetChoices();
       // The old match's round, score and draft stage too (keeping the reader session: this frame is the new match's).
-      const forgotten = forgetMatchRound(state.matchContext);
+      const forgotten = forgetMatchRound(state.matchContext, known.phase === 'loading');
       if (forgotten !== state.matchContext) publish({ matchContext: forgotten });
     }
     const frameAt = reply.capturedAt ?? epochNow();
@@ -989,15 +1084,20 @@ export function createScreenReader(options: ScreenReaderOptions) {
       publish({ insights: matchInsights(known.localHeroId, insightEnemies, buildView.myItems) });
     }
     const unspent = reply.context?.abilityPoints?.value;
-    if (!outside && typeof unspent === 'number' && Number.isInteger(unspent) && unspent >= 0 && unspent <= 40 && reply.capturedAt !== null
-      && (state.abilityPoints?.value !== unspent || reply.capturedAt - state.abilityPoints.at > 15_000)) {
-      publish({ abilityPoints: { value: unspent, at: reply.capturedAt } });
+    if (!outside && typeof unspent === 'number' && Number.isInteger(unspent) && unspent >= 0 && unspent <= 40 && reply.capturedAt !== null) {
+      const standing = state.abilityPoints;
+      const same = !!standing && standing.value === unspent && reply.capturedAt - standing.at <= 15_000;
+      // `at` is when this amount was stamped (again every 15 s). `seenAt` follows each read of unspent points, so the
+      // overlay's nudge never rests on a counter that stopped being read, and the overlay is re-checked while it shows.
+      if (!same || unspent > 0 && reply.capturedAt - (standing.seenAt ?? 0) > 2_000) {
+        publish({ abilityPoints: { value: unspent, at: same ? standing.at : reply.capturedAt, seenAt: reply.capturedAt } });
+      }
     }
     note('draftCue', currentDraftCue);
     if (outside) {
       // Between matches there are no cards to read: look less often (a new match announces itself with its
       // loading screen, read on the next look) and say so once.
-      draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; scoreboardReadDue = false;
+      draftHint = false; hintAt = null; fullReadDue = false; panelReadDue = false; scoreboardReadDue = false; scoreboardHeld = false;
       nextRequestAt = Math.max(nextRequestAt, wallNow() + SCREEN_READER_LIMITS.outsideReadSpacingMs);
       if (state.message !== OUTSIDE_MESSAGE || state.offers.length) clearDecision(OUTSIDE_MESSAGE, 'waiting-draft');
       return;
@@ -1026,7 +1126,12 @@ export function createScreenReader(options: ScreenReaderOptions) {
       // Street Brawl's scoreboard shows a KILLS label between the teams while Tab is held.
       const killsLabel = reply.blocks.some(block => /^kills$/i.test(block.text.trim()) && !!block.bounds && block.bounds.y < 0.25 && block.bounds.x > 0.4 && block.bounds.x < 0.6);
       scoreboardReadDue = !draftHint && (killsLabel || reply.context?.panel === 'scoreboard' || detectScoreboardHint(reply.blocks, reply.crop));
-      if (scoreboardReadDue) nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
+      // Tab is often held for only a second or two (real 2026-11-01 matches: 40 of 121 scoreboard reads waited a
+      // full second and caught the plain HUD): the first cue of a hold is read at the draft pace, later ones as before.
+      const tabPressed = scoreboardReadDue && !scoreboardHeld;
+      if (tabPressed) nextRequestAt = Math.min(nextRequestAt, Math.max(wallNow() + 50, draftPaceAt));
+      else if (scoreboardReadDue) nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
+      scoreboardHeld = scoreboardReadDue;
       if (!draftHint) {
         cueMisses++;
         // The title can be hidden for a frame by effects; a draft only closes after repeated
@@ -1038,7 +1143,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
           rerolls.stage = null;
           clearDecision('Waiting for the item-choice screen.', 'waiting-draft');
         } else note('decision', 'draft cue missed once; kept shown cards');
-        nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
+        if (!tabPressed) nextRequestAt = Math.max(nextRequestAt, lastHintStart + SCREEN_READER_LIMITS.phaseSpacingMs);
         return;
       }
       // Small cue strips supply no cards. A full discovery/scoreboard frame can
@@ -1062,6 +1167,8 @@ export function createScreenReader(options: ScreenReaderOptions) {
       x: (icon.bounds.x - reply.crop!.x) / reply.crop!.width, y: (icon.bounds.y - reply.crop!.y) / reply.crop!.height,
       width: icon.bounds.width / reply.crop!.width, height: icon.bounds.height / reply.crop!.height,
     } }));
+    // For match audits: the cards the reader identified by their icons, left to right (null: no confident match).
+    if (icons?.some(icon => icon.role === 'card')) note('cardIcons', [0, 1, 2].map(slot => icons.find(icon => icon.role === 'card' && icon.slot === slot)?.itemId ?? null));
     // Owned items predict which cards carry a "Bonus!" item (an upgrade of something you own).
     let parsed = parseScreenOffers(parserBlocks, options.catalog, { draftConfirmed: true, iconMatches: icons, conservativeUnmarkedDetails: true,
       aspect: reply.clientWidth / Math.max(1, reply.clientHeight), ...(reply.crop ? { crop: reply.crop } : {}),
@@ -1085,8 +1192,32 @@ export function createScreenReader(options: ScreenReaderOptions) {
     acceptParsed(parsed, reply, stage);
   }
 
+  /** One pixel-only look for the draft label between reads. A sighting asks for a whole-window read at once: that read's
+   * OCR'd labels open the draft as any cue read does, and it already holds the cards. */
+  async function watchOnce() {
+    const contextEpoch = epoch;
+    nextWatchAt = wallNow() + SCREEN_READER_LIMITS.draftWatchMs;
+    const startedAt = wallNow();
+    try {
+      const reply = await request('watch', hintCrop);
+      if (contextEpoch !== epoch || !eligible() || stopping) return;
+      watchCpuMs += reply.metrics?.cpuMs ?? 0;
+      // A helper that cannot copy the label box cheaply here answers without a verdict.
+      if (reply.status === 'invalid_request' || reply.status === 'ok' && reply.draftLabel === undefined) { watchSupported = false; return; }
+      if (reply.status !== 'ok' || reply.draftLabel !== true || !fresh(reply) || !watchArmed()) return;
+      watchReadDue = true; watchFiredAt = wallNow();
+      // Only the shortest draft spacing after the last read's start: the duty-share pause is what this skips.
+      nextRequestAt = Math.min(nextRequestAt, Math.max(wallNow(), lastReadStartedAt + SCREEN_READER_LIMITS.draftReadSpacingMs));
+      if (options.onTrace) {
+        try { options.onTrace({ at: new Date(epochNow()).toISOString(), op: 'watch', draftLabel: true, nativeMs: reply.elapsedMs, wallMs: Math.round(wallNow() - startedAt) }); }
+        catch { /* Diagnostics never break reading. */ }
+      }
+    } catch (error) { await readFailed(error, contextEpoch); }
+  }
+
   async function cycle() {
-    if (!eligible() || stopping || pending || wallNow() < nextRequestAt) return;
+    if (!eligible() || stopping || pending) return;
+    if (wallNow() < nextRequestAt) { if (watchDue()) await watchOnce(); return; }
     const contextEpoch = epoch;
     let operation: Operation;
     let crop: CaptureRegion;
@@ -1095,12 +1226,18 @@ export function createScreenReader(options: ScreenReaderOptions) {
     let debug = false;
     let scoreboardRead = false;
     let panelRead = false;
+    let watchRead = false;
     if (!state.engineReady) { operation = 'fixture'; crop = { ...DEFAULT_CAPTURE_REGION }; }
     else if (!state.gamePresent || !state.foreground && !backgroundReadable) { operation = 'probe'; crop = hintCrop; }
     else if (previewPending) { operation = 'read'; crop = state.crop; debug = true; }
     // A slower title read may consume its hint lifetime through cooldown. Hand
     // off one full capture before scoreboard work; its current cue is rechecked.
     else if (fullReadDue) { operation = 'read'; crop = draftCaptureRegion(state.crop); fullReadDue = false; }
+    // The watch saw the draft label: read the whole window as a cue read, which also reads the cards.
+    else if (watchReadDue) {
+      operation = 'read'; crop = { ...MATCH_CONTEXT_REGION }; watchReadDue = false;
+      isHint = true; isFooter = true; lastHintStart = wallNow(); watchRead = true;
+    }
     else if (scoreboardReadDue) {
       operation = 'read'; crop = { ...MATCH_CONTEXT_REGION }; scoreboardReadDue = false;
       isHint = true; isFooter = true; lastHintStart = wallNow(); scoreboardRead = true;
@@ -1130,17 +1267,20 @@ export function createScreenReader(options: ScreenReaderOptions) {
     // Draft card reads and full scoreboard (Tab) reads are the frames worth replaying.
     // None between matches (2026-10-18: post-match and hideout screens filled the frames folder).
     const inMatch = draftHint || roster.snapshot().phase !== 'outside';
-    let captureFrame = !!options.onDraftFrame && operation === 'read' && !debug && inMatch
+    const framesWanted = !!options.onDraftFrame && (options.wantsFrames?.() ?? true);
+    let captureFrame = framesWanted && operation === 'read' && !debug && inMatch
       && (draftHint && !isHint && wallNow() - draftSeenAt >= SCREEN_READER_LIMITS.draftFrameQuietMs || scoreboardRead)
       && wallNow() - lastFrameCaptureAt >= SCREEN_READER_LIMITS.frameCaptureSpacingMs;
     // Also keep an occasional whole-window image so HUD, hero and item recognition can be checked offline.
-    const snapshot = !captureFrame && !!options.onDraftFrame && operation === 'read' && !debug && isHint && inMatch
+    // Never on the watch's read: encoding a screenshot would delay the first cards.
+    const snapshot = !captureFrame && framesWanted && operation === 'read' && !debug && isHint && !watchRead && inMatch
       && wallNow() - lastSnapshotAt >= SCREEN_READER_LIMITS.snapshotSpacingMs;
     if (snapshot) { crop = { ...MATCH_CONTEXT_REGION }; isFooter = true; captureFrame = true; lastSnapshotAt = wallNow(); }
     // Saved images are whole-window so they replay with true screen positions.
     if (captureFrame) { lastFrameCaptureAt = wallNow(); crop = { ...MATCH_CONTEXT_REGION }; }
     trace = { at: new Date(epochNow()).toISOString(), op: operation, crop, hint: isHint, footer: isFooter, draftHint, scoreboard: scoreboardRead,
-      ...(panelRead ? { panelRead: true } : {}), frame: captureFrame, round: state.matchContext.round };
+      ...(panelRead ? { panelRead: true } : {}), ...(watchRead ? { watchMs: Math.round(wallNow() - watchFiredAt) } : {}),
+      frame: captureFrame, round: state.matchContext.round };
     try {
       const reply = await request(operation, crop, debug || captureFrame);
       if (contextEpoch !== epoch || !eligible() || stopping) return;
@@ -1168,35 +1308,43 @@ export function createScreenReader(options: ScreenReaderOptions) {
       if (operation === 'fixture') {
         // Warm the OS engine with helper-generated text only. It is never game evidence.
         if (!reply.synthetic || (reply.status !== 'ok' && reply.status !== 'unchanged') || reply.ocrAvailable !== true) {
-          retryRequired = true; clearDecision('Windows OCR could not be prepared. Choose Retry after checking installed OCR languages.', 'unavailable');
+          retryRequired = true; clearDecision(OCR_PREPARE_FAILED_MESSAGE, 'unavailable');
           await stopHelper(); return;
         }
+        if (reply.ocrLanguage && !/^en/i.test(reply.ocrLanguage)) {
+          retryRequired = true; clearDecision(OCR_NOT_ENGLISH_MESSAGE, 'unavailable');
+          await stopHelper(); return;
+        }
+        watchSupported = reply.draftWatch === true;
         publish({ engineReady: true, status: 'waiting-game', message: 'Waiting for Deadlock.' });
         return;
       }
       applyGameReply(reply, operation, isHint, debug, isFooter);
+      // The label was there but the read found no draft (a closing draft, or a magenta scene): rest the watch.
+      if (watchRead && !draftHint) { nextWatchAt = Math.max(nextWatchAt, wallNow() + SCREEN_READER_LIMITS.draftWatchBackoffMs); note('watchMiss', true); }
       if (captureFrame && reply.previewPng && reply.status !== 'not_foreground') {
         try { options.onDraftFrame!(reply.previewPng, { ...trace }); } catch { /* Diagnostics never break reading. */ }
       }
       emitTrace();
-    } catch (error) {
-      if (trace) { trace.error = error instanceof ReaderFailure ? error.kind : String(error); emitTrace(); }
-      if (contextEpoch !== epoch || disposed || !state.enabled) return;
-      if (!(error instanceof ReaderFailure) || error.kind !== 'interrupted') {
-        const timeout = error instanceof ReaderFailure && error.kind === 'timeout';
-        if (timeout) {
-          timeoutsSinceRetry++;
-          publish({ metrics: { ...state.metrics, timeouts: state.metrics.timeouts + 1 } });
-          retryRequired = timeoutsSinceRetry >= SCREEN_READER_LIMITS.maxTimeoutsBeforeRetry;
-        } else retryRequired = true;
-        // A single slow read restarts the helper but keeps the observed match and cards.
-        if (timeout && !retryRequired) publish({ message: 'A screen read was slow; the reader is restarting.' });
-        else fence(timeout ? 'Screen reading paused after repeated timeouts. Choose Retry to try again.'
-          : 'The screen reader returned an invalid response or stopped. Choose Retry.', timeout ? 'paused' : 'unavailable');
-        await stopHelper();
-        // Restart promptly so cards kept through one slow read can be confirmed again.
-        nextRequestAt = Math.max(nextRequestAt, wallNow() + 1_000);
-      }
+    } catch (error) { await readFailed(error, contextEpoch); }
+  }
+  async function readFailed(error: unknown, contextEpoch: number) {
+    if (trace) { trace.error = error instanceof ReaderFailure ? error.kind : String(error); emitTrace(); }
+    if (contextEpoch !== epoch || disposed || !state.enabled) return;
+    if (!(error instanceof ReaderFailure) || error.kind !== 'interrupted') {
+      const timeout = error instanceof ReaderFailure && error.kind === 'timeout';
+      if (timeout) {
+        timeoutsSinceRetry++;
+        publish({ metrics: { ...state.metrics, timeouts: state.metrics.timeouts + 1 } });
+        retryRequired = timeoutsSinceRetry >= SCREEN_READER_LIMITS.maxTimeoutsBeforeRetry;
+      } else retryRequired = true;
+      // A single slow read restarts the helper but keeps the observed match and cards.
+      if (timeout && !retryRequired) publish({ message: 'A screen read was slow; the reader is restarting.' });
+      else fence(timeout ? 'Screen reading paused after repeated timeouts. Choose Retry to try again.'
+        : 'The screen reader returned an invalid response or stopped. Choose Retry.', timeout ? 'paused' : 'unavailable');
+      await stopHelper();
+      // Restart promptly so cards kept through one slow read can be confirmed again.
+      nextRequestAt = Math.max(nextRequestAt, wallNow() + 1_000);
     }
   }
   function emitTrace() {
@@ -1208,7 +1356,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
   }
   function pollOnce(): Promise<void> {
     if (inFlight || stopping || !eligible()) return Promise.resolve();
-    if (wallNow() < nextRequestAt) { schedule(); return Promise.resolve(); }
+    if (wallNow() < nextRequestAt && !watchDue()) { schedule(); return Promise.resolve(); }
     const dispatchedEpoch = epoch;
     const work = Promise.resolve().then(() => { if (dispatchedEpoch === epoch && eligible() && !stopping) return cycle(); });
     inFlight = work.finally(() => { inFlight = null; schedule(); });
@@ -1280,7 +1428,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
   }
   if (loopStarted && state.enabled) schedule();
   return {
-    getState: snapshot, setEnabled, setCrop, retry, preview, pollOnce, setWorkloadPressure, stop, dispose,
+    getState: snapshot, refreshAdvice, setEnabled, setCrop, retry, preview, pollOnce, setWorkloadPressure, stop, dispose,
     subscribe(listener: (value: ScreenReaderState) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
   };
 }

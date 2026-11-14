@@ -4,7 +4,8 @@ import { availableParallelism } from 'node:os';
 import publicCatalog from '../data/public-catalog.json';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  blocksForScreenParser, createScreenReader, draftCaptureRegion, DRAFT_FOOTER_REGION, DRAFT_HINT_REGION, MATCH_CONTEXT_REGION, normalizeNativeReply, OUTSIDE_MESSAGE, SCREEN_READER_LIMITS,
+  blocksForScreenParser, createScreenReader, draftCaptureRegion, DRAFT_FOOTER_REGION, DRAFT_HINT_REGION, HELPER_BLOCKED_MESSAGE, MATCH_CONTEXT_REGION, normalizeNativeReply,
+  OCR_NOT_ENGLISH_MESSAGE, OUTSIDE_MESSAGE, SCREEN_READER_LIMITS,
   type ScreenReaderOptions, type ScreenReaderProcess,
 } from '../electron/screen-reader';
 import { DEFAULT_CAPTURE_REGION, SCREEN_CARD_BACKGROUND_HOLD_MS, type CaptureRegion, type NativeScreenContext } from '../src/shared/screen-reading';
@@ -220,7 +221,7 @@ describe('bounded real-reader lifecycle', () => {
     work.behavior((request, process) => process.send(request, { blocks: [], context: { sessionId: 'test-window', panel: 'scoreboard',
       viewMode: 'unknown', heroes: [], items: [], abilities: [], regions: [] } }));
     await work.step(); expect(work.process.requests.at(-1)).toMatchObject({ context: true, crop: DRAFT_HINT_REGION });
-    const count = work.process.requests.length; await work.step(500); expect(work.process.requests).toHaveLength(count);
+    // Tab was just pressed: the whole-window read follows at the draft pace.
     await work.step(500); expect(work.process.requests.at(-1)).toMatchObject({ context: true, crop: MATCH_CONTEXT_REGION });
     expect(work.spawnProcess).toHaveBeenCalledOnce();
   });
@@ -880,6 +881,26 @@ describe('actual cancellation, timeout and workload barriers', () => {
     expect(work.reader.getState().status).toBe('unavailable'); expect(work.process.kill).toHaveBeenCalledOnce();
     expect(log).not.toHaveBeenCalled(); expect(error).not.toHaveBeenCalled(); log.mockRestore(); error.mockRestore();
   });
+  it('asks for English text recognition when the OCR engine reads another language', async () => {
+    const work = fixture();
+    work.behavior((request, process) => process.send(request, { blocks: [], gamePresent: false, foreground: false, ocrLanguage: 'de-DE' }));
+    await work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(10);
+    expect(work.reader.getState()).toMatchObject({ status: 'unavailable', message: OCR_NOT_ENGLISH_MESSAGE, engineReady: false });
+    await work.reader.pollOnce(); expect(work.spawnProcess).toHaveBeenCalledOnce();
+  });
+  it('says the helper is missing or blocked when the OS cannot start it, instead of offering a plain restart', async () => {
+    const work = fixture(); work.behavior(() => {});
+    const read = work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(0);
+    const failure = Object.assign(new Error('spawn ScreenReader.exe ENOENT'), { code: 'ENOENT', syscall: 'spawn ScreenReader.exe' });
+    work.process.exitCode = -4058; work.process.emit('error', failure); work.process.emit('close', -4058, null);
+    await read;
+    expect(work.reader.getState()).toMatchObject({ status: 'unavailable', message: HELPER_BLOCKED_MESSAGE });
+  });
+  it('reports a helper that cannot even be spawned', async () => {
+    const work = fixture({ spawnProcess: () => { throw Object.assign(new Error('blocked'), { code: 'UNKNOWN' }); } });
+    await work.reader.pollOnce();
+    expect(work.reader.getState()).toMatchObject({ status: 'unavailable', message: HELPER_BLOCKED_MESSAGE });
+  });
   it('handles a broken helper input pipe without an uncaught EPIPE or process reuse', async () => {
     const work = fixture(); work.behavior((_request, process) => process.stdin.emit('error', new Error('synthetic-EPIPE')));
     await work.reader.pollOnce();
@@ -902,6 +923,30 @@ describe('Street Brawl Tab scoreboard', () => {
     const tabRead = reads.findIndex(request => JSON.stringify(request.crop) === JSON.stringify(DRAFT_HINT_REGION));
     expect(tabRead).toBeGreaterThan(-1);
     expect(reads.slice(tabRead + 1).some(request => JSON.stringify(request.crop) === JSON.stringify(MATCH_CONTEXT_REGION))).toBe(true);
+  });
+  it('reads the scoreboard at the draft pace when Tab is first seen, before a short hold ends (2026-11-01 matches)', async () => {
+    // In a match (the round title is on screen) and not dead.
+    const work = fixture(); await work.warm();
+    const sent: { crop: string; at: number; tab: boolean }[] = []; let tab = false;
+    const kills = { text: 'KILLS', bounds: { x: 0.49, y: 0.155, width: 0.02, height: 0.01 }, words: [{ text: 'KILLS', bounds: { x: 0.49, y: 0.155, width: 0.02, height: 0.01 } }] };
+    work.behavior((request, process) => {
+      if (request.op === 'fixture') process.send(request, { blocks: [], gamePresent: false, foreground: false });
+      else if (request.op === 'probe') process.send(request);
+      else { sent.push({ crop: JSON.stringify(request.crop), at: Date.now(), tab }); process.send(request, { blocks: [block('ROUND 3', .45, .08, .1, .025, request.crop), ...(tab ? [kills] : [])] }); }
+    });
+    for (let step = 0; step < 40; step++) await work.step(50);
+    tab = true;
+    for (let step = 0; step < 80; step++) await work.step(50);
+    const cue = sent.findIndex(entry => entry.tab);
+    const full = sent.findIndex((entry, index) => index > cue && entry.crop === JSON.stringify(MATCH_CONTEXT_REGION));
+    expect(cue).toBeGreaterThan(-1);
+    expect(sent[cue]!.crop).toBe(JSON.stringify(DRAFT_HINT_REGION));
+    expect(full).toBeGreaterThan(cue);
+    expect(sent[full]!.at - sent[cue]!.at).toBeLessThanOrEqual(500);
+    // While Tab stays held, later scoreboard reads keep the usual spacing.
+    const later = sent.slice(full + 1).filter(entry => entry.crop === JSON.stringify(MATCH_CONTEXT_REGION));
+    expect(later.length).toBeGreaterThan(0);
+    for (const [index, entry] of later.entries()) expect(entry.at - (index ? later[index - 1]! : sent[full]!).at).toBeGreaterThanOrEqual(1_000);
   });
 });
 
@@ -1010,6 +1055,14 @@ describe('2026-10-18 live match reads', () => {
     work.behavior((request, process) => process.send(request, { foreground: false, status: 'blank_capture', blocks: [] }));
     for (let index = 0; index < 3; index++) await work.step(1_000);
     expect(work.reader.getState().message).toMatch(/black/);
+  });
+  it('calls a short black image a loading screen, and gives display-mode advice only when it lasts', async () => {
+    const work = fixture(); await work.warm();
+    work.behavior((request, process) => process.send(request, { status: 'blank_capture', blocks: [] }));
+    await work.step(1_000);
+    expect(work.reader.getState().message).toMatch(/loading screen or a transition/);
+    for (let index = 0; index < 6; index++) await work.step(1_000);
+    expect(work.reader.getState().message).toMatch(/borderless windowed/);
   });
   it('keeps the shown cards through a frame that shows only the choice label (no "panel no longer visible")', async () => {
     const work = fixture(); await work.warm(); let labelOnly = false;

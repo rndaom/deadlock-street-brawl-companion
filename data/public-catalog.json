@@ -1,8 +1,8 @@
 {
-  "clientVersion": "6807",
-  "revision": "11154106",
+  "clientVersion": "6861",
+  "revision": "11219368",
   "source": "Community Deadlock API parsing Valve assets; not an official Valve API",
-  "retrievedAt": "2026-10-21T10:44:29.952Z",
+  "retrievedAt": "2026-11-14T14:42:22.783Z",
   "items": [
     {
       "id": "upgrade_active_reload",
@@ -1428,7 +1428,7 @@
       "tags": [
         "spirit"
       ],
-      "description": "Heal and gain bonus Movement Speed for a short duration when you cast an ability.",
+      "description": "While in-combat, Heal and gain bonus Movement Speed for a short duration when you cast an ability.",
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/items/spirit/radiant_regeneration.png"
     },
     {
@@ -1640,11 +1640,10 @@
       "tier": 3,
       "tags": [
         "healing",
-        "melee",
         "spirit",
         "weapon"
       ],
-      "description": "Become Stealthed. Whenever you take damage while Stealthed you get briefly revealed. Attacking or using an ability will end your stealth and start an ambush, temporarily granting you bonus Fire Rate, Spirit Power and Melee Damage.",
+      "description": "Become Stealthed. Whenever you take damage while Stealthed you get briefly revealed. Attacking or using an ability will end your stealth and start an ambush, temporarily granting you bonus Weapon Damage and Spirit Power.",
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/items/weapon/shadow_weave.png"
     },
     {
@@ -2245,7 +2244,8 @@
       "tags": [
         "crowd-control",
         "healing",
-        "mobility"
+        "mobility",
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/fencer_sm.webp"
     },
@@ -2293,7 +2293,8 @@
       "tags": [
         "healing",
         "melee",
-        "mobility"
+        "mobility",
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nano_sm.webp"
     },
@@ -2326,7 +2327,8 @@
       "name": "Drifter",
       "role": "assassin",
       "tags": [
-        "melee"
+        "melee",
+        "weapon"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/drifter_sm.webp"
     },
@@ -2334,7 +2336,7 @@
       "id": "hero_dynamo",
       "numericId": "11",
       "name": "Dynamo",
-      "role": "mystic",
+      "role": "unknown",
       "tags": [
         "mobility",
         "spirit",
@@ -2357,11 +2359,11 @@
       "id": "hero_orion",
       "numericId": "17",
       "name": "Grey Talon",
-      "role": "marksman",
+      "role": "mystic",
       "tags": [
         "crowd-control",
         "mobility",
-        "weapon"
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/archer_sm.webp"
     },
@@ -2390,12 +2392,12 @@
       "id": "hero_inferno",
       "numericId": "1",
       "name": "Infernus",
-      "role": "marksman",
+      "role": "mystic",
       "tags": [
         "control-resist",
         "crowd-control",
         "mobility",
-        "weapon"
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/inferno_sm.webp"
     },
@@ -2403,7 +2405,7 @@
       "id": "hero_tengu",
       "numericId": "20",
       "name": "Ivy",
-      "role": "marksman",
+      "role": "unknown",
       "tags": [
         "crowd-control",
         "healing",
@@ -2416,12 +2418,12 @@
       "id": "hero_kelvin",
       "numericId": "12",
       "name": "Kelvin",
-      "role": "brawler",
+      "role": "unknown",
       "tags": [
         "control-resist",
         "crowd-control",
         "healing",
-        "melee",
+        "spirit",
         "support"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kelvin_sm.webp"
@@ -2445,7 +2447,8 @@
       "role": "assassin",
       "tags": [
         "crowd-control",
-        "mobility"
+        "mobility",
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/lash_sm.webp"
     },
@@ -2467,9 +2470,9 @@
       "id": "hero_vampirebat",
       "numericId": "63",
       "name": "Mina",
-      "role": "marksman",
+      "role": "mystic",
       "tags": [
-        "weapon"
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/vampirebat_sm.webp"
     },
@@ -2501,12 +2504,12 @@
       "id": "hero_nurse",
       "numericId": "87",
       "name": "Nurse Harrow",
-      "role": "marksman",
+      "role": "unknown",
       "tags": [
         "crowd-control",
         "healing",
-        "support",
-        "weapon"
+        "spirit",
+        "support"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nurse_sm.webp"
     },
@@ -2514,7 +2517,7 @@
       "id": "hero_bookworm",
       "numericId": "67",
       "name": "Paige",
-      "role": "mystic",
+      "role": "unknown",
       "tags": [
         "crowd-control",
         "healing",
@@ -2543,7 +2546,8 @@
       "role": "assassin",
       "tags": [
         "crowd-control",
-        "mobility"
+        "mobility",
+        "spirit"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/synth_sm.webp"
     },
@@ -2562,7 +2566,7 @@
       "id": "hero_familiar",
       "numericId": "79",
       "name": "Rem",
-      "role": "mystic",
+      "role": "unknown",
       "tags": [
         "crowd-control",
         "spirit",
@@ -2690,13 +2694,12 @@
       "id": "hero_viscous",
       "numericId": "35",
       "name": "Viscous",
-      "role": "mystic",
+      "role": "brawler",
       "tags": [
         "bullet-resist",
         "crowd-control",
         "healing",
         "melee",
-        "spirit",
         "spirit-resist"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/viscous_sm.webp"
@@ -2707,7 +2710,8 @@
       "name": "Vyper",
       "role": "assassin",
       "tags": [
-        "crowd-control"
+        "crowd-control",
+        "weapon"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kali_sm.webp"
     },
@@ -2744,11 +2748,12 @@
       "tags": [
         "bullet-resist",
         "crowd-control",
+        "spirit",
         "spirit-resist"
       ],
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/yamato_sm.webp"
     }
   ],
   "liveModelValidated": false,
-  "modelVersion": "descriptive-tags-v1-client-6807"
+  "modelVersion": "descriptive-tags-v1-client-6861"
 }

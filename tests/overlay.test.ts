@@ -4,10 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { APP_CATALOG } from '../src/app/catalog';
 import { cardHoldMs, createInitialScreenReaderState, SCREEN_CARD_BACKGROUND_HOLD_MS, SCREEN_CARD_HOLD_MS } from '../src/shared/screen-reading';
 import type { ScreenAdvice, ScreenOffer, ScreenReaderState } from '../src/shared/screen-reading';
-import { AP_PROMPT_MAX_AGE_MS, DRAFT_CARD_CENTERS, DRAFT_CARD_RADIUS, overlayHasApPrompt, overlayHasDraftCall, overlayShouldShow, overlayStage, REROLL_BUTTON } from '../src/shared/overlay';
+import { AP_NUDGE_MS, AP_PROMPT_MAX_AGE_MS, DRAFT_CARD_CENTERS, DRAFT_CARD_RADIUS, overlayAbilityNudge, overlayHasDraftCall, overlayShouldShow, overlayStage, REROLL_BUTTON } from '../src/shared/overlay';
 import { DEFAULT_SETTINGS, validateSettingsPatch } from '../src/shared/settings';
-import { deriveView } from '../src/renderer/view';
-import { ApPrompt, CallSummary, draftHeader, DraftMarks, InfoPanel } from '../src/renderer/Overlay';
+import { abilityNudgeView, deriveView } from '../src/renderer/view';
+import { AbilityMarks, CallSummary, draftHeader, DraftMarks, InfoPanel } from '../src/renderer/Overlay';
 import { sampleState } from './sample-states';
 
 const now = 5_000_000;
@@ -143,36 +143,42 @@ describe('overlay setting', () => {
   });
 });
 
-describe('overlay spend prompt for unspent ability points', () => {
+describe('overlay ability nudge for unspent ability points', () => {
   const draftState = (patch: Partial<ScreenReaderState> = {}) => ({ ...sampleState('pick', now), gameBounds: bounds, ...patch });
-  const show = (state: ScreenReaderState, panel = false) => overlayShouldShow({ enabled: true, state, panel, now });
+  const show = (state: ScreenReaderState, panel = false, apSince: number | null = null) => overlayShouldShow({ enabled: true, state, panel, now, apSince });
   it('shows on its own during a draft while fresh points pay for the next planned upgrade', () => {
-    expect(overlayHasApPrompt(draftState(), now)).toBe(true);
-    // The draft is open but the cards are not confirmed: no pick to draw, the prompt alone shows the overlay.
+    expect(overlayAbilityNudge(draftState(), now)).toEqual({ slot: 2, tier: 1, cost: 1, points: 1, ready: true });
+    // The draft is open but the cards are not confirmed: no pick to draw, the nudge alone shows the overlay.
     const unconfirmed = draftState({ status: 'reading', advice: null });
     expect(overlayHasDraftCall(unconfirmed, now)).toBe(false);
     expect(show(unconfirmed)).toBe(true);
   });
-  it('stays away without points, with stale or unaffordable points, outside a draft, or while spectating', () => {
+  it('shows in combat too: points arrive after the draft closes and are spent with Tab held', () => {
     const base = draftState();
     const combat = { ...base, status: 'waiting-draft' as const, offers: [], advice: null, observedAt: null, matchContext: { ...base.matchContext, phase: 'combat' as const } };
+    expect(overlayAbilityNudge(combat, now)?.ready).toBe(true);
+    expect(show(combat)).toBe(true);
+    // Not for the whole round: a standing amount steps aside after AP_NUDGE_MS.
+    expect(show(combat, false, now - AP_NUDGE_MS)).toBe(false);
+  });
+  it('stays away without points, with stale points, without a plan, or while spectating', () => {
+    const base = draftState();
     for (const state of [
       draftState({ abilityPoints: { value: 0, at: now } }),
       draftState({ abilityPoints: null }),
       draftState({ abilityPoints: { value: 1, at: now - AP_PROMPT_MAX_AGE_MS } }),
       draftState({ abilityPoints: { value: 1, at: now + 1_000 } }),
-      draftState({ abilityPlan: { ...base.abilityPlan!, cost: 5 } }),
       draftState({ abilityPlan: null }),
-      combat,
       draftState({ matchContext: { ...base.matchContext, viewMode: 'spectator' } }),
-    ]) expect(overlayHasApPrompt(state, now)).toBe(false);
-    expect(show(combat)).toBe(false);
+    ]) expect(overlayAbilityNudge(state, now)).toBeNull();
+    // Points short of the next step are named, not prompted to spend.
+    expect(overlayAbilityNudge(draftState({ abilityPlan: { ...base.abilityPlan!, cost: 5 } }), now)?.ready).toBe(false);
   });
-  it('prompts "Spend N AP: ability tier" and leaves it to the info panel when that is open', () => {
+  it('names the ability and its tier on the marker', () => {
     const view = deriveView(draftState(), APP_CATALOG, { now, readingSince: null, lastProgressAt: now - 500 });
-    expect(renderToStaticMarkup(createElement(ApPrompt, { view }))).toContain('Spend 1 AP: Fixation I');
-    const quiet = deriveView(draftState({ abilityPoints: null }), APP_CATALOG, { now, readingSince: null, lastProgressAt: now - 500 });
-    expect(renderToStaticMarkup(createElement(ApPrompt, { view: quiet }))).toBe('');
+    const markup = renderToStaticMarkup(createElement(AbilityMarks, { nudge: abilityNudgeView(view.me, overlayAbilityNudge(draftState(), now)!) }));
+    expect(markup).toContain('Upgrade Fixation I now');
+    expect(markup).toContain('ov-ab-pill');
   });
 });
 

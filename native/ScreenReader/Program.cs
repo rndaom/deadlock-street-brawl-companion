@@ -3,14 +3,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Windows.Globalization;
-using Windows.Graphics.Imaging;
-using Windows.Media.Ocr;
 
 namespace Deadlock.ScreenReader;
 
@@ -26,7 +22,11 @@ internal sealed record Reply(
   string? ErrorCode = null, bool Synthetic = false, bool Unchanged = false, string? PreviewPngBase64 = null,
   IReadOnlyList<IconMatchRecord>? Icons = null, NativeContext? Context = null,
   // Screen position of the game client (physical pixels), so the companion can place its overlay.
-  int? ClientLeft = null, int? ClientTop = null);
+  int? ClientLeft = null, int? ClientTop = null,
+  // A watch request's answer: the draft's CHOICE label is on screen; omitted where the watch cannot run.
+  bool? DraftLabel = null,
+  // On the warm-up (fixture) reply: this helper answers watch requests, so an older one is never sent them.
+  bool? DraftWatch = null);
 internal sealed record CachedOcr(string Hash, NormalizedRect Crop, int Width, int Height, bool Synthetic, uint GameProcessId, nint GameHandle, IReadOnlyList<OcrBlock> Blocks, IReadOnlyList<IconMatchRecord> Icons, NativeContext? Context, int FineCoverage = 0, IReadOnlyList<NormalizedRect>? NumericCoverage = null);
 internal readonly record struct GameWindow(nint Handle, uint ProcessId, Rectangle Client, string Status, bool Present, bool Foreground);
 
@@ -39,7 +39,7 @@ internal static class Program
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
   };
-  private static OcrEngine? _engine;
+  private static ITextEngine? _engine;
   private static bool _engineAttempted;
   private static bool? _ocrSupported;
   private static readonly List<CachedOcr> Cache = [];
@@ -80,6 +80,10 @@ internal static class Program
       catch { Environment.ExitCode=1;Console.WriteLine("{\"error\":\"invalid_static_cache\"}"); }
       return;
     }
+    // Development replay only: main-icon matches for saved draft frames with their raw scores, no OCR and no capture.
+    if (args.Length >= 3 && args[0] == "--card-icons") { Environment.ExitCode = CardIconProbe.Run(args); return; }
+    // Development replay only: the draft-label watch's decision on saved frames, or its live cost (--bench).
+    if (args.Length >= 2 && args[0] == "--draft-watch") { Environment.ExitCode = DraftWatch.Run(args); return; }
     string? reviewImagePath = null;
     for (int index = 0; index + 1 < args.Length; index += 2)
     {
@@ -122,8 +126,9 @@ internal static class Program
         request = JsonSerializer.Deserialize<Request>(line, Json);
         if (request is null || !ValidRequest(request)) throw new ArgumentException("request_shape");
         var response = request.Op == "stop"
-          ? new Reply(1, request.Id, "stopped", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.RecognizerLanguage.LanguageTag)
+          ? new Reply(1, request.Id, "stopped", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.LanguageTag)
           : await Handle(request);
+        if (request.Op == "fixture") response = response with { DraftWatch = true };
         await Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, Json));
         await Console.Out.FlushAsync();
         if (request.Op == "stop") break;
@@ -131,7 +136,7 @@ internal static class Program
       catch
       {
         var id = request?.Id is { Length: > 0 and <= 128 } ? request.Id : "invalid";
-        var response = new Reply(1, id, "invalid_request", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.RecognizerLanguage.LanguageTag, ErrorCode: "request_rejected");
+        var response = new Reply(1, id, "invalid_request", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.LanguageTag, ErrorCode: "request_rejected");
         await Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, Json));
         await Console.Out.FlushAsync();
       }
@@ -168,8 +173,7 @@ internal static class Program
       if (_engine is null) throw new InvalidOperationException("review_ocr");
       if (index == 0)
       {
-        using var software = SoftwareBitmap.CreateCopyFromBuffer(pixels.AsBuffer(), BitmapPixelFormat.Bgra8, width, height, BitmapAlphaMode.Ignore);
-        var ocr = await _engine.RecognizeAsync(software);
+        var ocr = await _engine.RecognizeAsync(pixels, width, height);
         blocks = ExtractBlocks(ocr, crop, width, height);
       }
       var refinement = await RefineContextText(bitmap, crop, clientWidth, clientHeight, blocks, fineCoverage, watch);
@@ -187,13 +191,14 @@ internal static class Program
       IReadOnlyList<IconMatchRecord> icons = IconMatcher.HasBonusLabel(blocks)
         ? _iconMatcher?.FindBonusIcons(bitmap, blocks, crop) ?? IconMatcher.InferUnresolvedBonusSlots(bitmap, blocks, crop)
         : _iconMatcher is not null && IconMatcher.HasDraftText(blocks) ? _iconMatcher.FindCardBonusIcons(bitmap, crop, clientWidth, clientHeight) : [];
+      if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks)) icons = [.. icons, .. _iconMatcher.FindCardIcons(bitmap, crop, clientWidth, clientHeight)];
       var reply = Response("ok", game, request, watch, null, hash, blocks, true, crop, metrics, icons: icons, context: context);
       await Console.Out.WriteLineAsync(JsonSerializer.Serialize(reply, Json)); await Console.Out.FlushAsync();
       await Task.Delay(Math.Max(500, (int)Math.Ceiling(watch.Elapsed.TotalMilliseconds * 4)));
     }
   }
 
-  private static (NormalizedRect Crop, int ClientWidth, int ClientHeight) ReviewGeometry(string filename, int imageWidth, int imageHeight)
+  internal static (NormalizedRect Crop, int ClientWidth, int ClientHeight) ReviewGeometry(string filename, int imageWidth, int imageHeight)
   {
     var whole = (new NormalizedRect(0, 0, 1, 1), imageWidth, imageHeight);
     try
@@ -221,7 +226,7 @@ internal static class Program
   private static bool ValidRequest(Request request)
   {
     if (request.Id is not { Length: > 0 and <= 128 } || request.Id.Any(char.IsControl)) return false;
-    if (request.Op is not ("probe" or "read" or "fixture" or "stop")) return false;
+    if (request.Op is not ("probe" or "read" or "fixture" or "watch" or "stop")) return false;
     if (request.Fixture is not (null or "draft" or "combat" or "blank" or "scoreboard" or "scoreboard-no-round" or "abilities" or "abilities-late" or "abilities-affordable" or "abilities-partial" or "spectator" or "spectator-glyph")) return false;
     if (request.Crop is not { } crop) return true;
     return double.IsFinite(crop.X) && double.IsFinite(crop.Y) && double.IsFinite(crop.Width) && double.IsFinite(crop.Height)
@@ -236,7 +241,7 @@ internal static class Program
     try
     {
       // Prefer English for the game's item catalogue; use an already installed profile language if unavailable.
-      _engine = OcrEngine.TryCreateFromLanguage(new Language("en-US")) ?? OcrEngine.TryCreateFromUserProfileLanguages();
+      _engine = TextEngines.TryCreate();
     }
     catch { _engine = null; }
     _ocrSupported = _engine is not null;
@@ -245,7 +250,7 @@ internal static class Program
   private static bool OcrAvailable()
   {
     if (_ocrSupported is { } known) return known;
-    try { _ocrSupported = OcrEngine.AvailableRecognizerLanguages.Count > 0; }
+    try { _ocrSupported = TextEngines.Available(); }
     catch { _ocrSupported = false; }
     return _ocrSupported.Value;
   }
@@ -258,7 +263,13 @@ internal static class Program
     _requestCpuStart = cpuStart;
     var synthetic = request.Op == "fixture";
     var contextFixture = IsContextFixture(request.Fixture);
-    var game = synthetic ? new GameWindow(0, 0, new Rectangle(0, 0, contextFixture ? 1920 : 1280, contextFixture ? 1080 : 720), "ok", false, false) : Native.FindGame();
+    GameWindow game;
+    try { game = synthetic ? new GameWindow(0, 0, new Rectangle(0, 0, contextFixture ? 1920 : 1280, contextFixture ? 1080 : 720), "ok", false, false) : Native.FindGame(); }
+    catch (Exception)
+    {
+      // A failed window lookup is a failed capture (tried again on the next read), not a bad request (which stops reading until Retry).
+      return Response("capture_failed", new GameWindow(0, 0, Rectangle.Empty, "capture_failed", false, false), request, watch, null, null, [], synthetic, error: "window_lookup_failed");
+    }
     if (!synthetic && game.Status != "ok")
     {
       ClearCachedText();
@@ -269,6 +280,7 @@ internal static class Program
     {
       Cache.Clear(); _sessionProcess = game.ProcessId; _sessionHandle = game.Handle; _gameSession = Guid.NewGuid().ToString("N");
     }
+    if (request.Op == "watch") return Watch(request, game, watch);
     var crop = request.Crop ?? new NormalizedRect(0, 0, 1, 1);
     var captureRect = PixelCrop(game.Client, crop);
     var maxWidth = request.Op == "probe" ? 192 : 1800;
@@ -342,8 +354,7 @@ internal static class Program
         Cache.Remove(cached); Cache.Add(cached with { Context = cachedContext ?? cached.Context,Blocks=numeric.Blocks,FineCoverage=refined.Coverage,NumericCoverage=numeric.Coverage });
         return Response("unchanged", game, request, watch, capturedAt, hash, numeric.Blocks, synthetic, actualCrop, metrics with { Unchanged = true,OcrMs=Math.Round(fineOcrMs,2) }, unchanged: true, preview: preview, icons: cached.Icons, context: cachedContext);
       }
-      using var software = SoftwareBitmap.CreateCopyFromBuffer(pixels.AsBuffer(), BitmapPixelFormat.Bgra8, imageWidth, imageHeight, BitmapAlphaMode.Ignore);
-      var result = await _engine.RecognizeAsync(software);
+      var result = await _engine.RecognizeAsync(pixels, imageWidth, imageHeight);
       if (!synthetic)
       {
         var afterOcr = Native.VerifyGame(game);
@@ -365,6 +376,10 @@ internal static class Program
       }
       else if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks))
         icons = _iconMatcher.FindCardBonusIcons(bitmap, actualCrop, game.Client.Width, game.Client.Height);
+      // Each card's own item by its main icon, whenever the draft's labels are on screen: Tesseract left a card name
+      // unread on a third of the draft reads logged 2026-11-05..14, and the icon needs no text.
+      if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks))
+        icons = [.. icons, .. _iconMatcher.FindCardIcons(bitmap, actualCrop, game.Client.Width, game.Client.Height)];
       var context = request.Context ? _matchReader?.Read(pixels, imageWidth, imageHeight, actualCrop, game.Client.Width, game.Client.Height,
         blocks, synthetic ? "synthetic-fixture" : _gameSession) : null;
       var numbersWatch=Stopwatch.StartNew();
@@ -397,6 +412,32 @@ internal static class Program
     }
   }
 
+  /**
+   * The draft-label watch: copies only the CHOICE label's box and tests its pixels (no OCR, cache or context), so the
+   * companion can look several times a second between reads. A yes only asks for a read; that read's OCR'd labels open
+   * the draft. A null answer means the watch cannot run cheaply here, and the companion stops asking.
+   */
+  private static Reply Watch(Request request, GameWindow game, Stopwatch watch)
+  {
+    var box = DraftWatch.LabelBox(game.Client.Width, game.Client.Height);
+    try
+    {
+      var source = PixelCrop(game.Client, box);
+#if LINUX
+      var patch = Native.CaptureWatch(game, source);
+#else
+      (byte[] Pixels, int Width, int Height)? patch;
+      using (var bitmap = Native.Capture(game, source, source.Width, source.Height)) patch = (DraftWatch.Pixels(bitmap), bitmap.Width, bitmap.Height);
+#endif
+      var capturedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      var metrics = new ImageMetrics(0, 0, 0, 0, 0, patch?.Width ?? 0, patch?.Height ?? 0, 0, 0, AffinityLimited: _affinityLimited);
+      return Response("ok", game, request, watch, capturedAt, null, [], false, box, metrics)
+        with { DraftLabel = patch is { } pixels ? DraftWatch.Shows(pixels.Pixels, pixels.Width, pixels.Height) : null };
+    }
+    // A failed copy is tried again on the next watch; it is never a rejected request.
+    catch { return Response("capture_failed", game, request, watch, null, null, [], false, error: "watch_capture_failed"); }
+  }
+
   private static Reply Response(string status, GameWindow game, Request request, Stopwatch watch, long? capturedAt, string? hash,
     IReadOnlyList<OcrBlock> blocks, bool synthetic, NormalizedRect? crop = null, ImageMetrics? metrics = null,
     string? error = null, bool unchanged = false, string? preview = null, IReadOnlyList<IconMatchRecord>? icons = null, NativeContext? context = null)
@@ -410,18 +451,18 @@ internal static class Program
         WorkingSetMb = Math.Round(process.WorkingSet64 / 1048576d, 2), PrivateMemoryMb = Math.Round(process.PrivateMemorySize64 / 1048576d, 2) };
     }
     return new(1, request.Id, status, game.Present, game.Foreground, game.Client.Width, game.Client.Height, capturedAt,
-      Math.Round(watch.Elapsed.TotalMilliseconds, 2), hash, blocks, available, _engine?.RecognizerLanguage.LanguageTag,
+      Math.Round(watch.Elapsed.TotalMilliseconds, 2), hash, blocks, available, _engine?.LanguageTag,
       crop, metrics, error, synthetic, unchanged, preview, icons, context,
       game.Present ? game.Client.X : null, game.Present ? game.Client.Y : null);
   }
 
   private static void ClearCachedText() { Cache.Clear(); }
 
-  private static IReadOnlyList<OcrBlock> ExtractBlocks(OcrResult result,NormalizedRect crop,int width,int height)
+  private static IReadOnlyList<OcrBlock> ExtractBlocks(RecognizedPage result,NormalizedRect crop,int width,int height)
   {
     return result.Lines.Take(256).Select(line=>
     {
-      var words=line.Words.Take(64).Select(word=>new TextWord(word.Text,MapBounds(word.BoundingRect,crop,width,height,result.TextAngle.GetValueOrDefault())))
+      var words=line.Words.Take(64).Select(word=>new TextWord(word.Text,MapBounds(word.Bounds,crop,width,height,result.TextAngle)))
         .Where(word=>!string.IsNullOrWhiteSpace(word.Text)&&word.Bounds.Width>0&&word.Bounds.Height>0).ToArray();
       if(words.Length==0)return null;
       double left=words.Min(word=>word.Bounds.X),top=words.Min(word=>word.Bounds.Y),right=words.Max(word=>word.Bounds.X+word.Bounds.Width),bottom=words.Max(word=>word.Bounds.Y+word.Bounds.Height);
@@ -447,6 +488,14 @@ internal static class Program
       // local-contrast stretch. Plain or brightness-thresholded OCR never returned these letters on
       // real Street Brawl scoreboards, so the scoreboard/eight-seat layout proof was unavailable.
       (Bit:16,Bounds:NativeMatchReader.Design(470,158,980,24,clientWidth,clientHeight))};
+    // Bit 32, the draft labels and card names, comes first: it is what a draft read is for, and it costs about
+    // 60-100ms. Behind the scoreboard strips it missed the soft budget on real pick-1 reads (the expanded
+    // scoreboard makes the full-frame and strip passes slow), which left every card to full-frame OCR.
+    if((coverage&32)==0)
+    {
+      blocks=await ReadDraftLabels(captured,crop,clientWidth,clientHeight,blocks);
+      coverage|=32;
+    }
     foreach(var strip in strips)
     {
       if((coverage&strip.Bit)!=0||!NativeMatchReader.Contains(crop,strip.Bounds))continue;
@@ -457,7 +506,7 @@ internal static class Program
       if(requestWatch.Elapsed.TotalMilliseconds>900)break;
       var source=new RectangleF((float)((strip.Bounds.X-crop.X)/crop.Width*captured.Width),(float)((strip.Bounds.Y-crop.Y)/crop.Height*captured.Height),
         (float)(strip.Bounds.Width/crop.Width*captured.Width),(float)(strip.Bounds.Height/crop.Height*captured.Height));
-      double scale=Math.Min(strip.Bit==16?4.0:strip.Bit>=4?4.0:strip.Bit==1?3.0:2.4,Math.Min((double)OcrEngine.MaxImageDimension/source.Width,Math.Sqrt((strip.Bit==2?750000d:1_000_000d)/(source.Width*source.Height))));
+      double scale=Math.Min(strip.Bit==16?4.0:strip.Bit>=4?4.0:strip.Bit==1?3.0:2.4,Math.Min((double)_engine.MaxImageDimension/source.Width,Math.Sqrt((strip.Bit==2?750000d:1_000_000d)/(source.Width*source.Height))));
       int width=Math.Max(1,(int)Math.Floor(source.Width*scale)),height=Math.Max(1,(int)Math.Floor(source.Height*scale));
       using var patch=new Bitmap(width,height,PixelFormat.Format32bppArgb);
       using(var graphics=Graphics.FromImage(patch))
@@ -478,8 +527,7 @@ internal static class Program
         blocks=blocks.Concat(await ReadHeaderMosaic(pixels,width,height,strip.Bounds,clientWidth,clientHeight)).Take(256).ToArray();
         coverage|=strip.Bit;continue;
       }
-      using var software=SoftwareBitmap.CreateCopyFromBuffer(pixels.AsBuffer(),BitmapPixelFormat.Bgra8,width,height,BitmapAlphaMode.Ignore);
-      var result=await _engine.RecognizeAsync(software);
+      var result=await _engine.RecognizeAsync(pixels,width,height);
       var fine=ExtractBlocks(result,strip.Bounds,width,height);
       // Prefer the full fine word rows. Dropped/truncated words remain detectable by parser's
       // text-versus-word check. Never concatenate unrelated OCR fragments into a player's name.
@@ -494,6 +542,285 @@ internal static class Program
       coverage|=strip.Bit;
     }
     return(blocks,coverage);
+  }
+
+  // Street Brawl option panels at 1080p design (IconMatcher.CardPanels): each card's name row sits 240-295px below its panel's top.
+  private static readonly (double X,double Y)[] DraftPanels=[(334,476),(761,228),(1187,476)];
+  private static readonly System.Text.RegularExpressions.Regex DraftChoice=new("^choice ?([1-3]) ?[o0]f ?3$");
+  private static string LabelKey(string text)=>System.Text.RegularExpressions.Regex.Replace(text.ToLowerInvariant(),"[^a-z0-9]+"," ").Trim();
+
+  /**
+   * Bit 32: the Street Brawl draft. Full-frame Tesseract drops the stylized card names on the textured
+   * rings (14 of 33 cards on the first real Linux draft frames) and often the SELECT ITEMS title. The
+   * magenta "CHOICE N OF 3" label proves the draft by pixels alone (15% of its box on every draft frame,
+   * none elsewhere); the label, the title and each card's name row are then read on their own with the
+   * text colour isolated. Fixed labels are reported in their canonical spelling; a card's name row
+   * replaces the full-frame words inside it when it holds a word.
+   */
+  private static async Task<IReadOnlyList<OcrBlock>> ReadDraftLabels(Bitmap captured,NormalizedRect crop,int clientWidth,int clientHeight,IReadOnlyList<OcrBlock> blocks)
+  {
+    var choiceBounds=NativeMatchReader.Design(60,280,320,50,clientWidth,clientHeight);
+    if(!NativeMatchReader.Contains(crop,choiceBounds))return blocks;
+    static byte Magenta(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,blue)-green-30)*4,0,255));
+    var gate=InkPatch(captured,crop,NativeMatchReader.Design(70,285,300,40,clientWidth,clientHeight),1);
+    if(gate is null)return blocks;
+    if(DraftWatch.Measure(gate.Value.Pixels,gate.Value.Width,gate.Value.Height).Share<DraftWatch.MinimumShare)return blocks;
+    var result=blocks.ToList();
+    // A found label replaces every full-frame fragment on its row: OCR noise beside the title
+    // ("SELECT ITEMS ree") joins it into one line that the parser no longer recognizes.
+    // An earlier label is never such a fragment: a SELECT ITEMS line read too tall (the scoreboard cuts the title on
+    // pick-1 frames) reached down over CHOICE 1 OF 3 and removed it.
+    var labels=new HashSet<OcrBlock>(ReferenceEqualityComparer.Instance);
+    void Label(string text,NormalizedRect area,NormalizedRect bounds)
+    {
+      var row=new NormalizedRect(area.X,bounds.Y-bounds.Height*.25,area.Width,bounds.Height*1.5);
+      result.RemoveAll(block=>Inside(row,block.Bounds)&&!labels.Contains(block));
+      var label=new OcrBlock(text,bounds,[new TextWord(text,bounds)]);
+      labels.Add(label);result.Add(label);
+    }
+    var choice=await ReadInkStrip(captured,crop,choiceBounds,2,Magenta);
+    var choiceMatch=DraftChoice.Match(LabelKey(string.Join(" ",choice.Select(line=>line.Text))));
+    if(choiceMatch.Success)Label($"CHOICE {choiceMatch.Groups[1].Value} OF 3",choiceBounds,Union(choice.Select(line=>line.Bounds)));
+    var titleBounds=NativeMatchReader.Design(60,180,520,150,clientWidth,clientHeight);
+    var title=(await ReadInkStrip(captured,crop,titleBounds,2,White)).FirstOrDefault(line=>LabelKey(line.Text) is "select items" or "select item");
+    if(title is not null)Label("SELECT ITEMS",titleBounds,title.Bounds);
+    foreach(var (panelX,panelY) in DraftPanels)
+    {
+      // The name row reaches below the resting name: a hovered card tilts and grows, and its name sat on the old row's bottom edge.
+      var row=NativeMatchReader.Design(panelX+10,panelY+236,380,78,clientWidth,clientHeight);
+      if(!NativeMatchReader.Contains(crop,row))continue;
+      var name=await ReadCardName(captured,crop,row,panelY==DraftPanels[1].Y?panelY:null,clientWidth,clientHeight);
+      if(name.Length==0)continue;
+      // Full-frame words in this row down to the name's foot (fragments of the name, scoreboard icon noise beside it) give
+      // way to it; the ENHANCED label below the name keeps its full-frame read.
+      var named=Union(name.Select(line=>line.Bounds));
+      var replaced=new NormalizedRect(row.X,row.Y,row.Width,Math.Max(0,named.Y+named.Height*1.1-row.Y));
+#if LINUX
+      const bool isolatedFirst=true;
+#else
+      // This pass was tuned on Tesseract, which drops these names from the full frame. Windows OCR reads them there
+      // well, so on Windows the isolated read only fills a name row the full frame left without a word, or replaces a
+      // name the expanded scoreboard clips (the "…" marks come from pixels, not OCR).
+      bool isolatedFirst=name.Any(line=>line.Text.Contains('…'))||!HasWordInside(result,replaced);
+#endif
+      if(isolatedFirst)
+      {
+        RemoveWordsInside(result,replaced);
+        result.AddRange(name);
+      }
+      // The blue ENHANCED label under the name: full-frame OCR returns it as "ea ANAED" or not at all on some frames.
+      var labelRow=NativeMatchReader.Design(panelX+60,panelY+292,280,40,clientWidth,clientHeight);
+      if(!NativeMatchReader.Contains(crop,labelRow))continue;
+      var label=(await ReadInkStrip(captured,crop,labelRow,2,Blue,.02)).FirstOrDefault(line=>EnhancedLabel.IsMatch(LabelKey(line.Text)));
+      if(label is not null)Label("ENHANCED",labelRow,label.Words.FirstOrDefault(word=>EnhancedLabel.IsMatch(LabelKey(word.Text)))?.Bounds??label.Bounds);
+    }
+    return result.Take(256).ToArray();
+  }
+  private static readonly System.Text.RegularExpressions.Regex EnhancedLabel=new("^[a-z]?nhanc|^enha|hanced");
+  static byte Blue(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((blue-red-60)*3,0,255));
+  static byte White(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,Math.Min(green,blue))-110)*3,0,255));
+  /** The right edge of the left team's last scoreboard column and the left edge of the right team's first, at 1080p design. */
+  private const double ScoreboardLeftEdge=855,ScoreboardRightEdge=1063;
+
+  /**
+   * One card's name. The light text is isolated as for the labels, then three kinds of foreign ink are dropped, all seen on
+   * real 2026-11-01 draft frames where the middle or right card stayed unread:
+   * - ink cut by the row's top or bottom edge and confined to that edge's side: the hovered right card's tooltip title,
+   *   which sits just above the middle card's name ("1lbane" read for the middle card under a Healbane tooltip);
+   * - words smaller than the card-name font (every catalogue name word starts with a capital or has an ascender, so its
+   *   box is at least the cap height): tooltip stat lines and descriptions crossing the row ("50 Bonus Health");
+   * - on the middle card, the expanded scoreboard's player columns, which are drawn over the card and cover both ends
+   *   of a long name ("thereal Shif" for Ethereal Shift). Their item icons are blanked, and a name that runs into a
+   *   column edge is marked clipped there with "…", so the parser may match the visible part of a catalogue name.
+   * <param name="middlePanelY">the middle card's panel top (design px) when this is the middle card, else null.</param>
+   */
+  private static async Task<OcrBlock[]> ReadCardName(Bitmap captured,NormalizedRect crop,NormalizedRect row,double? middlePanelY,int clientWidth,int clientHeight)
+  {
+    if(_engine is null||InkPatch(captured,crop,row,2) is not { } patch)return [];
+    var (pixels,width,height)=patch;
+    var ink=new byte[width*height];
+    for(int index=0;index<ink.Length;index++)ink[index]=White(pixels[index*4+2],pixels[index*4+1],pixels[index*4]);
+    int PatchColumn(double designX)=>(int)Math.Round((NativeMatchReader.Design(designX,0,0,0,clientWidth,clientHeight).X-row.X)/row.Width*width);
+    bool coveredLeft=false,coveredRight=false;
+    if(middlePanelY is { } panelY)
+    {
+      coveredLeft=ScoreboardColumnEdge(captured,crop,ScoreboardLeftEdge,-1,panelY,clientWidth,clientHeight);
+      coveredRight=ScoreboardColumnEdge(captured,crop,ScoreboardRightEdge,1,panelY,clientWidth,clientHeight);
+      int left=coveredLeft?Math.Clamp(PatchColumn(ScoreboardLeftEdge),0,width):0,right=coveredRight?Math.Clamp(PatchColumn(ScoreboardRightEdge),0,width):width;
+      for(int y=0;y<height;y++)
+      {
+        for(int x=0;x<left;x++)ink[y*width+x]=255;
+        for(int x=right;x<width;x++)ink[y*width+x]=255;
+      }
+    }
+    DropEdgeInk(ink,width,height);
+    int dark=0;
+    for(int index=0;index<ink.Length;index++){if(ink[index]<128)dark++;pixels[index*4]=pixels[index*4+1]=pixels[index*4+2]=ink[index];pixels[index*4+3]=255;}
+    if(dark<ink.Length*.02)return [];
+    double nameHeight=CardNameMinimumHeight/1080d;
+    var words=ExtractBlocks(await _engine.RecognizeAsync(pixels,width,height),row,width,height).Select(CardName)
+      .SelectMany(line=>line.Words).Where(word=>word.Bounds.Height>=nameHeight).OrderBy(word=>word.Bounds.X).ToList();
+    // One name is one line of text, but a hovered card tilts it and Tesseract may return it as two lines ("point Bl" and
+    // "ank"). Words that share their height band form one line, which is reported as one word: the screen parser
+    // regroups separate words into rows by height and could split such a tilted name again.
+    var groups=new List<List<TextWord>>();
+    foreach(var word in words)
+    {
+      var group=groups.FirstOrDefault(candidate=>Overlap(Union(candidate.Select(member=>member.Bounds)),word.Bounds)>=word.Bounds.Height*.4);
+      if(group is null)groups.Add([word]);else group.Add(word);
+    }
+    double leftEdge=NativeMatchReader.Design(ScoreboardLeftEdge,0,0,0,clientWidth,clientHeight).X,rightEdge=NativeMatchReader.Design(ScoreboardRightEdge,0,0,0,clientWidth,clientHeight).X,
+      near=NativeMatchReader.Design(0,0,6,0,clientWidth,clientHeight).Width;
+    var result=new List<OcrBlock>();
+    foreach(var group in groups)
+    {
+      var text=new StringBuilder();
+      for(int index=0;index<group.Count;index++)
+      {
+        // Pieces of one word split by the tilt touch; real word gaps are wider than a quarter of the letter height.
+        if(index>0&&(group[index].Bounds.X-(group[index-1].Bounds.X+group[index-1].Bounds.Width))*clientWidth>=Math.Min(group[index].Bounds.Height,group[index-1].Bounds.Height)*clientHeight*.25)text.Append(' ');
+        text.Append(group[index].Text);
+      }
+      if(!System.Text.RegularExpressions.Regex.IsMatch(text.ToString(),"[A-Za-z]{3}"))continue;
+      var bounds=Union(group.Select(word=>word.Bounds));
+      if(coveredLeft&&bounds.X-leftEdge<=near)text.Insert(0,'\u2026');
+      if(coveredRight&&rightEdge-(bounds.X+bounds.Width)<=near)text.Append('\u2026');
+      result.Add(new(text.ToString(),bounds,[new TextWord(text.ToString(),bounds)]));
+    }
+    return result.ToArray();
+  }
+  /** True when a word of at least three letters is centred in this area. */
+  private static bool HasWordInside(IEnumerable<OcrBlock> blocks,NormalizedRect area)=>
+    blocks.SelectMany(block=>block.Words).Any(word=>Inside(area,word.Bounds)&&System.Text.RegularExpressions.Regex.IsMatch(word.Text,"[A-Za-z]{3}"));
+  /** Drops the words centred in this area; a full-frame line that runs out of it keeps its other words. */
+  private static void RemoveWordsInside(List<OcrBlock> blocks,NormalizedRect area)
+  {
+    for(int index=blocks.Count-1;index>=0;index--)
+    {
+      var block=blocks[index];
+      if(block.Words.Count==0){if(Inside(area,block.Bounds))blocks.RemoveAt(index);continue;}
+      var kept=block.Words.Where(word=>!Inside(area,word.Bounds)).ToArray();
+      if(kept.Length==block.Words.Count)continue;
+      if(kept.Length==0)blocks.RemoveAt(index);
+      else blocks[index]=new(string.Join(' ',kept.Select(word=>word.Text)),Union(kept.Select(word=>word.Bounds)),kept);
+    }
+  }
+  /** Height shared by two boxes' vertical extents. */
+  private static double Overlap(NormalizedRect a,NormalizedRect b)=>Math.Max(0,Math.Min(a.Y+a.Height,b.Y+b.Height)-Math.Max(a.Y,b.Y));
+  /** Card-name words are at least this tall (design px): the cap height of the smallest name font is about 26px; tooltip text is 10-18px. */
+  private const double CardNameMinimumHeight=18;
+
+  /**
+   * True when an expanded scoreboard column covers the middle card's name row from this edge (side -1: the column lies
+   * left of the edge). The column is a flat panel whose plain margin (2-8px beside its edge, outside the item cells)
+   * steps sharply to the card: that holds on most rows above the name and at the name's height on real scoreboard
+   * frames, and on almost none of the draft frames without it (the blurred background has no such straight edge).
+   */
+  private static bool ScoreboardColumnEdge(Bitmap captured,NormalizedRect crop,double edge,int side,double panelY,int clientWidth,int clientHeight)
+  {
+    var area=NativeMatchReader.Design(edge-10,panelY+126,20,166,clientWidth,clientHeight);
+    if(!NativeMatchReader.Contains(crop,area)||InkPatch(captured,crop,area,1) is not { } patch)return false;
+    var (pixels,width,height)=patch;
+    int Column(double designX)=>Math.Clamp((int)Math.Round((designX-(edge-10))/20*width),0,width-1);
+    int above=0,aboveRows=0,band=0,bandRows=0;
+    for(int y=0;y<height;y++)
+    {
+      double designY=panelY+126+(y+.5)/height*166;
+      bool inBand=designY>=panelY+250&&designY<panelY+292,inAbove=designY<panelY+236;
+      if(!inBand&&!inAbove)continue;
+      double low=double.MaxValue,high=double.MinValue;double[] panel=new double[3],card=new double[3];
+      for(int k=2;k<=8;k++)
+      {
+        int offset=(y*width+Column(edge+side*k))*4;double luminance=(pixels[offset]+pixels[offset+1]+pixels[offset+2])/3d;
+        low=Math.Min(low,luminance);high=Math.Max(high,luminance);
+        for(int channel=0;channel<3;channel++)panel[channel]+=pixels[offset+channel]/7d;
+      }
+      for(int k=2;k<=5;k++){int offset=(y*width+Column(edge-side*k))*4;for(int channel=0;channel<3;channel++)card[channel]+=pixels[offset+channel]/4d;}
+      bool step=high-low<=24&&Math.Abs(panel[0]-card[0])+Math.Abs(panel[1]-card[1])+Math.Abs(panel[2]-card[2])>=30;
+      if(inBand){bandRows++;if(step)band++;}else{aboveRows++;if(step)above++;}
+    }
+    return aboveRows>0&&bandRows>0&&above>=aboveRows*.7&&band>=bandRows*.6;
+  }
+
+  /**
+   * Removes ink that is cut by the patch's top or bottom edge and stays on that side of its middle (text of the line above
+   * or below, ring arcs), with its anti-aliased fringe. Card names sit across the middle of the name row and are kept.
+   */
+  private static void DropEdgeInk(byte[] ink,int width,int height)
+  {
+    var label=new int[ink.Length];var drop=new bool[ink.Length];var keep=new bool[ink.Length];
+    var queue=new Queue<int>();var members=new List<int>();int next=0;
+    for(int start=0;start<ink.Length;start++)
+    {
+      if(ink[start]>=160||label[start]!=0)continue;
+      next++;label[start]=next;queue.Enqueue(start);members.Clear();int top=height,bottom=0;
+      while(queue.Count>0)
+      {
+        int index=queue.Dequeue();members.Add(index);int x=index%width,y=index/width;top=Math.Min(top,y);bottom=Math.Max(bottom,y);
+        for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)
+        {
+          int nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=width||ny>=height)continue;
+          int neighbour=ny*width+nx;if(ink[neighbour]<160&&label[neighbour]==0){label[neighbour]=next;queue.Enqueue(neighbour);}
+        }
+      }
+      bool cut=top==0&&bottom<height*.42||bottom==height-1&&top>height*.58;
+      foreach(var index in members)(cut?drop:keep)[index]=true;
+    }
+    if(!drop.Contains(true))return;
+    // Blank the dropped strokes and their fringe (within 2px), unless that fringe belongs to kept ink.
+    var dropNear=Dilate(drop,width,height,2);var keepNear=Dilate(keep,width,height,2);
+    for(int index=0;index<ink.Length;index++)if(drop[index]||dropNear[index]&&!keepNear[index])ink[index]=255;
+  }
+  private static bool[] Dilate(bool[] mask,int width,int height,int radius)
+  {
+    var rows=new bool[mask.Length];var result=new bool[mask.Length];
+    for(int y=0;y<height;y++)for(int x=0;x<width;x++)
+    {if(!mask[y*width+x])continue;for(int dx=Math.Max(0,x-radius);dx<=Math.Min(width-1,x+radius);dx++)rows[y*width+dx]=true;}
+    for(int y=0;y<height;y++)for(int x=0;x<width;x++)
+    {if(!rows[y*width+x])continue;for(int dy=Math.Max(0,y-radius);dy<=Math.Min(height-1,y+radius);dy++)result[dy*width+x]=true;}
+    return result;
+  }
+  /** Card names are letters, digits, spaces, apostrophes and hyphens; stray glyphs ("Spirit Ren”") stop the name match. */
+  private static OcrBlock CardName(OcrBlock line)
+  {
+    static string Clean(string text)=>System.Text.RegularExpressions.Regex.Replace(text,@"[^A-Za-z0-9' \-]+","").Trim();
+    var words=line.Words.Select(word=>new TextWord(Clean(word.Text),word.Bounds)).Where(word=>word.Text.Length>0).ToArray();
+    return new(Clean(line.Text),line.Bounds,words);
+  }
+  private static bool Inside(NormalizedRect area,NormalizedRect box)
+  {double x=box.X+box.Width/2,y=box.Y+box.Height/2;return x>=area.X&&x<=area.X+area.Width&&y>=area.Y&&y<=area.Y+area.Height;}
+  private static NormalizedRect Union(IEnumerable<NormalizedRect> boxes)
+  {
+    var list=boxes.ToArray();
+    double left=list.Min(box=>box.X),top=list.Min(box=>box.Y),right=list.Max(box=>box.X+box.Width),bottom=list.Max(box=>box.Y+box.Height);
+    return new(left,top,right-left,bottom-top);
+  }
+
+  /** One area of the captured crop, upsampled; null when it falls outside the capture. */
+  private static (byte[] Pixels,int Width,int Height)? InkPatch(Bitmap captured,NormalizedRect crop,NormalizedRect bounds,double scale)
+  {
+    var source=new RectangleF((float)((bounds.X-crop.X)/crop.Width*captured.Width),(float)((bounds.Y-crop.Y)/crop.Height*captured.Height),
+      (float)(bounds.Width/crop.Width*captured.Width),(float)(bounds.Height/crop.Height*captured.Height));
+    if(source.Width<4||source.Height<4)return null;
+    if(_engine is not null)scale=Math.Min(scale,(double)_engine.MaxImageDimension/source.Width);
+    int width=Math.Max(1,(int)Math.Floor(source.Width*scale)),height=Math.Max(1,(int)Math.Floor(source.Height*scale));
+    using var patch=new Bitmap(width,height,PixelFormat.Format32bppArgb);
+    using(var graphics=Graphics.FromImage(patch))
+    {graphics.InterpolationMode=InterpolationMode.HighQualityBicubic;graphics.DrawImage(captured,new Rectangle(0,0,width,height),source,GraphicsUnit.Pixel);}
+    return(Pixels(patch),width,height);
+  }
+  /**
+   * OCR of one fixed area with its text colour turned into dark-on-white ink (pixels are B,G,R,A). An area whose
+   * ink covers less than `minimumInk` of it holds no text of that colour and is not sent to OCR.
+   */
+  private static async Task<IReadOnlyList<OcrBlock>> ReadInkStrip(Bitmap captured,NormalizedRect crop,NormalizedRect bounds,double scale,Func<byte,byte,byte,byte> ink,double minimumInk=0)
+  {
+    if(_engine is null||InkPatch(captured,crop,bounds,scale) is not { } patch)return [];
+    var pixels=patch.Pixels;int dark=0;
+    for(int index=0;index+3<pixels.Length;index+=4)
+    {byte value=ink(pixels[index+2],pixels[index+1],pixels[index]);if(value<128)dark++;pixels[index]=pixels[index+1]=pixels[index+2]=value;pixels[index+3]=255;}
+    if(dark<pixels.Length/4*minimumInk)return [];
+    return ExtractBlocks(await _engine.RecognizeAsync(pixels,patch.Width,patch.Height),bounds,patch.Width,patch.Height);
   }
 
   /**
@@ -524,9 +851,8 @@ internal static class Program
         }
       }
     }
-    using var software=SoftwareBitmap.CreateCopyFromBuffer(canvas.AsBuffer(),BitmapPixelFormat.Bgra8,canvasWidth,canvasHeight,BitmapAlphaMode.Ignore);
-    var result=await _engine.RecognizeAsync(software);
-    var words=result.Lines.SelectMany(line=>line.Words).Select(word=>(Text:word.Text.Trim(),Center:word.BoundingRect.X+word.BoundingRect.Width/2,Left:word.BoundingRect.X)).ToArray();
+    var result=await _engine.RecognizeAsync(canvas,canvasWidth,canvasHeight);
+    var words=result.Lines.SelectMany(line=>line.Words).Select(word=>(Text:word.Text.Trim(),Center:word.Bounds.X+word.Bounds.Width/2,Left:word.Bounds.X)).ToArray();
     var found=new List<OcrBlock>();
     for(int seat=0;seat<centers.Length;seat++)
     {
@@ -617,8 +943,7 @@ internal static class Program
       }
     }
     var canvasPixels=Pixels(canvas);
-    using var software=SoftwareBitmap.CreateCopyFromBuffer(canvasPixels.AsBuffer(),BitmapPixelFormat.Bgra8,canvas.Width,canvas.Height,BitmapAlphaMode.Ignore);
-    var result=await _engine.RecognizeAsync(software);
+    var result=await _engine.RecognizeAsync(canvasPixels,canvas.Width,canvas.Height);
     var observed=ExtractBlocks(result,new NormalizedRect(0,0,1,1),canvas.Width,canvas.Height);
     var derived=new List<OcrBlock>();
     foreach(var placement in placements)
@@ -651,7 +976,7 @@ internal static class Program
     return new Rectangle(client.X + x, client.Y + y, right - x, bottom - y);
   }
 
-  private static NormalizedRect MapBounds(Windows.Foundation.Rect bounds, NormalizedRect crop, int width, int height, double textAngle = 0)
+  private static NormalizedRect MapBounds(TextBox bounds, NormalizedRect crop, int width, int height, double textAngle = 0)
   {
     if (!double.IsFinite(bounds.X) || !double.IsFinite(bounds.Y) || !double.IsFinite(bounds.Width) || !double.IsFinite(bounds.Height)
       || bounds.Width <= 0 || bounds.Height <= 0) return new(crop.X, crop.Y, 0, 0);
@@ -784,171 +1109,4 @@ internal static class Program
     bitmap.Save(output, ImageFormat.Png);
     return Convert.ToBase64String(output.ToArray());
   }
-}
-
-internal static class Native
-{
-  private static GameWindow? _knownGame;
-  private const uint QueryLimitedInformation = 0x1000;
-  private const uint SourceCopy = 0x00CC0020;
-  private const uint NoMirrorBitmap = 0x80000000;
-  private const uint GaRoot = 2;
-  private const uint GwHwndPrevious = 3;
-  private const int GwlExStyle = -20;
-  private const int WsExTransparent = 0x20, WsExToolWindow = 0x80, WsExLayered = 0x80000, WsExNoActivate = 0x08000000;
-  [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; public readonly Rectangle ToRectangle() => Rectangle.FromLTRB(Left, Top, Right, Bottom); }
-  [StructLayout(LayoutKind.Sequential)] private struct Point { public int X, Y; }
-  [StructLayout(LayoutKind.Sequential)] private struct MonitorInfo { public int Size; public Rect Monitor, Work; public uint Flags; }
-  private delegate bool EnumWindowCallback(nint window, nint parameter);
-
-  internal static GameWindow FindGame()
-  {
-    if (_knownGame is { } known && IsWindow(known.Handle))
-    {
-      GetWindowThreadProcessId(known.Handle, out var currentProcessId);
-      if (currentProcessId == known.ProcessId)
-      {
-        var latest = known with { Client = ClientRectangle(known.Handle) };
-        _knownGame = latest;
-        return VerifyGame(latest);
-      }
-    }
-    var windows = new List<(nint Handle, uint ProcessId, Rectangle Client)>();
-    EnumWindows((window, _) =>
-    {
-      GetWindowThreadProcessId(window, out var processId);
-      if (IsDeadlock(processId) && ClientRectangle(window) is { Width: >= 320, Height: >= 240 } client)
-        windows.Add((window, processId, client));
-      return true;
-    }, 0);
-    if (windows.Count == 0)
-    {
-      var present = Process.GetProcessesByName("deadlock").Any(process => { using (process) return IsDeadlock((uint)process.Id); });
-      return new GameWindow(0, 0, Rectangle.Empty, present ? "no_window" : "not_found", present, false);
-    }
-    var foreground = GetAncestor(GetForegroundWindow(), GaRoot);
-    var best = windows.OrderByDescending(window => window.Handle == foreground).ThenByDescending(window => window.Client.Width * (long)window.Client.Height).First();
-    _knownGame = new GameWindow(best.Handle, best.ProcessId, best.Client, "ok", true, best.Handle == foreground);
-    return VerifyGame(_knownGame.Value);
-  }
-
-  internal static GameWindow VerifyGame(GameWindow game)
-  {
-    var foreground = GetAncestor(GetForegroundWindow(), GaRoot) == game.Handle;
-    GetWindowThreadProcessId(game.Handle, out var actualProcessId);
-    if (!IsWindow(game.Handle) || actualProcessId != game.ProcessId || !IsDeadlock(actualProcessId)) return game with { Status = "not_found", Present = false, Foreground = false };
-    if (IsIconic(game.Handle)) return game with { Status = "minimized", Foreground = false };
-    if (!IsWindowVisible(game.Handle) || Cloaked(game.Handle)) return game with { Status = "no_window", Foreground = false };
-    // A game that lost focus but is still fully visible (two monitors: the player clicked the companion on the other
-    // one) is still captured; the reply carries Foreground = false. A covered background game stays "not_foreground".
-    var covered = foreground ? "occluded" : "not_foreground";
-    var client = ClientRectangle(game.Handle);
-    if (client.Width < 320 || client.Height < 240 || client != game.Client) return game with { Status = "capture_failed", Client = client, Foreground = foreground };
-    var monitor = MonitorFromWindow(game.Handle, 0);
-    var information = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
-    if (monitor == 0 || !GetMonitorInfo(monitor, ref information) || !information.Monitor.ToRectangle().Contains(client))
-      return game with { Status = "offscreen", Foreground = foreground };
-    // Every visible top-level window above the game is checked, including always-on-top overlays.
-    // There is no desktop image capture when another application's window intersects the game.
-    for (var above = GetWindow(game.Handle, GwHwndPrevious); above != 0; above = GetWindow(above, GwHwndPrevious))
-    {
-      if (!IsWindowVisible(above) || IsIconic(above) || Cloaked(above)) continue;
-      // Click-through overlays (Discord, NVIDIA, Game Bar, helper tools) do not hide the game's panels.
-      var extended = GetWindowLong(above, GwlExStyle);
-      if ((extended & WsExTransparent) != 0 || ((extended & WsExLayered) != 0 && (extended & (WsExToolWindow | WsExNoActivate)) != 0)) continue;
-      var overlap = Rectangle.Intersect(WindowRectangle(above), client);
-      // Small intersections (a taskbar edge, a notification corner) do not hide the draft cards.
-      if (overlap.Width * (long)overlap.Height > client.Width * (long)client.Height / 20) return game with { Status = covered, Foreground = foreground };
-    }
-    // Draft cards and the scoreboard occupy the middle of the window; corners may carry small widgets.
-    var hidden = 0;
-    foreach (var point in new[] {
-      new Point { X = client.Left + client.Width / 4, Y = client.Top + client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Top + client.Height / 3 },
-      new Point { X = client.Left + client.Width / 4, Y = client.Bottom - client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Bottom - client.Height / 3 },
-      new Point { X = client.Left + client.Width / 2, Y = client.Top + client.Height / 2 },
-    })
-      if (GetAncestor(WindowFromPoint(point), GaRoot) != game.Handle) hidden++;
-    if (hidden >= 2) return game with { Status = covered, Foreground = foreground };
-    return game with { Status = "ok", Foreground = foreground };
-  }
-
-  internal static Bitmap Capture(GameWindow game, Rectangle source, int width, int height)
-  {
-    if (VerifyGame(game).Status != "ok") throw new InvalidOperationException("visibility_changed");
-    var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-    try
-    {
-      using var graphics = Graphics.FromImage(bitmap);
-      var screen = GetDC(0);
-      if (screen == 0) throw new InvalidOperationException("screen_dc_unavailable");
-      nint destination = 0;
-      try
-      {
-        destination = graphics.GetHdc();
-        SetStretchBltMode(destination, 4);
-        SetBrushOrgEx(destination, 0, 0, out _);
-        if (!StretchBlt(destination, 0, 0, width, height, screen, source.X, source.Y, source.Width, source.Height, SourceCopy | NoMirrorBitmap))
-          throw new InvalidOperationException("capture_failed");
-      }
-      finally { if (destination != 0) graphics.ReleaseHdc(destination); ReleaseDC(0, screen); }
-      return bitmap;
-    }
-    catch { bitmap.Dispose(); throw; }
-  }
-
-  private static Rectangle ClientRectangle(nint window)
-  {
-    if (!GetClientRect(window, out var rectangle)) return Rectangle.Empty;
-    var origin = new Point();
-    if (!ClientToScreen(window, ref origin)) return Rectangle.Empty;
-    return new Rectangle(origin.X, origin.Y, Math.Max(0, rectangle.Right - rectangle.Left), Math.Max(0, rectangle.Bottom - rectangle.Top));
-  }
-
-  private static Rectangle WindowRectangle(nint window)
-  {
-    if (DwmGetWindowAttribute(window, 9, out Rect rectangle, Marshal.SizeOf<Rect>()) == 0) return rectangle.ToRectangle();
-    return GetWindowRect(window, out rectangle) ? rectangle.ToRectangle() : Rectangle.Empty;
-  }
-
-  private static bool Cloaked(nint window) => DwmGetWindowAttribute(window, 14, out int cloak, sizeof(int)) == 0 && cloak != 0;
-
-  private static bool IsDeadlock(uint processId)
-  {
-    var process = OpenProcess(QueryLimitedInformation, false, processId);
-    if (process == 0) return false;
-    try
-    {
-      var path = new StringBuilder(1024);
-      var length = (uint)path.Capacity;
-      return QueryFullProcessImageName(process, 0, path, ref length) && string.Equals(Path.GetFileName(path.ToString()), "deadlock.exe", StringComparison.OrdinalIgnoreCase);
-    }
-    finally { CloseHandle(process); }
-  }
-
-  [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowCallback callback, nint parameter);
-  [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(nint window, out uint processId);
-  [DllImport("user32.dll")] private static extern nint GetForegroundWindow();
-  [DllImport("user32.dll")] private static extern nint GetAncestor(nint window, uint flags);
-  [DllImport("user32.dll")] private static extern nint GetWindow(nint window, uint command);
-  [DllImport("user32.dll")] private static extern nint WindowFromPoint(Point point);
-  [DllImport("user32.dll")] private static extern bool IsWindow(nint window);
-  [DllImport("user32.dll")] private static extern bool IsWindowVisible(nint window);
-  [DllImport("user32.dll")] private static extern int GetWindowLong(nint window, int index);
-  [DllImport("user32.dll")] private static extern bool IsIconic(nint window);
-  [DllImport("user32.dll")] private static extern bool GetClientRect(nint window, out Rect rectangle);
-  [DllImport("user32.dll")] private static extern bool GetWindowRect(nint window, out Rect rectangle);
-  [DllImport("user32.dll")] private static extern bool ClientToScreen(nint window, ref Point point);
-  [DllImport("user32.dll")] private static extern nint MonitorFromWindow(nint window, uint flags);
-  [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
-  [DllImport("dwmapi.dll")] private static extern int DwmGetWindowAttribute(nint window, uint attribute, out Rect value, int size);
-  [DllImport("dwmapi.dll")] private static extern int DwmGetWindowAttribute(nint window, uint attribute, out int value, int size);
-  [DllImport("kernel32.dll")] private static extern nint OpenProcess(uint access, bool inheritHandle, uint processId);
-  [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern bool QueryFullProcessImageName(nint process, uint flags, StringBuilder path, ref uint size);
-  [DllImport("kernel32.dll")] private static extern bool CloseHandle(nint handle);
-  [DllImport("user32.dll")] internal static extern bool SetProcessDpiAwarenessContext(nint context);
-  [DllImport("user32.dll")] private static extern nint GetDC(nint window);
-  [DllImport("user32.dll")] private static extern int ReleaseDC(nint window, nint dc);
-  [DllImport("gdi32.dll")] private static extern int SetStretchBltMode(nint dc, int mode);
-  [DllImport("gdi32.dll")] private static extern bool SetBrushOrgEx(nint dc, int x, int y, out Point previous);
-  [DllImport("gdi32.dll", SetLastError = true)] private static extern bool StretchBlt(nint destination, int x, int y, int width, int height, nint source, int sourceX, int sourceY, int sourceWidth, int sourceHeight, uint operation);
 }

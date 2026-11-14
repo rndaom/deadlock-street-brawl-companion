@@ -19,6 +19,11 @@ describe('reader publication ordering in the renderer', () => {
     expect(newestScreenReaderState(first, next)).toBe(next);
     expect(newestScreenReaderState(next, { ...next, message: 'Duplicate' })).toBe(next);
   });
+  it('keeps the reading-area preview when a newer publication omits it, and drops it when it is cleared', () => {
+    const shown = { ...createInitialScreenReaderState(), revision: 3, previewDataUrl: 'data:image/png;base64,AAAA' };
+    expect(newestScreenReaderState(shown, { ...shown, revision: 4, previewDataUrl: undefined })?.previewDataUrl).toBe('data:image/png;base64,AAAA');
+    expect(newestScreenReaderState(shown, { ...shown, revision: 4, previewDataUrl: null })?.previewDataUrl).toBeNull();
+  });
   it.each([NaN, -1, Infinity, .5])('rejects invalid publication revision %s', revision => {
     const current = createInitialScreenReaderState();
     expect(newestScreenReaderState(current, { ...current, revision })).toBe(current);

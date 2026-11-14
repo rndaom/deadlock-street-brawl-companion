@@ -359,7 +359,8 @@ export function parseScreenMatchObservation(reply: NativeReadResult, catalog: Ca
     && (block.x < 0.35 && block.y < 0.4 || centerX(block) > 0.35 && centerX(block) < 0.65 && centerY(block) > 0.45 && centerY(block) < 0.9));
   const currentDraftHint = !finished && detectDraftHint(controlBlocks);
   const currentCards = currentDraftHint ? parseScreenOffers(offerBlocks, catalog,
-    { draftConfirmed: true, conservativeUnmarkedDetails: true }) : null;
+    { draftConfirmed: true, conservativeUnmarkedDetails: true,
+      ...(reply.clientWidth > 0 && reply.clientHeight > 0 ? { aspect: reply.clientWidth / reply.clientHeight } : {}) }) : null;
   const cardDraft = currentCards?.isDraft === true && currentCards.offers.length === 3;
   const draft = context?.panel === 'draft' || draftTitles.length > 0 || cardDraft;
   const standardColumns = sourceColumns(lines);

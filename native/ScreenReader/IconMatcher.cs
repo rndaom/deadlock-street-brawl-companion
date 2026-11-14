@@ -8,7 +8,10 @@ using System.Text.RegularExpressions;
 
 namespace Deadlock.ScreenReader;
 
-internal sealed record IconMatchRecord(string ItemId, double Confidence, NormalizedRect Bounds, string Role = "bonus", int Slot = 0);
+/** Role "bonus": a card's Bonus! slot (0 or 1). Role "card": the card's own item, by its main icon (slot 0-2, left to right); Enhanced is set when the blue Enhanced arrow proved the card and the icon was matched by brightness pattern only. */
+internal sealed record IconMatchRecord(string ItemId, double Confidence, NormalizedRect Bounds, string Role = "bonus", int Slot = 0, bool? Enhanced = null);
+/** Replay output (--card-icons): the accepted item (empty when unsure), then the raw colour and brightness-pattern results it was decided from. */
+internal sealed record CardIconProbeRecord(int Slot, string ItemId, bool Enhanced, double EnhancedMark, string Colour, double ColourDistance, double ColourMargin, bool Round, double ColourContrast, string Shape, double ShapeDistance, double ShapeMargin, double ShapeContrast);
 
 /// <summary>
 /// Conservative CPU matching against the hash-pinned, build-time public PNG cache.
@@ -69,7 +72,10 @@ internal sealed class IconMatcher
                 var fine = Sample(pixels, square, Grid);
                 var coarse = Sample(pixels, square, CoarseGrid);
                 if (fine is null || coarse is null) return null;
-                result.Add(new Template(id, fine, coarse));
+                var roundFine = Sample(pixels, square, Grid, true);
+                var roundCoarse = Sample(pixels, square, CoarseGrid, true);
+                if (roundFine is null || roundCoarse is null) return null;
+                result.Add(new Template(id, fine, coarse, roundFine, roundCoarse));
             }
             return new IconMatcher(result.ToArray());
         }
@@ -145,6 +151,150 @@ internal sealed class IconMatcher
                 : new IconMatchRecord(other.ItemId, Math.Round(Math.Clamp(0.98 - other.Distance * 3.0, 0, 0.98), 4), ToNormalized(other.Square, imageBounds, image.Width, image.Height), "bonus", 1));
         }
         return found;
+    }
+
+    /**
+     * Each card's own item by its large main icon (140px at panel (130,95), so its centre is (200,165)), without
+     * reading the name. Base cards show the icon as a square tile and Rare! cards clip it to a circle: both are
+     * compared in colour. Enhanced cards re-tint the icon teal and add a blue arrow in the tile's bottom-right
+     * corner; only where that arrow is seen is the icon compared by brightness pattern alone, which cannot tell an
+     * icon from an empty slot by its score.
+     * Measured on 19 real draft frames (2026-10-26 to 2026-11-06): correct colour matches score at most 0.025 with a
+     * margin of 0.027 or more; empty slots score 0.032 or more. Only a card that passes is reported; an empty,
+     * covered or unsure slot reports nothing, and the caller keeps reading its name.
+     */
+    public IReadOnlyList<IconMatchRecord> FindCardIcons(Bitmap image, NormalizedRect imageBounds, int clientWidth, int clientHeight)
+    {
+        var found = new List<IconMatchRecord>(3);
+        foreach (var card in DecideCards(image, imageBounds, clientWidth, clientHeight, false))
+        {
+            if (card.Accepted is not { } match) continue;
+            // As for bonus slots: a normalized template similarity, not a calibrated probability.
+            found.Add(new IconMatchRecord(match.ItemId, Math.Round(Math.Clamp(0.98 - match.Distance * 3.0, 0, 0.98), 4),
+                ToNormalized(match.Square, imageBounds, image.Width, image.Height), "card", card.Slot, card.Enhanced ? true : null));
+        }
+        return found;
+    }
+
+    /** Development replay: every slot's decision with its raw scores; with exhaustive set, the brightness-pattern result for every slot too. */
+    public IReadOnlyList<CardIconProbeRecord> ProbeCardMainIcons(Bitmap image, NormalizedRect imageBounds, int clientWidth, int clientHeight, bool exhaustive = false) =>
+        DecideCards(image, imageBounds, clientWidth, clientHeight, exhaustive).Select(card => new CardIconProbeRecord(card.Slot, card.Accepted?.ItemId ?? "", card.Enhanced, Math.Round(card.Mark, 4),
+            card.Colour?.Best.ItemId ?? "", Math.Round(card.Colour?.Best.Distance ?? 1, 5), Math.Round(card.Colour is { } colour ? Margin(colour) : 0, 5), card.Colour?.Round ?? false, Math.Round(card.Colour?.Best.Contrast ?? 0, 3),
+            card.Shape?.Best.ItemId ?? "", Math.Round(card.Shape?.Best.Distance ?? 1, 5), Math.Round(card.Shape is { } shape ? Margin(shape) : 0, 5), Math.Round(card.Shape?.Best.Contrast ?? 0, 3))).ToArray();
+
+    private sealed record CardDecision(int Slot, Match? Accepted, bool Enhanced, double Mark, (Match Best, Match? Second, bool Round)? Colour, (Match Best, Match? Second, bool Round)? Shape);
+
+    private List<CardDecision> DecideCards(Bitmap image, NormalizedRect imageBounds, int clientWidth, int clientHeight, bool exhaustive)
+    {
+        var found = new List<CardDecision>(3);
+        if (templates.Length == 0 || image.Width < 32 || image.Height < 32 || !ValidBounds(imageBounds) || clientWidth < 64 || clientHeight < 64) return found;
+        double k = clientHeight / 1080.0, offset = (clientWidth - 1920 * k) / 2;
+        double sx = image.Width / (imageBounds.Width * clientWidth), sy = image.Height / (imageBounds.Height * clientHeight);
+        double scale = sy * k;
+        if (scale < 0.15 || scale > 4) return found;
+        PixelBuffer? pixels = null;
+        for (int slot = 0; slot < CardPanels.Length; slot++)
+        {
+            var (panelX, panelY) = CardPanels[slot];
+            double x = (offset + (panelX + 200) * k - imageBounds.X * clientWidth) * sx, y = ((panelY + 165) * k - imageBounds.Y * clientHeight) * sy;
+            // A capture that does not hold this card (a title or HUD strip) costs nothing.
+            if (x < 0 || y < 0 || x >= image.Width || y >= image.Height) continue;
+            pixels ??= PixelBuffer.Read(image);
+            var colour = Better(SearchCard(pixels, x, y, 140 * scale, scale, false, Tolerant), SearchCard(pixels, x, y, 140 * scale, scale, true, Tolerant));
+            double mark = EnhancedMark(pixels, x, y, scale);
+            bool colourAccepted = colour is { } c && c.Best.Distance <= CardMaximumDistance && Margin(c) >= Math.Max(CardMinimumMargin, c.Best.Distance * 0.4)
+                && c.Best.Contrast is >= CardMinimumContrast and <= 1.25;
+            bool enhanced = !colourAccepted && mark is >= EnhancedMarkMinimum and <= EnhancedMarkMaximum;
+            var shape = enhanced || exhaustive ? Better(SearchCard(pixels, x, y, 140 * scale, scale, false, Shape), SearchCard(pixels, x, y, 140 * scale, scale, true, Shape)) : null;
+            bool shapeAccepted = enhanced && shape is { } s && s.Best.Distance <= ShapeMaximumDistance && Margin(s) >= ShapeMinimumMargin && s.Best.Contrast is >= 0.3 and <= 0.6;
+            found.Add(new CardDecision(slot, colourAccepted ? colour!.Value.Best : shapeAccepted ? shape!.Value.Best : null, shapeAccepted, mark, colour, shape));
+        }
+        return found;
+    }
+
+    // Thresholds fitted to 19 draft frames and 47 gameplay frames (2026-10-26 to 2026-11-06); see FindCardIcons.
+    // Contrast is the on-screen icon's brightness spread over its file's: 0.58-0.89 on real cards, 0.39-0.45 on Enhanced
+    // ones, and 0.41-0.44 on the two dark gameplay scenes that otherwise passed as Shadow Weave.
+    private const double CardMaximumDistance = 0.030, CardMinimumMargin = 0.008, CardMinimumContrast = 0.52;
+    private const double ShapeMaximumDistance = 0.018, ShapeMinimumMargin = 0.004, EnhancedMarkMinimum = 0.012, EnhancedMarkMaximum = 0.025;
+    private static double Margin((Match Best, Match? Second, bool Round) result) => (result.Second?.Distance ?? 1) - result.Best.Distance;
+    private static (Match Best, Match? Second, bool Round)? Better((Match Best, Match? Second)? square, (Match Best, Match? Second)? circle)
+    {
+        bool round = circle is not null && (square is null || circle.Value.Best.Distance < square.Value.Best.Distance);
+        return (round ? circle : square) is { } best ? (best.Best, best.Second, round) : null;
+    }
+
+    /**
+     * Share of bright cyan-blue pixels in the bottom-right quarter of a card's icon tile: the Enhanced arrow.
+     * 2026-10-26 and 2026-11-05 frames: 0.017-0.019 on four Enhanced cards, 0 on base, Rare! and empty slots.
+     */
+    private static double EnhancedMark(PixelBuffer pixels, double x, double y, double scale)
+    {
+        int left = (int)Math.Round(x + 20 * scale), top = (int)Math.Round(y + 20 * scale), right = (int)Math.Round(x + 72 * scale), bottom = (int)Math.Round(y + 72 * scale);
+        if (left < 0 || top < 0 || right >= pixels.Width - 1 || bottom >= pixels.Height - 1 || right <= left || bottom <= top) return 0;
+        int marked = 0;
+        for (int row = top; row < bottom; row++)
+        for (int column = left; column < right; column++)
+        {
+            pixels.Sample(column, row, out double red, out double green, out double blue);
+            if (blue > 0.6 && blue - red > 0.3 && blue - green > 0.1) marked++;
+        }
+        return marked / (double)((right - left) * (bottom - top));
+    }
+
+    // Distance modes. Exact: the bonus-slot comparison, unchanged. Tolerant: one brightness gain is fitted first, because
+    // cards draw the main icon at 0.85-1.0 of its file brightness (2026-11-05 frames; it seems to follow the hover state).
+    // Shape: brightness pattern only, for Enhanced cards, whose icon is re-tinted teal. Fitted: the fitted half of Tolerant.
+    private const int Exact = 0, Tolerant = 1, Shape = 2, Fitted = 3;
+    private static readonly double[] SquareFactors = [0.94, 1.0, 1.06];
+    private static readonly double[] RoundFactors = [0.9, 1.0, 1.1, 1.2];
+    private (Match Best, Match? Second)? SearchCard(PixelBuffer image, double predictedX, double predictedY, double size, double scale, bool round, int mode)
+    {
+        if (size < 16) return null;
+        // A template keeps its best coarse placement under each measure it is compared by: with a fitted brightness a
+        // wrong placement can beat the right one at the coarse grid, and the fine pass only moves a placement by 2px.
+        int[] measures = mode == Tolerant ? [Exact, Fitted] : [mode];
+        var bestPerItem = new Candidate?[measures.Length][];
+        for (int measure = 0; measure < measures.Length; measure++) bestPerItem[measure] = new Candidate?[templates.Length];
+        foreach (double factor in round ? RoundFactors : SquareFactors)
+        for (int dy = -16; dy <= 16; dy += 4)
+        for (int dx = -16; dx <= 16; dx += 4)
+        {
+            var square = new Square(predictedX + dx * scale, predictedY + dy * scale, size * factor, 0);
+            var query = Sample(image, square, CoarseGrid, round);
+            if (query is null) continue;
+            for (int measure = 0; measure < measures.Length; measure++)
+            for (int index = 0; index < templates.Length; index++)
+            {
+                var best = bestPerItem[measure];
+                double distance = Distance(query, round ? templates[index].RoundCoarse : templates[index].Coarse, best[index]?.Distance ?? 0.18, measures[measure]);
+                if (distance > 0.18 || (best[index] is { } prior && distance >= prior.Distance)) continue;
+                best[index] = new Candidate(index, square, distance);
+            }
+        }
+        var refined = new Dictionary<int, Match>();
+        foreach (Candidate candidate in bestPerItem.SelectMany(best => best).Where(value => value is not null).Select(value => value!)
+            .Distinct().OrderBy(value => value.Distance).Take(mode == Exact ? 12 : 24))
+        {
+            double bestDistance = double.PositiveInfinity;
+            double bestContrast = 0;
+            Square bestSquare = candidate.Square;
+            foreach (double deltaScale in new[] { 0.97, 1.0, 1.03 })
+            for (int dy = -2; dy <= 2; dy += 2)
+            for (int dx = -2; dx <= 2; dx += 2)
+            {
+                var square = candidate.Square with { X = candidate.Square.X + dx * scale, Y = candidate.Square.Y + dy * scale, Size = candidate.Square.Size * deltaScale };
+                var query = Sample(image, square, Grid, round);
+                if (query is null) continue;
+                var template = round ? templates[candidate.TemplateIndex].RoundFine : templates[candidate.TemplateIndex].Fine;
+                double distance = Distance(query, template, double.PositiveInfinity, mode);
+                if (distance < bestDistance) { bestDistance = distance; bestSquare = square; bestContrast = query.Deviation / Math.Max(template.Deviation, 1e-6); }
+            }
+            if (double.IsFinite(bestDistance) && (!refined.TryGetValue(candidate.TemplateIndex, out var known) || bestDistance < known.Distance))
+                refined[candidate.TemplateIndex] = new Match(templates[candidate.TemplateIndex].ItemId, bestSquare, bestDistance, bestContrast);
+        }
+        var ordered = refined.Values.OrderBy(value => value.Distance).Take(2).ToArray();
+        return ordered.Length == 0 ? null : (ordered[0], ordered.Length > 1 ? ordered[1] : null);
     }
 
     public static IReadOnlyList<IconMatchRecord> InferUnresolvedBonusSlots(Bitmap image, IReadOnlyList<OcrBlock> blocks, NormalizedRect imageBounds)
@@ -223,8 +373,16 @@ internal sealed class IconMatcher
         return ordered[0];
     }
 
-    private static Feature? Sample(PixelBuffer pixels, Square square, int grid)
+    private static Feature? Sample(PixelBuffer pixels, Square square, int grid, bool round = false)
     {
+        // Square icons: exclude the coloured border and bottom-right enhancement arrow. Round (Rare!) cards clip the
+        // icon to a circle, so only cells inside a circle of 0.40 of the icon's size are compared.
+        bool Skip(int x, int y)
+        {
+            if (!round) return x >= grid * 0.75 && y >= grid * 0.75;
+            double u = (x + 0.5) / grid - 0.5, v = (y + 0.5) / grid - 0.5;
+            return u * u + v * v > 0.216;
+        }
         double angle = square.Rotation * Math.PI / 180.0, cos = Math.Cos(angle), sin = Math.Sin(angle);
         double extent = square.Size * (Math.Abs(cos) + Math.Abs(sin)) / 2;
         if (square.X - extent < 0 || square.Y - extent < 0 || square.X + extent >= pixels.Width || square.Y + extent >= pixels.Height) return null;
@@ -235,8 +393,7 @@ internal sealed class IconMatcher
         for (int x = 0; x < grid; x++)
         {
             int index = y * grid + x;
-            // Exclude the coloured border and bottom-right enhancement arrow.
-            if (x >= grid * 0.75 && y >= grid * 0.75) continue;
+            if (Skip(x, y)) continue;
             double localX = ((x + 0.5) / grid - 0.5) * square.Size * 0.86;
             double localY = ((y + 0.5) / grid - 0.5) * square.Size * 0.86;
             pixels.Sample(square.X + cos * localX - sin * localY, square.Y + sin * localX + cos * localY,
@@ -252,28 +409,51 @@ internal sealed class IconMatcher
         for (int y = 0; y < grid; y++)
         for (int x = 0; x < grid; x++)
         {
-            if (x >= grid * 0.75 && y >= grid * 0.75) continue;
+            if (Skip(x, y)) continue;
             int index = y * grid + x;
             luma[index] = Math.Clamp((luma[index] - mean) / Math.Max(deviation, 0.035), -3, 3) * 0.22;
         }
-        return new Feature(color, luma, count, redMean / count, greenMean / count, blueMean / count);
+        return new Feature(color, luma, count, redMean / count, greenMean / count, blueMean / count, deviation);
     }
 
-    private static double Distance(Feature left, Feature right, double maximum = double.PositiveInfinity)
+    private static double Distance(Feature left, Feature right, double maximum = double.PositiveInfinity, int mode = Exact)
+    {
+        if (mode == Shape) return ShapeDistance(left, right, maximum);
+        double exact = mode == Fitted ? double.PositiveInfinity : ColourDistance(left, right, maximum, 1);
+        if (mode == Exact) return exact;
+        double query = left.MeanRed + left.MeanGreen + left.MeanBlue, template = right.MeanRed + right.MeanGreen + right.MeanBlue;
+        if (query <= 0.03) return mode == Fitted ? ColourDistance(left, right, maximum, 1) : exact;
+        return Math.Min(exact, ColourDistance(left, right, Math.Min(maximum, exact), Math.Clamp(template / query, 0.8, 1.25)));
+    }
+
+    private static double ColourDistance(Feature left, Feature right, double maximum, double gain)
     {
         // Static category backgrounds cheaply reject unrelated icons before the shape comparison.
         // Larger colour changes remain unknown rather than using a shape-only optimistic match.
-        double meanRed = left.MeanRed - right.MeanRed, meanGreen = left.MeanGreen - right.MeanGreen, meanBlue = left.MeanBlue - right.MeanBlue;
+        double meanRed = left.MeanRed * gain - right.MeanRed, meanGreen = left.MeanGreen * gain - right.MeanGreen, meanBlue = left.MeanBlue * gain - right.MeanBlue;
         if (meanRed * meanRed + meanGreen * meanGreen + meanBlue * meanBlue > 0.04) return double.PositiveInfinity;
         double total = 0, limit = maximum * left.Count;
         for (int index = 0; index < left.Luma.Length; index++)
         {
             int colorIndex = index * 3;
-            double red = left.Color[colorIndex] - right.Color[colorIndex];
-            double green = left.Color[colorIndex + 1] - right.Color[colorIndex + 1];
-            double blue = left.Color[colorIndex + 2] - right.Color[colorIndex + 2];
+            double red = left.Color[colorIndex] * gain - right.Color[colorIndex];
+            double green = left.Color[colorIndex + 1] * gain - right.Color[colorIndex + 1];
+            double blue = left.Color[colorIndex + 2] * gain - right.Color[colorIndex + 2];
             double luma = left.Luma[index] - right.Luma[index];
             total += 0.15 * (red * red + green * green + blue * blue) + 0.55 * luma * luma;
+            if (total > limit) return double.PositiveInfinity;
+        }
+        return total / left.Count;
+    }
+
+    /** Brightness pattern only (each side's own mean and contrast removed): Enhanced cards re-tint the icon teal, so its colours say nothing. */
+    private static double ShapeDistance(Feature left, Feature right, double maximum)
+    {
+        double total = 0, limit = maximum * left.Count;
+        for (int index = 0; index < left.Luma.Length; index++)
+        {
+            double luma = left.Luma[index] - right.Luma[index];
+            total += 0.55 * luma * luma;
             if (total > limit) return double.PositiveInfinity;
         }
         return total / left.Count;
@@ -314,12 +494,12 @@ internal sealed class IconMatcher
         return new NormalizedRect(x, y, right - x, bottom - y);
     }
 
-    private sealed record Feature(double[] Color, double[] Luma, int Count, double MeanRed, double MeanGreen, double MeanBlue);
-    private sealed record Template(string ItemId, Feature Fine, Feature Coarse);
+    private sealed record Feature(double[] Color, double[] Luma, int Count, double MeanRed, double MeanGreen, double MeanBlue, double Deviation = 0);
+    private sealed record Template(string ItemId, Feature Fine, Feature Coarse, Feature RoundFine, Feature RoundCoarse);
     private sealed record Square(double X, double Y, double Size, double Rotation);
     private sealed record BonusPair(Square First, Square Second, double Scale, bool Searchable);
     private sealed record Candidate(int TemplateIndex, Square Square, double Distance);
-    private sealed record Match(string ItemId, Square Square, double Distance);
+    private sealed record Match(string ItemId, Square Square, double Distance, double Contrast = 0);
 
     private sealed class PixelBuffer
     {

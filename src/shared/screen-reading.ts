@@ -32,7 +32,10 @@ export interface NativeOcrBlock {
 }
 export interface NativeIconMatch {
   itemId: string; confidence: number; bounds: CaptureRegion;
-  role?: 'bonus'; slot?: 0 | 1;
+  /** "bonus": a card's Bonus! slot (0 or 1). "card": the card's own item, matched by its main icon (slot 0-2, left to right). */
+  role?: 'bonus' | 'card'; slot?: 0 | 1 | 2;
+  /** Card role only: the blue Enhanced arrow proved the card, and its re-tinted icon was matched by brightness pattern alone. */
+  enhanced?: boolean;
 }
 export type ScreenCompleteness = 'unknown' | 'partial' | 'complete';
 export type ScreenMatchPhase = 'unknown' | 'draft' | 'combat' | 'finished';
@@ -93,6 +96,10 @@ export interface NativeReadResult {
   blocks: NativeOcrBlock[]; icons?: NativeIconMatch[]; context?: NativeScreenContext;
   crop?: CaptureRegion; ocrAvailable?: boolean; ocrLanguage?: string | null;
   errorCode?: string | null; previewPng?: string | null;
+  /** A watch request's answer: the draft's CHOICE label is on screen by its pixels; absent where the helper cannot watch. */
+  draftLabel?: boolean;
+  /** On the warm-up reply: this helper answers watch requests. */
+  draftWatch?: boolean;
   metrics?: { cpuMs?: number; privateMemoryMb?: number; workingSetMb?: number; captureMs?: number; ocrMs?: number; unchanged?: boolean };
 }
 
@@ -170,6 +177,10 @@ export interface ScreenRoundTracking {
   combatSinceDraft: boolean;
   /** The round was advanced by a new draft rather than read ("ROUND N" not visible yet). */
   inferredAt: number | null;
+  /** The last draft's round before a lower HUD read replaced it; restored if the HUD returns to it. */
+  loweredDraftRound?: number | null;
+  /** A new match's loading screen was seen and no combat or round since: its first draft is round 1's. */
+  matchStart?: boolean;
 }
 export interface ScreenPlayerObservation {
   seat: number; team?: ScreenTeam | null; heroId?: string | null; isLocal?: boolean | null;
@@ -206,6 +217,8 @@ export interface ScreenOffer {
   /** Owned items this upgrade absorbs when picked (they leave your inventory). */
   absorbsIds?: string[];
   confidence: number; warning: string | null;
+  /** The card was identified by its icon: its name was unread, or read as something else. */
+  byIcon?: boolean;
   bounds?: CaptureRegion;
 }
 export interface ScreenAdvice {
@@ -255,7 +268,7 @@ export interface ScreenReaderState {
   /** Matchups against the identified enemies and the items to hope for in drafts (see match-insights.ts). */
   insights?: MatchInsights | null;
   /** Unspent ability points last read from the HUD, and when. */
-  abilityPoints?: { value: number; at: number } | null;
+  abilityPoints?: { value: number; at: number; seenAt?: number } | null;
 }
 export interface MatchupInsight { heroId: string; winRate: number; delta: number; matches: number }
 export interface WishlistInsight { itemId: string; tier: number; winRate: number | null; counters: string[]; valve: boolean }

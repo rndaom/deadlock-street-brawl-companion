@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "clientVersion": 6807,
-  "sourceRevision": 11154106,
-  "patchDateTime": "2026-10-20T21:44:53",
+  "clientVersion": 6861,
+  "sourceRevision": 11219368,
+  "patchDateTime": "2026-11-09T10:12:11",
   "patchTimeZone": null,
   "language": "english",
   "owner": "Community Deadlock API parsing Valve assets; not an official Valve API",
-  "sourceArchive": "catalog-sources/client-6807-ce8e895ab96eea77",
+  "sourceArchive": "catalog-sources/client-6861-8d68a57afa36acd5",
   "sources": [
     {
       "name": "openapi",
       "url": "https://api.deadlock-api.com/openapi.json",
-      "retrievedAt": "2026-10-21T10:44:29.515Z",
-      "bytes": 483257,
-      "sha256": "221879ca2b7f4312015abf5a7ec0772027f84d175868b6fb5a3dc95afe350363",
+      "retrievedAt": "2026-11-14T14:42:22.477Z",
+      "bytes": 500552,
+      "sha256": "f0e04a0577eac201f5ad4ec03e31e9cd4afed96241d32ecf51fd73e6eccb2416",
       "cacheAgeSeconds": null,
       "lastModified": null,
       "cacheControl": null,
@@ -21,56 +21,56 @@
     },
     {
       "name": "steam-info",
-      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6807",
-      "retrievedAt": "2026-10-21T10:44:29.693Z",
+      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6861",
+      "retrievedAt": "2026-11-14T14:42:22.630Z",
       "bytes": 253,
-      "sha256": "491f0b0df50dc01d82d3b2fd7f15206e0f98d4cd8dea26d1b78eef760f5f27ca",
+      "sha256": "a86e575ed300d6329bd17a892fdf3960f0a6384fd37c30aea9ed071e9118eb4d",
       "cacheAgeSeconds": null,
-      "lastModified": "Wed, 21 Oct 2026 10:44:28 GMT",
+      "lastModified": "Sat, 14 Nov 2026 14:42:22 GMT",
       "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
       "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
     },
     {
       "name": "items",
-      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6807",
-      "retrievedAt": "2026-10-21T10:44:29.909Z",
-      "bytes": 6451589,
-      "sha256": "0c4cb42a7ff4d08c47fb715410cf33c5cb7fbcc0b85304b16eca38fbd689f5ee",
-      "cacheAgeSeconds": null,
-      "lastModified": "Wed, 21 Oct 2026 10:44:28 GMT",
+      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6861",
+      "retrievedAt": "2026-11-14T14:42:22.783Z",
+      "bytes": 6458065,
+      "sha256": "ed77a501256bee9cdd862948ea736e89afad62392461bc3a978dc9d0bbc7a4f4",
+      "cacheAgeSeconds": 2480,
+      "lastModified": "Sat, 14 Nov 2026 14:27:17 GMT",
       "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
       "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
     },
     {
       "name": "heroes",
-      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6807",
-      "retrievedAt": "2026-10-21T10:44:29.826Z",
-      "bytes": 1912009,
-      "sha256": "058e0cfadbc6da38b67e03381eb2ef22929403a9c13acad68d201c685e5693eb",
-      "cacheAgeSeconds": 5144,
-      "lastModified": "Wed, 21 Oct 2026 09:40:02 GMT",
+      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6861",
+      "retrievedAt": "2026-11-14T14:42:22.716Z",
+      "bytes": 1911878,
+      "sha256": "b81ee8edc0584a18d5d7dda746f58092a2d88db42fa246131cd4ac474bd64c6a",
+      "cacheAgeSeconds": 2636,
+      "lastModified": "Sat, 14 Nov 2026 14:27:17 GMT",
       "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
       "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
     },
     {
       "name": "generic-data",
-      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6807",
-      "retrievedAt": "2026-10-21T10:44:29.952Z",
+      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6861",
+      "retrievedAt": "2026-11-14T14:42:22.710Z",
       "bytes": 25246,
-      "sha256": "c79251babef7812fc27d20a6154fe9f39355fc6ce659a79a6fbd3c910df7e396",
-      "cacheAgeSeconds": null,
-      "lastModified": "Wed, 21 Oct 2026 10:44:28 GMT",
+      "sha256": "efed0a75190190f552301d0172266a9131b2f566633027ea433241efe0b1a13e",
+      "cacheAgeSeconds": 903,
+      "lastModified": "Sat, 14 Nov 2026 14:27:18 GMT",
       "cacheControl": "public, max-age=3600, stale-while-revalidate=7200, stale-if-error=172800",
       "owner": "Community Deadlock API parsing Valve assets; not an official Valve API"
     }
   ],
   "catalog": {
     "file": "public-catalog.json",
-    "sha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
-    "bytes": 93120
+    "sha256": "3963866feb43584c7a26db505685b99fdaf7631bb3b562b9f0e1a103a0290c4f",
+    "bytes": 93215
   },
   "counts": {
-    "sourceItemRecords": 781,
+    "sourceItemRecords": 782,
     "sourceHeroRecords": 65,
     "baseShopItems": 173,
     "releasedHeroes": 44,
@@ -307,10 +307,10 @@
       "Installed build compatibility until participant telemetry supplies a client version"
     ]
   },
-  "tagRuleVersion": 1,
+  "tagRuleVersion": 2,
   "tagDefinitions": {
-    "weapon": "Weapon category or positive weapon/fire-rate properties",
-    "spirit": "Spirit category or positive spirit-power property",
+    "weapon": "Weapon category or positive weapon/fire-rate properties; marksman hero role, else the hero's Good draft list",
+    "spirit": "Spirit category or positive spirit-power property; mystic hero role, else the hero's Good draft list",
     "melee": "Melee damage mechanic or brawler hero role",
     "healing": "Positive healing/regeneration/lifesteal mechanic",
     "support": "Description explicitly supports an ally",
@@ -333,7 +333,7 @@
     "Valve owns game text and assets. This same-machine bundle makes no redistribution-rights claim."
   ],
   "researchPins": {
-    "steamTrackingCommit": "3207c1601bf83515155a1108b4b8def7338b1b29",
+    "steamTrackingCommit": "82735ebcc9c89d1b3f6b3262c23c9580798ad362",
     "apiSourceCommit": "f6e1974d45af3ccebe0f36324ea22e1e12990ff3",
     "note": "Reviewed research source commits; these do not authenticate the mutable provider response."
   }

@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Catalog, CompanionBridge, OverlayStatus } from '../shared/types';
 import type { ScreenReaderState } from '../shared/screen-reading';
-import { DRAFT_CARD_CENTERS, DRAFT_CARD_RADIUS, OVERLAY_PANEL, REROLL_BUTTON, overlayHasApPrompt, overlayHasDraftCall, overlayStage } from '../shared/overlay';
+import { ABILITY_COLUMN_GAPS, ABILITY_COLUMN_X, ABILITY_PANEL, ABILITY_PILL, ABILITY_TIER_Y, DRAFT_CARD_CENTERS, DRAFT_CARD_RADIUS, OVERLAY_PANEL, REROLL_BUTTON,
+  overlayAbilityNudge, overlayHasDraftCall, overlayStage } from '../shared/overlay';
 import { newestScreenReaderState } from './screen-state';
 import { useReaderClock } from './clock';
-import { capitalise, deriveView, formatEdge } from './view';
-import type { CallView, CompanionView, WishView } from './view';
+import { abilityNudgeView, capitalise, deriveView, formatEdge } from './view';
+import type { AbilityNudgeView, CallView, CompanionView, WishView } from './view';
 import { ROMAN } from './catalog-index';
 import { ItemArt } from './components/Art';
 
 const CATEGORY_NAMES = { weapon: 'Weapon', vitality: 'Vitality', spirit: 'Spirit', unknown: 'Item' } as const;
-const MARK_LABELS = { pick: 'Pick', close: 'Lean', consider: 'Consider', reroll: 'If kept' } as const;
+const MARK_LABELS = { pick: 'Pick', close: 'Lean', partial: 'So far', consider: 'Consider', reroll: 'If kept' } as const;
 const KICKERS = {
   pick: (side: string) => `Take the ${side.toLowerCase()} card`,
   close: (side: string) => `Close call · lean ${side.toLowerCase()}`,
+  partial: (side: string) => `Best so far · the ${side.toLowerCase()} card`,
   reroll: () => 'Reroll suggested',
   consider: (side: string) => `Consider the ${side.toLowerCase()} card`,
 };
@@ -102,15 +104,32 @@ export function InfoPanel({ view, hotkey }: { view: CompanionView; hotkey: strin
   </section>;
 }
 
-/** Shown on its own while unspent points buy the next planned upgrade during a draft: no hotkey needed. */
-export function ApPrompt({ view }: { view: CompanionView }) {
-  const step = view.me.step;
-  if (!step?.spend) return null;
-  return <section className="ov-card ov-ap">
-    <p className="ov-kicker">Ability points</p>
-    <h1 className="ov-title ov-ap-title">{step.title}</h1>
-    {step.detail && <p className="ov-line ov-muted">{step.detail}</p>}
-  </section>;
+/** Where the ability marker goes, in design pixels: its column, the tier pill to click, and the label's anchor. */
+export function abilityMarkGeometry(slot: number, tier: number | null) {
+  const x = ABILITY_COLUMN_X[slot]; const left = ABILITY_COLUMN_GAPS[slot]; const right = ABILITY_COLUMN_GAPS[slot + 1];
+  if (x === undefined || left === undefined || right === undefined) return null;
+  const pillY = tier !== null ? ABILITY_TIER_Y[tier - 1] : undefined;
+  return {
+    frame: { left, top: ABILITY_PANEL.top - 3, width: right - left, height: ABILITY_PANEL.bottom - ABILITY_PANEL.top + 3 },
+    pill: pillY === undefined ? null : { left: x - ABILITY_PILL.width / 2 - 4, top: pillY - ABILITY_PILL.height / 2 - 4, width: ABILITY_PILL.width + 8, height: ABILITY_PILL.height + 8 },
+    // Right-aligned to the column, above the panel: the game opens a tier's tooltip to the right of the hovered column.
+    label: { left: right, top: ABILITY_PANEL.top - 12 },
+  };
+}
+
+/** Frames the ability to upgrade where the player clicks it (hold Tab), rings its tier, and names it. */
+export function AbilityMarks({ nudge }: { nudge: AbilityNudgeView }) {
+  const at = abilityMarkGeometry(nudge.slot, nudge.tier);
+  if (!at) return null;
+  const soft = nudge.ready ? '' : ' ov-ab-soft';
+  return <>
+    <div className={`ov-ab-frame${soft}`} style={at.frame} />
+    {at.pill && <div className={`ov-ab-pill${soft}`} style={at.pill} />}
+    <div className={`ov-ab-label${soft}`} style={at.label}>
+      <p className="ov-ab-title">{nudge.title}</p>
+      <p className="ov-ab-detail">{nudge.detail}</p>
+    </div>
+  </>;
 }
 
 export function Overlay({ bridge }: { bridge: CompanionBridge }) {
@@ -135,14 +154,15 @@ export function Overlay({ bridge }: { bridge: CompanionBridge }) {
   const view = useMemo(() => catalog ? deriveView(reader, catalog, clock) : null, [reader, catalog, clock.now, clock.readingSince, clock.lastProgressAt]);
   if (!view) return null;
   const call = overlayHasDraftCall(reader, clock.now) ? view.call : null;
-  // The info panel already leads with the plan, so the spend prompt stands in only while it is closed.
-  const spend = !status.panel && overlayHasApPrompt(reader, clock.now) && !!view.me.step?.spend;
+  // Whether the window shows at all (and for how long a standing amount is nudged) is the main process's call.
+  const nudge = overlayAbilityNudge(reader, clock.now);
+  const ability = nudge ? abilityNudgeView(view.me, nudge) : null;
   const stage = overlayStage(size.width, size.height);
   return <div className="ov-stage" aria-hidden="true" style={{ transform: `translate(${stage.left}px, ${stage.top}px) scale(${stage.scale})` }}>
     {call && <DraftMarks call={call} />}
-    {(call || status.panel || spend) && <div className="ov-panel" style={{ left: OVERLAY_PANEL.x, top: OVERLAY_PANEL.y, width: OVERLAY_PANEL.width }}>
+    {ability && <AbilityMarks nudge={ability} />}
+    {(call || status.panel) && <div className="ov-panel" style={{ left: OVERLAY_PANEL.x, top: OVERLAY_PANEL.y, width: OVERLAY_PANEL.width }}>
       {call && <CallSummary call={call} hopes={call.kind === 'reroll' ? view.insights?.hopes : undefined} header={draftHeader(view.match)} />}
-      {spend && <ApPrompt view={view} />}
       {status.panel && <InfoPanel view={view} hotkey={status.hotkey} />}
     </div>}
   </div>;

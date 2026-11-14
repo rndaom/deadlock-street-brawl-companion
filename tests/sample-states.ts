@@ -8,13 +8,14 @@ import { matchInsights } from '../src/screen/match-insights';
  * (src/screen/screen-advice.ts, ability-plan.ts) for a Haze game, in its current wording; scores are
  * fixed so each sample keeps showing the state it is named for.
  */
-export type SampleStateId = 'pick' | 'imbue' | 'close' | 'reroll' | 'reading' | 'between' | 'partial' | 'waiting' | 'background' | 'paused';
+export type SampleStateId = 'pick' | 'imbue' | 'close' | 'reroll' | 'unread' | 'reading' | 'between' | 'partial' | 'waiting' | 'background' | 'paused';
 
 export const SAMPLE_STATES: { id: SampleStateId; label: string }[] = [
   { id: 'pick', label: 'Draft · clear pick' },
   { id: 'imbue', label: 'Draft · imbue item' },
   { id: 'close', label: 'Draft · close call' },
   { id: 'reroll', label: 'Draft · reroll suggested' },
+  { id: 'unread', label: 'Draft · one card unread' },
   { id: 'reading', label: 'Draft · reading cards' },
   { id: 'between', label: 'Between rounds' },
   { id: 'partial', label: 'Between rounds · ability not read' },
@@ -114,6 +115,11 @@ const ADVICE: Record<'pick' | 'imbue' | 'close' | 'reroll', { offers: ScreenOffe
   },
 };
 
+// The right card's name is not read yet: the best card read so far is only suggested.
+const UNREAD = { ...ADVICE.pick, offers: [...ADVICE.pick.offers.slice(0, 2), offer(2, '', { name: 'Unread item choice', variant: 'unknown', bonusIds: null, confidence: 0 })],
+  advice: { ...ADVICE.pick.advice, title: 'Best so far: Toxic Bullets', caveat: 'One card name was not read clearly; check it in game.',
+    ranked: [...ADVICE.pick.advice.ranked.slice(0, 2), { position: 2, score: 0, reasons: ['Item name is not identified; no effects are assumed.'] }] } };
+
 function observation(now: number): ScreenContextObservation {
   return { sessionId: 'sample', frameId: 'sample', capturedAt: now, receivedAt: now, method: 'layout-association', confidence: 1, bounds: [] };
 }
@@ -126,7 +132,7 @@ export function sampleState(id: SampleStateId, now = Date.now()): ScreenReaderSt
   const plan = id === 'partial' ? null : id === 'between'
     ? { slot: 0, ability: 'Sleep Dagger', tier: 3, cost: 5, winRate: 0.539, games: 180, then: ['Smoke Bomb', 'Fixation', 'Bullet Dance'], path: [0, 1, 2, 3, 1, 2, 3], reason: 'the most common next upgrade from your levels, and it wins 54%' }
     : { slot: 2, ability: 'Fixation', tier: 1, cost: 1, winRate: null, games: 0, then: ['Fixation', 'Fixation', 'Sleep Dagger'], path: [2, 2, 2, 0, 0, 1, 1, 3, 3], reason: 'players usually raise this one next' };
-  const draft = id === 'pick' || id === 'imbue' || id === 'close' || id === 'reroll' ? ADVICE[id] : null;
+  const draft = id === 'unread' ? UNREAD : id === 'pick' || id === 'imbue' || id === 'close' || id === 'reroll' ? ADVICE[id] : null;
   const inMatch = id !== 'waiting';
   const state: ScreenReaderState = {
     ...base, revision: 1, status: 'waiting-draft', enabled: true, engineReady: true, gamePresent: inMatch, foreground: true,

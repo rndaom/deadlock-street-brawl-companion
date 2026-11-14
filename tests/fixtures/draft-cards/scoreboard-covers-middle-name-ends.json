@@ -1,0 +1,23 @@
+{
+ "client": "1920x1080",
+ "crop": {
+  "x": 0.020833333333333332,
+  "y": 0.1574074074074074,
+  "width": 0.8125,
+  "height": 0.6203703703703703
+ },
+ "truth": {
+  "cards": [
+   "Mystic Reverb",
+   "Ethereal Shift",
+   "Ricochet"
+  ],
+  "variants": [
+   "base",
+   "base",
+   "base"
+  ],
+  "choice": 1
+ },
+ "source": "real 2026-11-01 Linux (Tesseract) draft frame tab-2026-11-02T02-27-41-492Z, cropped to the draft labels and card names: the expanded scoreboard's player columns covered both ends of the hovered middle card's name (read as 'thereal Shif')"
+}

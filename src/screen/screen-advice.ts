@@ -7,6 +7,7 @@ import { CHOICE_TIERS, draftTierOf } from '../shared/draft-tiers';
 import { streetBrawlData } from './street-brawl-data';
 import { imbueTarget } from './imbue-advice';
 import { absorbedComponents } from './item-bundles';
+import { CLOSE_CALL_MARGIN, holdShownPick, type ShownPick } from './pick-hold';
 
 export interface ScreenOfferContext {
   heroId: string | null; round: number | null; rerolls: number | null;
@@ -20,6 +21,10 @@ export interface ScreenOfferContext {
   enemyItemIds?: readonly string[];
   matchContext?: ScreenMatchContext;
   now?: number;
+  /** The cards and pick already shown for this draft: the pick stays unless another card clearly beats it (pick-hold.ts). */
+  shownPick?: ShownPick | null;
+  /** The most active items (a button to press) the player wants to own, 0-4; 4 or unset is no limit (the game allows four). */
+  maxActiveItems?: number;
 }
 /** One advised card. Besides the shared fields, two Street Brawl numbers for the interface. */
 export type AdvisedOffer = ScreenAdvice['ranked'][number] & {
@@ -39,11 +44,13 @@ interface ItemProfile {
 interface OfferComparison { offer: ScreenOffer; main: ItemProfile | null; profiles: ItemProfile[]; score: number; reasons: string[]; problems: string[] }
 
 const READ_QUALITY_MINIMUM = 0.85;
-const PINNED_CLIENT = '6807';
-const PINNED_REVISION = '11154106';
+/** The game lets a player carry four active items, so a preference of four is no limit. */
+const ACTIVE_ITEM_SLOTS = 4;
+const PINNED_CLIENT = '6861';
+const PINNED_REVISION = '11219368';
 /**
- * Extracted from the saved client-6807 Valve-asset snapshot (items SHA-256
- * 0c4cb42a7ff4d08c47fb715410cf33c5cb7fbcc0b85304b16eca38fbd689f5ee).
+ * Extracted from the saved client-6861 Valve-asset snapshot (items SHA-256
+ * ed77a501256bee9cdd862948ea736e89afad62392461bc3a978dc9d0bbc7a4f4).
  * Only positive own innate allowlisted properties, without upgrade requirements,
  * negative attributes, or conditional flags are retained. Fixed amounts also
  * exclude scaling functions. Explicit Street Brawl values override normal ones.
@@ -100,17 +107,16 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
   "upgrade_headshot_booster2": {"fixed":{"health":60},"traits":["health"],"active":false},
   "upgrade_healbane": {"fixed":{"spiritPower":7},"traits":["spirit"],"active":false},
   "upgrade_healbuff": {"fixed":{"spiritResist":10,"regen":6},"traits":["healing","spirit-resist"],"active":false},
-  "upgrade_healing_booster": {"fixed":{"regen":3},"traits":["healing"],"active":false},
   "upgrade_health": {"fixed":{"health":210},"traits":["health"],"active":false},
   "upgrade_health_nova": {"fixed":{"spiritPower":8},"traits":["spirit"],"active":true},
-  "upgrade_health_stealing_magic": {"fixed":{"spiritPower":6,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
+  "upgrade_health_stealing_magic": {"fixed":{"spiritPower":8,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
   "upgrade_health_stimpak": {"fixed":{},"traits":[],"active":true},
   "upgrade_hollow_point_rounds": {"fixed":{"health":125},"traits":["health"],"active":false},
   "upgrade_improved_spirit": {"fixed":{"spiritPower":10},"traits":["spirit"],"active":false},
   "upgrade_infinite_rounds": {"fixed":{"fireRate":35},"traits":["weapon"],"active":false},
-  "upgrade_infuser": {"fixed":{"spiritPower":6,"health":100},"traits":["health","spirit","spirit-lifesteal"],"active":true},
+  "upgrade_infuser": {"fixed":{"spiritPower":8,"health":100},"traits":["health","spirit","spirit-lifesteal"],"active":true},
   "upgrade_inhibitor": {"fixed":{"health":150},"traits":["health"],"active":false},
-  "upgrade_juggernaut": {"fixed":{"regen":8},"traits":["healing"],"active":false},
+  "upgrade_juggernaut": {"fixed":{"regen":15},"traits":["healing"],"active":false},
   "upgrade_magic_carpet": {"fixed":{"spiritPower":14,"health":125},"traits":["health","spirit"],"active":true},
   "upgrade_magic_shield": {"fixed":{"spiritResist":18},"traits":["spirit-resist"],"active":false},
   "upgrade_magic_shock": {"fixed":{"health":50},"traits":["health"],"active":false},
@@ -134,7 +140,7 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
   "upgrade_rescue_beam": {"fixed":{},"traits":[],"active":true},
   "upgrade_resonant_healing": {"fixed":{"health":90},"traits":["health"],"active":false},
   "upgrade_restorative_locket": {"fixed":{"spiritResist":8},"traits":["spirit-resist"],"active":true},
-  "upgrade_return_fire": {"fixed":{},"traits":[],"active":true},
+  "upgrade_return_fire": {"fixed":{"bulletResist":10},"traits":["bullet-resist"],"active":true},
   "upgrade_ricochet": {"fixed":{"fireRate":18},"traits":["weapon"],"active":false},
   "upgrade_rocket_booster": {"fixed":{},"traits":[],"active":true},
   "upgrade_rupture": {"fixed":{"spiritPower":8,"health":65},"traits":["health","spirit"],"active":true},
@@ -150,9 +156,9 @@ const PINNED_BASE_FACTS: Record<string, BaseFacts> = {
   "upgrade_suppressor": {"fixed":{"spiritPower":6,"bulletResist":8},"traits":["bullet-resist","spirit"],"active":false},
   "upgrade_surging_power": {"fixed":{"health":100},"traits":["bullet-lifesteal","health"],"active":true},
   "upgrade_target_stun": {"fixed":{"health":75},"traits":["health"],"active":true},
-  "upgrade_targeted_silence": {"fixed":{"health":50},"traits":["health"],"active":true},
+  "upgrade_targeted_silence": {"fixed":{"health":90},"traits":["health"],"active":true},
   "upgrade_tech_damage_pulse": {"fixed":{"health":100},"traits":["health"],"active":false},
-  "upgrade_tech_overflow": {"fixed":{"spiritPower":6,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
+  "upgrade_tech_overflow": {"fixed":{"spiritPower":8,"health":90},"traits":["health","spirit","spirit-lifesteal"],"active":false},
   "upgrade_thermal_detonator": {"fixed":{"spiritPower":10},"traits":["spirit"],"active":true},
   "upgrade_ultimate_burst": {"fixed":{"health":50},"traits":["health"],"active":false},
   "upgrade_unstable_concoction": {"fixed":{},"traits":[],"active":true},
@@ -251,6 +257,8 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
   const contextScored = comparisonPosition !== null ? !!baseComparison : !!contextual?.hasContext;
   const enemyHeroIds = context.enemyHeroIds ?? [];
   const owned = new Set(ownedItemIds);
+  // The owned items, for how each card wins beside them (measured item pairs).
+  const ownedIds = [...owned];
   const draftTier = draftTierOf(offers.map(offer => ({ tier: items.get(offer.itemId)?.tier, rare: offer.rare })));
   const pools = heroId && streetBrawlData().heroes[heroId] ? draftPools(heroId, hero, usePinnedFacts, enemyHeroIds, owned, context, items, bonusMechanicsFor(items, hero, usePinnedFacts)) : null;
   const slotPool = draftTier === null ? null : pools?.(draftTier) ?? null;
@@ -277,7 +285,7 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
     const offer = offers[index];
     if (!offer || !items.has(offer.itemId)) return entry;
     const item = items.get(offer.itemId)!;
-    const fit = streetBrawlFit(offer.itemId, heroId, enemyHeroIds);
+    const fit = streetBrawlFit(offer.itemId, heroId, enemyHeroIds, ownedIds);
     const build = buildFit(item, context, items);
     // A "Bonus!" card gives a second, free item; an Enhanced card is the same item with extra stats.
     const bonus = bonusValue(offer, items, bonusMechanics);
@@ -310,17 +318,37 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
     limitations.push(`Offer ${entry.position + 1}: ${items.get(entry.offer.itemId)!.name} is already owned; a draft does not offer owned items, so this read is treated as a likely misread.`);
   }
   const trusted = resolved.filter(entry => !owned.has(entry.offer.itemId));
-  const pickOrder = trusted.length ? trusted : resolved;
+  // Once the player owns as many active items as they want, an active card does not become the pick while a
+  // trusted card without a button is on offer. Like a misread it keeps its score and place in the ranking.
+  // Only the main item counts: a Bonus! card's free item is valued apart from it (bonusValue) and is often unread.
+  const activeOwned = [...owned].filter(id => isActiveItem(id, usePinnedFacts)).length;
+  const limit = context.maxActiveItems;
+  const limitReached = limit !== undefined && Number.isFinite(limit) && limit < ACTIVE_ITEM_SLOTS && activeOwned >= limit;
+  const isActiveCard = (entry: { offer: ScreenOffer }) => isActiveItem(entry.offer.itemId, usePinnedFacts);
+  const withoutButton = limitReached ? trusted.filter(entry => !isActiveCard(entry)) : trusted;
+  const skippedActive = limitReached && withoutButton.length ? trusted.filter(isActiveCard) : [];
+  const pickOrder = withoutButton.length ? withoutButton : trusted.length ? trusted : resolved;
+  const allActive = limitReached && trusted.length > 0 && withoutButton.length === 0;
   // Cards are only read while a draft is visible, which only a player in the match sees; an ended match has no pick.
   const ownView = context.matchContext?.phase !== 'finished';
-  const pickEntry = !ownView ? undefined : pickOrder[0];
+  // While the same cards stay on screen, the pick already shown stays unless another card clearly beats it.
+  const hold = ownView ? holdShownPick(pickOrder, liveOffers, context.shownPick) : null;
+  const pickEntry = hold?.pick;
   const pick = pickEntry?.position ?? null;
   const pickName = pickEntry ? items.get(pickEntry.offer.itemId)?.name ?? null : null;
+  const challengerName = hold?.challenger ? items.get(hold.challenger.offer.itemId)?.name ?? null : null;
   const margin = pickEntry && pickOrder.length > 1 ? pickEntry.score - Math.max(...pickOrder.filter(entry => entry !== pickEntry).map(entry => entry.score)) : null;
-  const closeCall = margin !== null && margin < 0.25;
+  const closeCall = hold?.kept === 'close' || hold?.kept !== 'unconfirmed' && margin !== null && margin < CLOSE_CALL_MARGIN;
+  const keptLine = !pickName || !challengerName ? null
+    : hold?.kept === 'close' ? `Close call: ${pickName} and ${challengerName} are about even; the pick stays on ${pickName}.`
+    : hold?.kept === 'unconfirmed' ? `${challengerName} only leads on a read with unconfirmed card details; the pick stays on ${pickName}.` : null;
+  // Name the card the limit passed over when it outscores the pick.
+  const passed = pickEntry ? skippedActive.find(entry => entry.score > pickEntry.score) : undefined;
+  const limitLine = passed && pickEntry ? `${items.get(passed.offer.itemId)!.name} is passed over: an active item, and you already own ${activeOwned} (you want at most ${limit}).`
+    : allActive && pickEntry ? `Every readable card is an active item and you already own ${activeOwned} (you want at most ${limit}); this is the best of them.` : null;
   const reasons = !best ? ['No offered item can be resolved to the local catalogue.', 'Read the item names and complete bonus/modifier details before comparing choices.']
     : !pickEntry ? ['The match has ended; there is no pick to make.']
-    : [...(closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
+    : [...(limitLine ? [limitLine] : []), ...(keptLine ? [keptLine] : closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
   // The reroll call compares the whole draft with what this tier usually offers, so it needs
   // three distinct resolved cards, none of them a likely misread.
   const fullDraft = shapeComplete && offers.length === 3 && resolved.length === 3 && misread.length === 0;
@@ -338,7 +366,9 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
     : weakName ? 'One card name was not read clearly; check it in game.' : null;
   return {
     preferredPosition: pick,
-    title: pickName === null ? 'Compare the readable cards' : reroll.suggest ? `Reroll — or take ${pickName}` : closeCall ? `Slight edge: ${pickName}` : `Pick ${pickName}`,
+    // Until all three cards are read (and none is a likely misread), the unread card may still beat the pick.
+    title: pickName === null ? 'Compare the readable cards' : reroll.suggest ? `Reroll — or take ${pickName}`
+      : !fullDraft ? `Best so far: ${pickName}` : closeCall ? `Slight edge: ${pickName}` : `Pick ${pickName}`,
     reasons, limitations,
     // Preserve the original game positions and array order, including unknown cards.
     ranked,
@@ -435,6 +465,10 @@ function mechanicsNote(item: CatalogItem, facts: BaseFacts | null, traits: Set<s
   return description || (snippets.length ? `Base stats: ${snippets.slice(0, 2).join(', ')}.` : traitDescription(traits));
 }
 
+/** Whether the item has a button to press: the pinned base facts' `active` flag, false when there are none (as executionCondition reads it). */
+function isActiveItem(itemId: string, usePinnedFacts: boolean): boolean {
+  return usePinnedFacts && PINNED_BASE_FACTS[itemId]?.active === true;
+}
 function executionCondition(description: string, facts: BaseFacts | null): string | null {
   if (/^(?:weapon|bullet)\s+damage\s+vs\.?\s+(?:NPCs?|non.?heroes)/i.test(description)) return 'Its listed damage bonus is against NPCs; hero-fight value is limited.';
   if (/sacrifice\s+health/i.test(description)) return 'Costs health while active; the health tradeoff needs care.';
@@ -584,7 +618,7 @@ function draftPools(heroId: string, hero: CatalogHero | null, usePinnedFacts: bo
   };
   const cache = new Map<number, PoolCard[] | null>();
   return tier => {
-    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra }));
+    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra, owned: ownedList }));
     return cache.get(tier)!;
   };
 }
@@ -636,7 +670,8 @@ let draftMemory: { key: string; owned: readonly string[]; offers: ScreenOffer[] 
  */
 function stableDraft(offers: ScreenOffer[], context: ScreenOfferContext): { offers: ScreenOffer[]; ownedItemIds: readonly string[] } {
   const owned = context.ownedItemIds ?? [];
-  const key = JSON.stringify([context.heroId, context.round, offers.map(offer => `${offer.position}:${offer.itemId}:${offer.rare ? 1 : 0}`).sort()]);
+  // Not keyed by round: the round can be inferred or corrected in the middle of a draft, after a pick.
+  const key = JSON.stringify([context.heroId, offers.map(offer => `${offer.position}:${offer.itemId}:${offer.rare ? 1 : 0}`).sort()]);
   const memory = draftMemory?.key === key ? draftMemory : null;
   if (memory && offers.some(offer => !!offer.itemId && owned.includes(offer.itemId) && !memory.owned.includes(offer.itemId))) {
     return { offers: memory.offers, ownedItemIds: memory.owned };

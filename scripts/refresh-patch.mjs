@@ -11,7 +11,7 @@
 //  3. Rebuild the catalogue from the saved archive, then the context catalogue, icon caches and
 //     Street Brawl statistics (games since STREET_BRAWL_PATCH_START in src/screen/street-brawl-fetch.ts).
 //  4. Repin the item base-fact table in src/screen/screen-advice.ts to the new snapshot.
-//  5. Rebuild the native reader's descriptor caches so new heroes reach the fast template path.
+//  5. Rebuild the native reader's descriptor caches (scripts/build-native.mjs) so new heroes reach the fast template path.
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
@@ -44,10 +44,11 @@ async function latestClientVersion() {
   return String(info.client_version);
 }
 
-async function newestArchive(directory, prefix) {
-  const entries = (await fs.readdir(directory, { withFileTypes: true })).filter(entry => entry.isDirectory() && entry.name.startsWith(prefix));
-  const stats = await Promise.all(entries.map(async entry => ({ name: entry.name, at: (await fs.stat(path.join(directory, entry.name))).mtimeMs })));
-  return stats.sort((a, b) => b.at - a.at)[0]?.name ?? null;
+/** The archive the fetch just pinned (not the newest folder: an unchanged bundle reuses its old archive untouched). */
+async function fetchedArchive(clientVersion) {
+  const manifest = JSON.parse(await fs.readFile(path.join(root, 'data/catalog-manifest.json'), 'utf8'));
+  const name = String(manifest.sourceArchive ?? '').replace(/^catalog-sources\//, '');
+  return String(manifest.clientVersion) === clientVersion && name.startsWith(`client-${clientVersion}-`) && !name.includes('/') ? name : null;
 }
 
 async function trackingCommit(clientVersion) {
@@ -134,12 +135,15 @@ async function main() {
   const before = await heroNames();
   console.log(`Refreshing game data for Deadlock client ${clientVersion}.`);
 
-  await node('scripts/sync-catalog.mjs', '--fetch', '--client-version', clientVersion);
-  const archive = await newestArchive(path.join(root, 'data/catalog-sources'), `client-${clientVersion}-`);
-  ensure(archive, `No saved archive for client ${clientVersion}`);
-
+  // Every network precondition first: the tracking repository can lag the API by hours, and stopping after
+  // the catalogue was rewritten left it ahead of the auxiliary files, icons and context catalogue (a broken build).
   const oldSha = await currentAuxCommit();
   const newSha = await trackingCommit(clientVersion);
+
+  await node('scripts/sync-catalog.mjs', '--fetch', '--client-version', clientVersion);
+  const archive = await fetchedArchive(clientVersion);
+  ensure(archive, `No saved archive for client ${clientVersion}`);
+
   if (newSha !== oldSha) {
     console.log(`\nAuxiliary Valve files: ${oldSha.slice(0, 10)} -> ${newSha.slice(0, 10)}`);
     await downloadAux(oldSha, newSha);
@@ -153,10 +157,9 @@ async function main() {
   console.log('\n> repin item base facts');
   await repinBaseFacts(clientVersion, archive);
 
-  const helper = path.join(root, 'native/ScreenReader/publish/ScreenReader.exe');
+  // build-native.mjs builds the reader when needed and prepares the descriptors (on Linux only when the icons changed).
   try {
-    await fs.access(helper);
-    await run(helper, ['--prepare-descriptors', path.join(root, 'assets/context-icons'), path.join(root, 'assets/reader-icons')], 'prepare reader descriptors');
+    await node('scripts/build-native.mjs');
   } catch (error) {
     console.warn(`\nReader descriptors were not rebuilt (${error.message}). Run node scripts/build-native.mjs.`);
   }

@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "clientVersion": "6807",
-  "revision": "11154106",
-  "catalogSha256": "34c01ce5142dca00ecbe9ae4824fa7c7a638665b4b4efcd822dba4eac52bcd0a",
-  "retrievedAt": "2026-10-21T10:44:33.519Z",
+  "clientVersion": "6861",
+  "revision": "11219368",
+  "catalogSha256": "3963866feb43584c7a26db505685b99fdaf7631bb3b562b9f0e1a103a0290c4f",
+  "retrievedAt": "2026-11-14T14:42:26.533Z",
   "source": "Static public Deadlock API item images; mirrored Valve assets, not a game capture",
-  "totalBytes": 8199521,
+  "totalBytes": 8209412,
   "featureGrid": 16,
   "icons": [
     {
@@ -1229,8 +1229,8 @@
       "file": "icons/upgrade_mystical_piano.png",
       "width": 200,
       "height": 200,
-      "bytes": 74398,
-      "sha256": "51f3b4d83ae329936a04a2f795a84e6fe7a66a3698b7346c6c7991b9a2abd420"
+      "bytes": 77239,
+      "sha256": "d90e0a1eafdc5c9680e39682d76e7cefe89ccee86a7419e48aeabc5d82422c9f"
     },
     {
       "itemId": "upgrade_nullification_aura",
@@ -1313,8 +1313,8 @@
       "file": "icons/upgrade_prism_blast.png",
       "width": 200,
       "height": 200,
-      "bytes": 73708,
-      "sha256": "568650519e826110959e95c6d17bcb6d89073d8998f877eaa92a1f4eb154ec30"
+      "bytes": 76908,
+      "sha256": "bfefdd8e524b418659c97a74868b586774cd081e6422b02f0dea95a21f40a1f0"
     },
     {
       "itemId": "upgrade_quick_silver",
@@ -1973,8 +1973,8 @@
       "file": "icons/upgrade_unstable_concoction.png",
       "width": 200,
       "height": 200,
-      "bytes": 70081,
-      "sha256": "0fd2fb9920e936fdd5a2fa65aa42fdf52da71c303db04237a402e017a7a3af72"
+      "bytes": 73931,
+      "sha256": "712f85057be36620e1ec5bd68e87be2873f3b40c34a8ba3ad06d3921462c6e2b"
     },
     {
       "itemId": "upgrade_unstoppable",
