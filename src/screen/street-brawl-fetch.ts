@@ -1,4 +1,5 @@
 import type { AbilityOrder, EnhancedStat, ItemStat, MatchupStat, StreetBrawlData } from './street-brawl-data';
+import { buildItemPairs, MIN_PAIR_GAMES, type PairRow } from './item-synergy';
 
 /**
  * Downloads Street Brawl item win rates, Valve's per-hero item lists and ability upgrade
@@ -103,7 +104,7 @@ export async function fetchStreetBrawlData(abilitySlots: ReadonlyMap<string, num
   const optional = <T>(path: string) => get<T[]>(path)
     .catch(() => new Promise<void>(resolve => setTimeout(resolve, OPTIONAL_RETRY_MS)).then(() => get<T[]>(path)))
     .catch(() => [] as T[]);
-  const [items, allHeroes, global, perHero, heroStats, counters, enhancedOnly, enhancedNone] = await Promise.all([
+  const [items, allHeroes, global, perHero, heroStats, counters, enhancedOnly, enhancedNone, pairRows] = await Promise.all([
     get<ApiItem[]>('/v1/assets/items?language=english'),
     get<ApiHero[]>('/v1/assets/heroes?only_active=true&language=english'),
     get<ItemRow[]>(`/v1/analytics/item-stats?${mode()}`),
@@ -113,6 +114,8 @@ export async function fetchStreetBrawlData(abilitySlots: ReadonlyMap<string, num
     optional<CounterRow>(`/v1/analytics/hero-counter-stats?${mode()}`),
     optional<ItemRow>(`/v1/analytics/item-stats?${mode()}&enhanced_items=only`),
     optional<ItemRow>(`/v1/analytics/item-stats?${mode()}&enhanced_items=exclude`),
+    // Item pairs (all heroes; per-hero pairs are too thin to add anything, see item-synergy.ts).
+    optional<PairRow>(`/v1/analytics/item-permutation-stats?${mode()}&comb_size=2&min_matches=${MIN_PAIR_GAMES}`),
   ]);
   const heroes = allHeroes.filter(hero => hero.player_selectable !== false);
   const draftable = items.filter(item => item.type === 'upgrade' && item.shopable && !item.disabled);
@@ -212,6 +215,9 @@ export async function fetchStreetBrawlData(abilitySlots: ReadonlyMap<string, num
     .map(row => ({ effect: row.effect - (row.good ? goodPrior : 0), noise: row.noise })), 1_500);
 
   const enhanced = enhancedStats(usableRows(enhancedOnly), usableRows(enhancedNone), id => byId.get(id)!.class_name);
+  // A pair table that cannot be built leaves the rest of the download intact (no synergy until the next refresh).
+  let itemPairs: StreetBrawlData['itemPairs'] | null = null;
+  try { itemPairs = buildItemPairs(list<PairRow>(pairRows), usableRows(global), id => byId.get(id)?.class_name, estimatePriorGames); } catch { itemPairs = null; }
   return {
     schemaVersion: STREET_BRAWL_SCHEMA,
     source: `${STREET_BRAWL_API} (game_mode=street_brawl, games since ${new Date(window.since * 1000).toISOString().slice(0, 10)})`,
@@ -219,6 +225,7 @@ export async function fetchStreetBrawlData(abilitySlots: ReadonlyMap<string, num
     window: { since: new Date(window.since * 1000).toISOString(), wideSince: new Date(window.wideSince * 1000).toISOString() },
     heroPriorMatches, goodPrior,
     ...(enhanced ? { enhanced } : {}),
+    ...(itemPairs ? { itemPairs } : {}),
     items: Object.fromEntries(draftable.map(item => [item.class_name, { id: item.id, name: item.name, tier: item.item_tier, slot: item.item_slot_type, active: !!item.is_active_item }])),
     globalItemStats,
     heroes: Object.fromEntries(heroes.map(hero => [hero.class_name, {

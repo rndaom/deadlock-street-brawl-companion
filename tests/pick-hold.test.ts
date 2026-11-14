@@ -1,9 +1,20 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import publicCatalogJson from '../data/public-catalog.json';
 import { evaluateScreenOffers, resetDraftMemory, type ScreenOfferContext, type StreetBrawlAdvice } from '../src/screen/screen-advice';
 import { CLOSE_CALL_MARGIN, holdShownPick, type PickCandidate } from '../src/screen/pick-hold';
 import type { ScreenOffer } from '../src/shared/screen-reading';
 import type { Catalog } from '../src/shared/types';
+
+// Measured (Street Brawl) points per item, set by scoreCards: the hold is tested on chosen score gaps,
+// not on whatever the bundled statistics give this week.
+const fitPoints = vi.hoisted(() => new Map<string, number>());
+vi.mock('../src/screen/street-brawl-fit', async importOriginal => {
+  const actual = await importOriginal<typeof import('../src/screen/street-brawl-fit')>();
+  return { ...actual, streetBrawlFit: (...args: Parameters<typeof actual.streetBrawlFit>) => {
+    const fit = actual.streetBrawlFit(...args);
+    return fitPoints.has(args[0]) ? { ...fit, points: fitPoints.get(args[0])! } : fit;
+  } };
+});
 
 const catalog = publicCatalogJson as Catalog;
 function offer(itemId: string, position: number, overrides: Partial<ScreenOffer> = {}): ScreenOffer {
@@ -18,7 +29,15 @@ const scoreAt = (advice: StreetBrawlAdvice, position: number) => advice.ranked.f
 const shownAfter = (offers: ScreenOffer[], advice: StreetBrawlAdvice) => ({ offers, position: advice.preferredPosition });
 const evaluate = (offers: ScreenOffer[], context: ScreenOfferContext) => evaluateScreenOffers(offers, catalog, context)!;
 
-beforeEach(() => resetDraftMemory());
+/** Makes these cards score exactly `targets` (left to right) in this context, through their measured points. */
+function scoreCards(cards: ScreenOffer[], context: ScreenOfferContext, targets: readonly number[]) {
+  for (const card of cards) fitPoints.set(card.itemId, 0);
+  const base = evaluate(cards, context);
+  cards.forEach((card, index) => fitPoints.set(card.itemId, targets[index]! - scoreAt(base, card.position)));
+  resetDraftMemory();
+}
+
+beforeEach(() => { resetDraftMemory(); fitPoints.clear(); });
 
 describe('holdShownPick', () => {
   const cards = [offer('upgrade_warp_stone', 0), offer('upgrade_headhunter', 1), offer('upgrade_express_shot', 2)];
@@ -66,51 +85,47 @@ describe('holdShownPick', () => {
 });
 
 describe('evaluateScreenOffers keeps the shown pick for the same cards', () => {
-  it('a near-tie tipped by a late-read enemy hero does not change the pick', () => {
-    // Necro, round 3 (2026-11-06 match): the fourth enemy hero is read after the cards are shown.
-    const cards = [offer('upgrade_cardio_calibrator', 0), offer('upgrade_fleetfoot_boots', 1), offer('upgrade_magic_slow', 2)];
-    const context: ScreenOfferContext = { heroId: 'hero_necro', round: 3, rerolls: 1, choice: 1, enemyHeroIds: ['hero_hornet', 'hero_ratking', 'hero_deadpack'] };
-    const first = evaluate(cards, context);
-    const late = { ...context, enemyHeroIds: [...context.enemyHeroIds!, 'hero_drifter'] };
-    const unheld = evaluate(cards, late);
-    // Without the hold the pick flips on a lead below the close-call margin.
-    expect(unheld.preferredPosition).not.toBe(first.preferredPosition);
-    expect(scoreAt(unheld, unheld.preferredPosition!) - scoreAt(unheld, first.preferredPosition!)).toBeLessThan(CLOSE_CALL_MARGIN);
-    const held = evaluate(cards, { ...late, shownPick: shownAfter(cards, first) });
-    expect(held.preferredPosition).toBe(first.preferredPosition);
-    expect(held.title).toBe(`Slight edge: ${cards[first.preferredPosition!]!.name}`);
-    expect(held.reasons[0]).toMatch(/^Close call: .+ are about even; the pick stays on /);
+  // The 2026-11-06 draft (Necro, round 3). No rerolls left, so the title is the pick and not a reroll call.
+  const necroCards = [offer('upgrade_cardio_calibrator', 0), offer('upgrade_fleetfoot_boots', 1), offer('upgrade_magic_slow', 2)];
+  const necro: ScreenOfferContext = { heroId: 'hero_necro', round: 3, rerolls: 0, choice: 1, enemyHeroIds: ['hero_hornet', 'hero_ratking', 'hero_deadpack'] };
+
+  it('a near-tie that tips the other way does not change the pick', () => {
+    scoreCards(necroCards, necro, [2, 1.8, 0]);
+    const first = evaluate(necroCards, necro);
+    expect(first.preferredPosition).toBe(0);
+    // Later information moves the second card 0.3: it now leads, by less than the close-call margin.
+    scoreCards(necroCards, necro, [2, 2.1, 0]);
+    expect(evaluate(necroCards, necro).preferredPosition).toBe(1);
+    const held = evaluate(necroCards, { ...necro, shownPick: shownAfter(necroCards, first) });
+    expect(held.preferredPosition).toBe(0);
+    expect(held.title).toBe(`Slight edge: ${necroCards[0]!.name}`);
+    expect(held.reasons[0]).toBe(`Close call: ${necroCards[0]!.name} and ${necroCards[1]!.name} are about even; the pick stays on ${necroCards[0]!.name}.`);
   });
 
-  it('a card that clearly beats the shown pick after enemy items are read still takes over', () => {
-    // Gigawatt, round 4 (2026-11-10 match): seven enemy items, mostly spirit, arrive while the cards are shown.
-    const cards = [offer('upgrade_ability_power_shard', 0, { rare: true }), offer('upgrade_magic_storm', 1), offer('upgrade_fury_trance', 2)];
-    const context: ScreenOfferContext = { heroId: 'hero_gigawatt', round: 4, rerolls: 1, choice: 1,
-      enemyHeroIds: ['hero_artist', 'hero_necro', 'hero_baba', 'hero_punkgoat'],
-      ownedItemIds: ['upgrade_bullet_resist_shredder', 'upgrade_health_nova', 'upgrade_imbued_duration_extender', 'upgrade_magic_tempo',
-        'upgrade_regenerating_bullet_shield', 'upgrade_spellbreaker', 'upgrade_suppressor', 'upgrade_tech_damage_pulse', 'upgrade_tech_range'] };
-    const first = evaluate(cards, context);
-    expect(first.preferredPosition).toBe(1);
-    const spiritHeavy = { ...context, enemyItemIds: ['upgrade_improved_spirit', 'upgrade_rapid_recharge', 'upgrade_spirit_burn', 'upgrade_mystic_reverb',
-      'upgrade_extra_charge', 'upgrade_close_quarter_combat'] };
-    const held = evaluate(cards, { ...spiritHeavy, shownPick: shownAfter(cards, first) });
-    expect(held.preferredPosition).toBe(0);
-    expect(scoreAt(held, 0) - scoreAt(held, 1)).toBeGreaterThanOrEqual(CLOSE_CALL_MARGIN);
-    expect(held.title).toBe('Pick Echo Shard');
+  it('a card that clearly beats the shown pick still takes over', () => {
+    scoreCards(necroCards, necro, [2, 1.8, 0]);
+    const first = evaluate(necroCards, necro);
+    scoreCards(necroCards, necro, [2, 2.6, 0]);
+    const held = evaluate(necroCards, { ...necro, shownPick: shownAfter(necroCards, first) });
+    expect(held.preferredPosition).toBe(1);
+    expect(scoreAt(held, 1) - scoreAt(held, 0)).toBeGreaterThanOrEqual(CLOSE_CALL_MARGIN);
+    expect(held.title).toBe(`Pick ${necroCards[1]!.name}`);
   });
 
   it('a bonus misread under a tooltip on one frame does not change the pick, and a clean read keeps it', () => {
     // Paige, round 2, choice 3 (2026-11-14 match): hovering the cards marks Headhunter as a Bonus! card with an unread free item.
     const cards = [offer('upgrade_warp_stone', 0), offer('upgrade_headhunter', 1), offer('upgrade_express_shot', 2)];
-    const context: ScreenOfferContext = { heroId: 'hero_bookworm', round: 2, rerolls: 1, choice: 3,
+    const context: ScreenOfferContext = { heroId: 'hero_bookworm', round: 2, rerolls: 0, choice: 3,
       enemyHeroIds: ['hero_werewolf', 'hero_priest', 'hero_bebop', 'hero_viscous'],
       ownedItemIds: ['upgrade_active_reload', 'upgrade_bullet_resist_shredder', 'upgrade_magic_shield', 'upgrade_magic_storm', 'upgrade_sprint_booster', 'upgrade_weighted_shots'] };
+    scoreCards(cards, context, [0, 2, 2.1]);
     const first = evaluate(cards, context);
     expect(first.preferredPosition).toBe(2);
     const tooltip = cards.map(entry => entry.position === 1
       ? { ...entry, bonusIds: null, bonusExpected: true, warning: 'Bonus items are not fully recognized; the full bundle remains unconfirmed.' } : entry);
     const unheld = evaluate(tooltip, context);
-    expect(unheld.ranked.find(entry => entry.position === 1)!.score).toBeGreaterThan(scoreAt(unheld, 2) + CLOSE_CALL_MARGIN);
+    // The unread free item is worth far more than the 0.1 Headhunter trails by (2.4 points in the real draft).
+    expect(scoreAt(unheld, 1)).toBeGreaterThan(scoreAt(unheld, 2) + CLOSE_CALL_MARGIN);
     const held = evaluate(tooltip, { ...context, shownPick: shownAfter(cards, first) });
     expect(held.preferredPosition).toBe(2);
     expect(held.reasons[0]).toBe('Headhunter only leads on a read with unconfirmed card details; the pick stays on Express Shot.');

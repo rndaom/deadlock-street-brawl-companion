@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseTelemetryEvent } from '../src/core/validation';
-import { DEFAULT_SETTINGS, isAppMode, validateSettingsPatch } from '../src/shared/settings';
+import { DEFAULT_SETTINGS, isAppMode, readStoredSettings, validateSettingsPatch } from '../src/shared/settings';
 import type { TelemetryEvent } from '../src/shared/types';
 import { draft, fixtureEvents, item, MATCH_ID, match, NOW, observation, player, source } from './fixtures';
 
@@ -118,6 +118,16 @@ describe('renderer request validation', () => {
 
   it.each([null, undefined, [], 'large', 1, { unknownSetting: true }, { textScale: 0.79 }, { textScale: 1.51 }, { textScale: NaN }, { textScale: Infinity }, { textScale: '1' }, { hidePlayerNames: 'true' }, { alwaysOnTop: 1 }, { displayId: '' }, { displayId: 123 }, { displayId: 'x'.repeat(101) }])('rejects a malformed settings request: %j', (input) => {
     expect(() => validateSettingsPatch(input)).toThrow();
+  });
+
+  it('validates the most-active-items preference as a whole number from 0 to 4 (default 4, no limit)', () => {
+    expect(DEFAULT_SETTINGS.maxActiveItems).toBe(4);
+    for (const maxActiveItems of [0, 1, 2, 3, 4]) expect(validateSettingsPatch({ maxActiveItems })).toEqual({ maxActiveItems });
+    for (const maxActiveItems of [-1, 5, 1.5, NaN, Infinity, '2', null, true]) expect(() => validateSettingsPatch({ maxActiveItems })).toThrow();
+    expect(readStoredSettings({ maxActiveItems: 2, textScale: 1.1 })).toEqual({ maxActiveItems: 2, textScale: 1.1 });
+    // A bad saved value is dropped on its own and the default stays.
+    expect(readStoredSettings({ maxActiveItems: 9, overlay: false })).toEqual({ overlay: false });
+    expect(readStoredSettings({ overlay: false })).not.toHaveProperty('maxActiveItems');
   });
 
   it('accepts the documented text-size bounds and copies the patch', () => {

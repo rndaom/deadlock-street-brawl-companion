@@ -128,6 +128,8 @@ export interface ScreenReaderOptions {
   onDraftFrame?: (png: string, entry: ScreenReaderTrace) => void;
   /** False while screenshots are not wanted, so the helper is not asked to encode them. Default: always. */
   wantsFrames?: () => boolean;
+  /** The most active items the player wants to own (0-4; 4 or unset = no limit), read at each evaluation so a change applies at once. */
+  maxActiveItems?: () => number;
 }
 export interface NormalizedNativeReply extends NativeReadResult { synthetic: boolean; unchanged: boolean }
 
@@ -690,6 +692,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
       rerolls: rerolls.count ?? parsed.rerolls ?? context.rerollsRemaining, choice: rerolls.stage === null ? null : Number(rerolls.stage),
       enemyHeroIds: known.enemies,
       ownedItemIds: build.snapshot().myItems, enemyItemIds: enemyItems(), matchContext: context, now: contextNow(),
+      maxActiveItems: options.maxActiveItems?.(),
       // The pick already shown for these cards stays unless another card clearly beats it.
       shownPick: state.status === 'ready' && state.advice ? { offers: state.offers, position: state.advice.preferredPosition } : null,
     });
@@ -699,6 +702,11 @@ export function createScreenReader(options: ScreenReaderOptions) {
       || state.observedAt === null || epochNow() < state.observedAt
       || epochNow() - state.observedAt >= (state.gamePresent && !state.foreground && !backgroundReadable ? cardHoldMs(state) : SCREEN_READER_LIMITS.cardHoldMs)) return null;
     return adviceFor(lastCardParse, context);
+  }
+  /** Re-advises the cards on screen, for a changed preference (the next read would do it anyway). */
+  function refreshAdvice() {
+    const advice = state.status === 'ready' && state.offers.length ? currentCardAdvice() : null;
+    if (advice) publish({ advice });
   }
   function trackRerolls(parsed: ScreenOfferParseResult, reply: NormalizedNativeReply, cardsChanged: boolean) {
     const stage = reply.blocks.map(block => block.text.match(/choice\s*(\d)\s*(?:of|\/)\s*3/i)?.[1]).find(Boolean) ?? null;
@@ -1076,9 +1084,14 @@ export function createScreenReader(options: ScreenReaderOptions) {
       publish({ insights: matchInsights(known.localHeroId, insightEnemies, buildView.myItems) });
     }
     const unspent = reply.context?.abilityPoints?.value;
-    if (!outside && typeof unspent === 'number' && Number.isInteger(unspent) && unspent >= 0 && unspent <= 40 && reply.capturedAt !== null
-      && (state.abilityPoints?.value !== unspent || reply.capturedAt - state.abilityPoints.at > 15_000)) {
-      publish({ abilityPoints: { value: unspent, at: reply.capturedAt } });
+    if (!outside && typeof unspent === 'number' && Number.isInteger(unspent) && unspent >= 0 && unspent <= 40 && reply.capturedAt !== null) {
+      const standing = state.abilityPoints;
+      const same = !!standing && standing.value === unspent && reply.capturedAt - standing.at <= 15_000;
+      // `at` is when this amount was stamped (again every 15 s). `seenAt` follows each read of unspent points, so the
+      // overlay's nudge never rests on a counter that stopped being read, and the overlay is re-checked while it shows.
+      if (!same || unspent > 0 && reply.capturedAt - (standing.seenAt ?? 0) > 2_000) {
+        publish({ abilityPoints: { value: unspent, at: same ? standing.at : reply.capturedAt, seenAt: reply.capturedAt } });
+      }
     }
     note('draftCue', currentDraftCue);
     if (outside) {
@@ -1415,7 +1428,7 @@ export function createScreenReader(options: ScreenReaderOptions) {
   }
   if (loopStarted && state.enabled) schedule();
   return {
-    getState: snapshot, setEnabled, setCrop, retry, preview, pollOnce, setWorkloadPressure, stop, dispose,
+    getState: snapshot, refreshAdvice, setEnabled, setCrop, retry, preview, pollOnce, setWorkloadPressure, stop, dispose,
     subscribe(listener: (value: ScreenReaderState) => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
   };
 }

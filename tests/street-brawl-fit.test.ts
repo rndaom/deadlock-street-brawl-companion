@@ -54,6 +54,25 @@ describe('Street Brawl counter evidence', () => {
     expect(streetBrawlFit(pair!.itemId, null, [pair!.enemyId]).reasons[0]).toMatch(/^Counters /);
   });
 
+  it('keeps the three-argument result unchanged when no owned items are given', () => {
+    for (const itemId of Object.keys(data.items).slice(0, 40)) {
+      const hero = Object.keys(data.heroes)[0]!, enemies = Object.keys(data.heroes).slice(1, 4);
+      expect(streetBrawlFit(itemId, hero, enemies, [])).toEqual(streetBrawlFit(itemId, hero, enemies));
+    }
+  });
+
+  it('scores and names a strong measured pair with an owned item', () => {
+    const table = data.itemPairs!;
+    let best = { a: '', b: '', lift: 0 };
+    for (let at = 0; at < table.rows.length; at += 4) if (table.rows[at + 2]! > best.lift * 10_000 && table.rows[at + 3]! >= 10_000) {
+      best = { a: table.items[table.rows[at]!]!, b: table.items[table.rows[at + 1]!]!, lift: table.rows[at + 2]! / 10_000 };
+    }
+    expect(best.lift).toBeGreaterThan(0.02);
+    const fit = streetBrawlFit(best.a, null, [], [best.b]);
+    expect(fit.points).toBeGreaterThan(streetBrawlFit(best.a, null).points);
+    expect(fit.reasons.join(' ')).toContain(`Pairs well with your ${data.items[best.b]!.name} (+`);
+  });
+
   it('ignores the own hero and duplicates in the enemy list', () => {
     const { enemyId, itemId } = pairs.find(pair => pair.residual >= COUNTER_EDGE)!;
     expect(streetBrawlFit(itemId, enemyId, [enemyId])).toEqual(streetBrawlFit(itemId, enemyId));

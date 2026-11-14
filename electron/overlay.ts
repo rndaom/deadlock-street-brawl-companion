@@ -1,7 +1,7 @@
 import { BrowserWindow, globalShortcut, screen, type Session, type WebContents } from 'electron';
 import type { ScreenReaderState } from '../src/shared/screen-reading';
 import type { OverlayStatus } from '../src/shared/types';
-import { overlayShouldShow } from '../src/shared/overlay';
+import { nextApNudgeClock, overlayShouldShow, type ApNudgeClock } from '../src/shared/overlay';
 import { placeOverlay, type ScreenRect } from './hyprland';
 
 /** Toggles the in-game info panel (leveling plan, reader status). Not bound by Deadlock by default. */
@@ -12,8 +12,8 @@ const COMPOSITOR_PLACED = process.platform === 'linux';
 
 /**
  * The in-game overlay for one-monitor play: a transparent window over the game client that
- * marks the recommended draft card. It never takes focus or mouse input (the game keeps both),
- * and it is excluded from screen capture, so the reader still sees the game underneath it
+ * marks the recommended draft card and the ability to put unspent points into. It never takes focus
+ * or mouse input (the game keeps both), and it is excluded from screen capture, so the reader still sees the game underneath it
  * (and the reader's occlusion check skips click-through windows). On Linux the reader copies the
  * game window's own buffer, so the overlay is never in its image either; Hyprland places the overlay
  * (see hyprland.ts), and on other Linux desktops it stays hidden rather than open as a normal window.
@@ -32,6 +32,8 @@ export function createOverlay(options: { session: Session; preload: string; url:
   const PLACE_RETRY_MS = 3000;
   /** Linux: the game bounds the compositor's placement rule was registered for ('' when not placed). */
   let placedBounds = '';
+  /** How long the current unspent ability points have stood, so their nudge steps aside after a while. */
+  let apClock: ApNudgeClock | null = null;
 
   const status = (): OverlayStatus => ({ panel, hotkey: hotkeyUnavailable ? null : OVERLAY_HOTKEY });
   const alive = (target: BrowserWindow | null): target is BrowserWindow => !!target && !target.isDestroyed();
@@ -96,7 +98,9 @@ export function createOverlay(options: { session: Session; preload: string; url:
     // The overlay never shows the reading-area preview; don't serialise that image for it.
     state = next?.previewDataUrl ? { ...next, previewDataUrl: null } : next;
     syncHotkey();
-    const show = overlayShouldShow({ enabled, state, panel, now: Date.now() });
+    const now = Date.now();
+    apClock = nextApNudgeClock(apClock, state, now);
+    const show = overlayShouldShow({ enabled, state, panel, now, apSince: apClock?.since ?? null });
     // A hidden overlay is not redrawn on every read: it gets one last state as it hides (so it holds
     // nothing stale) and the current one before it shows again.
     if (!show) {

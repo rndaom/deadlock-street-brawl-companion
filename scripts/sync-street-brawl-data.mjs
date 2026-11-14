@@ -18,3 +18,5 @@ console.log(`Saved ${Object.keys(output.items).length} items and ${Object.keys(o
 console.log(`Games since ${output.window.since.slice(0, 10)} (wide fallback since ${output.window.wideSince.slice(0, 10)}${wide.length ? ` for ${wide.join(', ')}` : ', unused'}).`,
   `Per-hero prior ${output.heroPriorMatches} games, Good-list prior ${(output.goodPrior * 100).toFixed(2)} points,`,
   output.enhanced ? `Enhanced: ${output.enhanced.share * 100 | 0}% of drafted copies, mean uplift ${(output.enhanced.meanUplift * 100).toFixed(2)} points.` : 'no Enhanced results.');
+console.log(output.itemPairs ? `Item pairs: ${output.itemPairs.rows.length / 4} of ${output.itemPairs.minMatches}+ games, prior ${output.itemPairs.priorMatches} games.`
+  : 'No item pairs (request failed); synergy is off until the next sync.');

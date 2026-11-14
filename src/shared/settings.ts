@@ -1,14 +1,15 @@
 import type { AppMode, AppSettings } from './types';
 export const DEFAULT_SETTINGS: AppSettings = {
-  textScale: 1, hidePlayerNames: true, alwaysOnTop: false, displayId: null, overlay: true, saveScreenshots: false,
+  textScale: 1, hidePlayerNames: true, alwaysOnTop: false, displayId: null, overlay: true, saveScreenshots: false, maxActiveItems: 4,
 };
 
 export function validateSettingsPatch(value: unknown): Partial<AppSettings> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Settings must be an object.');
-  const allowed = new Set(['textScale', 'hidePlayerNames', 'alwaysOnTop', 'displayId', 'overlay', 'saveScreenshots']);
+  const allowed = new Set(['textScale', 'hidePlayerNames', 'alwaysOnTop', 'displayId', 'overlay', 'saveScreenshots', 'maxActiveItems']);
   const input = value as Record<string, unknown>;
   if (Object.keys(input).some(key => !allowed.has(key))) throw new Error('Unknown setting.');
   if ('textScale' in input && (typeof input.textScale !== 'number' || !Number.isFinite(input.textScale) || input.textScale < 0.8 || input.textScale > 1.5)) throw new Error('Text size must be between 0.8 and 1.5.');
+  if ('maxActiveItems' in input && (typeof input.maxActiveItems !== 'number' || !Number.isInteger(input.maxActiveItems) || input.maxActiveItems < 0 || input.maxActiveItems > 4)) throw new Error('Active items must be a whole number from 0 to 4.');
   for (const key of ['hidePlayerNames', 'alwaysOnTop', 'overlay', 'saveScreenshots']) {
     if (key in input && typeof input[key] !== 'boolean') throw new Error('Setting must be a boolean.');
   }

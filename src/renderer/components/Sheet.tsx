@@ -140,6 +140,9 @@ export function Sheet(props: SheetProps) {
           <label className="slider"><span>Text size<strong className="num">{Math.round(settings.textScale * 100)}%</strong></span>
             <input type="range" min="0.8" max="1.5" step="0.05" value={settings.textScale} onChange={(event) => onSettings({ textScale: Number(event.target.value) })} /></label>
           <Toggle checked={settings.overlay} onChange={(overlay) => onSettings({ overlay })} label="In-game overlay" help="Marks the pick on the draft screen inside Deadlock, so one monitor is enough. Press F7 in game for your leveling plan. Needs Deadlock in borderless or windowed mode." />
+          <label className="slider"><span>Active items: at most<strong className="num">{settings.maxActiveItems === 4 ? '4 (no limit)' : settings.maxActiveItems}</strong></span>
+            <input type="range" min="0" max="4" step="1" value={settings.maxActiveItems} onChange={(event) => onSettings({ maxActiveItems: Number(event.target.value) })} />
+            <small className="sheet-intro">Active items have a button to press. Once you own this many, the pick skips another active card when a card without a button is on offer. 4 means no limit.</small></label>
           <Toggle checked={settings.alwaysOnTop} onChange={(alwaysOnTop) => onSettings({ alwaysOnTop })} label="Keep on top" help="Stays above other windows. Deadlock keeps the game input." />
           <Toggle checked={settings.saveScreenshots} onChange={(saveScreenshots) => onSettings({ saveScreenshots })} label="Save troubleshooting screenshots" help="Keeps the last 60 draft and scoreboard screenshots in Documents\Street Brawl Companion\diagnostics so misreads can be replayed. They show player names and chat." />
         </div>}

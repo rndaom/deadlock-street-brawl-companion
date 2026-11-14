@@ -5,7 +5,7 @@ const DAY = 86_400;
 const NOW = STREET_BRAWL_PATCH_START + 20 * DAY;
 
 /** A small deterministic API: two heroes (one thin), 30 items, ability ids 11-14 / 21-24. */
-function mockApi() {
+function mockApi(failPairs = false) {
   const urls: string[] = [];
   const items = Array.from({ length: 30 }, (_, index) => ({ id: 100 + index, class_name: `upgrade_${index}`, name: `Item ${index}`, type: 'upgrade', shopable: true,
     item_tier: 1 + index % 4, item_slot_type: 'weapon' }));
@@ -28,6 +28,16 @@ function mockApi() {
       // One empty order (the API returns these) and one with an unknown ability id.
       return [{ abilities: [], wins: 50, matches: 90 }, { abilities: [base + 1, base + 2, base + 1, base + 3], wins: 300, matches: 500 },
         { abilities: [base + 1, 999], wins: 10, matches: 20 }];
+    }
+    if (path.startsWith('/v1/analytics/item-permutation-stats')) {
+      if (failPairs) throw new Error('HTTP 504');
+      // Every pair of the first ten items, 2,000 games; items 0 and 1 win 4 points more together.
+      const pairs = [];
+      for (let a = 0; a < 10; a++) for (let b = a + 1; b < 10; b++) {
+        const rate = (0.45 + a / 100) + (0.45 + b / 100) - 0.5 + (a === 0 && b === 1 ? 0.04 : 0);
+        pairs.push({ item_ids: [100 + a, 100 + b], wins: Math.round(2_000 * rate), losses: 0, matches: 2_000 });
+      }
+      return [...pairs, { item_ids: [100, 999], wins: 600, losses: 0, matches: 1_000 }];
     }
     if (path.includes('enhanced_items=only')) return rows(5).map(row => ({ ...row, wins: Math.round(row.matches * 0.53) }));
     if (path.includes('enhanced_items=exclude')) return rows(40);
@@ -89,6 +99,27 @@ describe('Street Brawl download', () => {
     expect(data.heroPriorMatches).toBeGreaterThanOrEqual(100);
     expect(data.heroes.hero_a!.good).toEqual(['upgrade_0']);
     expect(data.enhanced!.meanUplift).toBeGreaterThan(0);
+  });
+
+  it('adds the all-hero item-pair table in compact form, and keeps the rest of the refresh when the pair request fails', async () => {
+    const { urls, fetchJson } = mockApi();
+    const data = await fetchStreetBrawlData(slots, fetchJson, { now: NOW });
+    const pairUrl = urls.find(url => url.includes('item-permutation-stats'))!;
+    expect(pairUrl).toContain('comb_size=2');
+    expect(pairUrl).toContain('min_matches=1000');
+    expect(pairUrl).not.toContain('hero_id');
+    const pairs = data.itemPairs!;
+    // 45 pairs of known items; the one with an unknown item is dropped.
+    expect(pairs.rows.length).toBe(45 * 4);
+    expect(pairs.items).toContain('upgrade_0');
+    const at = Array.from({ length: 45 }, (_, index) => index * 4)
+      .find(index => [pairs.items[pairs.rows[index]!], pairs.items[pairs.rows[index + 1]!]].sort().join() === 'upgrade_0,upgrade_1')!;
+    expect(pairs.rows[at + 2]!).toBeGreaterThan(200); // win-rate points x 10,000
+    expect(pairs.rows[at + 3]!).toBe(2_000);
+    const failed = await fetchStreetBrawlData(slots, mockApi(true).fetchJson, { now: NOW });
+    expect(failed.itemPairs).toBeUndefined();
+    expect(failed.heroes.hero_a!.abilityOrders).toEqual(data.heroes.hero_a!.abilityOrders);
+    expect(failed.globalItemStats).toEqual(data.globalItemStats);
   });
 
   it('estimates a prior from the spread of effects beyond sampling noise', () => {

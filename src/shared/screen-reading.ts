@@ -268,7 +268,7 @@ export interface ScreenReaderState {
   /** Matchups against the identified enemies and the items to hope for in drafts (see match-insights.ts). */
   insights?: MatchInsights | null;
   /** Unspent ability points last read from the HUD, and when. */
-  abilityPoints?: { value: number; at: number } | null;
+  abilityPoints?: { value: number; at: number; seenAt?: number } | null;
 }
 export interface MatchupInsight { heroId: string; winRate: number; delta: number; matches: number }
 export interface WishlistInsight { itemId: string; tier: number; winRate: number | null; counters: string[]; valve: boolean }

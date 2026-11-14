@@ -23,6 +23,8 @@ export interface ScreenOfferContext {
   now?: number;
   /** The cards and pick already shown for this draft: the pick stays unless another card clearly beats it (pick-hold.ts). */
   shownPick?: ShownPick | null;
+  /** The most active items (a button to press) the player wants to own, 0-4; 4 or unset is no limit (the game allows four). */
+  maxActiveItems?: number;
 }
 /** One advised card. Besides the shared fields, two Street Brawl numbers for the interface. */
 export type AdvisedOffer = ScreenAdvice['ranked'][number] & {
@@ -42,6 +44,8 @@ interface ItemProfile {
 interface OfferComparison { offer: ScreenOffer; main: ItemProfile | null; profiles: ItemProfile[]; score: number; reasons: string[]; problems: string[] }
 
 const READ_QUALITY_MINIMUM = 0.85;
+/** The game lets a player carry four active items, so a preference of four is no limit. */
+const ACTIVE_ITEM_SLOTS = 4;
 const PINNED_CLIENT = '6861';
 const PINNED_REVISION = '11219368';
 /**
@@ -253,6 +257,8 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
   const contextScored = comparisonPosition !== null ? !!baseComparison : !!contextual?.hasContext;
   const enemyHeroIds = context.enemyHeroIds ?? [];
   const owned = new Set(ownedItemIds);
+  // The owned items, for how each card wins beside them (measured item pairs).
+  const ownedIds = [...owned];
   const draftTier = draftTierOf(offers.map(offer => ({ tier: items.get(offer.itemId)?.tier, rare: offer.rare })));
   const pools = heroId && streetBrawlData().heroes[heroId] ? draftPools(heroId, hero, usePinnedFacts, enemyHeroIds, owned, context, items, bonusMechanicsFor(items, hero, usePinnedFacts)) : null;
   const slotPool = draftTier === null ? null : pools?.(draftTier) ?? null;
@@ -279,7 +285,7 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
     const offer = offers[index];
     if (!offer || !items.has(offer.itemId)) return entry;
     const item = items.get(offer.itemId)!;
-    const fit = streetBrawlFit(offer.itemId, heroId, enemyHeroIds);
+    const fit = streetBrawlFit(offer.itemId, heroId, enemyHeroIds, ownedIds);
     const build = buildFit(item, context, items);
     // A "Bonus!" card gives a second, free item; an Enhanced card is the same item with extra stats.
     const bonus = bonusValue(offer, items, bonusMechanics);
@@ -312,7 +318,17 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
     limitations.push(`Offer ${entry.position + 1}: ${items.get(entry.offer.itemId)!.name} is already owned; a draft does not offer owned items, so this read is treated as a likely misread.`);
   }
   const trusted = resolved.filter(entry => !owned.has(entry.offer.itemId));
-  const pickOrder = trusted.length ? trusted : resolved;
+  // Once the player owns as many active items as they want, an active card does not become the pick while a
+  // trusted card without a button is on offer. Like a misread it keeps its score and place in the ranking.
+  // Only the main item counts: a Bonus! card's free item is valued apart from it (bonusValue) and is often unread.
+  const activeOwned = [...owned].filter(id => isActiveItem(id, usePinnedFacts)).length;
+  const limit = context.maxActiveItems;
+  const limitReached = limit !== undefined && Number.isFinite(limit) && limit < ACTIVE_ITEM_SLOTS && activeOwned >= limit;
+  const isActiveCard = (entry: { offer: ScreenOffer }) => isActiveItem(entry.offer.itemId, usePinnedFacts);
+  const withoutButton = limitReached ? trusted.filter(entry => !isActiveCard(entry)) : trusted;
+  const skippedActive = limitReached && withoutButton.length ? trusted.filter(isActiveCard) : [];
+  const pickOrder = withoutButton.length ? withoutButton : trusted.length ? trusted : resolved;
+  const allActive = limitReached && trusted.length > 0 && withoutButton.length === 0;
   // Cards are only read while a draft is visible, which only a player in the match sees; an ended match has no pick.
   const ownView = context.matchContext?.phase !== 'finished';
   // While the same cards stay on screen, the pick already shown stays unless another card clearly beats it.
@@ -326,9 +342,13 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
   const keptLine = !pickName || !challengerName ? null
     : hold?.kept === 'close' ? `Close call: ${pickName} and ${challengerName} are about even; the pick stays on ${pickName}.`
     : hold?.kept === 'unconfirmed' ? `${challengerName} only leads on a read with unconfirmed card details; the pick stays on ${pickName}.` : null;
+  // Name the card the limit passed over when it outscores the pick.
+  const passed = pickEntry ? skippedActive.find(entry => entry.score > pickEntry.score) : undefined;
+  const limitLine = passed && pickEntry ? `${items.get(passed.offer.itemId)!.name} is passed over: an active item, and you already own ${activeOwned} (you want at most ${limit}).`
+    : allActive && pickEntry ? `Every readable card is an active item and you already own ${activeOwned} (you want at most ${limit}); this is the best of them.` : null;
   const reasons = !best ? ['No offered item can be resolved to the local catalogue.', 'Read the item names and complete bonus/modifier details before comparing choices.']
     : !pickEntry ? ['The match has ended; there is no pick to make.']
-    : [...(keptLine ? [keptLine] : closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
+    : [...(limitLine ? [limitLine] : []), ...(keptLine ? [keptLine] : closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
   // The reroll call compares the whole draft with what this tier usually offers, so it needs
   // three distinct resolved cards, none of them a likely misread.
   const fullDraft = shapeComplete && offers.length === 3 && resolved.length === 3 && misread.length === 0;
@@ -445,6 +465,10 @@ function mechanicsNote(item: CatalogItem, facts: BaseFacts | null, traits: Set<s
   return description || (snippets.length ? `Base stats: ${snippets.slice(0, 2).join(', ')}.` : traitDescription(traits));
 }
 
+/** Whether the item has a button to press: the pinned base facts' `active` flag, false when there are none (as executionCondition reads it). */
+function isActiveItem(itemId: string, usePinnedFacts: boolean): boolean {
+  return usePinnedFacts && PINNED_BASE_FACTS[itemId]?.active === true;
+}
 function executionCondition(description: string, facts: BaseFacts | null): string | null {
   if (/^(?:weapon|bullet)\s+damage\s+vs\.?\s+(?:NPCs?|non.?heroes)/i.test(description)) return 'Its listed damage bonus is against NPCs; hero-fight value is limited.';
   if (/sacrifice\s+health/i.test(description)) return 'Costs health while active; the health tradeoff needs care.';
@@ -594,7 +618,7 @@ function draftPools(heroId: string, hero: CatalogHero | null, usePinnedFacts: bo
   };
   const cache = new Map<number, PoolCard[] | null>();
   return tier => {
-    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra }));
+    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra, owned: ownedList }));
     return cache.get(tier)!;
   };
 }

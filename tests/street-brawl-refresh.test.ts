@@ -39,6 +39,15 @@ describe('daily Street Brawl data refresh guard', () => {
     // A counter request that failed outright leaves every hero without matchups: still usable.
     expect(isStreetBrawlData({ ...current, heroes: Object.fromEntries(Object.entries(current.heroes).map(([id, hero]) => [id, { ...hero, matchups: {} }])) })).toBe(true);
   });
+  it('loads a saved download from before item pairs were fetched, and rejects a damaged pair table', () => {
+    const { itemPairs, ...withoutPairs } = streetBrawlData();
+    expect(itemPairs).toBeDefined();
+    expect(isStreetBrawlData(withoutPairs)).toBe(true);
+    expect(coversCurrentWindow(withoutPairs as never)).toBe(true);
+    expect(isStreetBrawlData({ ...withoutPairs, itemPairs: { ...itemPairs!, rows: itemPairs!.rows.slice(1) } })).toBe(false);
+    expect(isStreetBrawlData({ ...withoutPairs, itemPairs: { ...itemPairs!, priorMatches: Number.NaN } })).toBe(false);
+    expect(isStreetBrawlData({ ...withoutPairs, itemPairs: null as never })).toBe(false);
+  });
   it('rejects a saved download in the old format, whose per-hero results were smoothed toward the hero average', () => {
     const { schemaVersion: _omitted, ...old } = streetBrawlData();
     expect(isStreetBrawlData(old)).toBe(false);

@@ -283,6 +283,7 @@ function updateSettings(input: unknown): Promise<AppSettings> {
     settings = next;
     mainWindow?.setAlwaysOnTop(settings.alwaysOnTop);
     overlay?.setEnabled(settings.overlay);
+    if (patch.maxActiveItems !== undefined) screenReader?.refreshAdvice();
     moveToSelectedDisplay(monitorChanged);
     return { ...settings };
   });
@@ -564,7 +565,7 @@ if (!app.requestSingleInstanceLock()) {
     setInterval(() => { void refreshStreetBrawlData(); }, 6 * 60 * 60 * 1000).unref();
     const diagnostics = createReaderDiagnostics();
     screenReader = createScreenReader({ ...readerPaths(), localPlayerNames, catalog: APP_CATALOG, initialCrop: readerPreferences.crop, autoStart: false, onState: publishScreenReader,
-      onTrace: diagnostics.trace, onDraftFrame: diagnostics.frame, wantsFrames: () => settings.saveScreenshots });
+      onTrace: diagnostics.trace, onDraftFrame: diagnostics.frame, wantsFrames: () => settings.saveScreenshots, maxActiveItems: () => settings.maxActiveItems });
     registerBridge();
     unsubscribeController = controller.subscribe(publishState);
     startLive();

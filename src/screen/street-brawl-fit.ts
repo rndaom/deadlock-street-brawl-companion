@@ -1,3 +1,5 @@
+import { absorbedComponents } from './item-bundles';
+import { synergiesWith } from './item-synergy';
 import { isGoodItem, streetBrawlData, type HeroData, type StreetBrawlData } from './street-brawl-data';
 
 /** Points per win-rate point above the average item (a +5% item earns +3). Every value on the fit scale converts back to win-rate points through it. */
@@ -15,6 +17,19 @@ const COUNTER_CAP = 3;
 const COUNTER_NOISE = 0.005;
 /** A residual of at least this many win-rate points makes the item a counter to that enemy (or a weakness, below minus it). */
 export const COUNTER_EDGE = 0.015;
+/**
+ * Synergy with owned items (item-synergy.ts): the shrunk pair lift, summed over the owned items.
+ * After shrinking, a pair's estimate still carries about 0.2-0.3 points of noise, so the same
+ * band as counters takes 0.5 points off each pair before it scores; across six owned items the
+ * summed lift falls between -3 and +2 points for 90% of offers. The cap (2 points, about 3.3
+ * win-rate points) keeps a long owned list, whose pairs partly repeat each other, from
+ * outweighing the item's own result.
+ */
+const SYNERGY_WEIGHT = WIN_RATE_WEIGHT;
+const SYNERGY_CAP = 2;
+const SYNERGY_NOISE = 0.005;
+/** A shrunk pair lift of at least this many win-rate points is named in the reasons (or concerns, below minus it). */
+export const SYNERGY_EDGE = 0.01;
 /** Shrinkage defaults for snapshots without estimated priors (see street-brawl-fetch.ts, which estimates both). */
 const DEFAULT_HERO_PRIOR_MATCHES = 1_500;
 const DEFAULT_GOOD_PRIOR = 0.01;
@@ -78,13 +93,26 @@ export function counterResidual(itemId: string, enemyHeroId: string, data: Stree
   return versus.delta - expected;
 }
 
+/** Shrunk pair lift of an item with each owned item, and its fit points (0 with nothing owned or no pair data). */
+export function ownedSynergy(itemId: string, ownedItemIds: readonly string[], data: StreetBrawlData = streetBrawlData()):
+  { synergies: { itemId: string; synergy: number }[]; points: number } {
+  if (!ownedItemIds.length || !data.itemPairs) return { synergies: [], points: 0 };
+  // Owned items this pick would absorb are gone once it is taken, so they cannot pair with it.
+  const absorbed = new Set(absorbedComponents(itemId, ownedItemIds));
+  const synergies = synergiesWith(itemId, ownedItemIds.filter(id => !absorbed.has(id)), data);
+  const points = clamp(synergies.reduce((sum, entry) => sum + Math.sign(entry.synergy) * Math.max(0, Math.abs(entry.synergy) - SYNERGY_NOISE), 0) * SYNERGY_WEIGHT, SYNERGY_CAP);
+  return { synergies, points };
+}
+
 /**
  * Street Brawl evidence for one item: its win rate in real Street Brawl matches (this hero's
  * result shrunk toward the all-hero result, with Valve's per-hero Good list as part of the prior),
- * and genuine counters to the identified enemies. The strongest measured evidence leads
- * `reasons`; a real weakness against an enemy leads `concerns`.
+ * genuine counters to the identified enemies, and how it wins beside the items already owned
+ * (`ownedItemIds`; none, or no pair data, leaves the result unchanged). The strongest measured
+ * evidence leads `reasons`; a real weakness against an enemy leads `concerns`.
  */
-export function streetBrawlFit(itemId: string, heroId: string | null, enemyHeroIds: readonly string[] = []): StreetBrawlFit {
+export function streetBrawlFit(itemId: string, heroId: string | null, enemyHeroIds: readonly string[] = [],
+  ownedItemIds: readonly string[] = []): StreetBrawlFit {
   const data = streetBrawlData();
   const hero = heroId ? data.heroes[heroId] : undefined;
   const reasons: string[] = [];
@@ -115,11 +143,22 @@ export function streetBrawlFit(itemId: string, heroId: string | null, enemyHeroI
   const counterLine = strong.length ? `Counters ${describe(strong)}.` : null;
   const weakLine = weak.length ? `Weak against ${describe(weak)}.` : null;
 
+  const { synergies, points: synergyPoints } = ownedSynergy(itemId, ownedItemIds, data);
+  // Points are the pair's win rate over what the two items' own win rates predict.
+  const pairNames = (list: { itemId: string; synergy: number }[]) => joinNames(list.map(entry => `${data.items[entry.itemId]?.name ?? entry.itemId} (${signedPoints(entry.synergy)})`));
+  const helps = synergies.filter(entry => entry.synergy >= SYNERGY_EDGE).sort((a, b) => b.synergy - a.synergy).slice(0, 2);
+  const clashes = synergies.filter(entry => entry.synergy <= -SYNERGY_EDGE).sort((a, b) => a.synergy - b.synergy).slice(0, 2);
+  const synergyLine = helps.length ? `Pairs well with your ${pairNames(helps)}.` : null;
+  const clashLine = clashes.length ? `Pairs poorly with your ${pairNames(clashes)}.` : null;
+
   // A genuine counter leads when it outweighs the general result.
   if (counterLine && (!statLine || counterPoints > statPoints)) reasons.push(counterLine, ...(statLine ? [statLine] : []));
   else reasons.push(...(statLine ? [statLine] : []), ...(counterLine ? [counterLine] : []));
-  concerns.push(...(weakLine ? [weakLine] : []), ...(statConcern ? [statConcern] : []));
-  return { points: Math.round((statPoints + counterPoints) * 100) / 100, reasons, concerns };
+  // So does a synergy that outweighs both.
+  if (synergyLine && synergyPoints > Math.max(statPoints, counterPoints)) reasons.unshift(synergyLine);
+  else if (synergyLine) reasons.push(synergyLine);
+  concerns.push(...(weakLine ? [weakLine] : []), ...(clashLine ? [clashLine] : []), ...(statConcern ? [statConcern] : []));
+  return { points: Math.round((statPoints + counterPoints + synergyPoints) * 100) / 100, reasons, concerns };
 }
 
 /**
@@ -176,11 +215,12 @@ export interface PoolCard { id: string; value: number; weight: number }
 /**
  * Every card a fresh draft of `tier` can show this hero (owned items excluded: a draft never
  * offers them), valued on the streetBrawlFit scale plus `extra` (Bonus!, Enhanced or enemy-build
- * value the caller can predict for that card). Weights follow Valve's Good-bucket bias. Null
+ * value the caller can predict for that card) and, given `owned`, its synergy with the owned
+ * items (as in streetBrawlFit). Weights follow Valve's Good-bucket bias. Null
  * when the hero or tier has no data.
  */
 export function draftPool(heroId: string, tier: number, enemyHeroIds: readonly string[] = [],
-  options: { exclude?: ReadonlySet<string>; extra?: (itemId: string) => number } = {}): PoolCard[] | null {
+  options: { exclude?: ReadonlySet<string>; extra?: (itemId: string) => number; owned?: readonly string[] } = {}): PoolCard[] | null {
   if (!streetBrawlData().heroes[heroId]) return null;
   const cards = tierValues(heroId, tier, enemyHeroIds).filter(card => !options.exclude?.has(card.id));
   if (cards.length < 3) return null;
@@ -189,7 +229,9 @@ export function draftPool(heroId: string, tier: number, enemyHeroIds: readonly s
   const biased = good > 0 && good < cards.length && share > 0;
   const goodWeight = biased ? share / good : 1 / cards.length;
   const otherWeight = biased ? (1 - share) / (cards.length - good) : 1 / cards.length;
-  return cards.map(card => ({ id: card.id, value: card.value + (options.extra?.(card.id) ?? 0),
+  // Synergy with the owned items, so the shown cards (scored with it) and a fresh draft stay on one scale.
+  const owned = options.owned ?? [];
+  return cards.map(card => ({ id: card.id, value: card.value + (options.extra?.(card.id) ?? 0) + (owned.length ? ownedSynergy(card.id, owned).points : 0),
     weight: biased && isGoodItem(heroId, card.id) ? goodWeight : otherWeight }));
 }
 
