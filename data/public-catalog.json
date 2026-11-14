@@ -1,8 +1,8 @@
 {
-  "clientVersion": "6844",
-  "revision": "11201066",
+  "clientVersion": "6861",
+  "revision": "11219368",
   "source": "Community Deadlock API parsing Valve assets; not an official Valve API",
-  "retrievedAt": "2026-11-03T22:13:24.422Z",
+  "retrievedAt": "2026-11-14T14:42:22.783Z",
   "items": [
     {
       "id": "upgrade_active_reload",
@@ -2755,5 +2755,5 @@
     }
   ],
   "liveModelValidated": false,
-  "modelVersion": "descriptive-tags-v1-client-6844"
+  "modelVersion": "descriptive-tags-v1-client-6861"
 }

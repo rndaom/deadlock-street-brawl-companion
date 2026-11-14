@@ -8,9 +8,13 @@ namespace Deadlock.ScreenReader;
 
 internal static class TextEngines
 {
-  // Prefer English for the game's item catalogue; use an already installed profile language if unavailable.
+  // Prefer English for the game's item catalogue (en-US, then any installed English such as en-GB). Another installed
+  // language still starts the engine so the reader can report it; the app then asks for English (OCR_NOT_ENGLISH_MESSAGE).
   public static ITextEngine? TryCreate() =>
-    (OcrEngine.TryCreateFromLanguage(new Language("en-US")) ?? OcrEngine.TryCreateFromUserProfileLanguages()) is { } engine ? new WindowsTextEngine(engine) : null;
+    (OcrEngine.TryCreateFromLanguage(new Language("en-US"))
+      ?? OcrEngine.AvailableRecognizerLanguages.Where(language => language.LanguageTag.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+        .Select(language => OcrEngine.TryCreateFromLanguage(language)).FirstOrDefault(engine => engine is not null)
+      ?? OcrEngine.TryCreateFromUserProfileLanguages()) is { } engine ? new WindowsTextEngine(engine) : null;
 
   public static bool Available() => OcrEngine.AvailableRecognizerLanguages.Count > 0;
 }

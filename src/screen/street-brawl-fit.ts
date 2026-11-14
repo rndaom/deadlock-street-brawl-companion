@@ -130,6 +130,7 @@ export function enhancedPoints(itemId: string, data: StreetBrawlData = streetBra
   const enhanced = data.enhanced;
   if (!enhanced) return DEFAULT_ENHANCED_POINTS;
   const uplift = enhanced.items[itemId]?.uplift ?? enhanced.meanUplift;
+  if (!Number.isFinite(uplift)) return DEFAULT_ENHANCED_POINTS;
   return Math.round(clamp(uplift * WIN_RATE_WEIGHT, WIN_RATE_CAP) * 100) / 100;
 }
 /** Share of drafted cards that are Enhanced (0 without data). */

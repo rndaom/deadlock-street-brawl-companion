@@ -81,6 +81,13 @@ describe('Street Brawl roster tracker', () => {
     expect(known.enemies).toEqual(['hero_forge', 'hero_priest', 'hero_bebop', 'hero_lash']);
   });
 
+  it('places you by a Steam name that contains spaces', () => {
+    const roster = createRosterTracker(catalog, { localPlayerNames: ['Big Bad Wolf'] });
+    const unreadOwn = ['hero_viscous', null, 'hero_vampirebat', 'hero_dynamo', 'hero_forge', 'hero_priest', 'hero_bebop', 'hero_lash'];
+    for (let read = 0; read < 3; read++) roster.observe(topBar(unreadOwn, 'hero_ratking'), [...players([['Rollo', 0], ['Big Bad Wolf', 1]]), ...names([])], read);
+    expect(roster.snapshot()).toMatchObject({ localSeat: 1, localSide: 0, localHeroId: 'hero_ratking' });
+  });
+
   it('infers your side by elimination when only your portrait is missing', () => {
     const roster = createRosterTracker(catalog);
     const unreadOwn = ['hero_viscous', null, 'hero_vampirebat', 'hero_dynamo', 'hero_forge', 'hero_priest', 'hero_bebop', 'hero_lash'];

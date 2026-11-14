@@ -36,12 +36,76 @@ internal static class Native
     if (windows.Length == 0) return Absent();
     var best = windows.OrderByDescending(window => window.Address == desktop.ActiveAddress).ThenByDescending(window => window.Width * (long)window.Height).First();
     _knownGame = new GameWindow(best.Address, (uint)best.Pid, best.Bounds, "ok", true, best.Address == desktop.ActiveAddress);
+    _knownStableId = best.StableId;
+    _knownScale = desktop.Monitors.FirstOrDefault(monitor => monitor.Id == best.Monitor)?.Scale ?? 0;
     return Verify(_knownGame.Value, desktop);
+  }
+
+  // The last found game window's toplevel id and its monitor's scale, for the draft-label watch.
+  private static string? _knownStableId;
+  private static double _knownScale;
+  private static int _watchCopyFailures;
+
+  /**
+   * The draft-label watch's copy: only the label box, from the game window's own buffer (grim -T with a window-local -g),
+   * with no second desktop query, since FindGame verified the window in this same request. Null where this copy cannot
+   * be made cheaply and exactly: a scaled monitor (the buffer's pixels are not layout pixels there, and -g under -T was
+   * only checked at scale 1) or a grim that keeps failing it. The watch then stays off and reads go on as before.
+   */
+  internal static (byte[] Pixels, int Width, int Height)? CaptureWatch(GameWindow game, Rectangle source)
+  {
+    if (_knownGame is not { } known || known.Handle != game.Handle || _knownStableId is not { } stableId) throw new InvalidOperationException("visibility_changed");
+    if (_watchCopyFailures >= 3) return null;
+    SKBitmap frame;
+    if (Grim.WindowCaptureAvailable(stableId))
+    {
+      if (_knownScale != 1) return null;
+      try { frame = Grim.CaptureWindowRegion(stableId, new Rectangle(source.X - game.Client.X, source.Y - game.Client.Y, source.Width, source.Height)); }
+      catch { _watchCopyFailures++; throw; }
+      _watchCopyFailures = 0;
+      if (frame.Width != source.Width || frame.Height != source.Height) { frame.Dispose(); _watchCopyFailures = 3; return null; }
+    }
+    // Without toplevel copies the screen rectangle is copied, as for a read; its size follows the output scale.
+    else frame = Grim.Capture(source);
+    using var _ = frame;
+    return (frame.Bytes, frame.Width, frame.Height);
+  }
+
+  /** Development timing for `--draft-watch --bench`: the watch's desktop query, label-box copy and pixel test on any window. */
+  internal static int BenchWatch(string stableId, int count)
+  {
+    var window = Hyprland.Snapshot()?.Clients.FirstOrDefault(client => client.StableId == stableId);
+    if (window is null) { Console.WriteLine("{\"error\":\"window_not_found\"}"); return 1; }
+    var local = Rectangle.Intersect(new Rectangle(70, 285, 300, 40), new Rectangle(0, 0, window.Width, window.Height));
+    var snapshot = new List<double>(); var copy = new List<double>(); var test = new List<double>(); var total = new List<double>();
+    (long Own, long Children) Ticks()
+    {
+      var fields = File.ReadAllText("/proc/self/stat").Split(')')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+      return (long.Parse(fields[11]) + long.Parse(fields[12]), long.Parse(fields[13]) + long.Parse(fields[14]));
+    }
+    (long Own, long Children) start = default;
+    for (int run = -5; run < count; run++)
+    {
+      if (run == 0) start = Ticks();
+      var watch = Stopwatch.StartNew();
+      _ = Hyprland.Snapshot(); double afterSnapshot = watch.Elapsed.TotalMilliseconds;
+      using var frame = Grim.CaptureWindowRegion(stableId, local); double afterCopy = watch.Elapsed.TotalMilliseconds;
+      _ = DraftWatch.Shows(frame.Bytes, frame.Width, frame.Height); double done = watch.Elapsed.TotalMilliseconds;
+      if (run < 0) continue;
+      snapshot.Add(afterSnapshot); copy.Add(afterCopy - afterSnapshot); test.Add(done - afterCopy); total.Add(done);
+    }
+    var end = Ticks();
+    // Linux reports process times in clock ticks of 10 ms (USER_HZ 100).
+    static object Stats(List<double> values) { var sorted = values.Order().ToArray(); return new { best = Math.Round(sorted[0], 2), median = Math.Round(sorted[sorted.Length / 2], 2) }; }
+    Console.WriteLine(JsonSerializer.Serialize(new { count, box = $"{local.Width}x{local.Height}", snapshotMs = Stats(snapshot), copyMs = Stats(copy), testMs = Stats(test), totalMs = Stats(total),
+      cpuMsPerProbe = Math.Round((end.Own - start.Own) * 10.0 / count, 2), grimCpuMsPerProbe = Math.Round((end.Children - start.Children) * 10.0 / count, 2) },
+      new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+    return 0;
   }
 
   private static GameWindow Absent()
   {
-    _knownGame = null;
+    _knownGame = null; _knownStableId = null;
     bool present = DeadlockProcessRunning();
     return new GameWindow(0, 0, Rectangle.Empty, present ? "no_window" : "not_found", present, false);
   }
@@ -194,7 +258,7 @@ internal static class Hyprland
     public int Width => Bounds.Width;
     public int Height => Bounds.Height;
   }
-  internal sealed record Monitor(int Id, string Name, Rectangle Bounds, long ActiveWorkspace, long SpecialWorkspace);
+  internal sealed record Monitor(int Id, string Name, Rectangle Bounds, long ActiveWorkspace, long SpecialWorkspace, double Scale = 1);
   internal sealed record Layer(string Monitor, int Level, int Pid, Rectangle Bounds);
   internal sealed record Desktop(IReadOnlyList<Client> Clients, IReadOnlyList<Monitor> Monitors, IReadOnlyList<Layer> Layers, nint ActiveAddress);
 
@@ -244,7 +308,7 @@ internal static class Hyprland
     if (element.TryGetProperty("transform", out var transform) && transform.GetInt32() % 2 == 1) (width, height) = (height, width);
     return new Monitor(element.GetProperty("id").GetInt32(), String(element, "name"),
       new Rectangle(element.GetProperty("x").GetInt32(), element.GetProperty("y").GetInt32(), (int)Math.Round(width / scale), (int)Math.Round(height / scale)),
-      WorkspaceId(element, "activeWorkspace"), WorkspaceId(element, "specialWorkspace"));
+      WorkspaceId(element, "activeWorkspace"), WorkspaceId(element, "specialWorkspace"), scale);
   }
 
   private static Layer[] ReadLayers(JsonElement root)
@@ -281,11 +345,16 @@ internal static class Hyprland
 
   private static JsonDocument? Query(string command)
   {
-    var path = SocketPath();
-    if (path is null) return null;
+    // A crashed earlier Hyprland instance leaves its socket file behind: take the first socket that answers.
     using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
     socket.ReceiveTimeout = 1000; socket.SendTimeout = 1000;
-    socket.Connect(new UnixDomainSocketEndPoint(path));
+    var connected = false;
+    foreach (var path in SocketPaths())
+    {
+      try { socket.Connect(new UnixDomainSocketEndPoint(path)); _socket = path; connected = true; break; }
+      catch (SocketException) { if (_socket == path) _socket = null; }
+    }
+    if (!connected) return null;
     socket.Send(Encoding.UTF8.GetBytes(command));
     using var reply = new MemoryStream();
     var buffer = new byte[65536];
@@ -299,17 +368,22 @@ internal static class Hyprland
     return JsonDocument.Parse(reply);
   }
 
-  private static string? SocketPath()
+  private static List<string> SocketPaths()
   {
-    if (_socket is not null && File.Exists(_socket)) return _socket;
+    if (_socket is not null && File.Exists(_socket)) return [_socket];
     var instance = Environment.GetEnvironmentVariable("HYPRLAND_INSTANCE_SIGNATURE");
     var runtime = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") ?? $"/run/user/{GetUid()}";
     var candidates = new List<string>();
     if (instance is { Length: > 0 } && !instance.Contains('/')) { candidates.Add(Path.Combine(runtime, "hypr", instance, ".socket.sock")); candidates.Add(Path.Combine("/tmp/hypr", instance, ".socket.sock")); }
     // Started outside the compositor's environment: use the only running instance.
-    try { candidates.AddRange(Directory.EnumerateDirectories(Path.Combine(runtime, "hypr")).Select(directory => Path.Combine(directory, ".socket.sock"))); } catch (IOException) { } catch (UnauthorizedAccessException) { }
-    _socket = candidates.FirstOrDefault(File.Exists);
-    return _socket;
+    // Started outside the compositor's environment: the running instance is usually the newest directory.
+    try
+    {
+      candidates.AddRange(new DirectoryInfo(Path.Combine(runtime, "hypr")).EnumerateDirectories()
+        .OrderByDescending(directory => directory.LastWriteTimeUtc).Select(directory => Path.Combine(directory.FullName, ".socket.sock")));
+    }
+    catch (IOException) { } catch (UnauthorizedAccessException) { }
+    return candidates.Where(File.Exists).Distinct().ToList();
   }
 
   [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getuid")] private static extern uint GetUid();
@@ -330,8 +404,16 @@ internal static class Grim
   {
     if (!WindowCaptureAvailable(stableId)) return null;
     try { var frame = Run(["-t", "ppm", "-T", stableId, "-"], 1920 * 1080 * 3); _windowCaptureFailures = 0; return frame; }
-    catch (InvalidOperationException error) when (error.Message == "grim_failed") { _windowCaptureFailures++; return null; }
+    // A hang or a junk reply counts too, not only a non-zero exit: otherwise the screen-copy fallback was never reached.
+    catch (Exception error) when (error is InvalidOperationException { Message: "grim_failed" or "grim_timeout" or "ppm_header" or "ppm_truncated" } or AggregateException or IOException)
+    { _windowCaptureFailures++; return null; }
   }
+
+  /** Part of one toplevel's buffer; under -T, grim reads -g in the window's own pixels (checked at scale 1). */
+  public static SKBitmap CaptureWindowRegion(string stableId, Rectangle local) =>
+    ValidIdentifier(stableId) && local.Width > 0 && local.Height > 0 && local.X >= 0 && local.Y >= 0
+      ? Run(["-t", "ppm", "-T", stableId, "-g", $"{local.X},{local.Y} {local.Width}x{local.Height}", "-"], local.Width * local.Height * 3)
+      : throw new InvalidOperationException("grim_failed");
 
   /** The screen rectangle in layout coordinates (wlr-screencopy), including anything drawn above the game. */
   public static SKBitmap Capture(Rectangle region) =>
@@ -347,7 +429,9 @@ internal static class Grim
     using var output = new MemoryStream(expectedBytes + 64);
     var copy = process.StandardOutput.BaseStream.CopyToAsync(output);
     var errors = process.StandardError.ReadToEndAsync();
-    if (!copy.Wait(2000) || !process.WaitForExit(2000)) { try { process.Kill(); } catch { } throw new InvalidOperationException("grim_timeout"); }
+    // One shared deadline: a capture takes tens of milliseconds, and the app gives up on a read long before two seconds.
+    var deadline = Stopwatch.StartNew();
+    if (!copy.Wait(1000) || !process.WaitForExit((int)Math.Max(1, 1000 - deadline.ElapsedMilliseconds))) { try { process.Kill(); } catch { } throw new InvalidOperationException("grim_timeout"); }
     if (process.ExitCode != 0) throw new InvalidOperationException("grim_failed");
     _ = errors.Result;
     return DecodePpm(output.GetBuffer(), (int)output.Length);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { linuxActiveSteamAccount, linuxSteamAutoLoginUser, steamDisplayNamesFromVdf } from '../electron/local-identity';
+import { linuxActiveSteamAccount, linuxSteamAutoLoginUser, steamDisplayNamesFromVdf, windowsRegistryValue } from '../electron/local-identity';
 
 const fixture = `"users" {
   "76561197960265729" { "PersonaName" "Older account" "MostRecent" "1" }
@@ -48,5 +48,17 @@ describe('Linux Steam active account', () => {
     const registry = '"Registry" { "HKCU" { "Software" { "Valve" { "Steam" { "language" "english" "AutoLoginUser" "someone" } } } } }';
     expect(linuxSteamAutoLoginUser(registry)).toBe('someone');
     expect(linuxSteamAutoLoginUser('"Registry" { }')).toBeNull();
+  });
+});
+
+describe('Windows registry values from reg.exe', () => {
+  const output = '\r\nHKEY_CURRENT_USER\\Software\\Valve\\Steam\r\n    SteamPath    REG_SZ    c:/program files (x86)/steam\r\n    ActiveUser    REG_DWORD    0x1a2b3c\r\n\r\n';
+  it('reads text and DWORD values', () => {
+    expect(windowsRegistryValue(output, 'SteamPath')).toBe('c:/program files (x86)/steam');
+    expect(windowsRegistryValue(output, 'ActiveUser')).toBe(0x1a2b3c);
+  });
+  it('returns null for a missing or empty value', () => {
+    expect(windowsRegistryValue(output, 'AutoLoginUser')).toBeNull();
+    expect(windowsRegistryValue('', 'SteamPath')).toBeNull();
   });
 });

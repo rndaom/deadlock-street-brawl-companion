@@ -23,7 +23,7 @@ fi
 mkdir -p "$data/applications" "$(dirname "$icon")"
 cp "$root/public/favicon.svg" "$icon"
 # Desktop entries quote paths with double quotes; escape the characters that are special inside them.
-launcher=$(printf '%s' "$root/start-companion.sh" | sed 's/[\\"`$]/\\&/g')
+launcher=$(printf '%s' "$root/start-companion.sh" | sed -e 's/[\\"`$]/\\&/g' -e 's/%/%%/g')
 cat > "$entry" <<EOF
 [Desktop Entry]
 Type=Application

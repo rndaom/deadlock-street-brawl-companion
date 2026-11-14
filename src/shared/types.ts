@@ -107,7 +107,10 @@ export type TelemetryEvent =
 export interface DisplayInfo { id: string; label: string; width: number; height: number; primary: boolean }
 export interface AppSettings { textScale: number; hidePlayerNames: boolean; alwaysOnTop: boolean; displayId: string | null;
   /** Draw the pick (and, on the hotkey, the leveling plan) over the game, for one-monitor play. */
-  overlay: boolean }
+  overlay: boolean;
+  /** Keep the latest draft and scoreboard screenshots in the diagnostics folder for troubleshooting (off by default:
+   * they show player names and chat, and Documents is often synced to the cloud). */
+  saveScreenshots: boolean }
 /** In-game overlay status: whether the hotkey info panel is open and which key toggles it (null = key unavailable). */
 export interface OverlayStatus { panel: boolean; hotkey: string | null }
 export interface CompanionBridge extends ScreenReaderBridge {

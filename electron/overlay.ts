@@ -26,6 +26,10 @@ export function createOverlay(options: { session: Session; preload: string; url:
   let hotkeyRegistered = false;
   let hotkeyUnavailable = false;
   let lastBounds = '';
+  let disposed = false;
+  /** Linux: no new placement attempt before this time (after one failed). */
+  let placeRetryAt = 0;
+  const PLACE_RETRY_MS = 3000;
   /** Linux: the game bounds the compositor's placement rule was registered for ('' when not placed). */
   let placedBounds = '';
 
@@ -75,9 +79,11 @@ export function createOverlay(options: { session: Session; preload: string; url:
       } catch { hotkeyRegistered = false; }
       // Another program owns the key: say so in the panel instead of retrying on every read.
       if (!hotkeyRegistered) { hotkeyUnavailable = true; send(); }
-    } else if (!wanted && hotkeyRegistered) {
-      globalShortcut.unregister(OVERLAY_HOTKEY);
+    } else if (!wanted) {
+      if (hotkeyRegistered) globalShortcut.unregister(OVERLAY_HOTKEY);
       hotkeyRegistered = false;
+      // The other program may have let the key go by the next match: try again when the game is back.
+      hotkeyUnavailable = false;
     }
   }
 
@@ -86,7 +92,9 @@ export function createOverlay(options: { session: Session; preload: string; url:
   }
 
   function update(next: ScreenReaderState | null): void {
-    state = next;
+    if (disposed) return;
+    // The overlay never shows the reading-area preview; don't serialise that image for it.
+    state = next?.previewDataUrl ? { ...next, previewDataUrl: null } : next;
     syncHotkey();
     const show = overlayShouldShow({ enabled, state, panel, now: Date.now() });
     // A hidden overlay is not redrawn on every read: it gets one last state as it hides (so it holds
@@ -96,9 +104,10 @@ export function createOverlay(options: { session: Session; preload: string; url:
       return;
     }
     if (COMPOSITOR_PLACED) { showPlaced(state!.gameBounds!); return; }
-    const target = ensureWindow();
-    sendState();
     const bounds = screen.screenToDipRect(null, state!.gameBounds!);
+    // Created at the game's bounds: a first setBounds onto a monitor with another DPI scale can size the window wrongly.
+    const target = ensureWindow(bounds);
+    sendState();
     const key = `${bounds.x},${bounds.y},${bounds.width},${bounds.height}`;
     if (key !== lastBounds) { target.setBounds(bounds, false); lastBounds = key; }
     if (!target.isVisible()) {
@@ -115,14 +124,17 @@ export function createOverlay(options: { session: Session; preload: string; url:
   function showPlaced(bounds: ScreenRect): void {
     const key = `${bounds.x},${bounds.y},${bounds.width},${bounds.height}`;
     if (key !== lastBounds) {
+      if (Date.now() < placeRetryAt) return;
       const old = window;
       window = null; lastBounds = key; placedBounds = '';
       if (alive(old)) old.destroy();
       void placeOverlay(OVERLAY_TITLE, bounds).then(placed => {
-        if (lastBounds !== key) return;
+        if (disposed || lastBounds !== key) return;
         placedBounds = placed ? key : '';
         if (placed) update(state);
-      });
+        // A failed placement (compositor busy, monitor change) is tried again on a later update, not never.
+        else { lastBounds = ''; placeRetryAt = Date.now() + PLACE_RETRY_MS; }
+      }).catch(() => { if (!disposed && lastBounds === key) { lastBounds = ''; placeRetryAt = Date.now() + PLACE_RETRY_MS; } });
       return;
     }
     if (placedBounds !== key) return;
@@ -145,6 +157,8 @@ export function createOverlay(options: { session: Session; preload: string; url:
     },
     update,
     dispose(): void {
+      // A pending placement or an F7 press during quit must not recreate the window.
+      disposed = true; lastBounds = ''; placedBounds = '';
       if (hotkeyRegistered) globalShortcut.unregister(OVERLAY_HOTKEY);
       hotkeyRegistered = false;
       if (alive(window)) window.destroy();

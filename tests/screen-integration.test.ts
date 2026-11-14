@@ -213,6 +213,18 @@ describe('native JSONL boundary and crop coordinates', () => {
     expect(reply.synthetic).toBe(true);
     expect(reply.icons?.[0]).toMatchObject({ itemId: '', confidence: 0, role: 'bonus', slot: 1 });
   });
+  it('keeps a card identified by its icon with its position and Enhanced proof', () => {
+    const request: NativeRequest = { id: 'cards', op: 'read', crop: { ...DEFAULT_CAPTURE_REGION } };
+    const bounds = { x: 0.69, y: 0.53, width: 0.07, height: 0.12 };
+    const reply = normalizeNativeReply(nativeReply(request, { icons: [
+      { itemId: 'upgrade_active_reload', confidence: 0.95, role: 'card', slot: 2, enhanced: true, bounds },
+      { itemId: 'upgrade_active_reload', confidence: 0.95, role: 'card', slot: 0, bounds },
+      { itemId: 'upgrade_active_reload', confidence: 0.95, role: 'bonus', slot: 0, enhanced: true, bounds }] }));
+    expect(reply.icons).toEqual([
+      { itemId: 'upgrade_active_reload', confidence: 0.95, role: 'card', slot: 2, enhanced: true, bounds },
+      { itemId: 'upgrade_active_reload', confidence: 0.95, role: 'card', slot: 0, bounds },
+      { itemId: 'upgrade_active_reload', confidence: 0.95, role: 'bonus', slot: 0, bounds }]);
+  });
   it('normalizes the native preview field only when it contains bounded PNG base64', () => {
     const request: NativeRequest = { id: 'preview', op: 'read', crop: { ...DEFAULT_CAPTURE_REGION } };
     expect(normalizeNativeReply(nativeReply(request, { previewPngBase64: 'iVBORw0KGgo=' })).previewPng).toBe('iVBORw0KGgo=');
@@ -225,6 +237,10 @@ describe('native JSONL boundary and crop coordinates', () => {
     ['invalid geometry', { blocks: [{ text: 'Active Reload', bounds: { x: 1, y: 0, width: 0.1, height: 0.1 } }] }],
     ['too many blocks', { blocks: Array.from({ length: 257 }, () => block('x', 0.1, 0.1)) }],
     ['invalid icon slot', { icons: [{ itemId: 'a', confidence: 1, role: 'bonus', slot: 4, bounds: { x: 0.1, y: 0.1, width: 0.1, height: 0.1 } }] }],
+    ['a third bonus slot', { icons: [{ itemId: 'a', confidence: 1, role: 'bonus', slot: 2, bounds: { x: 0.1, y: 0.1, width: 0.1, height: 0.1 } }] }],
+    ['a fourth card', { icons: [{ itemId: 'a', confidence: 1, role: 'card', slot: 3, bounds: { x: 0.1, y: 0.1, width: 0.1, height: 0.1 } }] }],
+    ['unknown icon role', { icons: [{ itemId: 'a', confidence: 1, role: 'tooltip', slot: 0, bounds: { x: 0.1, y: 0.1, width: 0.1, height: 0.1 } }] }],
+    ['non-boolean icon detail', { icons: [{ itemId: 'a', confidence: 1, role: 'card', slot: 0, enhanced: 'yes', bounds: { x: 0.1, y: 0.1, width: 0.1, height: 0.1 } }] }],
   ])('rejects %s', (_label, changes) => {
     expect(() => normalizeNativeReply(nativeReply({ id: 'invalid', op: 'read', crop: { ...DEFAULT_CAPTURE_REGION } }, changes))).toThrow(TypeError);
   });
@@ -253,6 +269,17 @@ describe('actual-reading coordinator with an injected native process', () => {
     await untilReady(reader);
     expect(reader.getState().offers.map(value => value.name)).toEqual(names);
     expect(reader.getState().offers[0]?.bonusIds).toEqual(['upgrade_improved_spirit', 'upgrade_health']);
+  });
+  it('shows a card whose name stays unread from the reader\'s match of its icon', async () => {
+    const { reader, processes } = setup(); await step(reader);
+    const middle = catalog.items.find(item => item.name === names[1])!.id;
+    processes[0]!.respond = request => nativeReply(request, { hash: 'middle-name-unread',
+      blocks: draftFrame().filter(value => value.text !== names[1] && insideCrop(value, request.crop)),
+      icons: isCardRead(request) ? [{ itemId: middle, confidence: 0.95, role: 'card', slot: 1, bounds: { x: 0.465, y: 0.3, width: 0.07, height: 0.125 } }] : [] });
+    await untilReady(reader);
+    expect(reader.getState().offers.map(value => value.name)).toEqual(names);
+    expect(reader.getState().offers.map(value => value.byIcon === true)).toEqual([false, true, false]);
+    expect(reader.getState().advice).not.toBeNull();
   });
   it('keeps one card generation and pick across exact and corrected OCR while showing the current warning', async () => {
     const { reader, processes } = setup(); await step(reader);

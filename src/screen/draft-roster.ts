@@ -218,14 +218,19 @@ export function createRosterTracker(catalog: Catalog, options: RosterOptions = {
   function ownNameCenter(block: TextBlock): number | null {
     if (!ownNames.length) return null;
     const text = block.text;
-    for (const token of text.matchAll(/\S+/g)) {
-      const key = nameKey(token[0]);
-      if (key.length < 3) continue;
-      const matched = ownNames.some(name => distance(key, name) <= (name.length >= 9 ? 2 : name.length >= 5 ? 1 : 0));
-      if (!matched) continue;
-      // OCR can join neighbouring names into one line: place the token by its character position.
-      const start = token.index! / Math.max(1, text.length), end = (token.index! + token[0].length) / Math.max(1, text.length);
-      return block.bounds.x + block.bounds.width * (start + end) / 2;
+    const tokens = [...text.matchAll(/\S+/g)];
+    // A name can hold spaces ("Big Bad Wolf"): runs of up to four neighbouring words are tried, longest first.
+    for (let from = 0; from < tokens.length; from++) {
+      for (let to = Math.min(tokens.length, from + 4) - 1; to >= from; to--) {
+        const key = tokens.slice(from, to + 1).map(token => nameKey(token[0])).join('');
+        if (key.length < 3) continue;
+        const matched = ownNames.some(name => distance(key, name) <= (name.length >= 9 ? 2 : name.length >= 5 ? 1 : 0));
+        if (!matched) continue;
+        // OCR can join neighbouring names into one line: place the words by their character position.
+        const last = tokens[to]!;
+        const start = tokens[from]!.index! / Math.max(1, text.length), end = (last.index! + last[0].length) / Math.max(1, text.length);
+        return block.bounds.x + block.bounds.width * (start + end) / 2;
+      }
     }
     return null;
   }

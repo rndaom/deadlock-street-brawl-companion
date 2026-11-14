@@ -2,18 +2,31 @@
 
 A Windows and Linux (Hyprland) companion for Deadlock's **Street Brawl** mode. It reads what is visible on your game screen and, when the **Select Items** draft opens, tells you which of the three cards to take (or when to reroll), using real Street Brawl win rates, your hero, your build and the enemy team.
 
-## Use it
+Unofficial fan tool: not affiliated with or endorsed by Valve. Deadlock, its names and art belong to Valve. Statistics and game data come from the community [deadlock-api.com](https://deadlock-api.com).
 
-1. Double-click **Start Companion.cmd** (or `release/win-unpacked/Street Brawl Companion.exe`; keep the whole `win-unpacked` folder together). On Linux, run `./start-companion.sh` (it starts `release/linux-unpacked/street-brawl-companion`), or run `scripts/install-desktop-entry.sh` once to add **Street Brawl Companion** to the app launcher (`--remove` takes it out again).
-2. Put the companion on your second monitor. Run Deadlock in **borderless windowed** mode with the English interface, and click back into the game.
-3. Play normally. Within a second or two of a draft opening, the companion shows:
+## Windows 11 quick start
+
+What you need: Windows 10 (2004) or Windows 11, 64-bit; Deadlock in **English**; and the English text-recognition (OCR) feature, which every English Windows install already has. On a non-English Windows, add it in **Settings → Time & language → Language & region → Add a language → English (United States)** (the "Optical character recognition" feature is enough). No other installs are needed.
+
+1. Download `Street-Brawl-Companion-<version>-win-x64.zip` and **extract the whole zip** into a folder of its own (right-click → **Extract All…**). Don't run it from inside the zip.
+2. Double-click **Street Brawl Companion.exe**. The app is not code-signed, so Windows SmartScreen may say "Windows protected your PC": click **More info → Run anyway**. You only need to do this once.
+3. Put the companion on your second monitor (or keep it beside the game). Run Deadlock in **borderless windowed** display mode and click back into the game.
+4. Play a Street Brawl match. Within a second or two of a draft opening, the companion shows:
    - **the pick panel**: the card to take, its win rate on your hero, why, and whether to reroll;
    - **the three cards** in game order (left, middle, right);
    - **your build**: items, ability ranks and the next ability upgrade players usually take;
    - **the enemy team and your team** with the items read from the scoreboard.
-4. At a safe moment, hold **Tab** for a few seconds so the companion can read both teams' items. It works out which team you are on from your Steam name and your hero, so enemy counters and enemy items feed the pick.
+5. At a safe moment, hold **Tab** for a few seconds so the companion can read both teams' items. It works out which team you are on from your Steam name and your hero, so enemy counters and enemy items feed the pick.
+
+The companion only looks at your screen, like a screenshot tool. It never reads game memory, never touches game files and never sends input to the game. It needs the internet only to refresh its win-rate data once a day, and works offline with the data it ships with.
+
+**Remove or reset it:** close it from its tray icon, then delete the folder you extracted. Settings live in `%APPDATA%\deadlock-street-brawl-companion` and logs in `Documents\Street Brawl Companion`; delete those too to reset it fully.
 
 See the [short game-test guide](docs/game-test-guide.md) for troubleshooting.
+
+### From this repository
+
+Double-click **Start Companion.cmd** after packaging (it starts `release/win-unpacked/Street Brawl Companion.exe`; keep the whole `win-unpacked` folder together). On Linux, run `./start-companion.sh` (it starts `release/linux-unpacked/street-brawl-companion`), or run `scripts/install-desktop-entry.sh` once to add **Street Brawl Companion** to the app launcher (`--remove` takes it out again).
 
 ### Linux
 
@@ -62,6 +75,10 @@ npm run package:linux
 
 The Linux build keeps the shipped icon descriptors, which are prepared on Windows, while they still match the icons. `npm run reader:build -- --descriptors` rebuilds them on Linux instead.
 
+### The shareable Windows zip
+
+`npm run package:win` builds `release/Street-Brawl-Companion-<version>-win-x64.zip` (and `release/win-unpacked`) on Windows or on Linux: the Windows reader is cross-built with `-p:ReaderPlatform=windows`, and electron-builder sets the exe's icon and version details without Wine. `npm run package:dir` builds only the folder. `node scripts/verify-package.mjs release/win-unpacked` checks the result, including that the reader inside is a Windows executable. The zip is not code-signed, so first-time users see SmartScreen's "More info → Run anyway".
+
 The packaged app includes its self-contained reader and needs no .NET SDK. `npm start` opens the built desktop app, `npm run dev` serves a browser preview of the interface (it cannot read the game; add `?sample=pick`, `?sample=between`, `?sample=reroll` … to see it with sample match data, or `&view=overlay&panel` for the in-game overlay), and `npm test` runs the checks.
 
 ## After a Deadlock patch or a new hero
@@ -71,7 +88,7 @@ One command fetches the new heroes, items, ability art and Street Brawl statisti
 ```powershell
 node scripts/refresh-patch.mjs
 npm test
-npm run package:dir
+npm run package:win
 ```
 
 Close the companion before packaging. Win rates, matchups and upgrade orders also refresh on their own once a day while the app runs; only new heroes or items need the command above.

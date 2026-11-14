@@ -319,6 +319,20 @@ describe('round number evidence (real 2026-10-18 matches)', () => {
     const state = run([at(0, { round: 3, phase: 'combat' }), at(1_000, { round: 13, phase: 'combat' }), at(2_000, { round: 3, phase: 'combat' })]);
     expect(state.round).toBe(3);
   });
+  it('keeps an inferred round that the HUD confirmed when one lower misread follows', () => {
+    const frames = [at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(60_000, { round: 2, phase: 'combat' }),
+      at(130_000, { phase: 'draft', pickStage: 1 }), at(170_000, { round: 3, phase: 'combat' }), at(175_000, { round: 3, phase: 'combat' })];
+    expect(run([...frames, at(200_000, { round: 2, phase: 'combat' })]).round).toBe(3);
+    // The next round's draft still advances it.
+    expect(run([...frames, at(200_000, { round: 2, phase: 'combat' }), at(210_000, { round: 3, phase: 'combat' }),
+      at(400_000, { phase: 'draft', pickStage: 1 })]).round).toBe(4);
+  });
+  it('restores the draft round when a stale lower read during an inferred draft is followed by the real round', () => {
+    const state = run([at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(60_000, { round: 2, phase: 'combat' }),
+      at(130_000, { phase: 'draft', pickStage: 1 }), at(132_000, { round: 2, phase: 'draft', pickStage: 1 }),
+      at(170_000, { round: 3, phase: 'combat' }), at(400_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(4);
+  });
   it('advances the round when a new "Choice 1 of 3" draft opens after combat (match A round 3, 12:05:16)', () => {
     const state = run([
       at(0, { round: 2, phase: 'draft', pickStage: 1 }), at(20_000, { phase: 'draft', pickStage: 3 }),

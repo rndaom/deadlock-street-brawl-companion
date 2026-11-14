@@ -1,105 +1,105 @@
 {
   "schemaVersion": 1,
-  "clientVersion": "6844",
-  "revision": "11201066",
-  "catalogSha256": "448ff5c8198e610a111928a99d4072b599635f4141884ac20b05681e64b8aa96",
-  "sourceArchive": "catalog-sources/client-6844-1f462c3baa03370c",
+  "clientVersion": "6861",
+  "revision": "11219368",
+  "catalogSha256": "3963866feb43584c7a26db505685b99fdaf7631bb3b562b9f0e1a103a0290c4f",
+  "sourceArchive": "catalog-sources/client-6861-8d68a57afa36acd5",
   "sources": [
     {
       "name": "steam-info",
-      "file": "data/catalog-sources/client-6844-1f462c3baa03370c/steam-info.json",
-      "sha256": "8918634e999e96939f69e7372d2ef994f34f76cdcd70bb0c557ef0e44e332db1",
-      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6844"
+      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/steam-info.json",
+      "sha256": "a86e575ed300d6329bd17a892fdf3960f0a6384fd37c30aea9ed071e9118eb4d",
+      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6861"
     },
     {
       "name": "items",
-      "file": "data/catalog-sources/client-6844-1f462c3baa03370c/items.json",
-      "sha256": "93eb4974c9b1b64a50c2d15ebf81767f3d26a440062863d16363ec3fb9484558",
-      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6844"
+      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/items.json",
+      "sha256": "ed77a501256bee9cdd862948ea736e89afad62392461bc3a978dc9d0bbc7a4f4",
+      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6861"
     },
     {
       "name": "heroes",
-      "file": "data/catalog-sources/client-6844-1f462c3baa03370c/heroes.json",
-      "sha256": "f69669f470d0e62dba01cb4ba3f4df70ef5b407e37c63d6987db211b8f844c6e",
-      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6844"
+      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/heroes.json",
+      "sha256": "b81ee8edc0584a18d5d7dda746f58092a2d88db42fa246131cd4ac474bd64c6a",
+      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6861"
     },
     {
       "name": "generic-data",
-      "file": "data/catalog-sources/client-6844-1f462c3baa03370c/generic-data.json",
+      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/generic-data.json",
       "sha256": "efed0a75190190f552301d0172266a9131b2f566633027ea433241efe0b1a13e",
-      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6844"
+      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6861"
     },
     {
       "name": "valve-convars.txt",
-      "file": "data/context-sources/steamtracking-55b2f6b152cb0970fb03b9e591cc1697909ce2e3/convars.txt",
-      "sha256": "7607b81b99cce9e22c62e94d7c3ecead1c8ad0fa678f8dd4c247ff2372ab5bc0",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/55b2f6b152cb0970fb03b9e591cc1697909ce2e3/DumpSource2/convars.txt"
+      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/convars.txt",
+      "sha256": "9163ebb202d3a757d0c1553eee85e295e32a294011f18f151596760691f695d7",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/DumpSource2/convars.txt"
     },
     {
       "name": "valve-abilities.vdata",
-      "file": "data/context-sources/steamtracking-55b2f6b152cb0970fb03b9e591cc1697909ce2e3/abilities.vdata",
-      "sha256": "712c899e19c2c2c3455d5b4d2ffa84ad6c819b191d6233a3dfa5f605907fa88d",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/55b2f6b152cb0970fb03b9e591cc1697909ce2e3/game/citadel/pak01_dir/scripts/abilities.vdata"
+      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/abilities.vdata",
+      "sha256": "5f1e89f5c7bcc91429a87f429910e3ddbaf3ddf2b56b0f6830ca7c2a3f026ffe",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/pak01_dir/scripts/abilities.vdata"
     },
     {
       "name": "valve-citadel_hud_ability_upgrade_button.xml",
-      "file": "data/context-sources/steamtracking-55b2f6b152cb0970fb03b9e591cc1697909ce2e3/citadel_hud_ability_upgrade_button.xml",
+      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/citadel_hud_ability_upgrade_button.xml",
       "sha256": "3e33eb188e1e63efe13bac9567c644561b3547897de06ef9dbf359be2fe7fe06",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/55b2f6b152cb0970fb03b9e591cc1697909ce2e3/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_button.xml"
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_button.xml"
     },
     {
       "name": "valve-citadel_hud_ability_upgrade_pips.xml",
-      "file": "data/context-sources/steamtracking-55b2f6b152cb0970fb03b9e591cc1697909ce2e3/citadel_hud_ability_upgrade_pips.xml",
+      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/citadel_hud_ability_upgrade_pips.xml",
       "sha256": "374c8afa3261a3cdad6f7826f0110bec45a5745862dace86952802ab18a92517",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/55b2f6b152cb0970fb03b9e591cc1697909ce2e3/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_pips.xml"
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_pips.xml"
     },
     {
       "name": "valve-steam.inf",
-      "file": "data/context-sources/steamtracking-55b2f6b152cb0970fb03b9e591cc1697909ce2e3/steam.inf",
-      "sha256": "645b09dfdb7e87f96687f0e0a3cc31fb332b71232efdd4b3728024033afd7462",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/55b2f6b152cb0970fb03b9e591cc1697909ce2e3/game/citadel/steam.inf"
+      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/steam.inf",
+      "sha256": "e741729d28a1f77a7dc62ecc89155fc00d6dcf13807998189768de381f6125c5",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/steam.inf"
     },
     {
       "name": "installed-steam.inf",
       "file": "data/context-sources/installed-client-6745-11078118/steam.inf",
       "sha256": "39baf9fa7b984073b870ee7e554b1fcb469abcddc4094b7a262d692fb0aa3969",
-      "url": "valve-resource://6844/steam.inf"
+      "url": "valve-resource://6861/steam.inf"
     },
     {
       "name": "installed-ability_upgrade_check_psd.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/ability_upgrade_check_psd.vtex_c",
       "sha256": "c5341049cccc2fe2631b221e9d65564c36d508dc666a4f3c543c3221743a2dc1",
-      "url": "valve-resource://6844/panorama/images/hud/ability_upgrade_check_psd.vtex_c"
+      "url": "valve-resource://6861/panorama/images/hud/ability_upgrade_check_psd.vtex_c"
     },
     {
       "name": "installed-hero_ability_pip_psd.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/hero_ability_pip_psd.vtex_c",
       "sha256": "fa3188d229869ea781ebfe14aaa69cc3d5f2c586834a778bafdb68c5312e3767",
-      "url": "valve-resource://6844/panorama/images/hud/hero_ability_pip_psd.vtex_c"
+      "url": "valve-resource://6861/panorama/images/hud/hero_ability_pip_psd.vtex_c"
     },
     {
       "name": "installed-hero_ability_pip_empty_psd.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/hero_ability_pip_empty_psd.vtex_c",
       "sha256": "9f320cc3b82e83b41d899129d7506a73efb60f72a3d4bbd95eef3d6b7d3c6605",
-      "url": "valve-resource://6844/panorama/images/hud/hero_ability_pip_empty_psd.vtex_c"
+      "url": "valve-resource://6861/panorama/images/hud/hero_ability_pip_empty_psd.vtex_c"
     },
     {
       "name": "installed-ap_icon.vsvg_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/ap_icon.vsvg_c",
       "sha256": "908504ad8dddc0fe8657cb4d830b8a95a72083fb68ad702bb833bd8a5c087a4c",
-      "url": "valve-resource://6844/panorama/images/hud/ap_icon.vsvg_c"
+      "url": "valve-resource://6861/panorama/images/hud/ap_icon.vsvg_c"
     },
     {
       "name": "installed-spec_icon_png.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/spec_icon_png.vtex_c",
       "sha256": "6c708a320da55fd0d3554274e227f6ea39abd290a16c335d8c902ce2f9492937",
-      "url": "valve-resource://6844/panorama/images/hud/spec_icon_png.vtex_c"
+      "url": "valve-resource://6861/panorama/images/hud/spec_icon_png.vtex_c"
     },
     {
       "name": "installed-citadel_hud_top_bar_player.vxml_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/citadel_hud_top_bar_player.vxml_c",
       "sha256": "032d3756da12107a81c63c8cf577db42bb47fe1fa8bae31eb4d11eb1ea0badb1",
-      "url": "valve-resource://6844/panorama/layout/citadel_hud_top_bar_player.vxml_c"
+      "url": "valve-resource://6861/panorama/layout/citadel_hud_top_bar_player.vxml_c"
     }
   ],
   "heroes": [
@@ -731,7 +731,7 @@
         },
         {
           "name": "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL",
-          "value": 0.7
+          "value": 0.63
         },
         {
           "name": "MODIFIER_VALUE_BONUS_ATTACK_RANGE",
@@ -766,7 +766,7 @@
         {
           "stat": "ETechArmorDamageReduction",
           "scalingStat": "ETechPower",
-          "scale": 0.07,
+          "scale": 0.05,
           "sourcePointer": "heroes.json#/64/scaling_stats/ETechArmorDamageReduction"
         }
       ],
@@ -5437,14 +5437,14 @@
       "weapon": {
         "id": "citadel_weapon_nurse_set",
         "numericId": "4180982524",
-        "bulletDamage": 13.372,
+        "bulletDamage": 14.442,
         "cycleTime": 0.38,
         "bullets": 1,
         "burstShotCount": 1,
         "clipSize": 11,
         "reloadDuration": 1.9,
-        "damagePerSecond": 35.189473684210526,
-        "damagePerSecondWithReload": 23.237282780410744,
+        "damagePerSecond": 38.00526315789474,
+        "damagePerSecondWithReload": 25.096682464454975,
         "shotsPerSecond": 2.6315789473684212,
         "ratesAreProviderDerived": true,
         "sourcePointer": "items.json#/766/weapon_info"
@@ -6334,14 +6334,14 @@
       "weapon": {
         "id": "citadel_weapon_ratking_set",
         "numericId": "3435805738",
-        "bulletDamage": 5.7,
+        "bulletDamage": 5.8,
         "cycleTime": 0.2,
         "bullets": 2,
         "burstShotCount": 1,
-        "clipSize": 24,
+        "clipSize": 26,
         "reloadDuration": 2.8,
-        "damagePerSecond": 38,
-        "damagePerSecondWithReload": 26.955665024630534,
+        "damagePerSecond": 38.666666666666664,
+        "damagePerSecondWithReload": 28.055813953488368,
         "shotsPerSecond": 3.333333333333333,
         "ratesAreProviderDerived": true,
         "sourcePointer": "items.json#/773/weapon_info"
@@ -12221,7 +12221,7 @@
       "slot": 1,
       "sourceSlot": "signature2",
       "name": "Riposte",
-      "description": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing them, preventing them from parrying, and reducing their Melee Resist. Press Ability 2 to select a target. Does not trigger against trooper or neutral damage.",
+      "description": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing and disarming them, preventing them from parrying, and reducing their Melee Resist. Press Ability 2 to select a target. Does not trigger against trooper or neutral damage.",
       "summary": "",
       "iconFile": "abilities/ability_fencer_riposte.png",
       "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/fencer/fencer_riposte.png",
@@ -12904,7 +12904,7 @@
         {
           "index": 1,
           "tier": 2,
-          "description": "-25% Melee Resist and +0.6s Immobilize Duration",
+          "description": "-25% Melee Resist and +0.7s Immobilize Duration",
           "properties": [
             {
               "name": "MeleeResistReduction",
@@ -12917,8 +12917,8 @@
             },
             {
               "name": "StunDuration",
-              "bonus": "0.6",
-              "numericBonus": 0.6,
+              "bonus": "0.7",
+              "numericBonus": 0.7,
               "unit": "seconds",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -12954,7 +12954,7 @@
       ],
       "tooltipSections": [
         {
-          "text": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing them, preventing them from parrying, and reducing their Melee Resist. Press Ability 2 to select a target. Does not trigger against trooper or neutral damage.",
+          "text": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing and disarming them, preventing them from parrying, and reducing their Melee Resist. Press Ability 2 to select a target. Does not trigger against trooper or neutral damage.",
           "requiredPropertyUpgrade": null
         },
         {
@@ -14618,8 +14618,8 @@
           "properties": [
             {
               "name": "BonusDamagePercent",
-              "bonus": "50",
-              "numericBonus": 50,
+              "bonus": "60",
+              "numericBonus": 60,
               "unit": "percent",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -15588,11 +15588,11 @@
         {
           "name": "StatusResistancePercent",
           "label": "Debuff Resist",
-          "normalValue": "30",
+          "normalValue": "25",
           "streetBrawlValue": null,
-          "effectiveValue": "30",
+          "effectiveValue": "25",
           "modeOverride": false,
-          "numericValue": 30,
+          "numericValue": 25,
           "unit": "percent",
           "postfix": "%",
           "displayUnits": null,
@@ -15611,11 +15611,11 @@
         {
           "name": "MeleeResist",
           "label": "Melee Resist",
-          "normalValue": "30",
+          "normalValue": "25",
           "streetBrawlValue": null,
-          "effectiveValue": "30",
+          "effectiveValue": "25",
           "modeOverride": false,
-          "numericValue": 30,
+          "numericValue": 25,
           "unit": "percent",
           "postfix": "%",
           "displayUnits": null,
@@ -16160,11 +16160,11 @@
         {
           "name": "AbilityCooldown",
           "label": "Cooldown",
-          "normalValue": 27,
+          "normalValue": 28,
           "streetBrawlValue": null,
-          "effectiveValue": 27,
+          "effectiveValue": 28,
           "modeOverride": false,
-          "numericValue": 27,
+          "numericValue": 28,
           "unit": "seconds",
           "postfix": "s",
           "displayUnits": null,
@@ -16304,11 +16304,11 @@
         {
           "name": "BarrierWindow",
           "label": null,
-          "normalValue": "1.5",
+          "normalValue": "1.6",
           "streetBrawlValue": null,
-          "effectiveValue": "1.5",
+          "effectiveValue": "1.6",
           "modeOverride": false,
-          "numericValue": 1.5,
+          "numericValue": 1.6,
           "unit": "source",
           "postfix": null,
           "displayUnits": null,
@@ -16325,11 +16325,11 @@
         {
           "name": "SilenceWindow",
           "label": null,
-          "normalValue": "1.5",
+          "normalValue": "1.6",
           "streetBrawlValue": null,
-          "effectiveValue": "1.5",
+          "effectiveValue": "1.6",
           "modeOverride": false,
-          "numericValue": 1.5,
+          "numericValue": 1.6,
           "unit": "source",
           "postfix": null,
           "displayUnits": null,
@@ -16346,11 +16346,11 @@
         {
           "name": "FireWindow",
           "label": null,
-          "normalValue": "1.5",
+          "normalValue": "1.6",
           "streetBrawlValue": null,
-          "effectiveValue": "1.5",
+          "effectiveValue": "1.6",
           "modeOverride": false,
-          "numericValue": 1.5,
+          "numericValue": 1.6,
           "unit": "source",
           "postfix": null,
           "displayUnits": null,
@@ -16433,7 +16433,7 @@
             "class_name": "scale_function_tech_damage",
             "subclass_name": "DamagePerSecond_scale_function",
             "specific_stat_scale_type": "ETechPower",
-            "stat_scale": 0.152
+            "stat_scale": 0.13
           },
           "cssClass": "tech_damage",
           "sourcePointer": "items.json#/744/properties/DamagePerSecond"
@@ -25042,12 +25042,12 @@
         {
           "index": 2,
           "tier": 3,
-          "description": "+1.25 Silence Duration and -20s Cooldown. Allows Shining Wonder Bounce.",
+          "description": "+0.75 Silence Duration and -20s Cooldown. Allows Shining Wonder Bounce.",
           "properties": [
             {
               "name": "DebuffDuration",
-              "bonus": "1.25",
-              "numericBonus": 1.25,
+              "bonus": "0.75",
+              "numericBonus": 0.75,
               "unit": "seconds",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -25135,11 +25135,11 @@
         {
           "name": "AbilityCastRange",
           "label": "Cast Range",
-          "normalValue": "30m",
+          "normalValue": "25m",
           "streetBrawlValue": null,
-          "effectiveValue": "30m",
+          "effectiveValue": "25m",
           "modeOverride": false,
-          "numericValue": 30,
+          "numericValue": 25,
           "unit": "meters",
           "postfix": "m",
           "displayUnits": "EDisplayUnit_Meters",
@@ -25449,11 +25449,11 @@
         {
           "name": "MagicIncreasePerStack",
           "label": "Spirit Amp per Stack",
-          "normalValue": "7",
+          "normalValue": "6",
           "streetBrawlValue": null,
-          "effectiveValue": "7",
+          "effectiveValue": "6",
           "modeOverride": false,
-          "numericValue": 7,
+          "numericValue": 6,
           "unit": "percent",
           "postfix": "%",
           "displayUnits": null,
@@ -25570,6 +25570,15 @@
               "upgradeType": null,
               "scaleStatFilter": null,
               "sourcePointer": "items.json#/729/upgrades/1/property_upgrades/1"
+            },
+            {
+              "name": "AbilityCastRange",
+              "bonus": "5m",
+              "numericBonus": 5,
+              "unit": "meters",
+              "upgradeType": null,
+              "scaleStatFilter": null,
+              "sourcePointer": "items.json#/729/upgrades/1/property_upgrades/2"
             }
           ]
         },
@@ -25580,8 +25589,8 @@
           "properties": [
             {
               "name": "MagicIncreasePerStack",
-              "bonus": "4",
-              "numericBonus": 4,
+              "bonus": "5",
+              "numericBonus": 5,
               "unit": "percent",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -25642,11 +25651,11 @@
         {
           "name": "AbilityCooldown",
           "label": "Cooldown",
-          "normalValue": "160",
+          "normalValue": "170",
           "streetBrawlValue": null,
-          "effectiveValue": "160",
+          "effectiveValue": "170",
           "modeOverride": false,
-          "numericValue": 160,
+          "numericValue": 170,
           "unit": "seconds",
           "postfix": "s",
           "displayUnits": null,
@@ -25831,11 +25840,11 @@
         {
           "name": "SlowPercent",
           "label": "Move Speed",
-          "normalValue": "32",
+          "normalValue": "28",
           "streetBrawlValue": null,
-          "effectiveValue": "32",
+          "effectiveValue": "28",
           "modeOverride": false,
-          "numericValue": 32,
+          "numericValue": 28,
           "unit": "percent",
           "postfix": "%",
           "displayUnits": null,
@@ -25896,11 +25905,11 @@
         {
           "name": "BounceRadius",
           "label": "Bounce Range",
-          "normalValue": "15.5m",
+          "normalValue": "15m",
           "streetBrawlValue": null,
-          "effectiveValue": "15.5m",
+          "effectiveValue": "15m",
           "modeOverride": false,
-          "numericValue": 15.5,
+          "numericValue": 15,
           "unit": "meters",
           "postfix": "m",
           "displayUnits": null,
@@ -25985,7 +25994,7 @@
         {
           "index": 0,
           "tier": 1,
-          "description": "-16% Move Speed and -14% Dash Distance",
+          "description": "-14% Move Speed and -14% Dash Distance",
           "properties": [
             {
               "name": "GroundDashReductionPercent",
@@ -25998,8 +26007,8 @@
             },
             {
               "name": "SlowPercent",
-              "bonus": "16",
-              "numericBonus": 16,
+              "bonus": "14",
+              "numericBonus": 14,
               "unit": "percent",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -26236,7 +26245,7 @@
             "class_name": "scale_function_tech_damage",
             "subclass_name": "Damage_scale_function",
             "specific_stat_scale_type": "ETechPower",
-            "stat_scale": 0.74
+            "stat_scale": 0.681
           },
           "cssClass": "tech_damage",
           "sourcePointer": "items.json#/763/properties/Damage"
@@ -26400,7 +26409,7 @@
             "class_name": "scale_function_tech_damage",
             "subclass_name": "CoatedDamage_scale_function",
             "specific_stat_scale_type": "ETechPower",
-            "stat_scale": 1.1
+            "stat_scale": 1.012
           },
           "cssClass": "tech_damage",
           "sourcePointer": "items.json#/763/properties/CoatedDamage"
@@ -26543,8 +26552,8 @@
             },
             {
               "name": "CoatedDamage",
-              "bonus": "0.35",
-              "numericBonus": 0.35,
+              "bonus": "0.322",
+              "numericBonus": 0.322,
               "unit": "source",
               "upgradeType": "EAddToScale",
               "scaleStatFilter": "ETechPower",
@@ -26552,8 +26561,8 @@
             },
             {
               "name": "Damage",
-              "bonus": "0.35",
-              "numericBonus": 0.35,
+              "bonus": "0.322",
+              "numericBonus": 0.322,
               "unit": "source",
               "upgradeType": "EAddToScale",
               "scaleStatFilter": "ETechPower",
@@ -27150,8 +27159,8 @@
           "properties": [
             {
               "name": "HealOnHit",
-              "bonus": "150",
-              "numericBonus": 150,
+              "bonus": "125",
+              "numericBonus": 125,
               "unit": "source",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -27168,8 +27177,8 @@
             },
             {
               "name": "HealOnHit",
-              "bonus": "2.0",
-              "numericBonus": 2,
+              "bonus": "1.7",
+              "numericBonus": 1.7,
               "unit": "source",
               "upgradeType": "EAddToScale",
               "scaleStatFilter": "ETechPower",
@@ -28096,11 +28105,11 @@
         {
           "name": "BonusDamagePercent",
           "label": "Bonus Damage",
-          "normalValue": "75",
+          "normalValue": "55",
           "streetBrawlValue": null,
-          "effectiveValue": "75",
+          "effectiveValue": "55",
           "modeOverride": false,
-          "numericValue": 75,
+          "numericValue": 55,
           "unit": "percent",
           "postfix": "%",
           "displayUnits": null,
@@ -58172,11 +58181,11 @@
         {
           "name": "DamageHealMult",
           "label": "Hero Damage to Heal",
-          "normalValue": "1.2",
+          "normalValue": "1.3",
           "streetBrawlValue": null,
-          "effectiveValue": "1.2",
+          "effectiveValue": "1.3",
           "modeOverride": false,
-          "numericValue": 1.2,
+          "numericValue": 1.3,
           "unit": "source",
           "postfix": "x",
           "displayUnits": null,
@@ -58536,11 +58545,11 @@
         {
           "name": "Radius",
           "label": "Radius",
-          "normalValue": "5m",
+          "normalValue": "5.5m",
           "streetBrawlValue": null,
-          "effectiveValue": "5m",
+          "effectiveValue": "5.5m",
           "modeOverride": false,
-          "numericValue": 5,
+          "numericValue": 5.5,
           "unit": "meters",
           "postfix": "m",
           "displayUnits": null,
@@ -59224,12 +59233,12 @@
         {
           "index": 1,
           "tier": 2,
-          "description": "Slow targets by -24% and reduces dash distances by -26%",
+          "description": "Slow targets by -28% and reduces dash distances by -28%",
           "properties": [
             {
               "name": "SlowPercent",
-              "bonus": "24",
-              "numericBonus": 24,
+              "bonus": "28",
+              "numericBonus": 28,
               "unit": "percent",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -59237,8 +59246,8 @@
             },
             {
               "name": "GroundDashReductionPercent",
-              "bonus": "-26",
-              "numericBonus": -26,
+              "bonus": "-28",
+              "numericBonus": -28,
               "unit": "percent",
               "upgradeType": null,
               "scaleStatFilter": null,
@@ -59488,11 +59497,11 @@
         {
           "name": "BonusHealthOnKill",
           "label": "Bonus Max Health Per Kill",
-          "normalValue": "40",
+          "normalValue": "50",
           "streetBrawlValue": null,
-          "effectiveValue": "40",
+          "effectiveValue": "50",
           "modeOverride": false,
-          "numericValue": 40,
+          "numericValue": 50,
           "unit": "source",
           "postfix": null,
           "displayUnits": null,
@@ -62091,11 +62100,11 @@
         {
           "name": "BuildupTime",
           "label": "Fear Buildup Time",
-          "normalValue": "2",
+          "normalValue": "1.75",
           "streetBrawlValue": null,
-          "effectiveValue": "2",
+          "effectiveValue": "1.75",
           "modeOverride": false,
-          "numericValue": 2,
+          "numericValue": 1.75,
           "unit": "seconds",
           "postfix": "s",
           "displayUnits": null,
@@ -62175,11 +62184,11 @@
         {
           "name": "BuildupLookAngleVertical",
           "label": null,
-          "normalValue": "50",
+          "normalValue": "65",
           "streetBrawlValue": null,
-          "effectiveValue": "50",
+          "effectiveValue": "65",
           "modeOverride": false,
-          "numericValue": 50,
+          "numericValue": 65,
           "unit": "source",
           "postfix": null,
           "displayUnits": null,
@@ -70748,11 +70757,11 @@
         {
           "name": "BonusMoveSpeed",
           "label": "Move Speed",
-          "normalValue": "3m",
+          "normalValue": "4m",
           "streetBrawlValue": null,
-          "effectiveValue": "3m",
+          "effectiveValue": "4m",
           "modeOverride": false,
-          "numericValue": 3,
+          "numericValue": 4,
           "unit": "meters-per-second",
           "postfix": "m",
           "displayUnits": "EDisplayUnit_MetersPerSecond",
@@ -70834,7 +70843,7 @@
         {
           "index": 0,
           "tier": 1,
-          "description": "+2m Move Speed",
+          "description": "+2m Move Speed -25s Cooldown",
           "properties": [
             {
               "name": "BonusMoveSpeed",
@@ -70844,6 +70853,15 @@
               "upgradeType": null,
               "scaleStatFilter": null,
               "sourcePointer": "items.json#/780/upgrades/0/property_upgrades/0"
+            },
+            {
+              "name": "AbilityCooldown",
+              "bonus": "-25",
+              "numericBonus": -25,
+              "unit": "seconds",
+              "upgradeType": null,
+              "scaleStatFilter": null,
+              "sourcePointer": "items.json#/780/upgrades/0/property_upgrades/1"
             }
           ]
         },
@@ -123369,6 +123387,27 @@
           "scale": null,
           "cssClass": "damage",
           "sourcePointer": "items.json#/523/properties/HealAmpRegenPenaltyPercent"
+        },
+        {
+          "name": "StackingPenaltyAnchorPercent",
+          "label": null,
+          "normalValue": "80",
+          "streetBrawlValue": null,
+          "effectiveValue": "80",
+          "modeOverride": false,
+          "numericValue": 80,
+          "unit": "source",
+          "postfix": null,
+          "displayUnits": null,
+          "section": null,
+          "providedPropertyType": null,
+          "usageFlags": [],
+          "conditional": null,
+          "negativeAttribute": false,
+          "requiredUpgradeBits": [],
+          "scale": null,
+          "cssClass": null,
+          "sourcePointer": "items.json#/523/properties/StackingPenaltyAnchorPercent"
         },
         {
           "name": "HealOnKill",

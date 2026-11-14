@@ -62,6 +62,10 @@ export function isStreetBrawlData(value: unknown): value is StreetBrawlData {
   // The API sometimes answers the per-hero requests with empty lists; such a download would replace
   // good upgrade orders and enemy-item results with nothing. Most heroes must have both.
   const heroes = Object.values(data.heroes);
+  // Fields the pick maths reads without checks: a damaged file must not turn card values into NaN.
+  if (!heroes.every(hero => hero && Array.isArray(hero.good)) || !data.items || typeof data.items !== 'object'
+    || (data.enhanced !== undefined && !(Number.isFinite(data.enhanced?.meanUplift) && Number.isFinite(data.enhanced?.share)
+      && !!data.enhanced?.items && typeof data.enhanced.items === 'object'))) return false;
   // The same holds for each hero's own item results and win rate (a failed hero-stats request is
   // caught as an empty list), and for matchups once the counter request answered at all.
   const most = (has: (hero: HeroData) => boolean) => heroes.filter(has).length >= 0.8 * heroes.length;
@@ -69,6 +73,11 @@ export function isStreetBrawlData(value: unknown): value is StreetBrawlData {
     && most(hero => Object.keys(hero.itemStats ?? {}).length > 0)
     && most(hero => Number.isFinite(hero.winRate) && (hero.matches ?? 0) > 0)
     && (!heroes.some(hero => Object.keys(hero.matchups ?? {}).length > 0) || most(hero => Object.keys(hero.matchups ?? {}).length > 0));
+}
+/** A saved download counts only when it covers the same patch window as (or a later one than) the data in use. */
+export function coversCurrentWindow(saved: StreetBrawlData, inUse: StreetBrawlData = current): boolean {
+  const savedSince = Date.parse(saved.window?.since ?? ''), usedSince = Date.parse(inUse.window?.since ?? '');
+  return Number.isNaN(usedSince) || savedSince >= usedSince;
 }
 export function setStreetBrawlData(data: StreetBrawlData): boolean {
   if (!isStreetBrawlData(data)) return false;

@@ -22,7 +22,11 @@ internal sealed record Reply(
   string? ErrorCode = null, bool Synthetic = false, bool Unchanged = false, string? PreviewPngBase64 = null,
   IReadOnlyList<IconMatchRecord>? Icons = null, NativeContext? Context = null,
   // Screen position of the game client (physical pixels), so the companion can place its overlay.
-  int? ClientLeft = null, int? ClientTop = null);
+  int? ClientLeft = null, int? ClientTop = null,
+  // A watch request's answer: the draft's CHOICE label is on screen; omitted where the watch cannot run.
+  bool? DraftLabel = null,
+  // On the warm-up (fixture) reply: this helper answers watch requests, so an older one is never sent them.
+  bool? DraftWatch = null);
 internal sealed record CachedOcr(string Hash, NormalizedRect Crop, int Width, int Height, bool Synthetic, uint GameProcessId, nint GameHandle, IReadOnlyList<OcrBlock> Blocks, IReadOnlyList<IconMatchRecord> Icons, NativeContext? Context, int FineCoverage = 0, IReadOnlyList<NormalizedRect>? NumericCoverage = null);
 internal readonly record struct GameWindow(nint Handle, uint ProcessId, Rectangle Client, string Status, bool Present, bool Foreground);
 
@@ -76,6 +80,10 @@ internal static class Program
       catch { Environment.ExitCode=1;Console.WriteLine("{\"error\":\"invalid_static_cache\"}"); }
       return;
     }
+    // Development replay only: main-icon matches for saved draft frames with their raw scores, no OCR and no capture.
+    if (args.Length >= 3 && args[0] == "--card-icons") { Environment.ExitCode = CardIconProbe.Run(args); return; }
+    // Development replay only: the draft-label watch's decision on saved frames, or its live cost (--bench).
+    if (args.Length >= 2 && args[0] == "--draft-watch") { Environment.ExitCode = DraftWatch.Run(args); return; }
     string? reviewImagePath = null;
     for (int index = 0; index + 1 < args.Length; index += 2)
     {
@@ -120,6 +128,7 @@ internal static class Program
         var response = request.Op == "stop"
           ? new Reply(1, request.Id, "stopped", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.LanguageTag)
           : await Handle(request);
+        if (request.Op == "fixture") response = response with { DraftWatch = true };
         await Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, Json));
         await Console.Out.FlushAsync();
         if (request.Op == "stop") break;
@@ -182,13 +191,14 @@ internal static class Program
       IReadOnlyList<IconMatchRecord> icons = IconMatcher.HasBonusLabel(blocks)
         ? _iconMatcher?.FindBonusIcons(bitmap, blocks, crop) ?? IconMatcher.InferUnresolvedBonusSlots(bitmap, blocks, crop)
         : _iconMatcher is not null && IconMatcher.HasDraftText(blocks) ? _iconMatcher.FindCardBonusIcons(bitmap, crop, clientWidth, clientHeight) : [];
+      if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks)) icons = [.. icons, .. _iconMatcher.FindCardIcons(bitmap, crop, clientWidth, clientHeight)];
       var reply = Response("ok", game, request, watch, null, hash, blocks, true, crop, metrics, icons: icons, context: context);
       await Console.Out.WriteLineAsync(JsonSerializer.Serialize(reply, Json)); await Console.Out.FlushAsync();
       await Task.Delay(Math.Max(500, (int)Math.Ceiling(watch.Elapsed.TotalMilliseconds * 4)));
     }
   }
 
-  private static (NormalizedRect Crop, int ClientWidth, int ClientHeight) ReviewGeometry(string filename, int imageWidth, int imageHeight)
+  internal static (NormalizedRect Crop, int ClientWidth, int ClientHeight) ReviewGeometry(string filename, int imageWidth, int imageHeight)
   {
     var whole = (new NormalizedRect(0, 0, 1, 1), imageWidth, imageHeight);
     try
@@ -216,7 +226,7 @@ internal static class Program
   private static bool ValidRequest(Request request)
   {
     if (request.Id is not { Length: > 0 and <= 128 } || request.Id.Any(char.IsControl)) return false;
-    if (request.Op is not ("probe" or "read" or "fixture" or "stop")) return false;
+    if (request.Op is not ("probe" or "read" or "fixture" or "watch" or "stop")) return false;
     if (request.Fixture is not (null or "draft" or "combat" or "blank" or "scoreboard" or "scoreboard-no-round" or "abilities" or "abilities-late" or "abilities-affordable" or "abilities-partial" or "spectator" or "spectator-glyph")) return false;
     if (request.Crop is not { } crop) return true;
     return double.IsFinite(crop.X) && double.IsFinite(crop.Y) && double.IsFinite(crop.Width) && double.IsFinite(crop.Height)
@@ -253,7 +263,13 @@ internal static class Program
     _requestCpuStart = cpuStart;
     var synthetic = request.Op == "fixture";
     var contextFixture = IsContextFixture(request.Fixture);
-    var game = synthetic ? new GameWindow(0, 0, new Rectangle(0, 0, contextFixture ? 1920 : 1280, contextFixture ? 1080 : 720), "ok", false, false) : Native.FindGame();
+    GameWindow game;
+    try { game = synthetic ? new GameWindow(0, 0, new Rectangle(0, 0, contextFixture ? 1920 : 1280, contextFixture ? 1080 : 720), "ok", false, false) : Native.FindGame(); }
+    catch (Exception)
+    {
+      // A failed window lookup is a failed capture (tried again on the next read), not a bad request (which stops reading until Retry).
+      return Response("capture_failed", new GameWindow(0, 0, Rectangle.Empty, "capture_failed", false, false), request, watch, null, null, [], synthetic, error: "window_lookup_failed");
+    }
     if (!synthetic && game.Status != "ok")
     {
       ClearCachedText();
@@ -264,6 +280,7 @@ internal static class Program
     {
       Cache.Clear(); _sessionProcess = game.ProcessId; _sessionHandle = game.Handle; _gameSession = Guid.NewGuid().ToString("N");
     }
+    if (request.Op == "watch") return Watch(request, game, watch);
     var crop = request.Crop ?? new NormalizedRect(0, 0, 1, 1);
     var captureRect = PixelCrop(game.Client, crop);
     var maxWidth = request.Op == "probe" ? 192 : 1800;
@@ -359,6 +376,10 @@ internal static class Program
       }
       else if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks))
         icons = _iconMatcher.FindCardBonusIcons(bitmap, actualCrop, game.Client.Width, game.Client.Height);
+      // Each card's own item by its main icon, whenever the draft's labels are on screen: Tesseract left a card name
+      // unread on a third of the draft reads logged 2026-11-05..14, and the icon needs no text.
+      if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks))
+        icons = [.. icons, .. _iconMatcher.FindCardIcons(bitmap, actualCrop, game.Client.Width, game.Client.Height)];
       var context = request.Context ? _matchReader?.Read(pixels, imageWidth, imageHeight, actualCrop, game.Client.Width, game.Client.Height,
         blocks, synthetic ? "synthetic-fixture" : _gameSession) : null;
       var numbersWatch=Stopwatch.StartNew();
@@ -389,6 +410,32 @@ internal static class Program
       ClearCachedText();
       return Response("capture_failed", game, request, watch, null, null, [], synthetic, error: "capture_or_ocr_failed");
     }
+  }
+
+  /**
+   * The draft-label watch: copies only the CHOICE label's box and tests its pixels (no OCR, cache or context), so the
+   * companion can look several times a second between reads. A yes only asks for a read; that read's OCR'd labels open
+   * the draft. A null answer means the watch cannot run cheaply here, and the companion stops asking.
+   */
+  private static Reply Watch(Request request, GameWindow game, Stopwatch watch)
+  {
+    var box = DraftWatch.LabelBox(game.Client.Width, game.Client.Height);
+    try
+    {
+      var source = PixelCrop(game.Client, box);
+#if LINUX
+      var patch = Native.CaptureWatch(game, source);
+#else
+      (byte[] Pixels, int Width, int Height)? patch;
+      using (var bitmap = Native.Capture(game, source, source.Width, source.Height)) patch = (DraftWatch.Pixels(bitmap), bitmap.Width, bitmap.Height);
+#endif
+      var capturedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      var metrics = new ImageMetrics(0, 0, 0, 0, 0, patch?.Width ?? 0, patch?.Height ?? 0, 0, 0, AffinityLimited: _affinityLimited);
+      return Response("ok", game, request, watch, capturedAt, null, [], false, box, metrics)
+        with { DraftLabel = patch is { } pixels ? DraftWatch.Shows(pixels.Pixels, pixels.Width, pixels.Height) : null };
+    }
+    // A failed copy is tried again on the next watch; it is never a rejected request.
+    catch { return Response("capture_failed", game, request, watch, null, null, [], false, error: "watch_capture_failed"); }
   }
 
   private static Reply Response(string status, GameWindow game, Request request, Stopwatch watch, long? capturedAt, string? hash,
@@ -517,9 +564,7 @@ internal static class Program
     static byte Magenta(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(red,blue)-green-30)*4,0,255));
     var gate=InkPatch(captured,crop,NativeMatchReader.Design(70,285,300,40,clientWidth,clientHeight),1);
     if(gate is null)return blocks;
-    int magenta=0;
-    for(int index=0;index+3<gate.Value.Pixels.Length;index+=4)if(Math.Min(gate.Value.Pixels[index],gate.Value.Pixels[index+2])-gate.Value.Pixels[index+1]>60)magenta++;
-    if(magenta<gate.Value.Pixels.Length/4*.08)return blocks;
+    if(DraftWatch.Measure(gate.Value.Pixels,gate.Value.Width,gate.Value.Height).Share<DraftWatch.MinimumShare)return blocks;
     var result=blocks.ToList();
     // A found label replaces every full-frame fragment on its row: OCR noise beside the title
     // ("SELECT ITEMS ree") joins it into one line that the parser no longer recognizes.
@@ -550,8 +595,19 @@ internal static class Program
       // way to it; the ENHANCED label below the name keeps its full-frame read.
       var named=Union(name.Select(line=>line.Bounds));
       var replaced=new NormalizedRect(row.X,row.Y,row.Width,Math.Max(0,named.Y+named.Height*1.1-row.Y));
-      RemoveWordsInside(result,replaced);
-      result.AddRange(name);
+#if LINUX
+      const bool isolatedFirst=true;
+#else
+      // This pass was tuned on Tesseract, which drops these names from the full frame. Windows OCR reads them there
+      // well, so on Windows the isolated read only fills a name row the full frame left without a word, or replaces a
+      // name the expanded scoreboard clips (the "…" marks come from pixels, not OCR).
+      bool isolatedFirst=name.Any(line=>line.Text.Contains('…'))||!HasWordInside(result,replaced);
+#endif
+      if(isolatedFirst)
+      {
+        RemoveWordsInside(result,replaced);
+        result.AddRange(name);
+      }
       // The blue ENHANCED label under the name: full-frame OCR returns it as "ea ANAED" or not at all on some frames.
       var labelRow=NativeMatchReader.Design(panelX+60,panelY+292,280,40,clientWidth,clientHeight);
       if(!NativeMatchReader.Contains(crop,labelRow))continue;
@@ -633,6 +689,9 @@ internal static class Program
     }
     return result.ToArray();
   }
+  /** True when a word of at least three letters is centred in this area. */
+  private static bool HasWordInside(IEnumerable<OcrBlock> blocks,NormalizedRect area)=>
+    blocks.SelectMany(block=>block.Words).Any(word=>Inside(area,word.Bounds)&&System.Text.RegularExpressions.Regex.IsMatch(word.Text,"[A-Za-z]{3}"));
   /** Drops the words centred in this area; a full-frame line that runs out of it keeps its other words. */
   private static void RemoveWordsInside(List<OcrBlock> blocks,NormalizedRect area)
   {

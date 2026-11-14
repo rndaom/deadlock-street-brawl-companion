@@ -95,20 +95,23 @@ if (args.has('--verify') || (existing && !args.has('--refresh'))) {
   console.log(`Verified ${items.length} pinned public item icons (${(total / 1024 / 1024).toFixed(2)} MiB); no network requests.`);
 } else {
   await fs.mkdir(path.join(ICON_ROOT, 'icons'), { recursive: true });
-  const icons = new Array(items.length); let next = 0, completed = 0, total = 0;
+  // Nothing is written until every icon has arrived: a failed download must not leave new icons under the old manifest.
+  const icons = new Array(items.length), pending = new Array(items.length); let next = 0, completed = 0, total = 0;
   await Promise.all(Array.from({ length: 6 }, async () => {
     while (next < items.length) {
       const index = next++, item = items[index];
       const bytes = await fetchIcon(item.sourceUrl);
       const metadata = pngMetadata(bytes);
       total += metadata.bytes; ensure(total <= MAX_TOTAL_BYTES, 'Public icon cache exceeded total byte budget');
-      await fs.writeFile(path.join(ICON_ROOT, item.file), bytes);
+      pending[index] = bytes;
       icons[index] = { ...item, ...metadata };
       completed++; if (completed % 30 === 0 || completed === items.length) console.log(`Cached ${completed}/${items.length} public item icons.`);
     }
   }));
+  const replace = async (file, contents) => { await fs.writeFile(`${file}.tmp`, contents); await fs.rename(`${file}.tmp`, file); };
+  for (let index = 0; index < items.length; index++) await replace(path.join(ICON_ROOT, items[index].file), pending[index]);
   const manifest = { schemaVersion: 1, clientVersion: catalog.clientVersion, revision: catalog.revision, catalogSha256, retrievedAt: new Date().toISOString(),
     source: 'Static public Deadlock API item images; mirrored Valve assets, not a game capture', totalBytes: total, featureGrid: 16, icons };
-  await fs.writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
+  await replace(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`Pinned ${items.length} icons (${(total / 1024 / 1024).toFixed(2)} MiB) to assets/reader-icons/manifest.json.`);
 }

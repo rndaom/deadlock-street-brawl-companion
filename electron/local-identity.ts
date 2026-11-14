@@ -91,10 +91,11 @@ async function loadLinuxPlayerNames(): Promise<string[]> {
   for (const root of [join(home, '.steam', 'steam'), join(home, '.local', 'share', 'Steam'), join(home, '.var', 'app', 'com.valvesoftware.Steam', '.local', 'share', 'Steam')]) {
     const loginUsers = join(root, 'config', 'loginusers.vdf');
     try {
-      if ((await stat(loginUsers)).size > MAX_VDF_BYTES) return [];
+      if ((await stat(loginUsers)).size > MAX_VDF_BYTES) continue;
       const source = await readFile(loginUsers, 'utf8');
       let autoLogin: string | null = null;
-      for (const registry of [join(home, '.steam', 'registry.vdf'), join(root, '..', '..', '..', '.steam', 'registry.vdf')]) {
+      // This installation's own registry first: a Flatpak Steam must not take a leftover native ~/.steam/registry.vdf.
+      for (const registry of [join(root, '..', '..', '..', '.steam', 'registry.vdf'), join(home, '.steam', 'registry.vdf')]) {
         try { if ((await stat(registry)).size <= MAX_VDF_BYTES) { autoLogin = linuxSteamAutoLoginUser(await readFile(registry, 'utf8')); break; } } catch { /* Try the next location. */ }
       }
       return steamDisplayNamesFromVdf(source, linuxActiveSteamAccount(source, autoLogin));
@@ -103,18 +104,45 @@ async function loadLinuxPlayerNames(): Promise<string[]> {
   return [];
 }
 
+/** One value from `reg.exe query <key> /v <name>` output (REG_SZ text or REG_DWORD number), or null. */
+export function windowsRegistryValue(output: string, name: string): string | number | null {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(`^\\s+${escaped}\\s+(REG_SZ|REG_EXPAND_SZ|REG_DWORD)\\s+(.*)$`, 'im').exec(output);
+  if (!match) return null;
+  const value = match[2].trim();
+  if (match[1] === 'REG_DWORD') { const number = Number.parseInt(value, 16); return Number.isSafeInteger(number) ? number : null; }
+  return value || null;
+}
+
+async function windowsRegistry(key: string, name: string): Promise<string | number | null> {
+  try {
+    // reg.exe answers in ~50 ms; PowerShell often needed over 2 s to start on machines with antivirus.
+    const result = await execFileAsync('reg.exe', ['query', key, '/v', name], { windowsHide: true, timeout: 3000, maxBuffer: 16_384 });
+    return windowsRegistryValue(result.stdout, name);
+  } catch { return null; }
+}
+
 export async function loadLocalPlayerNames(): Promise<string[]> {
   if (process.platform === 'linux') return loadLinuxPlayerNames();
   if (process.platform !== 'win32') return [];
   try {
-    const command = "$steamAliasRoot = Get-ItemProperty -LiteralPath 'HKCU:\\Software\\Valve\\Steam' -ErrorAction Stop; $steamAliasActive = Get-ItemProperty -LiteralPath 'HKCU:\\Software\\Valve\\Steam\\ActiveProcess' -ErrorAction Stop; [pscustomobject]@{ path = $steamAliasRoot.SteamPath; account = $steamAliasActive.ActiveUser } | ConvertTo-Json -Compress";
-    const result = await execFileAsync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', command], { windowsHide: true, timeout: 2000, maxBuffer: 4096 });
-    const registry: unknown = JSON.parse(result.stdout);
-    if (!registry || typeof registry !== 'object' || Array.isArray(registry)) return [];
-    const record = registry as Record<string, unknown>;
-    if (typeof record.path !== 'string' || !record.path || record.path.includes('\0') || typeof record.account !== 'number') return [];
-    const loginUsers = join(record.path, 'config', 'loginusers.vdf');
-    if ((await stat(loginUsers)).size > MAX_VDF_BYTES) return [];
-    return steamDisplayNamesFromVdf(await readFile(loginUsers, 'utf8'), record.account);
+    const [path, active, autoLogin] = await Promise.all([
+      windowsRegistry('HKCU\\Software\\Valve\\Steam', 'SteamPath'),
+      windowsRegistry('HKCU\\Software\\Valve\\Steam\\ActiveProcess', 'ActiveUser'),
+      windowsRegistry('HKCU\\Software\\Valve\\Steam', 'AutoLoginUser')]);
+    // reg.exe prints in the console code page, which can mangle a non-ASCII Steam path; the default folder is the fallback.
+    const roots = [typeof path === 'string' && !path.includes('\0') ? path : null,
+      process.env['ProgramFiles(x86)'] ? join(process.env['ProgramFiles(x86)'], 'Steam') : null].filter((root): root is string => !!root);
+    let source: string | null = null;
+    for (const root of roots) {
+      try {
+        const loginUsers = join(root, 'config', 'loginusers.vdf');
+        if ((await stat(loginUsers)).size <= MAX_VDF_BYTES) { source = await readFile(loginUsers, 'utf8'); break; }
+      } catch { /* Try the next location. */ }
+    }
+    if (source === null) return [];
+    // Steam not running yet (ActiveUser 0): the same remembered-account rules as on Linux.
+    const account = typeof active === 'number' && active > 0 ? active : linuxActiveSteamAccount(source, typeof autoLogin === 'string' ? autoLogin : null);
+    return steamDisplayNamesFromVdf(source, account);
   } catch { return []; }
 }

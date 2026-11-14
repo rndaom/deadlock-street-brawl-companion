@@ -33,7 +33,8 @@ function ReadingArea({ reader, onCrop, onPreview }: Pick<SheetProps, 'reader' | 
   const crop = reader?.crop ?? DEFAULT_CAPTURE_REGION;
   const [draft, setDraft] = useState<CaptureRegion>(crop);
   const [applied, setApplied] = useState(false);
-  useEffect(() => { setDraft(crop); setApplied(false); }, [crop.x, crop.y, crop.width, crop.height]);
+  // The reader echoing the applied area back must not wipe the "Applied" note; adjusting the area clears it.
+  useEffect(() => { setDraft(crop); }, [crop.x, crop.y, crop.width, crop.height]);
   const changed = draft.x !== crop.x || draft.y !== crop.y || draft.width !== crop.width || draft.height !== crop.height;
   const adjust = (field: keyof CaptureRegion, value: number) => {
     setApplied(false);
@@ -104,9 +105,15 @@ function ReaderHealth({ reader, onRetry, onExport }: Pick<SheetProps, 'reader' |
 export function Sheet(props: SheetProps) {
   const { open, tab, onTab, onClose, settings, displays, catalog, onSettings } = props;
   const panel = useRef<HTMLDivElement>(null);
+  // Keyboard focus goes back to whatever opened the sheet when it closes.
   useEffect(() => {
     if (!open) return;
-    panel.current?.focus();
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    return () => { if (opener?.isConnected) opener.focus(); };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    if (!panel.current?.contains(document.activeElement)) panel.current?.focus();
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -121,9 +128,9 @@ export function Sheet(props: SheetProps) {
         <button type="button" className="icon-btn" onClick={onClose} aria-label="Close"><X size={18} /></button>
       </header>
       <div className="tabs" role="tablist">
-        {tabs.map(([id, label]) => <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => onTab(id)}>{label}</button>)}
+        {tabs.map(([id, label]) => <button key={id} type="button" role="tab" id={`sheet-tab-${id}`} aria-controls="sheet-panel" aria-selected={tab === id} onClick={() => onTab(id)}>{label}</button>)}
       </div>
-      <div className="sheet-body">
+      <div className="sheet-body" id="sheet-panel" role="tabpanel" aria-labelledby={`sheet-tab-${tab}`}>
         {tab === 'display' && <div className="sheet-section">
           <label className="field"><span><Monitor size={14} aria-hidden="true" />Companion display</span>
             <select value={settings.displayId ?? ''} onChange={(event) => onSettings({ displayId: event.target.value || null })}>
@@ -134,6 +141,7 @@ export function Sheet(props: SheetProps) {
             <input type="range" min="0.8" max="1.5" step="0.05" value={settings.textScale} onChange={(event) => onSettings({ textScale: Number(event.target.value) })} /></label>
           <Toggle checked={settings.overlay} onChange={(overlay) => onSettings({ overlay })} label="In-game overlay" help="Marks the pick on the draft screen inside Deadlock, so one monitor is enough. Press F7 in game for your leveling plan. Needs Deadlock in borderless or windowed mode." />
           <Toggle checked={settings.alwaysOnTop} onChange={(alwaysOnTop) => onSettings({ alwaysOnTop })} label="Keep on top" help="Stays above other windows. Deadlock keeps the game input." />
+          <Toggle checked={settings.saveScreenshots} onChange={(saveScreenshots) => onSettings({ saveScreenshots })} label="Save troubleshooting screenshots" help="Keeps the last 60 draft and scoreboard screenshots in Documents\Street Brawl Companion\diagnostics so misreads can be replayed. They show player names and chat." />
         </div>}
         {tab === 'area' && <ReadingArea {...props} />}
         {tab === 'reader' && <ReaderHealth {...props} />}
@@ -146,6 +154,7 @@ export function Sheet(props: SheetProps) {
           </ul>
           <dl className="facts-list"><div><dt>Item catalogue</dt><dd>Build {catalog.clientVersion} · {catalog.items.length} items · {catalog.heroes.length} heroes</dd></div>
             <div><dt>Companion</dt><dd>Version {__APP_VERSION__}</dd></div></dl>
+          <p className="sheet-note">Unofficial fan tool, not affiliated with or endorsed by Valve. Deadlock and its art belong to Valve. Statistics and game data come from the community deadlock-api.com.</p>
         </div>}
       </div>
     </div>

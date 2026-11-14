@@ -46,6 +46,10 @@ describe('Street Brawl download', () => {
     expect(streetBrawlWindow(NOW).since).toBe(STREET_BRAWL_PATCH_START);
     expect(streetBrawlWindow(STREET_BRAWL_PATCH_START + 3 * DAY).since).toBe(STREET_BRAWL_PATCH_START + 3 * DAY - 14 * DAY);
     expect(streetBrawlWindow(STREET_BRAWL_PATCH_START + 100 * DAY).since).toBe(STREET_BRAWL_PATCH_START + 55 * DAY);
+    // Whole UTC days, so the API can answer every refresh of the day from its cache.
+    expect(streetBrawlWindow(STREET_BRAWL_PATCH_START + 3 * DAY + 12_345).since).toBe(STREET_BRAWL_PATCH_START + 3 * DAY - 14 * DAY);
+    expect(streetBrawlWindow(STREET_BRAWL_PATCH_START + 3 * DAY + 12_345).since % DAY).toBe(0);
+    expect(streetBrawlWindow(NOW, NOW - 12_345).since).toBe(NOW - 12_345);
     expect(streetBrawlWindow(NOW).wideSince).toBe(NOW - 90 * DAY);
     expect(streetBrawlWindow(NOW, 12345).since).toBe(12345);
   });

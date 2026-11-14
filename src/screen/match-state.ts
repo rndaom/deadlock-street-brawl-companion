@@ -207,12 +207,17 @@ interface RoundDecision { round: number | undefined; inferred: boolean; restart:
 function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): RoundDecision {
   const tracking = { ...(state.roundTracking ?? initialTracking()) };
   const previous = state.round;
+  const draftRoundBefore = tracking.roundAtLastDraft;
   const usable = (field: 'round' | 'scores' | 'phase' | 'pickStage') => has(frame, field) && !!frame.fields?.[field] && frame.fields[field]!.confidence >= 0.85;
   const pips = usable('scores') && validScores(frame.scores) ? frame.scores : null;
   let round: number | undefined; let inferred = false; let restart = false; let lowered = false;
   const read = usable('round') && Number.isInteger(frame.round) ? frame.round! : null;
   if (read !== null && read >= 1 && read <= MAX_STREET_BRAWL_ROUNDS && !(pips && !pipsFitRound(pips, read))) {
-    if (previous === null || read === previous || read === previous + 1) { round = read; tracking.candidate = null; tracking.candidateCount = 0; }
+    if (previous === null || read === previous || read === previous + 1) {
+      round = read; tracking.candidate = null; tracking.candidateCount = 0;
+      // The HUD agrees with an inferred round: it is confirmed, and one later lower misread no longer undoes it.
+      if (read === previous) tracking.inferredAt = null;
+    }
     // A HUD read one below a round that was only inferred from a draft corrects it at once.
     else if (read === previous - 1 && tracking.inferredAt !== null) { round = read; lowered = true; tracking.candidate = null; tracking.candidateCount = 0; }
     else {
@@ -243,7 +248,13 @@ function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): 
   }
   if (phase === 'combat' || previous !== null || round !== undefined || restart) tracking.matchStart = false;
   // A lowered round also lowers the round of the last draft, so the next round's draft still advances it.
-  if (lowered && round !== undefined && tracking.roundAtLastDraft !== null && tracking.roundAtLastDraft > round) tracking.roundAtLastDraft = round;
+  // If that lower read was the misread (the HUD returns to the old round before another draft), the draft's round comes back.
+  if (lowered && round !== undefined && draftRoundBefore !== null && draftRoundBefore > round) {
+    tracking.roundAtLastDraft = round; tracking.loweredDraftRound = draftRoundBefore;
+  } else if (round !== undefined && round !== previous) {
+    if (!inferred && tracking.loweredDraftRound === round && tracking.roundAtLastDraft === previous) tracking.roundAtLastDraft = round;
+    tracking.loweredDraftRound = null;
+  }
   if (round !== undefined && round !== previous) tracking.inferredAt = inferred ? frame.capturedAt : null;
   let scores: [number, number] | undefined;
   const current = round ?? previous;

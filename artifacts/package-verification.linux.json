@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "applicationVersion": "0.5.0",
+  "applicationVersion": "0.6.1",
   "passed": true,
   "unsigned": true,
-  "nativeReaderSha256": "3b94e1c0e97be95c086951c3278226d70ac682763490478cd900232047224609",
-  "nativeReaderBytes": 43499022,
+  "nativeReaderSha256": "c7c1d00ae03e994321701cda3ccfe99a9a6dac300b628e4b19d0d3dca3e22233",
+  "nativeReaderBytes": 43512718,
   "packagedIconsVerified": 173,
-  "catalogSha256": "448ff5c8198e610a111928a99d4072b599635f4141884ac20b05681e64b8aa96",
+  "catalogSha256": "3963866feb43584c7a26db505685b99fdaf7631bb3b562b9f0e1a103a0290c4f",
   "packagedContextAssetsVerified": 313,
   "contextAssetRoles": {
     "hero-card": 44,
@@ -15,7 +15,7 @@
     "ability": 176,
     "hud-glyph": 5
   },
-  "contextCatalogSha256": "abc9f2ea186853f8ccabb3fdcb852537a25fd777e493ec74e7208e302da1e285",
+  "contextCatalogSha256": "faef99f2dde3b027da1cea795a4e8899e9bbd75abebdd28dd5e34eaea10e6740",
   "staticDescriptorCaches": [
     {
       "directory": "context-icons",

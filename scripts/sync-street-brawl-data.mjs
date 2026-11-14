@@ -9,7 +9,9 @@ const { fetchStreetBrawlData } = await import(`data:text/javascript;base64,${Buf
 const contextCatalog = JSON.parse(await fs.readFile(new URL('../data/context-catalog.json', import.meta.url), 'utf8'));
 const slots = new Map(contextCatalog.abilities.map(ability => [String(ability.numericId), ability.slot]));
 const output = await fetchStreetBrawlData(slots);
-await fs.writeFile(new URL('../data/street-brawl-data.json', import.meta.url), `${JSON.stringify(output)}\n`);
+const target = new URL('../data/street-brawl-data.json', import.meta.url);
+await fs.writeFile(new URL('../data/street-brawl-data.json.tmp', import.meta.url), `${JSON.stringify(output)}\n`);
+await fs.rename(new URL('../data/street-brawl-data.json.tmp', import.meta.url), target);
 const wide = Object.values(output.heroes).filter(hero => hero.wideWindow).map(hero => hero.name);
 console.log(`Saved ${Object.keys(output.items).length} items and ${Object.keys(output.heroes).length} heroes`,
   `(${Object.keys(output.globalItemStats).length} item win rates, fetched ${output.fetchedAt}).`);

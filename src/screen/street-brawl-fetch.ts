@@ -9,12 +9,15 @@ export const STREET_BRAWL_API = 'https://api.deadlock-api.com';
 /** Format of the download; isStreetBrawlData rejects older saved copies (their per-hero deltas were shrunk differently). */
 export const STREET_BRAWL_SCHEMA = 2;
 /**
- * Start of the current balance window: the 2026-09-29 "City Never Sleeps" update reworked
- * the item pool (corrupted items exist only from that date). Later minor updates and weekly
- * hero drops are inside the window. Move this forward after the next major item/balance patch.
+ * Start of the current balance window: the 2026-10-30 Halloween gameplay update (client 6826)
+ * changed 38 items, reworked Apollo, Mirage, Nurse Harrow and Solomon abilities and rebalanced
+ * Street Brawl. Later minor updates are inside the window. Move this forward after the next
+ * major item/balance patch.
  */
-export const STREET_BRAWL_PATCH_START = Date.UTC(2026, 8, 29) / 1000;
+export const STREET_BRAWL_PATCH_START = Date.UTC(2026, 9, 30) / 1000;
 const DAY = 86_400;
+/** Wait before the second try of an optional request. */
+const OPTIONAL_RETRY_MS = 3_000;
 /** A patch younger than this leaves too few games; the window then reaches back this far anyway. */
 const MIN_WINDOW_DAYS = 14;
 /** A stale patch date never pulls in more than this many days of games. */
@@ -53,7 +56,12 @@ export interface StreetBrawlFetchOptions {
 /** The patch window (Unix seconds) used for every analytics request, and the wider fallback window for thin heroes. */
 export function streetBrawlWindow(now = Math.floor(Date.now() / 1000), since?: number): { since: number; wideSince: number } {
   const start = since ?? Math.min(now - MIN_WINDOW_DAYS * DAY, Math.max(now - MAX_WINDOW_DAYS * DAY, STREET_BRAWL_PATCH_START));
-  return { since: Math.floor(start), wideSince: Math.floor(Math.min(start, now - WIDE_WINDOW_DAYS * DAY)) };
+  // Whole UTC days: a start that moves every second is a new, uncached query for the API, and its heavier
+  // queries (Enhanced splits) then failed with 504s. Every user's refresh on the same day asks the same thing.
+  const day = (value: number) => Math.floor(value / DAY) * DAY;
+  const first = since === undefined ? day(start) : Math.floor(start);
+  // The wide window is floored to the day even with an explicit start (a script's), so it stays cacheable.
+  return { since: first, wideSince: Math.min(first, day(now - WIDE_WINDOW_DAYS * DAY)) };
 }
 
 function heroResult(row: HeroStatRow | undefined): { winRate?: number; matches?: number } {
@@ -88,16 +96,23 @@ export async function fetchStreetBrawlData(abilitySlots: ReadonlyMap<string, num
   const get = <T>(path: string) => fetchJson(`${STREET_BRAWL_API}${path}`) as Promise<T>;
   const mode = (since = window.since) => `game_mode=street_brawl&min_unix_timestamp=${since}`;
   const list = <T>(value: unknown) => (Array.isArray(value) ? value : []) as T[];
+  // Optional extras are asked twice: a busy API answers some heavy queries with a quick 504 that the next try gets.
+  /** One retry: a single 504 or timeout among the ~90 per-hero requests must not discard the whole refresh. */
+  const required = <T>(path: string) => get<T>(path)
+    .catch(() => new Promise<void>(resolve => setTimeout(resolve, OPTIONAL_RETRY_MS)).then(() => get<T>(path)));
+  const optional = <T>(path: string) => get<T[]>(path)
+    .catch(() => new Promise<void>(resolve => setTimeout(resolve, OPTIONAL_RETRY_MS)).then(() => get<T[]>(path)))
+    .catch(() => [] as T[]);
   const [items, allHeroes, global, perHero, heroStats, counters, enhancedOnly, enhancedNone] = await Promise.all([
     get<ApiItem[]>('/v1/assets/items?language=english'),
     get<ApiHero[]>('/v1/assets/heroes?only_active=true&language=english'),
     get<ItemRow[]>(`/v1/analytics/item-stats?${mode()}`),
     get<ItemRow[]>(`/v1/analytics/item-stats?${mode()}&bucket=hero`),
     // Hero results and Enhanced results are optional extras: an older API or an outage must not cost the item data.
-    get<HeroStatRow[]>(`/v1/analytics/hero-stats?${mode()}`).catch(() => [] as HeroStatRow[]),
-    get<CounterRow[]>(`/v1/analytics/hero-counter-stats?${mode()}`).catch(() => [] as CounterRow[]),
-    get<ItemRow[]>(`/v1/analytics/item-stats?${mode()}&enhanced_items=only`).catch(() => [] as ItemRow[]),
-    get<ItemRow[]>(`/v1/analytics/item-stats?${mode()}&enhanced_items=exclude`).catch(() => [] as ItemRow[]),
+    optional<HeroStatRow>(`/v1/analytics/hero-stats?${mode()}`),
+    optional<CounterRow>(`/v1/analytics/hero-counter-stats?${mode()}`),
+    optional<ItemRow>(`/v1/analytics/item-stats?${mode()}&enhanced_items=only`),
+    optional<ItemRow>(`/v1/analytics/item-stats?${mode()}&enhanced_items=exclude`),
   ]);
   const heroes = allHeroes.filter(hero => hero.player_selectable !== false);
   const draftable = items.filter(item => item.type === 'upgrade' && item.shopable && !item.disabled);
@@ -161,8 +176,8 @@ export async function fetchStreetBrawlData(abilitySlots: ReadonlyMap<string, num
     }
     // Per-enemy rows stay in the patch window even for a thin hero: counterResidual compares them
     // with the all-hero result, which is read over the patch window (its smoothing absorbs small samples).
-    versus.set(hero.id, deltas(await get<ItemRow[]>(`/v1/analytics/item-stats?${mode()}&enemy_hero_ids=${hero.id}`)));
-    let heroOrders = orderRows(await get<OrderRow[]>(`/v1/analytics/ability-order-stats?hero_id=${hero.id}&${mode(thin ? window.wideSince : window.since)}&min_matches=${MIN_ORDER_MATCHES}`));
+    versus.set(hero.id, deltas(await required<ItemRow[]>(`/v1/analytics/item-stats?${mode()}&enemy_hero_ids=${hero.id}`)));
+    let heroOrders = orderRows(await required<OrderRow[]>(`/v1/analytics/ability-order-stats?hero_id=${hero.id}&${mode(thin ? window.wideSince : window.since)}&min_matches=${MIN_ORDER_MATCHES}`));
     if (!thin && orderGames(heroOrders) < MIN_ORDER_GAMES) {
       const wider = orderRows(await get<OrderRow[]>(`/v1/analytics/ability-order-stats?hero_id=${hero.id}&${mode(window.wideSince)}&min_matches=${MIN_ORDER_MATCHES}`).catch(() => []));
       if (orderGames(wider) > orderGames(heroOrders)) { heroOrders = wider; wide.add(hero.id); }

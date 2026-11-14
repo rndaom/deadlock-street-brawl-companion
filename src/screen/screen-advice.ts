@@ -7,6 +7,7 @@ import { CHOICE_TIERS, draftTierOf } from '../shared/draft-tiers';
 import { streetBrawlData } from './street-brawl-data';
 import { imbueTarget } from './imbue-advice';
 import { absorbedComponents } from './item-bundles';
+import { CLOSE_CALL_MARGIN, holdShownPick, type ShownPick } from './pick-hold';
 
 export interface ScreenOfferContext {
   heroId: string | null; round: number | null; rerolls: number | null;
@@ -20,6 +21,8 @@ export interface ScreenOfferContext {
   enemyItemIds?: readonly string[];
   matchContext?: ScreenMatchContext;
   now?: number;
+  /** The cards and pick already shown for this draft: the pick stays unless another card clearly beats it (pick-hold.ts). */
+  shownPick?: ShownPick | null;
 }
 /** One advised card. Besides the shared fields, two Street Brawl numbers for the interface. */
 export type AdvisedOffer = ScreenAdvice['ranked'][number] & {
@@ -39,11 +42,11 @@ interface ItemProfile {
 interface OfferComparison { offer: ScreenOffer; main: ItemProfile | null; profiles: ItemProfile[]; score: number; reasons: string[]; problems: string[] }
 
 const READ_QUALITY_MINIMUM = 0.85;
-const PINNED_CLIENT = '6844';
-const PINNED_REVISION = '11201066';
+const PINNED_CLIENT = '6861';
+const PINNED_REVISION = '11219368';
 /**
- * Extracted from the saved client-6844 Valve-asset snapshot (items SHA-256
- * 93eb4974c9b1b64a50c2d15ebf81767f3d26a440062863d16363ec3fb9484558).
+ * Extracted from the saved client-6861 Valve-asset snapshot (items SHA-256
+ * ed77a501256bee9cdd862948ea736e89afad62392461bc3a978dc9d0bbc7a4f4).
  * Only positive own innate allowlisted properties, without upgrade requirements,
  * negative attributes, or conditional flags are retained. Fixed amounts also
  * exclude scaling functions. Explicit Street Brawl values override normal ones.
@@ -312,14 +315,20 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
   const pickOrder = trusted.length ? trusted : resolved;
   // Cards are only read while a draft is visible, which only a player in the match sees; an ended match has no pick.
   const ownView = context.matchContext?.phase !== 'finished';
-  const pickEntry = !ownView ? undefined : pickOrder[0];
+  // While the same cards stay on screen, the pick already shown stays unless another card clearly beats it.
+  const hold = ownView ? holdShownPick(pickOrder, liveOffers, context.shownPick) : null;
+  const pickEntry = hold?.pick;
   const pick = pickEntry?.position ?? null;
   const pickName = pickEntry ? items.get(pickEntry.offer.itemId)?.name ?? null : null;
+  const challengerName = hold?.challenger ? items.get(hold.challenger.offer.itemId)?.name ?? null : null;
   const margin = pickEntry && pickOrder.length > 1 ? pickEntry.score - Math.max(...pickOrder.filter(entry => entry !== pickEntry).map(entry => entry.score)) : null;
-  const closeCall = margin !== null && margin < 0.25;
+  const closeCall = hold?.kept === 'close' || hold?.kept !== 'unconfirmed' && margin !== null && margin < CLOSE_CALL_MARGIN;
+  const keptLine = !pickName || !challengerName ? null
+    : hold?.kept === 'close' ? `Close call: ${pickName} and ${challengerName} are about even; the pick stays on ${pickName}.`
+    : hold?.kept === 'unconfirmed' ? `${challengerName} only leads on a read with unconfirmed card details; the pick stays on ${pickName}.` : null;
   const reasons = !best ? ['No offered item can be resolved to the local catalogue.', 'Read the item names and complete bonus/modifier details before comparing choices.']
     : !pickEntry ? ['The match has ended; there is no pick to make.']
-    : [...(closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
+    : [...(keptLine ? [keptLine] : closeCall && pickName ? [`Close call: ${pickName} edges out the alternatives.`] : []), ...pickEntry.reasons];
   // The reroll call compares the whole draft with what this tier usually offers, so it needs
   // three distinct resolved cards, none of them a likely misread.
   const fullDraft = shapeComplete && offers.length === 3 && resolved.length === 3 && misread.length === 0;
@@ -637,7 +646,8 @@ let draftMemory: { key: string; owned: readonly string[]; offers: ScreenOffer[] 
  */
 function stableDraft(offers: ScreenOffer[], context: ScreenOfferContext): { offers: ScreenOffer[]; ownedItemIds: readonly string[] } {
   const owned = context.ownedItemIds ?? [];
-  const key = JSON.stringify([context.heroId, context.round, offers.map(offer => `${offer.position}:${offer.itemId}:${offer.rare ? 1 : 0}`).sort()]);
+  // Not keyed by round: the round can be inferred or corrected in the middle of a draft, after a pick.
+  const key = JSON.stringify([context.heroId, offers.map(offer => `${offer.position}:${offer.itemId}:${offer.rare ? 1 : 0}`).sort()]);
   const memory = draftMemory?.key === key ? draftMemory : null;
   if (memory && offers.some(offer => !!offer.itemId && owned.includes(offer.itemId) && !memory.owned.includes(offer.itemId))) {
     return { offers: memory.offers, ownedItemIds: memory.owned };

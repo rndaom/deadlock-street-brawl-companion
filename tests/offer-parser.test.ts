@@ -569,3 +569,96 @@ describe('2026-11-01 Linux draft misreads', () => {
     expect(middleName(withMiddle(block('Lucku Shot', 0.455, 0.447, 0.09, 0.03)))).toBe('Lucky Shot');
   });
 });
+
+const idOf = (name: string) => catalog.items.find(item => item.name === name)!.id;
+/** The native reader's match of a card's own item by its main icon, at the card's place in a 16:9 client. */
+function cardIcon(position: 0 | 1 | 2, name: string, overrides: Partial<NativeIconMatch> = {}): NativeIconMatch {
+  return { role: 'card', slot: position, itemId: idOf(name), confidence: 0.95,
+    bounds: { x: 0.5 + (position - 1) * 0.2217 - 0.035, y: position === 1 ? 0.3 : 0.53, width: 0.07, height: 0.125 }, ...overrides };
+}
+const cues = () => frame([]);
+
+describe('cards identified by their icons', () => {
+  it('fills a card whose name was not read', () => {
+    const blocks = frame().filter(value => value.text !== 'Bullet Lifesteal');
+    expect(parseScreenOffers(blocks, catalog).offers[1]?.name).toBe('Unread item choice');
+    const parsed = parseScreenOffers(blocks, catalog, { iconMatches: [cardIcon(1, 'Bullet Lifesteal')] });
+    expect(parsed.offers.map(offer => offer.name)).toEqual(itemNames);
+    expect(parsed.offers.map(offer => offer.byIcon === true)).toEqual([false, true, false]);
+    expect(parsed.offers[1]).toMatchObject({ itemId: idOf('Bullet Lifesteal'), variant: 'base', warning: null });
+    expect(parsed.incomplete).toBe(false);
+  });
+  it('reads all three cards when no name was read, in card order', () => {
+    const icons = [cardIcon(2, 'Spirit Resilience'), cardIcon(0, 'Active Reload'), cardIcon(1, 'Bullet Lifesteal')];
+    const parsed = parseScreenOffers(cues(), catalog, { iconMatches: icons });
+    expect(parsed.isDraft).toBe(true);
+    expect(parsed.offers.map(offer => offer.name)).toEqual(itemNames);
+    expect(parsed.offers.every(offer => offer.byIcon === true)).toBe(true);
+    expect(parsed.signature).not.toBeNull();
+  });
+  it('shows the one or two cards the icons name while the others deal in', () => {
+    const parsed = parseScreenOffers(cues(), catalog, { iconMatches: [cardIcon(0, 'Active Reload')] });
+    expect(parsed.offers.map(offer => offer.name)).toEqual(['Active Reload', 'Unread item choice', 'Unread item choice']);
+    expect(parsed.incomplete).toBe(true);
+  });
+  it('never opens a draft: icons without the draft\'s own labels or a fresh hint are ignored', () => {
+    const icons = [cardIcon(0, 'Active Reload'), cardIcon(1, 'Bullet Lifesteal'), cardIcon(2, 'Spirit Resilience')];
+    expect(parseScreenOffers([block('Round 2', 0.45, 0.04, 0.1)], catalog, { iconMatches: icons }).isDraft).toBe(false);
+    expect(parseScreenOffers([], catalog, { iconMatches: icons }).isDraft).toBe(false);
+  });
+  it('takes the icon over a name that needed an OCR correction', () => {
+    const blocks = frame(['Active Reload', '1eech', 'Spirit Resilience']);
+    expect(parseScreenOffers(blocks, catalog).offers[1]?.name).toBe('Leech');
+    const parsed = parseScreenOffers(blocks, catalog, { iconMatches: [cardIcon(1, 'Bullet Lifesteal')] });
+    expect(parsed.offers[1]).toMatchObject({ name: 'Bullet Lifesteal', byIcon: true, warning: null });
+  });
+  it('reports the card ambiguous when an exactly read name on its name row disagrees with the icon', () => {
+    const parsed = parseScreenOffers(frame(), catalog, { iconMatches: [cardIcon(1, 'Leech')] });
+    expect(parsed.offers.map(offer => offer.name)).toEqual(['Active Reload', 'Ambiguous item name', 'Spirit Resilience']);
+    expect(parsed.incomplete).toBe(true);
+  });
+  it('settles a card that shows a second catalogue name when its name and icon agree', () => {
+    const blocks = [...frame(), block('Leech', 0.45, 0.5, 0.1)];
+    expect(parseScreenOffers(blocks, catalog).offers[1]?.name).toBe('Ambiguous item name');
+    const parsed = parseScreenOffers(blocks, catalog, { iconMatches: [cardIcon(1, 'Bullet Lifesteal')] });
+    expect(parsed.offers.map(offer => offer.name)).toEqual(itemNames);
+    expect(parsed.offers[1]?.byIcon).toBeUndefined();
+  });
+  it('takes the icon over a catalogue name that is in the card\'s column but not on its name row', () => {
+    const blocks = [...frame().filter(value => value.text !== 'Bullet Lifesteal'), block('Leech', 0.45, 0.6, 0.1)];
+    const parsed = parseScreenOffers(blocks, catalog, { iconMatches: [cardIcon(1, 'Bullet Lifesteal')] });
+    expect(parsed.offers[1]).toMatchObject({ name: 'Bullet Lifesteal', byIcon: true });
+  });
+  it('marks a card Enhanced when the reader proved its Enhanced arrow, with or without a read name', () => {
+    const icon = cardIcon(2, 'Spirit Resilience', { enhanced: true });
+    const unread = parseScreenOffers(frame().filter(value => value.text !== 'Spirit Resilience'), catalog, { iconMatches: [icon] });
+    expect(unread.offers[2]).toMatchObject({ name: 'Spirit Resilience', variant: 'enhanced', byIcon: true });
+    const read = parseScreenOffers(frame(), catalog, { iconMatches: [icon] });
+    expect(read.offers[2]).toMatchObject({ name: 'Spirit Resilience', variant: 'enhanced' });
+    expect(read.offers[0]?.variant).toBe('base');
+  });
+  it('ignores an unknown item, a weak match, a position that is not a card and two items for one card', () => {
+    const blocks = frame().filter(value => value.text !== 'Bullet Lifesteal');
+    for (const icons of [
+      [cardIcon(1, 'Bullet Lifesteal', { itemId: 'upgrade_not_in_catalogue' })],
+      [cardIcon(1, 'Bullet Lifesteal', { confidence: 0.8 })],
+      [cardIcon(1, 'Bullet Lifesteal', { confidence: Number.NaN })],
+      [{ ...cardIcon(1, 'Bullet Lifesteal'), slot: 3 } as unknown as NativeIconMatch],
+      [cardIcon(1, 'Bullet Lifesteal'), cardIcon(1, 'Leech')],
+    ]) expect(parseScreenOffers(blocks, catalog, { iconMatches: icons }).offers[1]?.name).toBe('Unread item choice');
+  });
+  it('does not treat a card icon as a bonus slot, or a bonus slot as a card', () => {
+    const blocks = frame().filter(value => value.text !== 'Bullet Lifesteal');
+    const parsed = parseScreenOffers(blocks, catalog, { iconMatches: [cardIcon(0, 'Active Reload'), bonusIcon(1)], conservativeUnmarkedDetails: true });
+    expect(parsed.offers[1]?.name).toBe('Unread item choice');
+    expect(parsed.offers[0]).toMatchObject({ name: 'Active Reload', bonusIds: null });
+  });
+  it('places an icon-named card in a cropped capture and on an ultrawide client', () => {
+    // The capture starts 10% down the client: block coordinates are relative to it.
+    const crop = { x: 0, y: 0.1, width: 1, height: 0.9 };
+    const cropped = cues().map(value => ({ ...value, y: (value.y - crop.y) / crop.height, height: value.height / crop.height })).filter(value => value.y >= 0);
+    const icons = [cardIcon(0, 'Active Reload'), cardIcon(1, 'Bullet Lifesteal'), cardIcon(2, 'Spirit Resilience')];
+    expect(parseScreenOffers(cropped, catalog, { iconMatches: icons, crop, draftConfirmed: true }).offers.map(offer => offer.name)).toEqual(itemNames);
+    expect(parseScreenOffers(cues(), catalog, { iconMatches: icons, aspect: 21 / 9 }).offers.map(offer => offer.name)).toEqual(itemNames);
+  });
+});

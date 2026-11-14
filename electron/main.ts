@@ -7,7 +7,7 @@ import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path
 import { fileURLToPath } from 'node:url';
 import { createController } from '../src/app/controller';
 import { APP_CATALOG } from '../src/app/catalog';
-import { DEFAULT_SETTINGS, validateSettingsPatch } from '../src/shared/settings';
+import { DEFAULT_SETTINGS, readStoredSettings, validateSettingsPatch } from '../src/shared/settings';
 import type { AppSettings, DisplayInfo } from '../src/shared/types';
 import { startOverwolfProvider } from './overwolf-provider';
 import { createScreenReader } from './screen-reader';
@@ -15,7 +15,7 @@ import { createOverlay } from './overlay';
 import { hyprlandDeviceScale } from './hyprland';
 import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion, type ScreenReaderState } from '../src/shared/screen-reading';
 import { loadLocalPlayerNames } from './local-identity';
-import { isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
+import { coversCurrentWindow, isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 import { fetchStreetBrawlData } from '../src/screen/street-brawl-fetch';
 import { CONTEXT_CATALOG } from '../src/shared/context-catalog';
 
@@ -47,8 +47,10 @@ async function loadReaderPreferences(): Promise<void> {
     const value: unknown = JSON.parse(await readFile(path, 'utf8'));
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return;
     const record = value as Record<string, unknown>;
-    readerPreferences = { enabled: typeof record.enabled === 'boolean' ? record.enabled : true,
-      crop: validateCaptureRegion(record.crop ?? DEFAULT_CAPTURE_REGION) };
+    // A bad saved area falls back on its own; it must not also undo a saved pause.
+    let crop = { ...DEFAULT_CAPTURE_REGION } as CaptureRegion;
+    try { crop = validateCaptureRegion(record.crop ?? DEFAULT_CAPTURE_REGION); } catch { /* default area */ }
+    readerPreferences = { enabled: typeof record.enabled === 'boolean' ? record.enabled : true, crop };
   } catch { /* Safe defaults; image pixels and match readings are never loaded from disk. */ }
 }
 
@@ -79,7 +81,10 @@ function readerPaths(): { helperPath: string; iconDirectory: string; contextIcon
  * Nothing leaves this computer.
  */
 function createReaderDiagnostics() {
-  const directory = join(app.getPath('documents'), 'Street Brawl Companion', 'diagnostics');
+  let documents: string;
+  // A Documents folder Windows cannot resolve (a broken OneDrive or folder redirection) must not stop the app.
+  try { documents = app.getPath('documents'); } catch { documents = app.getPath('userData'); }
+  const directory = join(documents, 'Street Brawl Companion', 'diagnostics');
   const frames = join(directory, 'frames');
   const log = join(directory, 'reader-log.jsonl');
   const MAX_LOG_BYTES = 8_000_000;
@@ -88,7 +93,7 @@ function createReaderDiagnostics() {
   // whole evening's matches out by the next morning; an unchanged idle read is logged once a minute instead.
   const IDLE_LOG_MS = 60_000;
   let idle: { key: string; at: number } | null = null;
-  let writes: Promise<void> = mkdir(frames, { recursive: true }).then(() => undefined, () => undefined);
+  let writes: Promise<void> = mkdir(directory, { recursive: true }).then(() => undefined, () => undefined);
   const queue = (work: () => Promise<void>) => { writes = writes.then(work).catch(() => undefined); };
   return {
     trace(entry: Record<string, unknown>) {
@@ -104,7 +109,9 @@ function createReaderDiagnostics() {
       });
     },
     frame(png: string, entry: Record<string, unknown>) {
+      if (!settings.saveScreenshots) return;
       queue(async () => {
+        await mkdir(frames, { recursive: true });
         const name = `${entry.snapshot ? "screen" : entry.scoreboard ? "tab" : "draft"}-${new Date().toISOString().replace(/[:.]/g, '-')}`;
         await writeFile(join(frames, `${name}.png`), Buffer.from(png, 'base64'));
         await writeFile(join(frames, `${name}.json`), JSON.stringify(entry, null, 1), 'utf8');
@@ -132,7 +139,8 @@ function refreshStreetBrawlData(): Promise<void> {
   streetBrawlRefresh = (async () => {
     try {
       const saved: unknown = JSON.parse(await readFile(file, 'utf8'));
-      if (isStreetBrawlData(saved) && Date.parse(saved.fetchedAt) > Date.parse(streetBrawlData().fetchedAt)) setStreetBrawlData(saved);
+      // A download from before a patch-window change (an app update moved it) does not replace the newer bundled data.
+      if (isStreetBrawlData(saved) && Date.parse(saved.fetchedAt) > Date.parse(streetBrawlData().fetchedAt) && coversCurrentWindow(saved)) setStreetBrawlData(saved);
     } catch { /* No saved download yet. */ }
     if (age() < STREET_BRAWL_REFRESH_MS) return;
     try {
@@ -149,6 +157,7 @@ function refreshStreetBrawlData(): Promise<void> {
 
 let pendingReaderState: ScreenReaderState | null = null;
 let trayTip = '';
+let sentPreview: string | null = null;
 /** One read publishes several partial updates in the same tick; send the windows only the last one,
  * so each read costs one IPC message and one render per window instead of five or six. */
 function publishScreenReader(state: ScreenReaderState): void {
@@ -163,7 +172,11 @@ function flushScreenReader(): void {
   // Reader updates published while quitting (the reader stopping) must not touch the destroyed tray or overlay.
   if (!state || quitting) return;
   if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
-    mainWindow.webContents.send('companion:screen-reader', state);
+    // The reading-area preview is a large image that stays in the state; send it once, then leave it
+    // out (undefined = unchanged, see newestScreenReaderState) so every read is not megabytes of IPC.
+    const preview = state.previewDataUrl ?? null;
+    mainWindow.webContents.send('companion:screen-reader', preview !== null && preview === sentPreview ? { ...state, previewDataUrl: undefined } : state);
+    sentPreview = preview;
   }
   overlay?.update(state);
   const tip = `Street Brawl companion · ${state.status === 'ready' ? 'Offers read' : state.enabled ? 'Screen reading' : 'Paused'}`;
@@ -182,7 +195,7 @@ async function loadSettings(): Promise<void> {
   try {
     if ((await stat(settingsFile())).size > 16_384) return;
     const value: unknown = JSON.parse(await readFile(settingsFile(), 'utf8'));
-    settings = { ...DEFAULT_SETTINGS, ...validateSettingsPatch(value) };
+    settings = { ...DEFAULT_SETTINGS, ...readStoredSettings(value) };
   } catch {
     // Missing or invalid preferences use defaults; participant state is never read from disk.
     settings = { ...DEFAULT_SETTINGS };
@@ -225,12 +238,21 @@ function initialBounds(display: Display): Rectangle {
   return { x: area.x + Math.round((area.width - width) / 2), y: area.y + Math.round((area.height - height) / 2), width, height };
 }
 
+/** 600x720 DIP, but never more than the work area: a 1080p laptop at 150% scaling has about 670 DIP above the taskbar. */
+function minimumSize(display: Display): { minWidth: number; minHeight: number } {
+  return { minWidth: Math.min(600, display.workArea.width), minHeight: Math.min(720, display.workArea.height) };
+}
+
 function moveToSelectedDisplay(force = false): void {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  const display = chosenDisplay();
-  const area = display.workArea;
   const old = mainWindow.getBounds();
   const occupyingDisplay = screen.getDisplayMatching(old);
+  // With no display chosen, the window stays where the user put it: a display change (taskbar, DPI,
+  // the game switching mode) must not pull it back to the automatic pick.
+  const display = settings.displayId === null && !force ? occupyingDisplay : chosenDisplay();
+  const minimum = minimumSize(display);
+  mainWindow.setMinimumSize(minimum.minWidth, minimum.minHeight);
+  const area = display.workArea;
   if (force || occupyingDisplay.id !== display.id) {
     mainWindow.setBounds(initialBounds(display), false);
     return;
@@ -465,6 +487,10 @@ function createTray(): void {
       { label: 'Quit', click: () => app.quit() },
     ]));
     tray.on('double-click', showFromUserAction);
+    // Windows users expect one click on a tray icon to open the app.
+    if (process.platform === 'win32') tray.on('click', showFromUserAction);
+    // The reader usually reports before the tray exists; without this the tooltip stayed empty until the status changed.
+    tray.setToolTip(trayTip || 'Street Brawl companion');
     publishState();
   } catch { tray = null; }
 }
@@ -472,7 +498,7 @@ function createTray(): void {
 async function createWindow(): Promise<void> {
   const localSession = await prepareLocalSession();
   mainWindow = new BrowserWindow({
-    ...initialBounds(chosenDisplay()), minWidth: 600, minHeight: 720, show: false,
+    ...initialBounds(chosenDisplay()), ...minimumSize(chosenDisplay()), show: false,
     title: 'Deadlock Street Brawl companion', backgroundColor: '#111318',
     alwaysOnTop: settings.alwaysOnTop, autoHideMenuBar: true,
     webPreferences: {
@@ -490,7 +516,7 @@ async function createWindow(): Promise<void> {
   mainWindow.once('ready-to-show', () => mainWindow?.showInactive());
   // Wayland paints nothing for a window that was never mapped, so ready-to-show may never fire there.
   if (process.platform === 'linux') mainWindow.webContents.once('did-finish-load', () => { if (mainWindow && !mainWindow.isVisible()) mainWindow.showInactive(); });
-  mainWindow.webContents.on('did-finish-load', () => { publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
+  mainWindow.webContents.on('did-finish-load', () => { sentPreview = null; publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
   // The hidden overlay window must not keep the app running once the companion is closed.
   mainWindow.on('closed', () => { mainWindow = null; app.quit(); });
   overlay =createOverlay({ session: localSession, preload: join(mainDirectory, 'preload.cjs'), url: OVERLAY_DOCUMENT });
@@ -538,7 +564,7 @@ if (!app.requestSingleInstanceLock()) {
     setInterval(() => { void refreshStreetBrawlData(); }, 6 * 60 * 60 * 1000).unref();
     const diagnostics = createReaderDiagnostics();
     screenReader = createScreenReader({ ...readerPaths(), localPlayerNames, catalog: APP_CATALOG, initialCrop: readerPreferences.crop, autoStart: false, onState: publishScreenReader,
-      onTrace: diagnostics.trace, onDraftFrame: diagnostics.frame });
+      onTrace: diagnostics.trace, onDraftFrame: diagnostics.frame, wantsFrames: () => settings.saveScreenshots });
     registerBridge();
     unsubscribeController = controller.subscribe(publishState);
     startLive();

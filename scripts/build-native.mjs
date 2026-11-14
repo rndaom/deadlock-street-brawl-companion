@@ -9,13 +9,21 @@ import os from 'node:os';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const project = path.join(root, 'native', 'ScreenReader', 'ScreenReader.csproj');
 const output = path.join(root, 'native', 'ScreenReader', 'publish');
-const windows = process.platform === 'win32';
+// --target windows|linux builds that platform's reader; the default is this machine's. A Windows reader can be
+// cross-built on Linux for packaging (npm run package:win); it cannot run here, so its descriptors are not prepared.
+const targetFlag = process.argv.indexOf('--target');
+const target = targetFlag >= 0 ? process.argv[targetFlag + 1] : process.platform === 'win32' ? 'windows' : 'linux';
+if (target !== 'windows' && target !== 'linux') throw new Error('Usage: node scripts/build-native.mjs [--target windows|linux] [--force] [--descriptors]');
+const hostWindows = process.platform === 'win32';
+const crossBuild = target !== (hostWindows ? 'windows' : 'linux');
+const windows = target === 'windows';
 const platformName = windows ? 'Windows' : 'Linux';
 const helper = path.join(output, windows ? 'ScreenReader.exe' : 'ScreenReader');
 // A user-local SDK (dotnet-install.sh into ~/.dotnet) is used when no system SDK is on PATH.
-const localDotnet = path.join(os.homedir(), '.dotnet', windows ? 'dotnet.exe' : 'dotnet');
-const dotnet = process.env.DOTNET_ROOT && existsSync(path.join(process.env.DOTNET_ROOT, windows ? 'dotnet.exe' : 'dotnet'))
-  ? path.join(process.env.DOTNET_ROOT, windows ? 'dotnet.exe' : 'dotnet') : existsSync(localDotnet) ? localDotnet : 'dotnet';
+const dotnetName = hostWindows ? 'dotnet.exe' : 'dotnet';
+const localDotnet = path.join(os.homedir(), '.dotnet', dotnetName);
+const dotnet = process.env.DOTNET_ROOT && existsSync(path.join(process.env.DOTNET_ROOT, dotnetName))
+  ? path.join(process.env.DOTNET_ROOT, dotnetName) : existsSync(localDotnet) ? localDotnet : 'dotnet';
 const sources = (await fs.readdir(path.dirname(project))).filter(name => /\.(cs|csproj|manifest)$/.test(name));
 let current = false;
 try {
@@ -26,8 +34,9 @@ try {
 if (current && !process.argv.includes('--force')) {
   console.log(`Native ${platformName} reader is current.`);
 } else {
+  // Both readers publish into the same folder (ScreenReader.exe and ScreenReader); each package takes only its own.
   const args = ['publish', project, '-c', 'Release', '-r', windows ? 'win-x64' : 'linux-x64', '--self-contained', 'true',
-    '--output', output, '/p:DebugType=None', '/p:DebugSymbols=false'];
+    '--output', output, `/p:ReaderPlatform=${target}`, '/p:DebugType=None', '/p:DebugSymbols=false'];
   await new Promise((resolve, reject) => {
     const child = spawn(dotnet, args, { cwd: root, stdio: 'inherit', windowsHide: true, env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1', DOTNET_NOLOGO: '1' } });
     child.once('error', () => reject(new Error(`The .NET 10 SDK is required to build the ${platformName} reader from source. The packaged app includes its reader.`)));
@@ -52,7 +61,10 @@ async function descriptorsCurrent() {
     return true;
   } catch { return false; }
 }
-if (!windows && !process.argv.includes('--descriptors') && await descriptorsCurrent()) {
+if (crossBuild) {
+  if (!await descriptorsCurrent()) throw new Error('The static descriptors do not match the current icons. Run node scripts/build-native.mjs (this machine\'s reader) first.');
+  console.log('Static descriptors match the current icons; keeping them for the cross-built reader.');
+} else if (!windows && !process.argv.includes('--descriptors') && await descriptorsCurrent()) {
   console.log('Static descriptors match the current icons; keeping them.');
 } else await new Promise((resolve, reject) => {
   const child = spawn(helper, ['--prepare-descriptors', path.join(root, 'assets/context-icons'), path.join(root, 'assets/reader-icons')],

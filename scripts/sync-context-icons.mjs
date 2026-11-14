@@ -91,6 +91,8 @@ async function refresh() {
   try { existing = JSON.parse(await fs.readFile(path.join(iconRoot, 'manifest.json'), 'utf8')); } catch { /* Initial explicit cache population. */ }
   const prior = existing?.schemaVersion === 1 && existing.clientVersion === catalog.clientVersion && existing.revision === catalog.revision ? new Map(existing.assets.map(entry => [entry.id, entry])) : new Map();
   await fs.mkdir(path.join(iconRoot, 'heroes'), { recursive: true }); await fs.mkdir(path.join(iconRoot, 'abilities'), { recursive: true }); await fs.mkdir(path.join(iconRoot, 'glyphs'), { recursive: true });
+  // New images are written only after all of them arrived, so a failed download leaves the old cache and manifest intact.
+  const pending = [];
   const cached = new Array(assets.length); let next = 0, completed = 0, requests = 0, totalBytes = 0;
   await Promise.all(Array.from({ length: 4 }, async () => {
     while (next < assets.length) {
@@ -105,7 +107,7 @@ async function refresh() {
           ensure(++requests <= MAX_REQUESTS, 'Public context request limit exceeded'); bytes = await download(expected.sourceUrl);
         }
         const metadata = contextPngMetadata(bytes);
-        await fs.writeFile(path.join(iconRoot, expected.file), bytes); result = { ...expected, ...metadata, retrievedAt: new Date().toISOString() };
+        pending.push([path.join(iconRoot, expected.file), bytes]); result = { ...expected, ...metadata, retrievedAt: new Date().toISOString() };
       }
       totalBytes += result.bytes; ensure(totalBytes <= MAX_TOTAL_BYTES, 'Public context cache total byte budget exceeded'); cached[index] = result;
       completed++; if (completed % 40 === 0 || completed === assets.length) console.log(`Cached/verified ${completed}/${assets.length} public context images.`);
@@ -114,7 +116,9 @@ async function refresh() {
   const manifest = { schemaVersion: 1, clientVersion: catalog.clientVersion, revision: catalog.revision, catalogSha256: catalog.catalogSha256, contextCatalogSha256,
     sourceArchive: catalog.sourceArchive, verifiedAt: new Date().toISOString(), source: 'Public hero/ability PNG mirrors and decoded pinned Valve static HUD resources; no game captures',
     totalBytes, featureGrid: 16, limitations: ['CDN URLs are not client-versioned; content hashes pin the retrieved template bytes, not independent Valve build authentication.', 'HUD glyphs are bound to cached static client resources by CRC32/SHA256 and decoder provenance; valve-resource URLs are metadata, never runtime download targets.', 'Full templates do not prove HUD crop, state, identity, inventory ownership, unlocked state, or ability rank.', 'Unavailable/mismatched recognition must remain unknown.'], assets: cached };
-  await fs.writeFile(path.join(iconRoot, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+  const replace = async (file, contents) => { await fs.writeFile(`${file}.tmp`, contents); await fs.rename(`${file}.tmp`, file); };
+  for (const [file, bytes] of pending) await replace(file, bytes);
+  await replace(path.join(iconRoot, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`Context image cache ready (${requests} bounded public GETs; no credentials).`);
 }
 async function main() {

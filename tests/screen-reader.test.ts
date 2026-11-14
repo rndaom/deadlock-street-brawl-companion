@@ -4,7 +4,8 @@ import { availableParallelism } from 'node:os';
 import publicCatalog from '../data/public-catalog.json';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  blocksForScreenParser, createScreenReader, draftCaptureRegion, DRAFT_FOOTER_REGION, DRAFT_HINT_REGION, MATCH_CONTEXT_REGION, normalizeNativeReply, OUTSIDE_MESSAGE, SCREEN_READER_LIMITS,
+  blocksForScreenParser, createScreenReader, draftCaptureRegion, DRAFT_FOOTER_REGION, DRAFT_HINT_REGION, HELPER_BLOCKED_MESSAGE, MATCH_CONTEXT_REGION, normalizeNativeReply,
+  OCR_NOT_ENGLISH_MESSAGE, OUTSIDE_MESSAGE, SCREEN_READER_LIMITS,
   type ScreenReaderOptions, type ScreenReaderProcess,
 } from '../electron/screen-reader';
 import { DEFAULT_CAPTURE_REGION, SCREEN_CARD_BACKGROUND_HOLD_MS, type CaptureRegion, type NativeScreenContext } from '../src/shared/screen-reading';
@@ -879,6 +880,26 @@ describe('actual cancellation, timeout and workload barriers', () => {
     await work.reader.pollOnce();
     expect(work.reader.getState().status).toBe('unavailable'); expect(work.process.kill).toHaveBeenCalledOnce();
     expect(log).not.toHaveBeenCalled(); expect(error).not.toHaveBeenCalled(); log.mockRestore(); error.mockRestore();
+  });
+  it('asks for English text recognition when the OCR engine reads another language', async () => {
+    const work = fixture();
+    work.behavior((request, process) => process.send(request, { blocks: [], gamePresent: false, foreground: false, ocrLanguage: 'de-DE' }));
+    await work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(10);
+    expect(work.reader.getState()).toMatchObject({ status: 'unavailable', message: OCR_NOT_ENGLISH_MESSAGE, engineReady: false });
+    await work.reader.pollOnce(); expect(work.spawnProcess).toHaveBeenCalledOnce();
+  });
+  it('says the helper is missing or blocked when the OS cannot start it, instead of offering a plain restart', async () => {
+    const work = fixture(); work.behavior(() => {});
+    const read = work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(0);
+    const failure = Object.assign(new Error('spawn ScreenReader.exe ENOENT'), { code: 'ENOENT', syscall: 'spawn ScreenReader.exe' });
+    work.process.exitCode = -4058; work.process.emit('error', failure); work.process.emit('close', -4058, null);
+    await read;
+    expect(work.reader.getState()).toMatchObject({ status: 'unavailable', message: HELPER_BLOCKED_MESSAGE });
+  });
+  it('reports a helper that cannot even be spawned', async () => {
+    const work = fixture({ spawnProcess: () => { throw Object.assign(new Error('blocked'), { code: 'UNKNOWN' }); } });
+    await work.reader.pollOnce();
+    expect(work.reader.getState()).toMatchObject({ status: 'unavailable', message: HELPER_BLOCKED_MESSAGE });
   });
   it('handles a broken helper input pipe without an uncaught EPIPE or process reuse', async () => {
     const work = fixture(); work.behavior((_request, process) => process.stdin.emit('error', new Error('synthetic-EPIPE')));
