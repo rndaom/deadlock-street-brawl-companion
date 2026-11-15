@@ -107,9 +107,12 @@ export function nextApNudgeClock(previous: ApNudgeClock | null, state: ScreenRea
  * caller passes `apSince`), or the info panel the player opened with the hotkey. Otherwise it is
  * hidden, so the game keeps its normal (uncomposited) presentation and nothing floats over the desktop.
  */
-export function overlayShouldShow(input: { enabled: boolean; state: ScreenReaderState | null; panel: boolean; now: number; apSince?: number | null }): boolean {
-  const { enabled, state, panel, now, apSince = null } = input;
-  if (!enabled || !state || !state.enabled || !state.gamePresent || !state.foreground) return false;
+export function overlayShouldShow(input: { enabled: boolean; state: ScreenReaderState | null; panel: boolean; now: number; apSince?: number | null; showWhileVisible?: boolean }): boolean {
+  const { enabled, state, panel, now, apSince = null, showWhileVisible = false } = input;
+  if (!enabled || !state || !state.enabled || !state.gamePresent) return false;
+  // Windows: the game lost focus (the player clicked the companion, on this monitor or another) but the
+  // last capture still saw it uncovered, so it is on screen and the marks belong over it.
+  if (!state.foreground && !(showWhileVisible && state.gameVisible === true)) return false;
   const bounds = state.gameBounds;
   if (!bounds || bounds.width < 320 || bounds.height < 240) return false;
   const nudge = !!overlayAbilityNudge(state, now) && (apSince === null || now - apSince < AP_NUDGE_MS);

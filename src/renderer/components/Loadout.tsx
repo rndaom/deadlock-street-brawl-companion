@@ -51,7 +51,7 @@ function SeatRow({ seat, enemy }: { seat: SeatView; enemy: boolean }) {
 }
 
 const GUIDE = [
-  { title: 'Keep Deadlock in front', body: 'The reader follows your visible game window. Put the companion on your second screen.' },
+  { title: 'Keep Deadlock visible', body: 'The reader finds the game window on any monitor. With one monitor, the in-game overlay marks the pick.' },
   { title: 'Hold Tab at a safe moment', body: 'A few seconds on the scoreboard reads every hero and their items.' },
   { title: 'Draft opens, pick appears', body: 'The three cards are read in game order, and the best one is called out with the reasons.' },
 ];

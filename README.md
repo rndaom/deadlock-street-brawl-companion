@@ -42,8 +42,10 @@ Double-click **Start Companion.cmd** after packaging (it starts `release/win-unp
 The Linux build runs on a **Hyprland** session (0.55 or newer, Lua configuration) with Deadlock under Proton. It needs these system packages (Arch names):
 
 ```bash
-sudo pacman -S --needed tesseract tesseract-data-eng grim
+sudo pacman -S --needed tesseract tesseract-data-eng grim fuse2
 ```
+
+- `fuse2` provides `libfuse.so.2`, which the AppImage needs to start; without it the AppImage exits with `dlopen(): error loading libfuse.so.2`. Systems with only `fuse3` don't have it.
 
 - The reader copies the game window's own buffer with `grim -T`, so other windows, the bar or notifications on top of the game do not stop it. If that copy is unavailable it falls back to copying the screen area, which needs the game uncovered, as on Windows.
 - The in-game overlay is placed by a runtime Hyprland window rule (floating, pinned, never focused). The rule disappears on the next config reload; the companion adds it again when it next shows the overlay.

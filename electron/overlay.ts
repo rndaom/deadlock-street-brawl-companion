@@ -18,7 +18,11 @@ const COMPOSITOR_PLACED = process.platform === 'linux';
  * game window's own buffer, so the overlay is never in its image either; Hyprland places the overlay
  * (see hyprland.ts), and on other Linux desktops it stays hidden rather than open as a normal window.
  */
-export function createOverlay(options: { session: Session; preload: string; url: string }) {
+export function createOverlay(options: {
+  session: Session; preload: string; url: string;
+  /** Whether the marks may stay up while the game is visible but not focused (Windows: the companion is on another part of the screen). */
+  showWhileVisible?: () => boolean;
+}) {
   let window: BrowserWindow | null = null;
   let enabled = false;
   let state: ScreenReaderState | null = null;
@@ -34,6 +38,10 @@ export function createOverlay(options: { session: Session; preload: string; url:
   let placedBounds = '';
   /** How long the current unspent ability points have stood, so their nudge steps aside after a while. */
   let apClock: ApNudgeClock | null = null;
+  /** Windows: when the overlay was last put back on top of the topmost band. */
+  let raisedAt = 0;
+  /** A fullscreen game made topmost by its window layer (SDL does this for a focused fullscreen window) takes the top of the band when it is activated. */
+  const RAISE_MS = 1000;
 
   const status = (): OverlayStatus => ({ panel, hotkey: hotkeyUnavailable ? null : OVERLAY_HOTKEY });
   const alive = (target: BrowserWindow | null): target is BrowserWindow => !!target && !target.isDestroyed();
@@ -100,7 +108,7 @@ export function createOverlay(options: { session: Session; preload: string; url:
     syncHotkey();
     const now = Date.now();
     apClock = nextApNudgeClock(apClock, state, now);
-    const show = overlayShouldShow({ enabled, state, panel, now, apSince: apClock?.since ?? null });
+    const show = overlayShouldShow({ enabled, state, panel, now, apSince: apClock?.since ?? null, showWhileVisible: !COMPOSITOR_PLACED && (options.showWhileVisible?.() ?? false) });
     // A hidden overlay is not redrawn on every read: it gets one last state as it hides (so it holds
     // nothing stale) and the current one before it shows again.
     if (!show) {
@@ -113,12 +121,34 @@ export function createOverlay(options: { session: Session; preload: string; url:
     const target = ensureWindow(bounds);
     sendState();
     const key = `${bounds.x},${bounds.y},${bounds.width},${bounds.height}`;
-    if (key !== lastBounds) { target.setBounds(bounds, false); lastBounds = key; }
+    if (key !== lastBounds) { placeAt(target, bounds); lastBounds = key; }
     if (!target.isVisible()) {
       target.showInactive();
-      // Windows can drop the topmost band when a borderless game takes the foreground.
-      target.setAlwaysOnTop(true, 'screen-saver');
-    }
+      raise(target, now, true);
+    } else raise(target, now, false);
+  }
+
+  /**
+   * Windows: showing a hidden window keeps its old place in the z-order, and a borderless fullscreen game
+   * that is (re)activated goes to the top of the topmost band, above the overlay. Put the overlay back on
+   * top when it shows and about once a second while it is up, without activating it.
+   */
+  function raise(target: BrowserWindow, now: number, force: boolean): void {
+    if (!force && now - raisedAt < RAISE_MS) return;
+    raisedAt = now;
+    target.setAlwaysOnTop(true, 'screen-saver');
+    target.moveTop();
+  }
+
+  /**
+   * Moving a window onto a monitor with another DPI scale can size it by the old monitor's scale
+   * (Chromium converts with the scale of the display it leaves). A second setBounds, once the window is
+   * on the new monitor, lands on the right size.
+   */
+  function placeAt(target: BrowserWindow, bounds: ScreenRect): void {
+    target.setBounds(bounds, false);
+    const actual = target.getBounds();
+    if (actual.x !== bounds.x || actual.y !== bounds.y || actual.width !== bounds.width || actual.height !== bounds.height) target.setBounds(bounds, false);
   }
 
   /**
