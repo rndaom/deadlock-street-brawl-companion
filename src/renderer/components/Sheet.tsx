@@ -1,17 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
-import { Check, Eye, FileDown, Monitor, RotateCcw, X } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Eye, FileDown, Monitor, RotateCcw, X } from 'lucide-react';
 import type { AppSettings, Catalog, DisplayInfo } from '../../shared/types';
 import type { CaptureRegion, ScreenReaderState } from '../../shared/screen-reading';
-import { DEFAULT_CAPTURE_REGION } from '../../shared/screen-reading';
 
 export type SheetTab = 'display' | 'area' | 'reader' | 'about';
 
-const PRESETS: { name: string; crop: CaptureRegion }[] = [
-  { name: 'Suggested', crop: { ...DEFAULT_CAPTURE_REGION } },
-  { name: 'Wide', crop: { x: 0.02, y: 0.06, width: 0.96, height: 0.86 } },
-  { name: 'Whole window', crop: { x: 0, y: 0, width: 1, height: 1 } },
-];
 const pct = (value: number) => `${Math.round(value * 100)}%`;
 const time = (at: number | null) => at === null ? 'Not yet' : new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' }).format(at);
 
@@ -29,45 +22,25 @@ function Toggle({ checked, onChange, label, help }: { checked: boolean; onChange
   </label>;
 }
 
-function ReadingArea({ reader, onCrop, onPreview }: Pick<SheetProps, 'reader' | 'onCrop' | 'onPreview'>) {
-  const crop = reader?.crop ?? DEFAULT_CAPTURE_REGION;
-  const [draft, setDraft] = useState<CaptureRegion>(crop);
-  const [applied, setApplied] = useState(false);
-  // The reader echoing the applied area back must not wipe the "Applied" note; adjusting the area clears it.
-  useEffect(() => { setDraft(crop); }, [crop.x, crop.y, crop.width, crop.height]);
-  const changed = draft.x !== crop.x || draft.y !== crop.y || draft.width !== crop.width || draft.height !== crop.height;
-  const adjust = (field: keyof CaptureRegion, value: number) => {
-    setApplied(false);
-    setDraft((current) => {
-      const next = { ...current, [field]: value };
-      next.x = Math.min(0.85, Math.max(0, next.x)); next.y = Math.min(0.85, Math.max(0, next.y));
-      next.width = Math.min(1 - next.x, Math.max(0.15, next.width)); next.height = Math.min(1 - next.y, Math.max(0.15, next.height));
-      return next;
-    });
-  };
-  const region = { left: pct(draft.x), top: pct(draft.y), width: pct(draft.width), height: pct(draft.height) } as CSSProperties;
+function ReadingArea({ reader, onPreview }: Pick<SheetProps, 'reader' | 'onPreview'>) {
+  const game = reader?.gamePresent ? reader.gameBounds ?? null : null;
+  const where = !reader?.gamePresent ? 'Waiting for Deadlock to start.'
+    : !game ? 'Deadlock is running. Its window size is read with the next capture.'
+    : reader.foreground ? 'Deadlock is in front. Draft cards are read as they appear.'
+    : reader.gameVisible ? 'Deadlock is visible behind the companion. Reads continue.'
+    : 'Deadlock is covered or in the background. Reads resume when it is back in view.';
   return <div className="sheet-section">
-    <p className="sheet-intro">The part of the Deadlock window that holds all three draft cards. The reader also checks the heading and buttons to tell when a draft opens and closes.</p>
-    {reader?.calibrationRequired && <p className="sheet-callout">The reader asked for an adjustment: include all three cards, and leave out your inventory and other menus.</p>}
-    <div className="presets" role="group" aria-label="Reading area presets">
-      {PRESETS.map((preset) => <button key={preset.name} type="button" className="btn btn-small" onClick={() => { setDraft(preset.crop); setApplied(false); }}>{preset.name}</button>)}
-    </div>
-    <div className="crop-diagram" role="img" aria-label={`Selected area: left ${pct(draft.x)}, top ${pct(draft.y)}, width ${pct(draft.width)}, height ${pct(draft.height)}`}>
-      <span className="crop-cards" aria-hidden="true"><i /><i /><i /></span>
-      <span className="crop-region" style={region}><span>Read area</span></span>
-    </div>
-    <div className="sliders">
-      {([['x', 'Left edge'], ['y', 'Top edge'], ['width', 'Width'], ['height', 'Height']] as const).map(([field, label]) =>
-        <label key={field} className="slider"><span>{label}<strong className="num">{pct(draft[field])}</strong></span>
-          <input type="range" min={field === 'width' || field === 'height' ? 0.15 : 0} max={field === 'x' || field === 'y' ? 0.85 : 1} step="0.01" value={draft[field]}
-            onChange={(event) => adjust(field, Number(event.target.value))} /></label>)}
-    </div>
+    <p className="sheet-intro">The reading area is automatic. The reader finds the Deadlock window on any monitor, follows its size and position, and reads the draft cards, heading and buttons wherever they are on the window. Nothing to set up.</p>
+    <dl className="facts-list">
+      <div><dt>Game window</dt><dd>{game ? `${game.width}×${game.height}` : 'Not found yet'}</dd></div>
+      <div><dt>Status</dt><dd>{where}</dd></div>
+    </dl>
+    <p className="sheet-note">Keep Deadlock in borderless windowed or windowed mode. On one monitor the in-game overlay marks the pick, and the companion can sit over the game without stopping the reads.</p>
     <div className="sheet-actions">
-      <span className="sheet-status" role="status">{applied ? 'Applied. Keep the draft visible.' : changed ? 'Not applied yet.' : 'Current area.'}</span>
-      <button type="button" className="btn" disabled={!reader?.gamePresent || changed} onClick={onPreview}><Eye size={14} />Preview</button>
-      <button type="button" className="btn btn-primary" disabled={!reader || !changed} onClick={() => { onCrop(draft); setApplied(true); }}><Check size={14} />Apply</button>
+      <span className="sheet-status" role="status">{reader?.previewDataUrl ? 'Latest capture below.' : 'Check what the reader sees.'}</span>
+      <button type="button" className="btn" disabled={!reader?.gamePresent} onClick={onPreview}><Eye size={14} />Preview</button>
     </div>
-    {reader?.previewDataUrl && <figure className="crop-preview"><img src={reader.previewDataUrl} alt="Latest capture of the selected card area" /><figcaption>Latest preview. All three cards and the heading should be inside.</figcaption></figure>}
+    {reader?.previewDataUrl && <figure className="crop-preview"><img src={reader.previewDataUrl} alt="Latest capture of the draft area" /><figcaption>Latest preview. During a draft, all three cards should be inside.</figcaption></figure>}
   </div>;
 }
 
@@ -134,12 +107,12 @@ export function Sheet(props: SheetProps) {
         {tab === 'display' && <div className="sheet-section">
           <label className="field"><span><Monitor size={14} aria-hidden="true" />Companion display</span>
             <select value={settings.displayId ?? ''} onChange={(event) => onSettings({ displayId: event.target.value || null })}>
-              <option value="">Automatic (portrait monitor first)</option>
+              <option value="">Automatic (away from the game's monitor)</option>
               {displays.map((display) => <option key={display.id} value={display.id}>{display.label} · {display.width}×{display.height}{display.primary ? ' · primary' : ''}</option>)}
             </select></label>
           <label className="slider"><span>Text size<strong className="num">{Math.round(settings.textScale * 100)}%</strong></span>
             <input type="range" min="0.8" max="1.5" step="0.05" value={settings.textScale} onChange={(event) => onSettings({ textScale: Number(event.target.value) })} /></label>
-          <Toggle checked={settings.overlay} onChange={(overlay) => onSettings({ overlay })} label="In-game overlay" help="Marks the pick on the draft screen inside Deadlock, so one monitor is enough. Press F7 in game for your leveling plan. Needs Deadlock in borderless or windowed mode." />
+          <Toggle checked={settings.overlay} onChange={(overlay) => onSettings({ overlay })} label="In-game overlay" help="Marks the pick on the draft screen inside Deadlock, so one monitor is enough. It follows the game window on any monitor and size. Press F7 in game for your leveling plan. Needs Deadlock in borderless or windowed mode." />
           <label className="slider"><span>Active items: at most<strong className="num">{settings.maxActiveItems === 4 ? '4 (no limit)' : settings.maxActiveItems}</strong></span>
             <input type="range" min="0" max="4" step="1" value={settings.maxActiveItems} onChange={(event) => onSettings({ maxActiveItems: Number(event.target.value) })} />
             <small className="sheet-intro">Active items have a button to press. Once you own this many, the pick skips another active card when a card without a button is on offer. 4 means no limit.</small></label>

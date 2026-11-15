@@ -265,6 +265,8 @@ export interface ScreenReaderState {
   build?: { myItems: string[]; seatItems: string[][]; abilityRanks: (number | null)[] | null; hiddenEnemyItems: number } | null;
   /** The game client rectangle on screen (physical pixels), for the in-game overlay. */
   gameBounds?: { x: number; y: number; width: number; height: number } | null;
+  /** The last capture saw the game uncovered (in front, or behind a companion that capture looks through). */
+  gameVisible?: boolean;
   /** Matchups against the identified enemies and the items to hope for in drafts (see match-insights.ts). */
   insights?: MatchInsights | null;
   /** Unspent ability points last read from the HUD, and when. */

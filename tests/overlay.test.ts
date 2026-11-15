@@ -73,6 +73,15 @@ describe('overlay visibility', () => {
     }
     expect(show(reader(), { enabled: false })).toBe(false);
   });
+  it('stays over a game that lost focus but is still seen uncovered, when the caller allows it (Windows, companion elsewhere)', () => {
+    const visible = (state: ScreenReaderState, showWhileVisible: boolean) => overlayShouldShow({ enabled: true, state, panel: false, now, showWhileVisible });
+    expect(visible(reader({ foreground: false, gameVisible: true }), true)).toBe(true);
+    // Not allowed (Linux, or the companion sits over the game), covered, or never captured: hidden as before.
+    expect(visible(reader({ foreground: false, gameVisible: true }), false)).toBe(false);
+    expect(visible(reader({ foreground: false, gameVisible: false }), true)).toBe(false);
+    expect(visible(reader({ foreground: false }), true)).toBe(false);
+    expect(visible(reader({ foreground: false, gameVisible: true, gamePresent: false }), true)).toBe(false);
+  });
 });
 
 describe('cards held while alt-tabbed (one monitor)', () => {

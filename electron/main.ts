@@ -12,6 +12,7 @@ import type { AppSettings, DisplayInfo } from '../src/shared/types';
 import { startOverwolfProvider } from './overwolf-provider';
 import { createScreenReader } from './screen-reader';
 import { createOverlay } from './overlay';
+import { companionDisplayAwayFrom, overlapArea } from './display-placement';
 import { hyprlandDeviceScale } from './hyprland';
 import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion, type ScreenReaderState } from '../src/shared/screen-reading';
 import { loadLocalPlayerNames } from './local-identity';
@@ -48,10 +49,9 @@ async function loadReaderPreferences(): Promise<void> {
     const value: unknown = JSON.parse(await readFile(path, 'utf8'));
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return;
     const record = value as Record<string, unknown>;
-    // A bad saved area falls back on its own; it must not also undo a saved pause.
-    let crop = { ...DEFAULT_CAPTURE_REGION } as CaptureRegion;
-    try { crop = validateCaptureRegion(record.crop ?? DEFAULT_CAPTURE_REGION); } catch { /* default area */ }
-    readerPreferences = { enabled: typeof record.enabled === 'boolean' ? record.enabled : true, crop };
+    // The reading area is automatic: an area saved by an older version (sliders set for another window
+    // size or monitor) is not applied, so it cannot leave the cards outside the read.
+    readerPreferences = { enabled: typeof record.enabled === 'boolean' ? record.enabled : true, crop: { ...DEFAULT_CAPTURE_REGION } };
   } catch { /* Safe defaults; image pixels and match readings are never loaded from disk. */ }
 }
 
@@ -179,9 +179,72 @@ function flushScreenReader(): void {
     mainWindow.webContents.send('companion:screen-reader', preview !== null && preview === sentPreview ? { ...state, previewDataUrl: undefined } : state);
     sentPreview = preview;
   }
+  if (IS_WINDOWS) followGame(state);
   overlay?.update(state);
   const tip = `Street Brawl companion · ${state.status === 'ready' ? 'Offers read' : state.enabled ? 'Screen reading' : 'Paused'}`;
   if (tip !== trayTip) { trayTip = tip; tray?.setToolTip(tip); }
+}
+
+const IS_WINDOWS = process.platform === 'win32';
+/** The game client in physical screen pixels, from the reader's latest capture (Windows). */
+let gameBounds: Rectangle | null = null;
+/** The companion is excluded from screen capture while it overlaps the game (Windows). */
+let companionExcluded = false;
+/** The game monitor the companion was last moved away from automatically; one move per game start and monitor. */
+let movedAwayFrom: number | null = null;
+
+function gameDipBounds(): Rectangle | null {
+  return gameBounds ? screen.screenToDipRect(null, gameBounds) : null;
+}
+
+/** The companion window is on screen over part of the game client. */
+function companionOverGame(): boolean {
+  const game = gameDipBounds();
+  if (!game || !mainWindow || mainWindow.isDestroyed() || !mainWindow.isVisible() || mainWindow.isMinimized()) return false;
+  return overlapArea(mainWindow.getBounds(), game) > 0;
+}
+
+/**
+ * One monitor: the companion over the game would cover the cards and stop the reads. While it overlaps
+ * the game it is excluded from capture (WDA_EXCLUDEFROMCAPTURE), so the reader sees the game beneath it
+ * and the companion can show the pick while it is in front. It is not hidden from capture elsewhere.
+ */
+function syncCompanionCapture(): void {
+  if (!IS_WINDOWS || !mainWindow || mainWindow.isDestroyed()) return;
+  const over = companionOverGame();
+  if (over === companionExcluded) return;
+  companionExcluded = over;
+  mainWindow.setContentProtection(over);
+}
+
+/**
+ * Two or more monitors with "Automatic" display: when the game starts (or moves) on the monitor the
+ * companion is on, the companion moves to another monitor once, so the game stays uncovered. A companion
+ * the player moves back stays there until the next game start; choosing a display turns this off.
+ */
+function moveAwayFromGame(): void {
+  if (settings.displayId !== null || !mainWindow || mainWindow.isDestroyed()) return;
+  const game = gameDipBounds();
+  if (!game) return;
+  const gameDisplay = screen.getDisplayMatching(game);
+  if (movedAwayFrom === gameDisplay.id) return;
+  movedAwayFrom = gameDisplay.id;
+  if (screen.getDisplayMatching(mainWindow.getBounds()).id !== gameDisplay.id) return;
+  const target = companionDisplayAwayFrom(screen.getAllDisplays(), gameDisplay.id, screen.getPrimaryDisplay().id);
+  if (!target) return;
+  const minimum = minimumSize(target);
+  mainWindow.setMinimumSize(minimum.minWidth, minimum.minHeight);
+  mainWindow.setBounds(initialBounds(target), false);
+}
+
+function followGame(state: ScreenReaderState): void {
+  const next = state.gamePresent && state.gameBounds ? state.gameBounds : null;
+  if (!next) movedAwayFrom = null;
+  if (JSON.stringify(next) !== JSON.stringify(gameBounds)) {
+    gameBounds = next;
+    moveAwayFromGame();
+  }
+  syncCompanionCapture();
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -532,7 +595,11 @@ async function createWindow(): Promise<void> {
   mainWindow.webContents.on('did-finish-load', () => { sentPreview = null; publishState(); if (screenReader) publishScreenReader(screenReader.getState()); });
   // The hidden overlay window must not keep the app running once the companion is closed.
   mainWindow.on('closed', () => { mainWindow = null; app.quit(); });
-  overlay =createOverlay({ session: localSession, preload: join(mainDirectory, 'preload.cjs'), url: OVERLAY_DOCUMENT });
+  if (IS_WINDOWS) for (const event of ['move', 'resize', 'show', 'hide', 'minimize', 'restore'] as const) mainWindow.on(event as 'move', syncCompanionCapture);
+  // Marks over a game that is visible but not focused (the player clicked the companion on another monitor),
+  // never while the companion itself sits over the game.
+  overlay = createOverlay({ session: localSession, preload: join(mainDirectory, 'preload.cjs'), url: OVERLAY_DOCUMENT,
+    showWhileVisible: () => IS_WINDOWS && !companionOverGame() });
   overlay.setEnabled(settings.overlay);
   await mainWindow.loadURL(APP_DOCUMENT);
 }

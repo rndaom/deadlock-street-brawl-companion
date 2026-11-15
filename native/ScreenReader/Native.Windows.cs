@@ -18,6 +18,7 @@ internal static class Native
   private const uint GwHwndPrevious = 3;
   private const int GwlExStyle = -20;
   private const int WsExTransparent = 0x20, WsExToolWindow = 0x80, WsExLayered = 0x80000, WsExNoActivate = 0x08000000;
+  private const uint WdaExcludeFromCapture = 0x11;
   [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; public readonly Rectangle ToRectangle() => Rectangle.FromLTRB(Left, Top, Right, Bottom); }
   [StructLayout(LayoutKind.Sequential)] private struct Point { public int X, Y; }
   [StructLayout(LayoutKind.Sequential)] private struct MonitorInfo { public int Size; public Rect Monitor, Work; public uint Flags; }
@@ -28,19 +29,24 @@ internal static class Native
     if (_knownGame is { } known && IsWindow(known.Handle))
     {
       GetWindowThreadProcessId(known.Handle, out var currentProcessId);
-      if (currentProcessId == known.ProcessId)
+      // A Deadlock window that the player is looking at replaces a remembered one that is not in front
+      // (a start-up or second window that was the largest when the game was first found).
+      var front = GetAncestor(GetForegroundWindow(), GaRoot);
+      var switchToFront = front != 0 && front != known.Handle && IsCandidate(front, out _, out _);
+      if (currentProcessId == known.ProcessId && !switchToFront)
       {
         var latest = known with { Client = ClientRectangle(known.Handle) };
         _knownGame = latest;
-        return VerifyGame(latest);
+        var verified = VerifyGame(latest);
+        // A remembered window that went hidden for good (a closed splash or launcher window) is looked up again.
+        if (verified.Status != "no_window") return verified;
       }
+      _knownGame = null;
     }
     var windows = new List<(nint Handle, uint ProcessId, Rectangle Client)>();
     EnumWindows((window, _) =>
     {
-      GetWindowThreadProcessId(window, out var processId);
-      if (IsDeadlock(processId) && ClientRectangle(window) is { Width: >= 320, Height: >= 240 } client)
-        windows.Add((window, processId, client));
+      if (IsCandidate(window, out var processId, out var client)) windows.Add((window, processId, client));
       return true;
     }, 0);
     if (windows.Count == 0)
@@ -76,8 +82,7 @@ internal static class Native
     {
       if (!IsWindowVisible(above) || IsIconic(above) || Cloaked(above)) continue;
       // Click-through overlays (Discord, NVIDIA, Game Bar, helper tools) do not hide the game's panels.
-      var extended = GetWindowLong(above, GwlExStyle);
-      if ((extended & WsExTransparent) != 0 || ((extended & WsExLayered) != 0 && (extended & (WsExToolWindow | WsExNoActivate)) != 0)) continue;
+      if (SeeThrough(above)) continue;
       var overlap = Rectangle.Intersect(WindowRectangle(above), client);
       // Small intersections (a taskbar edge, a notification corner) do not hide the draft cards.
       if (overlap.Width * (long)overlap.Height > client.Width * (long)client.Height / 20) return game with { Status = covered, Foreground = foreground };
@@ -89,7 +94,10 @@ internal static class Native
       new Point { X = client.Left + client.Width / 4, Y = client.Bottom - client.Height / 3 }, new Point { X = client.Right - client.Width / 4, Y = client.Bottom - client.Height / 3 },
       new Point { X = client.Left + client.Width / 2, Y = client.Top + client.Height / 2 },
     })
-      if (GetAncestor(WindowFromPoint(point), GaRoot) != game.Handle) hidden++;
+    {
+      var root = GetAncestor(WindowFromPoint(point), GaRoot);
+      if (root != game.Handle && !SeeThrough(root)) hidden++;
+    }
     if (hidden >= 2) return game with { Status = covered, Foreground = foreground };
     return game with { Status = "ok", Foreground = foreground };
   }
@@ -134,6 +142,30 @@ internal static class Native
 
   private static bool Cloaked(nint window) => DwmGetWindowAttribute(window, 14, out int cloak, sizeof(int)) == 0 && cloak != 0;
 
+  /**
+   * A window the screen capture looks through: click-through overlays, and windows excluded from capture
+   * (WDA_EXCLUDEFROMCAPTURE, such as the companion over the game on one monitor), which the capture
+   * replaces with what lies beneath them. WDA_MONITOR windows capture as black, so they still cover the game.
+   */
+  private static bool SeeThrough(nint window)
+  {
+    if (window == 0) return false;
+    var extended = GetWindowLong(window, GwlExStyle);
+    if ((extended & WsExTransparent) != 0 || ((extended & WsExLayered) != 0 && (extended & (WsExToolWindow | WsExNoActivate)) != 0)) return true;
+    return GetWindowDisplayAffinity(window, out var affinity) && affinity == WdaExcludeFromCapture;
+  }
+
+  /** A visible, uncloaked top-level window of deadlock.exe big enough to be the game client. */
+  private static bool IsCandidate(nint window, out uint processId, out Rectangle client)
+  {
+    GetWindowThreadProcessId(window, out processId);
+    client = Rectangle.Empty;
+    // Hidden helper windows can be larger than the game; picking one would leave the reader on "no_window".
+    if (!IsWindowVisible(window) || Cloaked(window) || !IsDeadlock(processId)) return false;
+    client = ClientRectangle(window);
+    return client.Width >= 320 && client.Height >= 240;
+  }
+
   private static bool IsDeadlock(uint processId)
   {
     var process = OpenProcess(QueryLimitedInformation, false, processId);
@@ -157,6 +189,7 @@ internal static class Native
   [DllImport("user32.dll")] private static extern bool IsWindowVisible(nint window);
   [DllImport("user32.dll")] private static extern int GetWindowLong(nint window, int index);
   [DllImport("user32.dll")] private static extern bool IsIconic(nint window);
+  [DllImport("user32.dll")] private static extern bool GetWindowDisplayAffinity(nint window, out uint affinity);
   [DllImport("user32.dll")] private static extern bool GetClientRect(nint window, out Rect rectangle);
   [DllImport("user32.dll")] private static extern bool GetWindowRect(nint window, out Rect rectangle);
   [DllImport("user32.dll")] private static extern bool ClientToScreen(nint window, ref Point point);

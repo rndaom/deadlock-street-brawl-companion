@@ -957,7 +957,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
       ? { x: reply.clientLeft, y: reply.clientTop, width: reply.clientWidth, height: reply.clientHeight } : null;
     const old = state.gameBounds ?? null;
     const boundsChanged = !old !== !bounds || !!old && !!bounds && (old.x !== bounds.x || old.y !== bounds.y || old.width !== bounds.width || old.height !== bounds.height);
-    publish({ gamePresent: reply.gamePresent, foreground: reply.foreground, ...(boundsChanged ? { gameBounds: bounds } : {}) });
+    // Visible = this capture saw the game itself (nothing opaque over it), in front or not.
+    const gameVisible = reply.gamePresent && (reply.status === 'ok' || reply.status === 'unchanged');
+    publish({ gamePresent: reply.gamePresent, foreground: reply.foreground, gameVisible, ...(boundsChanged ? { gameBounds: bounds } : {}) });
     if (!reply.gamePresent) {
       absentSince ??= wallNow();
       const gone = wallNow() - absentSince >= GAME_GONE_MS;
