@@ -725,8 +725,8 @@ describe('actual cancellation, timeout and workload barriers', () => {
       } else process.send(request, { elapsedMs: 180.52 });
     });
     await vi.advanceTimersByTimeAsync(500); const hint = work.reader.pollOnce(); await vi.advanceTimersByTimeAsync(210); await hint;
-    // A 210 ms read may occupy at most the draft's duty share of wall time before the next request.
-    const cooldown = Math.ceil(210 / SCREEN_READER_LIMITS.draftWorkerWallShare) - 210;
+    // A 210 ms read may occupy at most the draft's deal-in duty share of wall time before the next request (no cards read yet).
+    const cooldown = Math.ceil(210 / SCREEN_READER_LIMITS.draftDealWorkerWallShare) - 210;
     const count = work.process.requests.length;
     await work.step(cooldown - 1); expect(work.process.requests).toHaveLength(count);
     await work.step(1);
@@ -1018,6 +1018,68 @@ describe('2026-10-18 live match reads', () => {
     state = work.reader.getState();
     expect(state.offers.map(offer => offer.itemId)).toEqual(['d', 'c', 'e']);
     expectPickOnShownCard(state);
+  });
+  it('shows a card of the last choice offered again in its old place once the pick has lingered (2026-11-16 03:01:59)', async () => {
+    // Choice 2 was a, b, c (Dispel Magic picked at the right); choice 3 dealt Escalating Resilience, then Toxic Bullets in
+    // the middle place it held in choice 2: it was hidden as "the lingering pick" for two reads.
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c']; let stage = 1;
+    work.behavior((request, process) => process.send(request, { blocks: liveDraft(request.crop, names, stage) }));
+    await work.step(); await work.step();
+    stage = 2; names = [null, null, 'Fixture item c'];
+    await work.step();
+    names = [null, null, null]; await work.step();
+    names = ['Fixture item d', null, null]; await work.step();
+    names = ['Fixture item d', 'Fixture item b', null]; await work.step();
+    const state = work.reader.getState();
+    expect(state.offers.map(offer => offer.itemId)).toEqual(['d', 'b', '']);
+    expectPickOnShownCard(state);
+  });
+  it('shows a rerolled set at once when two new cards read and none of the shown ones is left (2026-11-15/16: 19 of 19 confirmed)', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c'];
+    work.behavior((request, process) => process.send(request, { blocks: liveDraft(request.crop, names, 1) }));
+    await work.step(); await work.step();
+    const before = work.reader.getState();
+    expect(before.offers.map(offer => offer.itemId)).toEqual(['a', 'b', 'c']);
+    // Real 00:25:42.799: "Radiant Regeneration, Alchemical Fire, (unread)" after a reroll; the next read added Warp Stone.
+    names = ['Fixture item d', 'Fixture item e', null];
+    await work.step();
+    let state = work.reader.getState();
+    expect(state.status).toBe('ready');
+    expect(state.offers.map(offer => offer.itemId)).toEqual(['d', 'e', '']);
+    expect(state.generation).toBeGreaterThan(before.generation);
+    expectPickOnShownCard(state);
+    // One new card alone is not enough: the old set is withdrawn and the new one waits for the next read.
+    names = ['Fixture item a', null, null];
+    await work.step();
+    state = work.reader.getState();
+    expect(state.offers.map(offer => offer.itemId)).not.toContain('d');
+    expect(state.advice?.preferredPosition ?? null).toBeNull();
+  });
+  it('reads again sooner while the cards deal in, and at the usual draft pace once all three are read', async () => {
+    const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', null, null]; let cpuMs = 3;
+    const sent: { at: number; dealing: boolean }[] = [];
+    work.behavior((request, process) => {
+      if (request.op === 'read') sent.push({ at: Date.now(), dealing: names.includes(null) });
+      process.send(request, { elapsedMs: 800, metrics: { cpuMs, workingSetMb: 64 }, blocks: liveDraft(request.crop, names, 1) });
+    });
+    const spacing = async (dealing: boolean) => {
+      sent.length = 0;
+      for (let index = 0; index < 60; index++) await work.step(50);
+      const times = sent.filter(entry => entry.dealing === dealing).map(entry => entry.at);
+      return times.slice(2).map((at, index) => at - times[index + 1]!);
+    };
+    // 800 ms reads: half of that (400 ms) between reads while dealing, instead of the full 800 ms.
+    const dealing = await spacing(true);
+    expect(dealing.length).toBeGreaterThan(2);
+    for (const gap of dealing) expect(gap).toBeLessThanOrEqual(450);
+    names = ['Fixture item a', 'Fixture item b', 'Fixture item c'];
+    for (const gap of await spacing(false)) expect(gap).toBeGreaterThanOrEqual(800);
+    // A helper already busy (60% of a core) keeps the usual pace while cards deal in.
+    names = ['Fixture item d', null, null]; cpuMs = 480;
+    for (let index = 0; index < 40; index++) await work.step(50);
+    const busy = await spacing(true);
+    expect(busy.length).toBeGreaterThan(1);
+    for (const gap of busy) expect(gap).toBeGreaterThanOrEqual(800);
   });
   it('never credits an unpicked card of the last choice read in another place (review repro)', async () => {
     const work = fixture(); await work.warm(); let names: (string | null)[] = ['Fixture item a', 'Fixture item b', 'Fixture item c']; let stage = 1;

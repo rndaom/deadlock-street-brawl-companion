@@ -64,6 +64,15 @@ internal static class Program
       // One allowed logical CPU bounds internal OCR worker parallelism. Use the highest
       // allowed processor: CPU 0 services most interrupts and is the busiest core while gaming.
       ulong selected = 0;
+#if LINUX
+      // Linux: Tesseract's workers are already held to one thread (OMP_THREAD_LIMIT, TextEngine.Linux.cs), and the reader
+      // works serially, so it never uses more than one core at a time. Pinned to one core it could not leave that core
+      // while a game thread ran there: at its below-normal priority a 0.4 ms process start took 5.7 ms (p50) with one busy
+      // thread on the pinned core (a likely part of the draft watch's 16.8 ms live against 2.6-4.3 ms on a quiet desktop).
+      // So every allowed core but CPU 0 (the busiest with interrupts) is allowed, and the scheduler picks an idle one.
+      selected = available & ~1UL;
+      if (System.Numerics.BitOperations.PopCount(selected) < 2) selected = 0;
+#endif
       for (var bit = 63; bit >= 0 && selected == 0; bit--) if ((available & (1UL << bit)) != 0) selected = 1UL << bit;
       if (selected != 0) { process.ProcessorAffinity = new nint((long)selected); _affinityLimited = true; }
     }
@@ -128,6 +137,7 @@ internal static class Program
         var response = request.Op == "stop"
           ? new Reply(1, request.Id, "stopped", false, false, 0, 0, null, 0, null, [], _engine is not null, _engine?.LanguageTag)
           : await Handle(request);
+        Profile.Flush(response.Id, response.ElapsedMs);
         if (request.Op == "fixture") response = response with { DraftWatch = true };
         await Console.Out.WriteLineAsync(JsonSerializer.Serialize(response, Json));
         await Console.Out.FlushAsync();
@@ -160,7 +170,8 @@ internal static class Program
     // the capture crop and real client size; without it, the image is treated as a whole client.
     var (crop, clientWidth, clientHeight) = ReviewGeometry(filename, source.Width, source.Height);
     // Prepare the installed engine through the same ordinary startup path first.
-    await Handle(new Request("review-warm", "fixture", crop, Fixture: "draft", Context: true));
+    var warm = await Handle(new Request("review-warm", "fixture", crop, Fixture: "draft", Context: true));
+    Profile.Flush(warm.Id, warm.ElapsedMs);
     var pixels = Pixels(bitmap);
     var hash = Convert.ToHexString(SHA256.HashData(pixels)).ToLowerInvariant();
     IReadOnlyList<OcrBlock> blocks = [];
@@ -173,12 +184,12 @@ internal static class Program
       if (_engine is null) throw new InvalidOperationException("review_ocr");
       if (index == 0)
       {
-        var ocr = await _engine.RecognizeAsync(pixels, width, height);
-        blocks = ExtractBlocks(ocr, crop, width, height);
+        using (Profile.Time("ocr.full")) blocks = ExtractBlocks(await _engine.RecognizeAsync(pixels, width, height), crop, width, height);
       }
       var refinement = await RefineContextText(bitmap, crop, clientWidth, clientHeight, blocks, fineCoverage, watch);
       blocks = refinement.Blocks; fineCoverage = refinement.Coverage;
-      var context = _matchReader?.Read(pixels, width, height, crop, clientWidth, clientHeight, blocks, "explicit-image-review");
+      NativeContext? context;
+      using (Profile.Time("context")) context = _matchReader?.Read(pixels, width, height, crop, clientWidth, clientHeight, blocks, "explicit-image-review");
       var numbers = context is not null ? await ReadNumericPatches(bitmap, crop, blocks, numericCoverage, watch)
         : (Blocks: blocks, Coverage: numericCoverage, Attempted: false);
       blocks = numbers.Blocks; numericCoverage = numbers.Coverage;
@@ -188,11 +199,14 @@ internal static class Program
       var request = new Request($"review-image-{index + 1}", "fixture", crop, Context: true);
       var game = new GameWindow(0, 0, new Rectangle(0, 0, clientWidth, clientHeight), "ok", false, false);
       // Bonus! card icons, as the live read does, so a saved draft frame replays them too.
+      var iconsWatch = Profile.Time("icons");
       IReadOnlyList<IconMatchRecord> icons = IconMatcher.HasBonusLabel(blocks)
         ? _iconMatcher?.FindBonusIcons(bitmap, blocks, crop) ?? IconMatcher.InferUnresolvedBonusSlots(bitmap, blocks, crop)
         : _iconMatcher is not null && IconMatcher.HasDraftText(blocks) ? _iconMatcher.FindCardBonusIcons(bitmap, crop, clientWidth, clientHeight) : [];
       if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks)) icons = [.. icons, .. _iconMatcher.FindCardIcons(bitmap, crop, clientWidth, clientHeight)];
+      iconsWatch.Dispose();
       var reply = Response("ok", game, request, watch, null, hash, blocks, true, crop, metrics, icons: icons, context: context);
+      Profile.Flush(reply.Id, watch.Elapsed.TotalMilliseconds);
       await Console.Out.WriteLineAsync(JsonSerializer.Serialize(reply, Json)); await Console.Out.FlushAsync();
       await Task.Delay(Math.Max(500, (int)Math.Ceiling(watch.Elapsed.TotalMilliseconds * 4)));
     }
@@ -296,8 +310,10 @@ internal static class Program
     try
     {
       var captureWatch = Stopwatch.StartNew();
+      var captureStage = Profile.Time("capture");
       using var bitmap = synthetic ? MakeFixture(request.Fixture, actualCrop, imageWidth, imageHeight) : Native.Capture(game, captureRect, imageWidth, imageHeight);
       var captureMs = captureWatch.Elapsed.TotalMilliseconds;
+      captureStage.Dispose();
       var capturedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
       if (!synthetic)
       {
@@ -308,8 +324,10 @@ internal static class Program
           return Response(after.Status, after, request, watch, null, null, [], false);
         }
       }
+      var hashStage = Profile.Time("pixels+hash");
       var pixels = Pixels(bitmap);
       var hash = Convert.ToHexString(SHA256.HashData(pixels)).ToLowerInvariant();
+      hashStage.Dispose();
       process.Refresh();
       var metrics = Measure(pixels, imageWidth, imageHeight, process.TotalProcessorTime - cpuStart, process.WorkingSet64)
         with { PrivateMemoryMb = Math.Round(process.PrivateMemorySize64 / 1048576d, 2), CaptureMs = Math.Round(captureMs, 2), AffinityLimited = _affinityLimited };
@@ -354,7 +372,8 @@ internal static class Program
         Cache.Remove(cached); Cache.Add(cached with { Context = cachedContext ?? cached.Context,Blocks=numeric.Blocks,FineCoverage=refined.Coverage,NumericCoverage=numeric.Coverage });
         return Response("unchanged", game, request, watch, capturedAt, hash, numeric.Blocks, synthetic, actualCrop, metrics with { Unchanged = true,OcrMs=Math.Round(fineOcrMs,2) }, unchanged: true, preview: preview, icons: cached.Icons, context: cachedContext);
       }
-      var result = await _engine.RecognizeAsync(pixels, imageWidth, imageHeight);
+      RecognizedPage result;
+      using (Profile.Time("ocr.full")) result = await _engine.RecognizeAsync(pixels, imageWidth, imageHeight);
       if (!synthetic)
       {
         var afterOcr = Native.VerifyGame(game);
@@ -368,6 +387,7 @@ internal static class Program
       var refinement=request.Context?await RefineContextText(bitmap,actualCrop,game.Client.Width,game.Client.Height,blocks,0,watch):(Blocks:blocks,Coverage:0);
       blocks=refinement.Blocks;
       var ocrMs=ocrWatch.Elapsed.TotalMilliseconds;
+      var iconsStage = Profile.Time("icons");
       IReadOnlyList<IconMatchRecord> icons = [];
       if (IconMatcher.HasBonusLabel(blocks))
       {
@@ -380,8 +400,11 @@ internal static class Program
       // unread on a third of the draft reads logged 2026-11-05..14, and the icon needs no text.
       if (_iconMatcher is not null && IconMatcher.HasDraftText(blocks))
         icons = [.. icons, .. _iconMatcher.FindCardIcons(bitmap, actualCrop, game.Client.Width, game.Client.Height)];
+      iconsStage.Dispose();
+      var contextStage = Profile.Time("context");
       var context = request.Context ? _matchReader?.Read(pixels, imageWidth, imageHeight, actualCrop, game.Client.Width, game.Client.Height,
         blocks, synthetic ? "synthetic-fixture" : _gameSession) : null;
+      contextStage.Dispose();
       var numbersWatch=Stopwatch.StartNew();
       var numbers=context is not null?await ReadNumericPatches(bitmap,actualCrop,blocks,[],watch):(Blocks:blocks,Coverage:(IReadOnlyList<NormalizedRect>)[],Attempted:false);
       if(numbers.Attempted)
@@ -493,9 +516,21 @@ internal static class Program
     // scoreboard makes the full-frame and strip passes slow), which left every card to full-frame OCR.
     if((coverage&32)==0)
     {
-      blocks=await ReadDraftLabels(captured,crop,clientWidth,clientHeight,blocks);
+      using(Profile.Time("draft.labels"))blocks=await ReadDraftLabels(captured,crop,clientWidth,clientHeight,blocks);
       coverage|=32;
     }
+    // Bit 64: the "ROUND N" title, read on its own with its cream lettering isolated. Full-frame OCR returned it exactly on
+    // 14 of 55 saved match frames ("ROUND |", "IND 2", nothing); this read gets 50 of them, with no wrong number.
+    if((coverage&64)==0)
+    {
+      using(Profile.Time("round.title"))blocks=await ReadRoundTitle(captured,crop,clientWidth,clientHeight,blocks);
+      coverage|=64;
+    }
+    // The scoreboard rows (bits 1-16) are only on screen while the expanded scoreboard is (Tab, or held through a draft).
+    // Everywhere else they read the world behind the top bar, and they were over half of a top-strip read's time.
+    const int scoreboardBits=1|2|4|8|16;
+    if((coverage&scoreboardBits)!=scoreboardBits&&strips.Any(strip=>NativeMatchReader.Contains(crop,strip.Bounds))
+      &&!ScoreboardRowsVisible(captured,crop,clientWidth,clientHeight,blocks))coverage|=scoreboardBits;
     foreach(var strip in strips)
     {
       if((coverage&strip.Bit)!=0||!NativeMatchReader.Contains(crop,strip.Bounds))continue;
@@ -504,6 +539,7 @@ internal static class Program
       if(strip.Bit==1&&NativeMatchReader.Contains(crop,strips[1].Bounds)&&(coverage&2)==0){coverage|=1;continue;}
       // Leave room for the60ms matcher and serialization within the parent's250ms deadline.
       if(requestWatch.Elapsed.TotalMilliseconds>900)break;
+      using var stripStage=Profile.Time($"strip.{strip.Bit}");
       var source=new RectangleF((float)((strip.Bounds.X-crop.X)/crop.Width*captured.Width),(float)((strip.Bounds.Y-crop.Y)/crop.Height*captured.Height),
         (float)(strip.Bounds.Width/crop.Width*captured.Width),(float)(strip.Bounds.Height/crop.Height*captured.Height));
       double scale=Math.Min(strip.Bit==16?4.0:strip.Bit>=4?4.0:strip.Bit==1?3.0:2.4,Math.Min((double)_engine.MaxImageDimension/source.Width,Math.Sqrt((strip.Bit==2?750000d:1_000_000d)/(source.Width*source.Height))));
@@ -542,6 +578,56 @@ internal static class Program
       coverage|=strip.Bit;
     }
     return(blocks,coverage);
+  }
+
+  private static readonly double[] ScoreboardSeatCenters=[550,638,726,814,1106,1194,1282,1370];
+  /**
+   * Whether the expanded scoreboard may be up, by either of two cues, so a scoreboard is never left unread for want of one:
+   * the seat columns' flat panel just below the portraits (luminance spread under 6 on at least five of the eight seats;
+   * 0.4-5.7 on 9 of the 10 saved scoreboard frames, mostly 8-60 over the world), or a word of four letters in the
+   * player-name row (all 10, including the one whose panels let a bright world show through). The plain HUD and the draft
+   * without it rarely pass either; a pass only runs the scoreboard passes as before.
+   */
+  private static bool ScoreboardRowsVisible(Bitmap captured,NormalizedRect crop,int clientWidth,int clientHeight,IReadOnlyList<OcrBlock> blocks)
+  {
+    int flat=0;
+    foreach(double center in ScoreboardSeatCenters)
+    {
+      var area=NativeMatchReader.Design(center-30,100,60,18,clientWidth,clientHeight);
+      if(!NativeMatchReader.Contains(crop,area)||InkPatch(captured,crop,area,1) is not { } patch)continue;
+      double sum=0,squares=0;int count=patch.Width*patch.Height;
+      for(int index=0;index<count;index++)
+      {double value=.299*patch.Pixels[index*4+2]+.587*patch.Pixels[index*4+1]+.114*patch.Pixels[index*4];sum+=value;squares+=value*value;}
+      double mean=sum/count;
+      if(Math.Sqrt(Math.Max(0,squares/count-mean*mean))<6)flat++;
+    }
+    if(flat>=5)return true;
+    var nameRow=NativeMatchReader.Design(500,100,920,70,clientWidth,clientHeight);
+    return blocks.SelectMany(block=>block.Words.Count>0?block.Words:[new TextWord(block.Text,block.Bounds)])
+      .Any(word=>Inside(nameRow,word.Bounds)&&System.Text.RegularExpressions.Regex.IsMatch(word.Text,"[A-Za-z]{4}"))
+      ||blocks.Any(block=>block.Bounds.Y<.3&&System.Text.RegularExpressions.Regex.IsMatch(LabelKey(block.Text),"^k ?d ?a$|kills"));
+  }
+
+  private static readonly System.Text.RegularExpressions.Regex RoundTitle=new("round ?([1-5])\\b");
+  /** Cream title lettering (~240,230,210) as dark ink; the blue, teal and grey world behind the top bar stays white. */
+  static byte Cream(byte red,byte green,byte blue)=>(byte)(255-Math.Clamp((Math.Min(Math.Min(red,green),blue+50)-2*Math.Max(0,blue-red)-150)*3,0,255));
+  /**
+   * Bit 64: the round title under the timer (1080p design 840-1080 x 36-64). Read at 3x with the cream ink isolated; a
+   * "ROUND N" found there replaces the full-frame fragments on that row. Nothing is reported when the number is unread.
+   */
+  private static async Task<IReadOnlyList<OcrBlock>> ReadRoundTitle(Bitmap captured,NormalizedRect crop,int clientWidth,int clientHeight,IReadOnlyList<OcrBlock> blocks)
+  {
+    var area=NativeMatchReader.Design(840,36,240,28,clientWidth,clientHeight);
+    if(!NativeMatchReader.Contains(crop,area))return blocks;
+    var lines=await ReadInkStrip(captured,crop,area,3,Cream,.01);
+    if(lines.Count==0)return blocks;
+    var match=RoundTitle.Match(LabelKey(string.Join(" ",lines.Select(line=>line.Text))));
+    if(!match.Success)return blocks;
+    var bounds=Union(lines.Select(line=>line.Bounds));
+    var result=blocks.Where(block=>!Inside(area,block.Bounds)).ToList();
+    var text=$"ROUND {match.Groups[1].Value}";
+    result.Add(new OcrBlock(text,bounds,[new TextWord(text,bounds)]));
+    return result.Take(256).ToArray();
   }
 
   // Street Brawl option panels at 1080p design (IconMatcher.CardPanels): each card's name row sits 240-295px below its panel's top.
@@ -943,6 +1029,7 @@ internal static class Program
       }
     }
     var canvasPixels=Pixels(canvas);
+    using var numericStage=Profile.Time("numeric.ocr");
     var result=await _engine.RecognizeAsync(canvasPixels,canvas.Width,canvas.Height);
     var observed=ExtractBlocks(result,new NormalizedRect(0,0,1,1),canvas.Width,canvas.Height);
     var derived=new List<OcrBlock>();

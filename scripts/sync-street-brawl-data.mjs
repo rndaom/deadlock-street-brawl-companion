@@ -8,8 +8,14 @@ const bundle = await build({ entryPoints: ['src/screen/street-brawl-fetch.ts'], 
 const { fetchStreetBrawlData } = await import(`data:text/javascript;base64,${Buffer.from(bundle.outputFiles[0].text).toString('base64')}`);
 const contextCatalog = JSON.parse(await fs.readFile(new URL('../data/context-catalog.json', import.meta.url), 'utf8'));
 const slots = new Map(contextCatalog.abilities.map(ability => [String(ability.numericId), ability.slot]));
-const output = await fetchStreetBrawlData(slots);
 const target = new URL('../data/street-brawl-data.json', import.meta.url);
+const previous = await fs.readFile(target, 'utf8').then(JSON.parse, () => ({}));
+const output = await fetchStreetBrawlData(slots);
+// Enhanced splits and item pairs are heavy queries the API often answers with a 504: keep the previous copy
+// rather than ship data without them (the app does the same, keepEarlierExtras in street-brawl-data.ts).
+const kept = ['enhanced', 'itemPairs'].filter(key => output[key] === undefined && previous[key] !== undefined);
+for (const key of kept) output[key] = previous[key];
+if (kept.length) console.log(`Kept the previous ${kept.join(' and ')} (request failed); rerun later for fresh ones.`);
 await fs.writeFile(new URL('../data/street-brawl-data.json.tmp', import.meta.url), `${JSON.stringify(output)}\n`);
 await fs.rename(new URL('../data/street-brawl-data.json.tmp', import.meta.url), target);
 const wide = Object.values(output.heroes).filter(hero => hero.wideWindow).map(hero => hero.name);

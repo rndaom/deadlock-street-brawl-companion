@@ -424,6 +424,29 @@ describe('round number evidence (real 2026-10-18 matches)', () => {
     // The HUD title still decides once read.
     expect(fresh([at(0, { phase: 'draft', pickStage: 1 }), at(60_000, { round: 1, phase: 'combat' }), at(200_000, { round: 2, phase: 'combat' })]).round).toBe(2);
   });
+  it('takes the first draft as round 1 after the brief spawn HUD that follows the loading screen (2026-11-15 01:35, 2026-11-21 15:01)', () => {
+    const fresh = (frames: ScreenMatchObservation[]) => frames.reduce((state, value) => reduceScreenMatchContext(state, value, value.receivedAt),
+      forgetMatchRound(createInitialScreenMatchContext(), true));
+    // Real: loading 01:35:14, HUD frames 01:35:25-30 (no "ROUND 1" read), draft 01:35:31; the whole draft ran without a round.
+    expect(fresh([at(0, { phase: 'combat' }), at(1_000, { phase: 'combat' }), at(5_000, { phase: 'combat' }),
+      at(6_300, { phase: 'draft' }), at(7_000, { phase: 'draft', pickStage: 1 })]).round).toBe(1);
+    // Combat that lasts is a match joined late: no round is guessed.
+    expect(fresh([at(0, { phase: 'combat' }), at(16_000, { phase: 'combat' }), at(18_000, { phase: 'draft', pickStage: 1 })]).round).toBeNull();
+  });
+  it('advances the round from a draft up to eight minutes after the previous one (2026-11-15 20:52, 2026-11-16 03:25: 351-355 s)', () => {
+    const state = run([at(0, { round: 1, phase: 'draft', pickStage: 1 }), at(20_000, { phase: 'draft', pickStage: 3 }),
+      at(60_000, { round: 1, phase: 'combat' }), at(370_000, { phase: 'combat' }), at(371_000, { phase: 'draft', pickStage: 1 })]);
+    expect(state.round).toBe(2);
+  });
+  it('lets the next draft advance after a draft that stayed a round behind until "ROUND N" was read just after it (2026-11-16 03:27)', () => {
+    // The round-2 draft was not advanced (here: too long after the last one); "ROUND 2" is read 12 s after it closed.
+    const behind = [at(0, { round: 1, phase: 'draft', pickStage: 1 }), at(60_000, { round: 1, phase: 'combat' }),
+      at(500_000, { phase: 'combat' }), at(560_000, { phase: 'draft', pickStage: 1 }), at(578_000, { phase: 'draft', pickStage: 3 }),
+      at(590_000, { round: 2, phase: 'combat' })];
+    expect(run(behind).round).toBe(2);
+    // Real: the round-3 draft 2.5 min later stayed round 2 for the whole draft.
+    expect(run([...behind, at(650_000, { phase: 'combat' }), at(740_000, { phase: 'draft', pickStage: 1 })]).round).toBe(3);
+  });
   it('does not advance the round from a draft long after the previous one (a different match)', () => {
     const state = run([at(0, { round: 3, phase: 'draft', pickStage: 1 }), at(60_000, { phase: 'combat' }), at(700_000, { phase: 'draft', pickStage: 1 })]);
     expect(state.round).toBe(3);

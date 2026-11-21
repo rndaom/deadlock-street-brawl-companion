@@ -179,8 +179,10 @@ export interface ScreenRoundTracking {
   inferredAt: number | null;
   /** The last draft's round before a lower HUD read replaced it; restored if the HUD returns to it. */
   loweredDraftRound?: number | null;
-  /** A new match's loading screen was seen and no combat or round since: its first draft is round 1's. */
+  /** A new match's loading screen was seen and no round or lasting combat since: its first draft is round 1's. */
   matchStart?: boolean;
+  /** Capture time of the first HUD (combat) frame after the match start: the spawn HUD shows a few seconds before the first draft. */
+  matchStartCombatAt?: number | null;
 }
 export interface ScreenPlayerObservation {
   seat: number; team?: ScreenTeam | null; heroId?: string | null; isLocal?: boolean | null;

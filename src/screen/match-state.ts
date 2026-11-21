@@ -175,8 +175,12 @@ function clearOwn(context: ScreenMatchContext): ScreenMatchContext {
 export const MAX_STREET_BRAWL_ROUNDS = Math.max(1, 2 * (CONTEXT_CATALOG.streetBrawl.scoreToWin || 3) - 1);
 /** A draft that opens this long after the previous draft frame, with combat in between, is the next round's. */
 export const ROUND_DRAFT_GAP_MS = 20_000;
-/** The round is advanced by a new draft only when the previous draft was this recent (a round is a few minutes). */
-export const ROUND_DRAFT_MAX_GAP_MS = 300_000;
+/** The round is advanced by a new draft only when the previous draft was this recent. Real 2026-11-15/16 matches: rounds
+ * ran up to 355 s from the end of one draft to the next (a 300 s limit left two drafts a round behind); a new match is
+ * told apart by its loading screen, roster or "ROUND 1", not by this gap. */
+export const ROUND_DRAFT_MAX_GAP_MS = 480_000;
+/** The spawn HUD of a new match shows for a few seconds before its first draft (2026-11-15/21: 5-6 s after loading). */
+export const MATCH_START_HUD_MS = 15_000;
 /** A lower score replaces the kept one only after this many agreeing reads (a past misread stays correctable). */
 const SCORE_LOWER_READS = 3;
 /** A lower round (not 1) replaces the kept one after this many agreeing reads: a one-off "ROUND N+1" misread
@@ -229,9 +233,15 @@ function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): 
     }
   }
   const phase = usable('phase') ? frame.phase : undefined;
+  // The new match's spawn HUD shows briefly before its first draft (real 2026-11-15/21 matches: the first draft ran
+  // without a round because those HUD frames ended the match start); combat that lasts longer is a match joined late.
+  const startHud = tracking.matchStartCombatAt ?? null;
+  // (Frames of the first draft itself, once it opened in time, keep it until its "Choice 1 of 3" is read.)
+  if (tracking.matchStart && startHud !== null && (phase !== 'draft' || tracking.lastDraftAt === null)
+    && frame.capturedAt - startHud >= MATCH_START_HUD_MS) tracking.matchStart = false;
   if (phase === 'draft') {
     const stage = usable('pickStage') ? frame.pickStage ?? null : null;
-    // A new match's first draft, before any combat or round title, is round 1's (real 2026-11-01 match: 53 s without a round).
+    // A new match's first draft, before any round title or lasting combat, is round 1's (real 2026-11-01 match: 53 s without a round).
     if (tracking.matchStart && stage !== null && read === null && previous === null) { round = 1; inferred = true; }
     if (tracking.combatSinceDraft && stage !== null) {
       if (stage === 1 && read === null && previous !== null && tracking.roundAtLastDraft === previous && previous < MAX_STREET_BRAWL_ROUNDS
@@ -246,7 +256,13 @@ function decideRound(state: ScreenMatchContext, frame: ScreenMatchObservation): 
   } else if (phase === 'combat' && (tracking.lastDraftAt === null || frame.capturedAt - tracking.lastDraftAt >= ROUND_DRAFT_GAP_MS)) {
     tracking.combatSinceDraft = true;
   }
-  if (phase === 'combat' || previous !== null || round !== undefined || restart) tracking.matchStart = false;
+  if (phase === 'combat' && tracking.matchStart && startHud === null) tracking.matchStartCombatAt = frame.capturedAt;
+  if (previous !== null || round !== undefined || restart) tracking.matchStart = false;
+  if (!tracking.matchStart) tracking.matchStartCombatAt = null;
+  // A round title read on the HUD right after a draft (no lasting combat since) is that draft's round: the draft ran a
+  // round behind (2026-11-16 03:25: "ROUND 2" read 12 s after a draft kept as round 1), and the next draft must still advance it.
+  if (round !== undefined && previous !== null && round === previous + 1 && !inferred && phase !== 'draft' && !tracking.combatSinceDraft
+    && tracking.lastDraftAt !== null && tracking.roundAtLastDraft === previous) tracking.roundAtLastDraft = round;
   // A lowered round also lowers the round of the last draft, so the next round's draft still advances it.
   // If that lower read was the misread (the HUD returns to the old round before another draft), the draft's round comes back.
   if (lowered && round !== undefined && draftRoundBefore !== null && draftRoundBefore > round) {

@@ -1,105 +1,105 @@
 {
   "schemaVersion": 1,
-  "clientVersion": "6861",
-  "revision": "11219368",
-  "catalogSha256": "3963866feb43584c7a26db505685b99fdaf7631bb3b562b9f0e1a103a0290c4f",
-  "sourceArchive": "catalog-sources/client-6861-8d68a57afa36acd5",
+  "clientVersion": "6864",
+  "revision": "11254827",
+  "catalogSha256": "6c36398c2e01e37f0ed923889c823f99389656bdf1cd5ab335a6c83e5853b7c1",
+  "sourceArchive": "catalog-sources/client-6864-b48f1b7f852c6c35",
   "sources": [
     {
       "name": "steam-info",
-      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/steam-info.json",
-      "sha256": "a86e575ed300d6329bd17a892fdf3960f0a6384fd37c30aea9ed071e9118eb4d",
-      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6861"
+      "file": "data/catalog-sources/client-6864-b48f1b7f852c6c35/steam-info.json",
+      "sha256": "748d416c224f7041df7c70ee41456d3782c5d48e60089f33f2704b3dc9ede704",
+      "url": "https://api.deadlock-api.com/v1/assets/steam-info?client_version=6864"
     },
     {
       "name": "items",
-      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/items.json",
-      "sha256": "ed77a501256bee9cdd862948ea736e89afad62392461bc3a978dc9d0bbc7a4f4",
-      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6861"
+      "file": "data/catalog-sources/client-6864-b48f1b7f852c6c35/items.json",
+      "sha256": "872fb496749fd7531d03b689967eaa1a689bc0490de4bd41e9d1452abc23a6ce",
+      "url": "https://api.deadlock-api.com/v1/assets/items?language=english&client_version=6864"
     },
     {
       "name": "heroes",
-      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/heroes.json",
-      "sha256": "b81ee8edc0584a18d5d7dda746f58092a2d88db42fa246131cd4ac474bd64c6a",
-      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6861"
+      "file": "data/catalog-sources/client-6864-b48f1b7f852c6c35/heroes.json",
+      "sha256": "77c4745ed95015ccbdcd71d76abcc10207de1b88dc404a1bd42a26b90abf0f64",
+      "url": "https://api.deadlock-api.com/v1/assets/heroes?language=english&client_version=6864"
     },
     {
       "name": "generic-data",
-      "file": "data/catalog-sources/client-6861-8d68a57afa36acd5/generic-data.json",
+      "file": "data/catalog-sources/client-6864-b48f1b7f852c6c35/generic-data.json",
       "sha256": "efed0a75190190f552301d0172266a9131b2f566633027ea433241efe0b1a13e",
-      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6861"
+      "url": "https://api.deadlock-api.com/v1/assets/generic-data?language=english&client_version=6864"
     },
     {
       "name": "valve-convars.txt",
-      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/convars.txt",
+      "file": "data/context-sources/steamtracking-554634163b8c55d4e3fde34fe1a277357bcd3d98/convars.txt",
       "sha256": "9163ebb202d3a757d0c1553eee85e295e32a294011f18f151596760691f695d7",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/DumpSource2/convars.txt"
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/554634163b8c55d4e3fde34fe1a277357bcd3d98/DumpSource2/convars.txt"
     },
     {
       "name": "valve-abilities.vdata",
-      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/abilities.vdata",
+      "file": "data/context-sources/steamtracking-554634163b8c55d4e3fde34fe1a277357bcd3d98/abilities.vdata",
       "sha256": "5f1e89f5c7bcc91429a87f429910e3ddbaf3ddf2b56b0f6830ca7c2a3f026ffe",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/pak01_dir/scripts/abilities.vdata"
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/554634163b8c55d4e3fde34fe1a277357bcd3d98/game/citadel/pak01_dir/scripts/abilities.vdata"
     },
     {
       "name": "valve-citadel_hud_ability_upgrade_button.xml",
-      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/citadel_hud_ability_upgrade_button.xml",
+      "file": "data/context-sources/steamtracking-554634163b8c55d4e3fde34fe1a277357bcd3d98/citadel_hud_ability_upgrade_button.xml",
       "sha256": "3e33eb188e1e63efe13bac9567c644561b3547897de06ef9dbf359be2fe7fe06",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_button.xml"
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/554634163b8c55d4e3fde34fe1a277357bcd3d98/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_button.xml"
     },
     {
       "name": "valve-citadel_hud_ability_upgrade_pips.xml",
-      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/citadel_hud_ability_upgrade_pips.xml",
+      "file": "data/context-sources/steamtracking-554634163b8c55d4e3fde34fe1a277357bcd3d98/citadel_hud_ability_upgrade_pips.xml",
       "sha256": "374c8afa3261a3cdad6f7826f0110bec45a5745862dace86952802ab18a92517",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_pips.xml"
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/554634163b8c55d4e3fde34fe1a277357bcd3d98/game/citadel/pak01_dir/panorama/layout/citadel_hud_ability_upgrade_pips.xml"
     },
     {
       "name": "valve-steam.inf",
-      "file": "data/context-sources/steamtracking-82735ebcc9c89d1b3f6b3262c23c9580798ad362/steam.inf",
-      "sha256": "e741729d28a1f77a7dc62ecc89155fc00d6dcf13807998189768de381f6125c5",
-      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/82735ebcc9c89d1b3f6b3262c23c9580798ad362/game/citadel/steam.inf"
+      "file": "data/context-sources/steamtracking-554634163b8c55d4e3fde34fe1a277357bcd3d98/steam.inf",
+      "sha256": "02dc863058bd820da528e998ea71e5d956154ad2ff0b7488d952d7679b48dadb",
+      "url": "https://raw.githubusercontent.com/SteamTracking/GameTracking-Deadlock/554634163b8c55d4e3fde34fe1a277357bcd3d98/game/citadel/steam.inf"
     },
     {
       "name": "installed-steam.inf",
       "file": "data/context-sources/installed-client-6745-11078118/steam.inf",
       "sha256": "39baf9fa7b984073b870ee7e554b1fcb469abcddc4094b7a262d692fb0aa3969",
-      "url": "valve-resource://6861/steam.inf"
+      "url": "valve-resource://6864/steam.inf"
     },
     {
       "name": "installed-ability_upgrade_check_psd.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/ability_upgrade_check_psd.vtex_c",
       "sha256": "c5341049cccc2fe2631b221e9d65564c36d508dc666a4f3c543c3221743a2dc1",
-      "url": "valve-resource://6861/panorama/images/hud/ability_upgrade_check_psd.vtex_c"
+      "url": "valve-resource://6864/panorama/images/hud/ability_upgrade_check_psd.vtex_c"
     },
     {
       "name": "installed-hero_ability_pip_psd.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/hero_ability_pip_psd.vtex_c",
       "sha256": "fa3188d229869ea781ebfe14aaa69cc3d5f2c586834a778bafdb68c5312e3767",
-      "url": "valve-resource://6861/panorama/images/hud/hero_ability_pip_psd.vtex_c"
+      "url": "valve-resource://6864/panorama/images/hud/hero_ability_pip_psd.vtex_c"
     },
     {
       "name": "installed-hero_ability_pip_empty_psd.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/hero_ability_pip_empty_psd.vtex_c",
       "sha256": "9f320cc3b82e83b41d899129d7506a73efb60f72a3d4bbd95eef3d6b7d3c6605",
-      "url": "valve-resource://6861/panorama/images/hud/hero_ability_pip_empty_psd.vtex_c"
+      "url": "valve-resource://6864/panorama/images/hud/hero_ability_pip_empty_psd.vtex_c"
     },
     {
       "name": "installed-ap_icon.vsvg_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/ap_icon.vsvg_c",
       "sha256": "908504ad8dddc0fe8657cb4d830b8a95a72083fb68ad702bb833bd8a5c087a4c",
-      "url": "valve-resource://6861/panorama/images/hud/ap_icon.vsvg_c"
+      "url": "valve-resource://6864/panorama/images/hud/ap_icon.vsvg_c"
     },
     {
       "name": "installed-spec_icon_png.vtex_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/spec_icon_png.vtex_c",
       "sha256": "6c708a320da55fd0d3554274e227f6ea39abd290a16c335d8c902ce2f9492937",
-      "url": "valve-resource://6861/panorama/images/hud/spec_icon_png.vtex_c"
+      "url": "valve-resource://6864/panorama/images/hud/spec_icon_png.vtex_c"
     },
     {
       "name": "installed-citadel_hud_top_bar_player.vxml_c",
       "file": "data/context-sources/installed-client-6745-11078118/raw/citadel_hud_top_bar_player.vxml_c",
       "sha256": "032d3756da12107a81c63c8cf577db42bb47fe1fa8bae31eb4d11eb1ea0badb1",
-      "url": "valve-resource://6861/panorama/layout/citadel_hud_top_bar_player.vxml_c"
+      "url": "valve-resource://6864/panorama/layout/citadel_hud_top_bar_player.vxml_c"
     }
   ],
   "heroes": [
@@ -5673,9 +5673,9 @@
         "burstShotCount": 1,
         "clipSize": 14,
         "reloadDuration": 2.5,
-        "damagePerSecond": 53.333333333333336,
-        "damagePerSecondWithReload": 40.542986425339365,
-        "shotsPerSecond": 1.6666666666666667,
+        "damagePerSecond": 64,
+        "damagePerSecondWithReload": 45.94871794871795,
+        "shotsPerSecond": 2,
         "ratesAreProviderDerived": true,
         "sourcePointer": "items.json#/382/weapon_info"
       },
@@ -6340,9 +6340,9 @@
         "burstShotCount": 1,
         "clipSize": 26,
         "reloadDuration": 2.8,
-        "damagePerSecond": 38.666666666666664,
-        "damagePerSecondWithReload": 28.055813953488368,
-        "shotsPerSecond": 3.333333333333333,
+        "damagePerSecond": 58,
+        "damagePerSecondWithReload": 36.557575757575755,
+        "shotsPerSecond": 5,
         "ratesAreProviderDerived": true,
         "sourcePointer": "items.json#/773/weapon_info"
       },
@@ -7679,9 +7679,9 @@
         "burstShotCount": 1,
         "clipSize": 8,
         "reloadDuration": 3,
-        "damagePerSecond": 43.47826086956522,
-        "damagePerSecondWithReload": 25.72347266881029,
-        "shotsPerSecond": 1.7391304347826089,
+        "damagePerSecond": 50,
+        "damagePerSecondWithReload": 27.586206896551722,
+        "shotsPerSecond": 2,
         "ratesAreProviderDerived": true,
         "sourcePointer": "items.json#/747/weapon_info"
       },
@@ -7899,9 +7899,9 @@
         "burstShotCount": 1,
         "clipSize": 8,
         "reloadDuration": 2.4,
-        "damagePerSecond": 35.29411764705882,
-        "damagePerSecondWithReload": 23.88059701492537,
-        "shotsPerSecond": 1.4705882352941175,
+        "damagePerSecond": 38.095238095238095,
+        "damagePerSecondWithReload": 24.967490247074124,
+        "shotsPerSecond": 1.5873015873015872,
         "ratesAreProviderDerived": true,
         "sourcePointer": "items.json#/383/weapon_info"
       },

@@ -1,8 +1,8 @@
 {
-  "clientVersion": "6861",
-  "revision": "11219368",
+  "clientVersion": "6864",
+  "revision": "11254827",
   "source": "Community Deadlock API parsing Valve assets; not an official Valve API",
-  "retrievedAt": "2026-11-14T14:42:22.783Z",
+  "retrievedAt": "2026-11-21T14:58:43.449Z",
   "items": [
     {
       "id": "upgrade_active_reload",
@@ -2336,7 +2336,7 @@
       "id": "hero_dynamo",
       "numericId": "11",
       "name": "Dynamo",
-      "role": "unknown",
+      "role": "healer",
       "tags": [
         "mobility",
         "spirit",
@@ -2405,7 +2405,7 @@
       "id": "hero_tengu",
       "numericId": "20",
       "name": "Ivy",
-      "role": "unknown",
+      "role": "healer",
       "tags": [
         "crowd-control",
         "healing",
@@ -2418,7 +2418,7 @@
       "id": "hero_kelvin",
       "numericId": "12",
       "name": "Kelvin",
-      "role": "unknown",
+      "role": "healer",
       "tags": [
         "control-resist",
         "crowd-control",
@@ -2504,7 +2504,7 @@
       "id": "hero_nurse",
       "numericId": "87",
       "name": "Nurse Harrow",
-      "role": "unknown",
+      "role": "healer",
       "tags": [
         "crowd-control",
         "healing",
@@ -2517,7 +2517,7 @@
       "id": "hero_bookworm",
       "numericId": "67",
       "name": "Paige",
-      "role": "unknown",
+      "role": "healer",
       "tags": [
         "crowd-control",
         "healing",
@@ -2566,7 +2566,7 @@
       "id": "hero_familiar",
       "numericId": "79",
       "name": "Rem",
-      "role": "unknown",
+      "role": "healer",
       "tags": [
         "crowd-control",
         "spirit",
@@ -2755,5 +2755,5 @@
     }
   ],
   "liveModelValidated": false,
-  "modelVersion": "descriptive-tags-v1-client-6861"
+  "modelVersion": "descriptive-tags-v1-client-6864"
 }

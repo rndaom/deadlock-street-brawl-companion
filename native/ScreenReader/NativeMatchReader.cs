@@ -432,35 +432,65 @@ internal sealed class NativeMatchReader
     {int index=((top+y)*width+left+x)*4;mask[y*w+x]=Teal(pixels[index+2],pixels[index+1],pixels[index]);}
     var blobs=TealBlobs(mask,w,h,Math.Max(4,(int)(6*k*k)));
     // The glyph: about 15px square, hollow (outline and eye), and in the left half of the area.
-    TealBlob? glyph=null;
-    foreach(var blob in blobs.OrderBy(blob=>blob.Left))
+    TealBlob? Glyph(List<TealBlob> candidates,bool[] ink)
     {
-      double bw=blob.Width/k,bh=blob.Height/k,fill=blob.Count/(double)(blob.Width*blob.Height);
-      if(bw is <11 or >20||bh is <11 or >20||bw/bh is <.72 or >1.38||fill is <.22 or >.65)continue;
-      if(blob.Left/k>60||Holes(mask,w,blob).Count==0)continue;
-      glyph=blob;break;
+      foreach(var blob in candidates.OrderBy(blob=>blob.Left))
+      {
+        double bw=blob.Width/k,bh=blob.Height/k,fill=blob.Count/(double)(blob.Width*blob.Height);
+        if(bw is <11 or >20||bh is <11 or >20||bw/bh is <.72 or >1.38||fill is <.22 or >.65)continue;
+        if(blob.Left/k>60||Holes(ink,w,blob).Count==0)continue;
+        return blob;
+      }
+      return null;
     }
-    if(glyph is null)return null;
     // Digits: blobs starting 2-16px after the glyph, as tall as the glyph (+/-), sharing its rows, at most 3, gaps <9px.
-    var digits=new List<TealBlob>();int edge=glyph.Right;
-    foreach(var blob in blobs.Where(blob=>blob.Left>glyph.Right).OrderBy(blob=>blob.Left))
+    List<TealBlob>? Digits(TealBlob glyph)
     {
-      double bh=blob.Height/k,gap=(blob.Left-edge)/k;
-      if(gap>(digits.Count==0?16:9))break;
-      if(bh is <12 or >22||blob.Width/k is <2.5 or >20)continue;
-      int overlap=Math.Min(blob.Bottom,glyph.Bottom+(int)(3*k))-Math.Max(blob.Top,glyph.Top-(int)(3*k));
-      if(overlap<blob.Height*.8)continue;
-      if(digits.Count==0&&gap<2)continue;
-      digits.Add(blob);edge=blob.Right;
-      if(digits.Count>3)return null;
+      var digits=new List<TealBlob>();int edge=glyph.Right;
+      foreach(var blob in blobs.Where(blob=>blob.Left>glyph.Right).OrderBy(blob=>blob.Left))
+      {
+        double bh=blob.Height/k,gap=(blob.Left-edge)/k;
+        if(gap>(digits.Count==0?16:9))break;
+        if(bh is <12 or >22||blob.Width/k is <2.5 or >20)continue;
+        int overlap=Math.Min(blob.Bottom,glyph.Bottom+(int)(3*k))-Math.Max(blob.Top,glyph.Top-(int)(3*k));
+        if(overlap<blob.Height*.8)continue;
+        if(digits.Count==0&&gap<2)continue;
+        digits.Add(blob);edge=blob.Right;
+        if(digits.Count>3)return null;
+      }
+      return digits;
     }
-    if(digits.Count==0)return null;
+    TealBlob? glyph=Glyph(blobs,mask);
+    var digits=glyph is null?[]:Digits(glyph);
+    if(digits is null)return null;
+    // Over a bright world the glyph's thin outline blends out of the teal range and breaks open (no hole, under a
+    // fifth filled), and the "0" after it, a hollow blob of the same size, was taken for the glyph: 4 of the 7
+    // unread counters on the saved 2026-11-05/06 frames. The glyph is then looked for once more with its one-pixel
+    // gaps closed, left of whatever the first look took; the digits are still the plain teal blobs.
+    if(digits.Count==0)
+    {
+      var closed=new bool[mask.Length];
+      for(int y=0;y<h;y++)for(int x=0;x<w;x++)
+      {
+        if(!mask[y*w+x])continue;
+        for(int dy=Math.Max(0,y-1);dy<=Math.Min(h-1,y+1);dy++)for(int dx=Math.Max(0,x-1);dx<=Math.Min(w-1,x+1);dx++)closed[dy*w+dx]=true;
+      }
+      var mended=Glyph(TealBlobs(closed,w,h,Math.Max(4,(int)(6*k*k))),closed);
+      if(mended is null||glyph is not null&&mended.Right>=glyph.Left)return null;
+      glyph=mended;digits=Digits(glyph);
+      if(digits is null)return null;
+    }
+    if(glyph is null||digits.Count==0)return null;
     NormalizedRect Normal(int x0,int y0,int x1,int y1)=>new(crop.X+(left+x0)/(double)width*crop.Width,crop.Y+(top+y0)/(double)height*crop.Height,
       (x1-x0+1)/(double)width*crop.Width,(y1-y0+1)/(double)height*crop.Height);
     var bounds=Normal(glyph.Left,Math.Min(glyph.Top,digits.Min(d=>d.Top)),digits[^1].Right,Math.Max(glyph.Bottom,digits.Max(d=>d.Bottom)));
     var shapes=digits.Select(digit=>DigitShape(mask,w,digit)).ToArray();
     if(BrawlDebug)Console.Error.WriteLine($"ap: glyph {glyph.Width}x{glyph.Height} digits {string.Join(' ',digits.Select((d,i)=>$"{d.Width}x{d.Height}:{shapes[i]}"))}");
     if(digits.Count==1&&shapes[0]=='0')return new(0,.95,bounds);
+    // A "1" is the only narrow digit without a hole (5-6 x 17px; every other is 10px or wider), so 1, 10 and 11 are read by
+    // shape alone like 0. OCR returned nothing for the lone teal "1" on every saved frame that showed one.
+    if(digits.Count<=2&&shapes.All(shape=>shape is '0' or '1')&&(digits.Count==1||shapes[0]=='1'))
+      return new(int.Parse(new string(shapes)),.95,bounds);
     // Other amounts: the OCR'd number inside the digits' box must match the blob topology digit by digit.
     var digitBox=Normal(digits[0].Left,digits.Min(d=>d.Top),digits[^1].Right,digits.Max(d=>d.Bottom));
     // The counter sits a few pixels above the client's bottom edge: the padding is clipped to the capture.
@@ -477,11 +507,11 @@ internal sealed class NativeMatchReader
   /** OCR letters that the digit-only AP field can only mean as digits. */
   internal static string DigitText(string key)=>new(key.Replace(" ","").Select(character=>character switch
     {'o' or 'd' or 'q' or 'u'=>'0','l' or 'i' or 'j'=>'1','z'=>'2','s'=>'5','b'=>'8','g'=>'9','t'=>'7',_=>character}).ToArray());
-  /** Topology class of one digit blob: '0' one centred hole, '6' hole low, '9' hole high, '8' two holes, '-' none, '?' other. */
+  /** Topology class of one digit blob: '0' one centred hole, '6' hole low, '9' hole high, '8' two holes, '1' none and narrow, '-' none, '?' other. */
   private static char DigitShape(bool[] mask,int w,TealBlob digit)
   {
     var holes=Holes(mask,w,digit);
-    if(holes.Count==0)return '-';
+    if(holes.Count==0)return digit.Width<=digit.Height*.45?'1':'-';
     if(holes.Count==2)return '8';
     if(holes.Count!=1)return '?';
     // Hole coordinates are relative to the digit's own box.
@@ -493,7 +523,7 @@ internal sealed class NativeMatchReader
   }
   private static bool ShapeAllows(char shape,char digit)=>digit switch
   {
-    '0'=>shape=='0','8'=>shape=='8','6'=>shape is '6' or '0','9'=>shape is '9' or '0','4'=>shape is '-' or '9' or '?' or '0',
+    '0'=>shape=='0','8'=>shape=='8','6'=>shape is '6' or '0','9'=>shape is '9' or '0','4'=>shape is '-' or '9' or '?' or '0','1'=>shape is '1' or '-',
     >='1' and <='7'=>shape=='-',_=>false,
   };
   /**

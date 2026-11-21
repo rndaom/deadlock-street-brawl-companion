@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -137,6 +138,7 @@ internal sealed class IconMatcher
         if (scale < 0.15 || scale > 4) return Array.Empty<IconMatchRecord>();
         PixelBuffer? pixels = null;
         var found = new List<IconMatchRecord>();
+        using var stage = Profile.Time("icons.bonus");
         foreach (var (panelX, panelY) in CardPanels)
         {
             (double X, double Y) Point(double dx, double dy) => ((offset + (panelX + dx) * k - imageBounds.X * clientWidth) * sx, ((panelY + dy) * k - imageBounds.Y * clientHeight) * sy);
@@ -193,6 +195,7 @@ internal sealed class IconMatcher
         double scale = sy * k;
         if (scale < 0.15 || scale > 4) return found;
         PixelBuffer? pixels = null;
+        using var stage = Profile.Time("icons.cards");
         for (int slot = 0; slot < CardPanels.Length; slot++)
         {
             var (panelX, panelY) = CardPanels[slot];
@@ -254,6 +257,7 @@ internal sealed class IconMatcher
         // A template keeps its best coarse placement under each measure it is compared by: with a fitted brightness a
         // wrong placement can beat the right one at the coarse grid, and the fine pass only moves a placement by 2px.
         int[] measures = mode == Tolerant ? [Exact, Fitted] : [mode];
+        var coarseStage = Profile.Time("icons.card.coarse");
         var bestPerItem = new Candidate?[measures.Length][];
         for (int measure = 0; measure < measures.Length; measure++) bestPerItem[measure] = new Candidate?[templates.Length];
         foreach (double factor in round ? RoundFactors : SquareFactors)
@@ -272,7 +276,11 @@ internal sealed class IconMatcher
                 best[index] = new Candidate(index, square, distance);
             }
         }
+        coarseStage.Dispose();
+        using var fineStage = Profile.Time("icons.card.fine");
         var refined = new Dictionary<int, Match>();
+        // Candidates of different templates mostly share their best coarse placement, so each fine placement is sampled once.
+        var samples = new Dictionary<Square, Feature?>();
         foreach (Candidate candidate in bestPerItem.SelectMany(best => best).Where(value => value is not null).Select(value => value!)
             .Distinct().OrderBy(value => value.Distance).Take(mode == Exact ? 12 : 24))
         {
@@ -284,7 +292,7 @@ internal sealed class IconMatcher
             for (int dx = -2; dx <= 2; dx += 2)
             {
                 var square = candidate.Square with { X = candidate.Square.X + dx * scale, Y = candidate.Square.Y + dy * scale, Size = candidate.Square.Size * deltaScale };
-                var query = Sample(image, square, Grid, round);
+                if (!samples.TryGetValue(square, out var query)) samples[square] = query = Sample(image, square, Grid, round);
                 if (query is null) continue;
                 var template = round ? templates[candidate.TemplateIndex].RoundFine : templates[candidate.TemplateIndex].Fine;
                 double distance = Distance(query, template, double.PositiveInfinity, mode);
@@ -330,6 +338,7 @@ internal sealed class IconMatcher
     private Match? Search(PixelBuffer image, double predictedX, double predictedY, double size, double rotation, double scale)
     {
         if (size < 16) return null;
+        var coarseStage = Profile.Time("icons.bonus.coarse");
         var bestPerItem = new Candidate?[templates.Length];
         var scaleFactors = new[] { 0.9, 1.0, 1.1 };
         var rotations = new[] { rotation - 4, rotation, rotation + 4 };
@@ -348,8 +357,11 @@ internal sealed class IconMatcher
                 bestPerItem[index] = new Candidate(index, square, distance);
             }
         }
+        coarseStage.Dispose();
+        using var fineStage = Profile.Time("icons.bonus.fine");
         var shortlist = bestPerItem.Where(value => value is not null).Select(value => value!).OrderBy(value => value.Distance).Take(24);
         var refined = new List<Match>(24);
+        var samples = new Dictionary<Square, Feature?>();
         foreach (Candidate candidate in shortlist)
         {
             double bestDistance = double.PositiveInfinity;
@@ -359,7 +371,7 @@ internal sealed class IconMatcher
             for (int dx = -2; dx <= 2; dx += 2)
             {
                 var square = candidate.Square with { X = candidate.Square.X + dx * scale, Y = candidate.Square.Y + dy * scale, Size = candidate.Square.Size * deltaScale };
-                var query = Sample(image, square, Grid);
+                if (!samples.TryGetValue(square, out var query)) samples[square] = query = Sample(image, square, Grid);
                 if (query is null) continue;
                 double distance = Distance(query, templates[candidate.TemplateIndex].Fine);
                 if (distance < bestDistance) { bestDistance = distance; bestSquare = square; }
@@ -431,15 +443,25 @@ internal sealed class IconMatcher
         // Static category backgrounds cheaply reject unrelated icons before the shape comparison.
         // Larger colour changes remain unknown rather than using a shape-only optimistic match.
         double meanRed = left.MeanRed * gain - right.MeanRed, meanGreen = left.MeanGreen * gain - right.MeanGreen, meanBlue = left.MeanBlue * gain - right.MeanBlue;
-        if (meanRed * meanRed + meanGreen * meanGreen + meanBlue * meanBlue > 0.04) return double.PositiveInfinity;
+        double meanSquare = meanRed * meanRed + meanGreen * meanGreen + meanBlue * meanBlue;
+        if (meanSquare > 0.04) return double.PositiveInfinity;
         double total = 0, limit = maximum * left.Count;
-        for (int index = 0; index < left.Luma.Length; index++)
+        // Both features cover the same cells, so their colour differences cannot sum below Count times the squared
+        // difference of their means: such a pair would only leave the loop below over its limit. (Kept a hair under
+        // the limit so rounding never rejects a pair the loop would accept.)
+        if (0.15 * meanSquare * left.Count > limit * (1 + 1e-9)) return double.PositiveInfinity;
+        int cells = left.Luma.Length;
+        if (right.Luma.Length < cells || left.Color.Length < cells * 3 || right.Color.Length < cells * 3) throw new ArgumentException("feature");
+        // The same sums in the same order as plain indexing, without the per-element bounds checks.
+        ref double leftColor = ref MemoryMarshal.GetArrayDataReference(left.Color), rightColor = ref MemoryMarshal.GetArrayDataReference(right.Color);
+        ref double leftLuma = ref MemoryMarshal.GetArrayDataReference(left.Luma), rightLuma = ref MemoryMarshal.GetArrayDataReference(right.Luma);
+        for (int index = 0; index < cells; index++)
         {
             int colorIndex = index * 3;
-            double red = left.Color[colorIndex] * gain - right.Color[colorIndex];
-            double green = left.Color[colorIndex + 1] * gain - right.Color[colorIndex + 1];
-            double blue = left.Color[colorIndex + 2] * gain - right.Color[colorIndex + 2];
-            double luma = left.Luma[index] - right.Luma[index];
+            double red = Unsafe.Add(ref leftColor, colorIndex) * gain - Unsafe.Add(ref rightColor, colorIndex);
+            double green = Unsafe.Add(ref leftColor, colorIndex + 1) * gain - Unsafe.Add(ref rightColor, colorIndex + 1);
+            double blue = Unsafe.Add(ref leftColor, colorIndex + 2) * gain - Unsafe.Add(ref rightColor, colorIndex + 2);
+            double luma = Unsafe.Add(ref leftLuma, index) - Unsafe.Add(ref rightLuma, index);
             total += 0.15 * (red * red + green * green + blue * blue) + 0.55 * luma * luma;
             if (total > limit) return double.PositiveInfinity;
         }
@@ -525,9 +547,11 @@ internal sealed class IconMatcher
             int x0 = Math.Clamp((int)x, 0, Width - 2), y0 = Math.Clamp((int)y, 0, Height - 2);
             double dx = x - x0, dy = y - y0;
             int top = (y0 * Width + x0) * 4, bottom = top + Width * 4;
-            double Channel(int channel) => ((bytes[top + channel] * (1 - dx) + bytes[top + 4 + channel] * dx) * (1 - dy)
-                + (bytes[bottom + channel] * (1 - dx) + bytes[bottom + 4 + channel] * dx) * dy) / 255.0;
-            red = Channel(2); green = Channel(1); blue = Channel(0);
+            // x0 <= Width-2 and y0 <= Height-2 keep all four neighbours inside the buffer; the formula is unchanged.
+            ref byte upper = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(bytes), top), lower = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(bytes), bottom);
+            double Channel(ref byte upper, ref byte lower, int channel) => ((Unsafe.Add(ref upper, channel) * (1 - dx) + Unsafe.Add(ref upper, 4 + channel) * dx) * (1 - dy)
+                + (Unsafe.Add(ref lower, channel) * (1 - dx) + Unsafe.Add(ref lower, 4 + channel) * dx) * dy) / 255.0;
+            red = Channel(ref upper, ref lower, 2); green = Channel(ref upper, ref lower, 1); blue = Channel(ref upper, ref lower, 0);
         }
     }
 }

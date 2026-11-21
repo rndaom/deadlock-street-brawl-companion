@@ -1,6 +1,6 @@
 {
   "name": "deadlock-street-brawl-companion",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Street Brawl companion for Windows and Linux with visible team and build tracking and contextual item guidance",
   "author": "Street Brawl Companion",
   "private": true,

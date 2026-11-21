@@ -16,7 +16,7 @@ import { companionDisplayAwayFrom, overlapArea } from './display-placement';
 import { hyprlandDeviceScale } from './hyprland';
 import { DEFAULT_CAPTURE_REGION, validateCaptureRegion, type CaptureRegion, type ScreenReaderState } from '../src/shared/screen-reading';
 import { loadLocalPlayerNames } from './local-identity';
-import { coversCurrentWindow, isStreetBrawlData, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
+import { coversCurrentWindow, isStreetBrawlData, keepEarlierExtras, setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 import { fetchStreetBrawlData } from '../src/screen/street-brawl-fetch';
 import { CONTEXT_CATALOG } from '../src/shared/context-catalog';
 import { startUpdater, type UpdateState } from './updater';
@@ -146,7 +146,7 @@ function refreshStreetBrawlData(): Promise<void> {
     if (age() < STREET_BRAWL_REFRESH_MS) return;
     try {
       const slots = new Map((CONTEXT_CATALOG.abilities as unknown as { numericId: string | number; slot: number }[]).map(ability => [String(ability.numericId), ability.slot]));
-      const fresh = await fetchStreetBrawlData(slots);
+      const fresh = keepEarlierExtras(await fetchStreetBrawlData(slots));
       if (!setStreetBrawlData(fresh)) return;
       await mkdir(dirname(file), { recursive: true });
       await writeFile(`${file}.tmp`, JSON.stringify(fresh), 'utf8');

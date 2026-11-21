@@ -162,9 +162,10 @@ describe('automatic reader discovery under imperfect native scene classification
     const reads = harness.workers[0]!.requests.filter(({ request }) => request.op === 'read');
     expect(reads.length).toBeGreaterThan(5);
     for (let index = 1; index < reads.length; index++) {
-      // The draft is on screen from the first frame, so the draft's duty share applies.
+      // The draft is on screen from the first frame, so the draft's duty share applies; until its cards are read
+      // (the first card read after the cue), the deal-in share.
       expect(reads[index]!.startedAt - reads[index - 1]!.startedAt)
-        .toBeGreaterThanOrEqual(210 / SCREEN_READER_LIMITS.draftWorkerWallShare);
+        .toBeGreaterThanOrEqual(210 / (index === 1 ? SCREEN_READER_LIMITS.draftDealWorkerWallShare : SCREEN_READER_LIMITS.draftWorkerWallShare));
     }
     assertSingleContextWorker(harness);
   });

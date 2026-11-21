@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { abilityPlan } from '../src/screen/ability-plan';
 import { abilitySpend } from '../src/screen/ability-ranks';
 import { CONTEXT_CATALOG } from '../src/shared/context-catalog';
+import { setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 
 const abilityNames = (heroId: string) => (CONTEXT_CATALOG.abilities as unknown as { heroId: string; slot: number; name: string }[])
   .filter(ability => ability.heroId === heroId).sort((a, b) => a.slot - b.slot).map(ability => ability.name);
@@ -75,6 +76,19 @@ describe('Street Brawl ability upgrade plan', () => {
         }
       }
     }
+  });
+  it('needs a well-sampled win-rate lead before it suggests a less common step over the popular one', () => {
+    const bundled = streetBrawlData();
+    const plan = (alternative: { order: string; wins: number; matches: number }) => {
+      // Its own numbers: 400 games raise ability 1 first and win half; the alternative raises ability 2 first.
+      const abilityOrders = [{ order: '0011223', wins: 200, matches: 400 }, alternative];
+      expect(setStreetBrawlData({ ...bundled, heroes: { ...bundled.heroes, hero_haze: { ...bundled.heroes.hero_haze!, abilityOrders } } })).toBe(true);
+      try { return abilityPlan('hero_haze', [0, 0, 0, 0])!.slot; } finally { setStreetBrawlData(bundled); }
+    };
+    // 56% of 50 games is within noise of 50% (held out, such leads won only half the time): the popular step stays.
+    expect(plan({ order: '1100223', wins: 28, matches: 50 })).toBe(0);
+    // 56% of 300 games is a lead that holds up.
+    expect(plan({ order: '1100223', wins: 168, matches: 300 })).toBe(1);
   });
   it('rejects malformed levels', () => {
     expect(abilityPlan('hero_haze', [4, 0, 0, 0])).toBeNull();

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import publicCatalogJson from '../data/public-catalog.json';
 import { evaluateScreenOffers, remainingChoiceTiers, resetDraftMemory } from '../src/screen/screen-advice';
 import type { ScreenOfferContext } from '../src/screen/screen-advice';
-import { streetBrawlData } from '../src/screen/street-brawl-data';
+import { setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 import { COUNTER_EDGE, counterResidual, streetBrawlFit } from '../src/screen/street-brawl-fit';
 import { createInitialScreenMatchContext, type ScreenOffer } from '../src/shared/screen-reading';
 import type { Catalog } from '../src/shared/types';
@@ -90,14 +90,28 @@ describe('visible screen-offer guidance', () => {
 
   it('changes the comparison from the hero actually identified, without making up ability investment', () => {
     const offers = [offer('upgrade_active_reload', 0), offer('upgrade_improved_spirit', 1), offer('upgrade_improved_bullet_armor', 2)];
-    const haze = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_haze' });
-    const seven = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_gigawatt' });
-    expect(haze?.preferredPosition).not.toBe(1);
-    expect(haze?.preferredPosition).not.toBeNull();
-    expect(seven?.preferredPosition).toBe(1);
-    expect(seven?.reasons.join(' ')).toContain('Seven');
-    expect(seven?.reasons.join(' ')).toContain('spirit');
-    expect(seven?.limitations.join(' ')).toContain('ability investment');
+    // A hero without Street Brawl statistics: the offer-only heuristic carries the hero's damage direction.
+    const bundled = streetBrawlData();
+    const { hero_haze: _haze, hero_gigawatt: _seven, ...others } = bundled.heroes;
+    expect(setStreetBrawlData({ ...bundled, heroes: others })).toBe(true);
+    try {
+      const haze = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_haze' });
+      const seven = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_gigawatt' });
+      expect(haze?.preferredPosition).not.toBe(1);
+      expect(haze?.preferredPosition).not.toBeNull();
+      expect(seven?.preferredPosition).toBe(1);
+      expect(seven?.reasons.join(' ')).toContain('Seven');
+      expect(seven?.reasons.join(' ')).toContain('spirit');
+      expect(seven?.limitations.join(' ')).toContain('ability investment');
+    } finally { setStreetBrawlData(bundled); }
+    // With the hero's own results the pick follows them; the heuristic only describes the card.
+    for (const heroId of ['hero_haze', 'hero_gigawatt']) {
+      const advice = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId })!;
+      const measured = offers.map(card => ({ position: card.position, points: streetBrawlFit(card.itemId, heroId).points + (catalog.items.find(item => item.id === card.itemId)!.tier ?? 0) * 0.6 }))
+        .sort((a, b) => b.points - a.points);
+      expect(advice.preferredPosition).toBe(measured[0]!.position);
+    }
+    expect(evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_gigawatt' })!.ranked.find(entry => entry.position === 1)!.reasons.join(' ')).toContain('Seven');
     const unknownHero = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'not-a-known-hero' });
     expect(unknownHero?.limitations.join(' ')).toContain('Hero not identified');
   });
@@ -254,9 +268,17 @@ describe('visible screen-offer guidance', () => {
 
   it('does not reward NPC-only damage as a hero-fight build direction', () => {
     const offers = [offer('upgrade_non_player_bonus', 0), offer('upgrade_rapid_rounds', 1), offer('upgrade_improved_spirit', 2)];
-    const advice = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_haze' });
-    expect(advice?.preferredPosition).toBe(1);
-    expect(advice?.ranked.find(entry => entry.position === 0)!.reasons.join(' ')).toContain('against NPCs');
+    // The heuristic decides only for a hero without Street Brawl statistics.
+    const bundled = streetBrawlData();
+    const { hero_haze: _haze, ...others } = bundled.heroes;
+    expect(setStreetBrawlData({ ...bundled, heroes: others })).toBe(true);
+    try {
+      const advice = evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_haze' });
+      expect(advice?.preferredPosition).toBe(1);
+      expect(advice?.ranked.find(entry => entry.position === 0)!.reasons.join(' ')).toContain('against NPCs');
+    } finally { setStreetBrawlData(bundled); }
+    // The NPC caveat stays on the card for a measured hero too.
+    expect(evaluateScreenOffers(offers, catalog, { ...unknownContext, heroId: 'hero_haze' })!.ranked.find(entry => entry.position === 0)!.reasons.join(' ')).toContain('against NPCs');
   });
 
   it.each([[1, '1 reroll left. ', 'reroll'], [2, '2 rerolls left. ', 'rerolls'], [null, '', 'reroll'], [-1, '', 'reroll']] as const)('keeps the reroll on a strong draft for a known hero, for budget %s', (rerolls, prefix, noun) => {

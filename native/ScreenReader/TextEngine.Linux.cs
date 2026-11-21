@@ -79,6 +79,7 @@ internal sealed class TesseractTextEngine : ITextEngine
   public Task<RecognizedPage> RecognizeAsync(byte[] bgra, int width, int height)
   {
     if (width <= 0 || height <= 0 || bgra.Length < width * height * 4) throw new ArgumentException("image");
+    using var stage = Profile.Time("tesseract");
     // Luminance only: Tesseract binarizes internally, and one channel avoids its RGBA byte-order assumption.
     var gray = new byte[width * height];
     long total = 0;

@@ -3,8 +3,15 @@ import { CONTEXT_CATALOG } from '../shared/context-catalog';
 import { ABILITY_TIER_COSTS } from './ability-ranks';
 
 type OrderRow = { order: string; wins: number; matches: number };
-/** Games of evidence that count as much as the average when smoothing a next-step win rate. */
-const PRIOR_GAMES = 60;
+/**
+ * Games of evidence that count as much as the average when smoothing a next-step win rate.
+ * Split-half test (2026-11-21; ability orders of games 2026-10-30..11-10 against 11-10..11-21, every
+ * hero): with 60, a less common step chosen on one half beat the popular one in the other half only
+ * half the time when the samples were under 300 games (0.4 points on average, against the 3.4-4.1
+ * points it claimed). With 500, 29-32% fewer such overrides are made and the held-out gain over always
+ * taking the popular step is as large or larger in both directions (+0.6% and +1.6% in summed games).
+ */
+const PRIOR_GAMES = 500;
 /** A next step must be this common among matching games to be suggested over the popular one. */
 const MIN_SHARE = 0.1;
 /** A less common next step is suggested only when its smoothed win rate is at least this much higher. */

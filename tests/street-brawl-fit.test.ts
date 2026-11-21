@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { streetBrawlData, type StreetBrawlData } from '../src/screen/street-brawl-data';
-import { bestOfThree, COUNTER_EDGE, counterResidual, draftPool, enhancedPoints, expectedBest, GOOD_DRAW_SHARE, itemDelta, poolMean, poolPercentile, rerollPlan,
+import { bestOfThree, COUNTER_EDGE, COUNTER_NOISE, counterResidual, draftPool, enhancedPoints, expectedBest, GOOD_DRAW_SHARE, itemDelta, poolMean, poolPercentile, rerollPlan,
   shrinkToward, streetBrawlFit } from '../src/screen/street-brawl-fit';
 import { matchInsights } from '../src/screen/match-insights';
 
@@ -23,7 +23,7 @@ describe('Street Brawl counter evidence', () => {
 
   it('does not call a generally strong item a counter when it does no better than usual against that enemy', () => {
     // The old rule labelled every per-enemy delta of +1.5 points a counter; most are just strong items.
-    const generic = pairs.filter(pair => pair.raw >= COUNTER_EDGE && Math.abs(pair.residual) < 0.005);
+    const generic = pairs.filter(pair => pair.raw >= COUNTER_EDGE && Math.abs(pair.residual) < COUNTER_NOISE);
     expect(generic.length).toBeGreaterThan(20);
     for (const pair of generic.slice(0, 40)) {
       expect(counterLine(pair.itemId, pair.enemyId)).toBeUndefined();
@@ -155,6 +155,22 @@ describe('fresh-draft model and reroll decision', () => {
     expect(heavy.probs.at(-1)!).toBeGreaterThan(light.probs.at(-1)!);
   });
 
+  it('takes the best eligible card of a draft, and the best card only when none is eligible', () => {
+    // Four cards, uniform draws: the two best are passed over (an active item over the limit).
+    const pool = [card('a', 0), card('b', 1), { ...card('c', 2), eligible: false }, { ...card('d', 3), eligible: false }];
+    const taken = bestOfThree(pool);
+    // Triples: abc->b, abd->b, acd->a, bcd->b; never c or d, since every triple holds a or b.
+    expect(taken.values).toEqual([0, 1]);
+    expect(taken.probs[0]).toBeCloseTo(1 / 4, 12);
+    expect(taken.probs[1]).toBeCloseTo(3 / 4, 12);
+    expect(expectedBest(taken)).toBeLessThan(expectedBest(bestOfThree(pool.map(entry => card(entry.id, entry.value)))));
+    // Three cards, all ineligible: the best of them is still taken.
+    expect(bestOfThree([{ ...card('x', 1), eligible: false }, { ...card('y', 2), eligible: false }, { ...card('z', 5), eligible: false }]).values).toEqual([5]);
+    // draftPool marks the cards its caller passes over.
+    const marked = draftPool('hero_haze', 3, [], { eligible: id => id !== draftPool('hero_haze', 3)![0]!.id })!;
+    expect(marked.filter(entry => entry.eligible === false)).toHaveLength(1);
+  });
+
   it('solves the round: rerolls only when a fresh draft beats keeping the card and the reroll', () => {
     const coin = { values: [0, 10], probs: [0.5, 0.5] };
     // Last choice, one reroll: reroll below the expected fresh draft (5).
@@ -203,11 +219,13 @@ describe('fresh-draft model and reroll decision', () => {
   });
 
   it('values Enhanced cards by their measured uplift over the plain item', () => {
-    const enhanced = data.enhanced!;
-    expect(enhanced.share).toBeGreaterThan(0); expect(enhanced.share).toBeLessThan(1);
-    const [itemId, stat] = Object.entries(enhanced.items).sort((a, b) => b[1].matches - a[1].matches)[0]!;
-    expect(enhancedPoints(itemId)).toBeCloseTo(Math.max(-4, Math.min(4, stat.uplift * 60)), 2);
-    expect(enhancedPoints('upgrade_not_real')).toBeCloseTo(enhanced.meanUplift * 60, 2);
+    // Its own numbers: a refresh can come back without Enhanced results (the API's heavy splits time out).
+    const itemId = Object.keys(data.items)[0]!;
+    const own: StreetBrawlData = { ...data, enhanced: { share: 0.12, meanUplift: 0.02, priorMatches: 600,
+      items: { [itemId]: { uplift: 0.03, winRate: 0.53, matches: 5_000 }, upgrade_huge: { uplift: 0.2, winRate: 0.7, matches: 5_000 } } } };
+    expect(enhancedPoints(itemId, own)).toBeCloseTo(0.03 * 60, 2);
+    expect(enhancedPoints('upgrade_huge', own)).toBe(4);
+    expect(enhancedPoints('upgrade_not_real', own)).toBeCloseTo(0.02 * 60, 2);
     expect(enhancedPoints(itemId, { ...data, enhanced: undefined })).toBe(1);
   });
 });

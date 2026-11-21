@@ -39,7 +39,48 @@ internal static class DraftWatch
     internal static bool Shows(ReadOnlySpan<byte> bgra, int width, int height)
     {
         var (share, columnShare) = Measure(bgra, width, height);
-        return share >= MinimumShare && columnShare >= MinimumColumnShare;
+        return share >= MinimumShare && columnShare >= MinimumColumnShare && LabelShape(bgra, width, height);
+    }
+
+    /// <summary>
+    /// The label is one left-aligned line of capitals: its ink starts in the box's first 6% of columns (2-2.3% on every
+    /// saved draft frame), its rows span 45-80% of the box's height (62%), and it falls into at least six separate glyphs
+    /// 45-80% of the box tall (ten of 24-25 of 40px). Magenta combat effects passed the ink share on 84 of the 110 live
+    /// sightings logged 2026-11-15/16 (each cost a whole-window read); a glow, streak or particle burst fails this.
+    /// </summary>
+    internal static bool LabelShape(ReadOnlySpan<byte> bgra, int width, int height)
+    {
+        if (width < 4 || height < 4 || bgra.Length < width * height * 4) return false;
+        var ink = new bool[width * height];
+        int left = width, top = height, bottom = -1;
+        for (int y = 0; y < height; y++)
+            for (int x = 0, index = y * width * 4; x < width; x++, index += 4)
+                if (IsInk(bgra[index], bgra[index + 1], bgra[index + 2])) { ink[y * width + x] = true; left = Math.Min(left, x); top = Math.Min(top, y); bottom = y; }
+        if (bottom < 0 || left > width * .06) return false;
+        double band = (bottom - top + 1) / (double)height;
+        if (band is < .45 or > .8) return false;
+        int glyphs = 0, minimum = Math.Max(4, (int)(8 * height / 40.0 * height / 40.0));
+        var seen = new bool[ink.Length]; var stack = new Stack<int>();
+        for (int start = 0; start < ink.Length; start++)
+        {
+            if (!ink[start] || seen[start]) continue;
+            int count = 0, low = height, high = -1; seen[start] = true; stack.Push(start);
+            while (stack.Count > 0)
+            {
+                int index = stack.Pop(), x = index % width, y = index / width; count++; low = Math.Min(low, y); high = Math.Max(high, y);
+                for (int dy = -1; dy <= 1; dy++)
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        int nx = x + dx, ny = y + dy;
+                        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+                        int next = ny * width + nx;
+                        if (ink[next] && !seen[next]) { seen[next] = true; stack.Push(next); }
+                    }
+            }
+            double tall = (high - low + 1) / (double)height;
+            if (count >= minimum && tall is >= .45 and <= .8) glyphs++;
+        }
+        return glyphs >= 6;
     }
 
     private static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

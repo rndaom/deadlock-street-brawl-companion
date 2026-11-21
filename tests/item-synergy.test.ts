@@ -85,14 +85,16 @@ describe('item-pair synergy in the pick', () => {
     expect(pairSynergy(offered, ownedC, data)).toBeNull();
   });
 
-  it('scores the shrunk lift beyond a 0.5-point noise band, capped at 2 points', () => {
+  it('scores the shrunk lift (no noise band: the shrinking alone is calibrated), capped at 2 points', () => {
     setStreetBrawlData(withPairs([[offered, ownedA, 0.02, 1_000_000]], 1));
-    // 2.0 points shrunk by 1,000,000 / 1,000,001, minus the 0.5-point band, at 60 per win-rate point.
-    expect(ownedSynergy(offered, [ownedA]).points).toBeCloseTo(0.015 * 60, 3);
-    expect(streetBrawlFit(offered, hero, [], [ownedA]).points).toBeCloseTo(streetBrawlFit(offered, hero).points + 0.9, 1);
-    // Inside the band: nothing.
+    // 2.0 points shrunk by 1,000,000 / 1,000,001, at 60 per win-rate point.
+    expect(ownedSynergy(offered, [ownedA]).points).toBeCloseTo(0.02 * 60, 3);
+    expect(streetBrawlFit(offered, hero, [], [ownedA]).points).toBeCloseTo(streetBrawlFit(offered, hero).points + 1.2, 1);
+    // A small lift scores in proportion; a pair of `priorMatches` games keeps half of its lift.
     setStreetBrawlData(withPairs([[offered, ownedA, 0.004, 1_000_000]], 1));
-    expect(ownedSynergy(offered, [ownedA]).points).toBe(0);
+    expect(ownedSynergy(offered, [ownedA]).points).toBeCloseTo(0.004 * 60, 3);
+    setStreetBrawlData(withPairs([[offered, ownedA, 0.004, 1_000]], 1_000));
+    expect(ownedSynergy(offered, [ownedA]).points).toBeCloseTo(0.002 * 60, 3);
     // Four strong partners would add 6.6 points; the cap holds it at 2 (and at -2 the other way).
     setStreetBrawlData(withPairs([ownedA, ownedB, ownedC, ownedD].map(id => [offered, id, 0.033, 1_000_000] as [string, string, number, number]), 1));
     expect(ownedSynergy(offered, [ownedA, ownedB, ownedC, ownedD]).points).toBe(2);

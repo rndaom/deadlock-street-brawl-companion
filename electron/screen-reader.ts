@@ -32,6 +32,10 @@ export const SCREEN_READER_LIMITS = Object.freeze({
   // While a draft is on screen the player is waiting on every read: read twice as often for those
   // 10-25 seconds (about half of one below-normal core), and at the usual pace otherwise.
   draftReadSpacingMs: 250, draftWorkerWallShare: 0.5,
+  /** Until all three cards of a choice are read (they deal in over 1.3-2 s after each draft, pick and reroll; matches
+   * 2026-11-15/16), the next read comes after half the last read's duration instead of all of it, while the helper's
+   * measured CPU stays at or below the ceiling (one core), well under the pause at cpuPressurePercent. */
+  draftDealWorkerWallShare: 2 / 3, draftDealCpuCeilingPercent: 50,
   /** No diagnostic screenshot this soon after a draft appears, so it never delays the first cards. */
   draftFrameQuietMs: 3_000,
   stopTimeoutMs: 5_000, maxTimeoutsBeforeRetry: 5, cpuPressurePercent: 75,
@@ -371,6 +375,8 @@ export function createScreenReader(options: ScreenReaderOptions) {
   let draftSeenAt = -Infinity;
   /** The earliest the next read may start under the draft pace, after the last read. */
   let draftPaceAt = 0;
+  /** The same under the faster pace while a choice's cards deal in (draftDealWorkerWallShare). */
+  let dealPaceAt = 0;
   let candidate: { signature: string; count: number; lastSeenAt: number;
     context: { heroId: string | null; round: number | null; rerolls: number | null } } | null = null;
   let confirmationStartedAt: number | null = null;
@@ -657,11 +663,21 @@ export function createScreenReader(options: ScreenReaderOptions) {
     nextRequestAt = Math.max(nextRequestAt, startedAt + spacing, finishedAt + Math.min(idleCap, elapsed * (1 / share - 1)));
     draftPaceAt = Math.max(startedAt + SCREEN_READER_LIMITS.draftReadSpacingMs,
       finishedAt + Math.min(SCREEN_READER_LIMITS.draftMaxIdleAfterReadMs, elapsed * (1 / SCREEN_READER_LIMITS.draftWorkerWallShare - 1)));
+    dealPaceAt = Math.max(startedAt + SCREEN_READER_LIMITS.draftReadSpacingMs,
+      finishedAt + Math.min(SCREEN_READER_LIMITS.draftMaxIdleAfterReadMs, elapsed * (1 / SCREEN_READER_LIMITS.draftDealWorkerWallShare - 1)));
     const sampleWall = cpuSamples.reduce((sum, sample) => sum + sample.wallMs, 0);
     if (cpuSamples.length >= 5 && sampleWall >= 3_000 && oneCoreCpuPercent !== null && oneCoreCpuPercent > SCREEN_READER_LIMITS.cpuPressurePercent) {
       pressurePaused = true;
       fence('Screen reading paused after sustained helper CPU load. Choose Retry when the game has settled.', 'paused');
     }
+  }
+  /** A draft is open and its current choice does not yet show three read cards. */
+  const dealingIn = () => !(state.status === 'ready' && state.offers.filter(offer => offer.itemId).length === 3);
+  /** The helper's measured CPU (one core, last samples) leaves room for the faster deal-in pace. Unknown: no. */
+  function dealPaceAllowed() {
+    const wall = cpuSamples.reduce((sum, sample) => sum + sample.wallMs, 0);
+    return cpuSamples.length > 0 && wall > 0
+      && 100 * cpuSamples.reduce((sum, sample) => sum + sample.cpuMs, 0) / wall <= SCREEN_READER_LIMITS.draftDealCpuCeilingPercent;
   }
   function fresh(reply: NormalizedNativeReply) {
     return reply.capturedAt !== null && epochNow() >= reply.capturedAt && epochNow() - reply.capturedAt < SCREEN_READER_LIMITS.captureFreshnessMs;
@@ -876,18 +892,21 @@ export function createScreenReader(options: ScreenReaderOptions) {
       const pending = pendingReplace;
       const confirmed = !!pending && [...pairs].some(([position, itemId]) => pending.get(position) === itemId)
         && [...pairs].every(([position, itemId]) => !pending.has(position) || pending.get(position) === itemId);
-      if (!confirmed) {
+      // Two or more new cards in their places and none of the shown ones left: a reroll (or a pick) dealt a new set.
+      // Show it at once (2026-11-15/16: the next read confirmed all 19 such sets; waiting cost one read, about 0.7 s).
+      // A tooltip over one card leaves the other cards readable and agreeing, so it never gets here.
+      const dealtNew = !agreements.length && conflicts.length >= 2;
+      if (!confirmed && !dealtNew) {
         pendingReplace = pairs;
         if (!agreements.length) {
-          // No shown card is still there: a pick or reroll is replacing the cards; never leave the old pick on screen.
-          // (A tooltip over one card leaves the other cards readable and agreeing.)
+          // A single new card and no shown card still there: never leave the old pick on screen.
           clearDecision('New item choices appeared. Reading them…', 'reading');
           note('decision', 'cards changed; old cards withdrawn');
         } else note('decision', 'one card read differently; waiting for a second read before replacing it');
         return;
       }
       pendingReplace = null; generation++;
-      note('decision', 'changed cards confirmed by a second read');
+      note('decision', confirmed ? 'changed cards confirmed by a second read' : 'new cards dealt in; shown at once');
     }
     // Small "RARE!" / "ENHANCED" / "BONUS!" labels are not read on every frame; once read, they stay with that same card.
     if (shown) offers = offers.map(offer => {
@@ -916,7 +935,10 @@ export function createScreenReader(options: ScreenReaderOptions) {
     else choiceSet = { stage: currentStage, round: context.round, ids, byPosition, credited: false };
     closingSet = null;
     note('advice', advice ? { preferred: advice.preferredPosition, title: advice.title, reroll: advice.rerollReason, choice: rerolls.stage,
-      scores: advice.ranked.map(entry => [entry.position, entry.score]) } : null);
+      scores: advice.ranked.map(entry => [entry.position, entry.score]),
+      // The pick's inputs, so a logged draft can be replayed exactly (match audit, pick-logic checks).
+      inputs: { owned: build.snapshot().myItems, enemyItems: enemyItems(), maxActive: options.maxActiveItems?.() ?? null,
+        rerolls: rerolls.count ?? parsed.rerolls ?? context.rerollsRemaining } } : null);
     const unread = parsed.offers.filter(offer => !offer.itemId).length;
     publish({ generation, status: 'ready', message: unread === 0 ? 'Item choices read from the game screen.'
       : unread === 1 && parsed.offers.some(offer => offer.name === 'Ambiguous item name' || offer.warning === 'The main item name was not recognized.')
@@ -943,6 +965,9 @@ export function createScreenReader(options: ScreenReaderOptions) {
       .map(icon => icon.itemId)]);
     if (inPlace.size !== 1) { if (inPlace.size > 1) lingerCandidate = null; return; }
     const itemId = [...inPlace][0]!;
+    // The pick lingers first, alone; a card of the last choice that shows in its old place after it is offered again
+    // (2026-11-16 03:02: Toxic Bullets, re-offered at its old place, took over from the lingering Dispel Magic and was hidden for two reads).
+    if (lingerCandidate && lingerCandidate.set === set && lingerCandidate.itemId !== itemId) return;
     lingerCandidate = lingerCandidate && lingerCandidate.set === set && lingerCandidate.itemId === itemId
       ? { ...lingerCandidate, count: lingerCandidate.count + 1 } : { set, itemId, count: 1 };
     if (lingerCandidate.count < 2) return;
@@ -1322,6 +1347,11 @@ export function createScreenReader(options: ScreenReaderOptions) {
         return;
       }
       applyGameReply(reply, operation, isHint, debug, isFooter);
+      // Cards still dealing in: the next read comes sooner, within the CPU ceiling (see draftDealWorkerWallShare).
+      if (operation === 'read' && draftHint && dealingIn() && dealPaceAllowed()) {
+        nextRequestAt = Math.min(nextRequestAt, Math.max(wallNow() + 1, dealPaceAt));
+        note('dealPace', true);
+      }
       // The label was there but the read found no draft (a closing draft, or a magenta scene): rest the watch.
       if (watchRead && !draftHint) { nextWatchAt = Math.max(nextWatchAt, wallNow() + SCREEN_READER_LIMITS.draftWatchBackoffMs); note('watchMiss', true); }
       if (captureFrame && reply.previewPng && reply.status !== 'not_foreground') {

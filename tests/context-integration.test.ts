@@ -682,8 +682,10 @@ describe('unattended context acquisition and decision liveness', () => {
     const reads = worker.requests.filter(({ request }) => request.op === 'read');
     expect(reads.length).toBeGreaterThan(8);
     for (let index = 1; index < reads.length; index++) {
-      // A draft is on screen throughout, so the draft's (larger) duty share applies.
-      expect(reads[index]!.startedAt - reads[index - 1]!.startedAt).toBeGreaterThanOrEqual(210 / SCREEN_READER_LIMITS.draftWorkerWallShare);
+      // A draft is on screen throughout, so the draft's (larger) duty share applies; the first card read after the cue,
+      // with no card read yet, comes at the deal-in share.
+      expect(reads[index]!.startedAt - reads[index - 1]!.startedAt).toBeGreaterThanOrEqual(210
+        / (index === 1 ? SCREEN_READER_LIMITS.draftDealWorkerWallShare : SCREEN_READER_LIMITS.draftWorkerWallShare));
     }
     const full = reads.filter(({ request }) => JSON.stringify(request.crop) === JSON.stringify(FULL));
     expect(full.length).toBeGreaterThan(2);

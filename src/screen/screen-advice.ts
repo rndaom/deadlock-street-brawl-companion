@@ -46,11 +46,11 @@ interface OfferComparison { offer: ScreenOffer; main: ItemProfile | null; profil
 const READ_QUALITY_MINIMUM = 0.85;
 /** The game lets a player carry four active items, so a preference of four is no limit. */
 const ACTIVE_ITEM_SLOTS = 4;
-const PINNED_CLIENT = '6861';
-const PINNED_REVISION = '11219368';
+const PINNED_CLIENT = '6864';
+const PINNED_REVISION = '11254827';
 /**
- * Extracted from the saved client-6861 Valve-asset snapshot (items SHA-256
- * ed77a501256bee9cdd862948ea736e89afad62392461bc3a978dc9d0bbc7a4f4).
+ * Extracted from the saved client-6864 Valve-asset snapshot (items SHA-256
+ * 872fb496749fd7531d03b689967eaa1a689bc0490de4bd41e9d1452abc23a6ce).
  * Only positive own innate allowlisted properties, without upgrade requirements,
  * negative attributes, or conditional flags are retained. Fixed amounts also
  * exclude scaling functions. Explicit Street Brawl values override normal ones.
@@ -260,12 +260,21 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
   // The owned items, for how each card wins beside them (measured item pairs).
   const ownedIds = [...owned];
   const draftTier = draftTierOf(offers.map(offer => ({ tier: items.get(offer.itemId)?.tier, rare: offer.rare })));
-  const pools = heroId && streetBrawlData().heroes[heroId] ? draftPools(heroId, hero, usePinnedFacts, enemyHeroIds, owned, context, items, bonusMechanicsFor(items, hero, usePinnedFacts)) : null;
+  // Once the player owns as many active items as they want, an active card is only taken when every card of the draft is
+  // active: the shown pick (below) and a fresh draft's value (the reroll call) both follow that rule.
+  const activeOwned = [...owned].filter(id => isActiveItem(id, usePinnedFacts)).length;
+  const limit = context.maxActiveItems;
+  const limitReached = limit !== undefined && Number.isFinite(limit) && limit < ACTIVE_ITEM_SLOTS && activeOwned >= limit;
+  // With the hero's own Street Brawl results the offer-only heuristic carries no extra information (see
+  // HEURISTIC_WEIGHT), so it only describes the card; without them it stands in for the hero direction.
+  const measuredHero = !!heroId && !!streetBrawlData().heroes[heroId];
+  const heuristicWeight = measuredHero ? 0 : HEURISTIC_WEIGHT;
+  const pools = heroId && measuredHero ? draftPools(heroId, enemyHeroIds, owned, context, items,
+    bonusMechanicsFor(items, hero, usePinnedFacts), limitReached ? itemId => !isActiveItem(itemId, usePinnedFacts) : undefined) : null;
   const slotPool = draftTier === null ? null : pools?.(draftTier) ?? null;
   const slotMean = slotPool ? poolMean(slotPool) : null;
-  // Measured Street Brawl results lead; the offer-only heuristic only breaks ties, while
-  // scores from the observed match (own build, enemy kits) keep their full weight.
-  const weight = contextScored ? CONTEXT_WEIGHT : HEURISTIC_WEIGHT;
+  // Measured Street Brawl results lead; scores from the observed match (own build, enemy kits) keep their weight.
+  const weight = contextScored ? CONTEXT_WEIGHT : heuristicWeight;
   /**
    * Card value: the pick score without the tier points every card of the draft shares, so the
    * recommended card always has the highest value, edge and tierPercentile among the shown cards.
@@ -276,7 +285,7 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
    */
   const judged = baseScores.map((entry, index) => {
     const offer = offers[index];
-    return offer && items.has(offer.itemId) ? { term: weight * entry.score, offerOnly: HEURISTIC_WEIGHT * (offerOnlyScores[index] ?? 0) } : null;
+    return offer && items.has(offer.itemId) ? { term: weight * entry.score, offerOnly: heuristicWeight * (offerOnlyScores[index] ?? 0) } : null;
   }).filter((entry): entry is { term: number; offerOnly: number } => entry !== null);
   const anchor = judged.length ? judged.reduce((sum, entry) => sum + entry.offerOnly - entry.term, 0) / judged.length : 0;
   const bonusMechanics = bonusMechanicsFor(items, hero, usePinnedFacts);
@@ -321,9 +330,6 @@ export function evaluateScreenOffers(liveOffers: ScreenOffer[], catalog: Catalog
   // Once the player owns as many active items as they want, an active card does not become the pick while a
   // trusted card without a button is on offer. Like a misread it keeps its score and place in the ranking.
   // Only the main item counts: a Bonus! card's free item is valued apart from it (bonusValue) and is often unread.
-  const activeOwned = [...owned].filter(id => isActiveItem(id, usePinnedFacts)).length;
-  const limit = context.maxActiveItems;
-  const limitReached = limit !== undefined && Number.isFinite(limit) && limit < ACTIVE_ITEM_SLOTS && activeOwned >= limit;
   const isActiveCard = (entry: { offer: ScreenOffer }) => isActiveItem(entry.offer.itemId, usePinnedFacts);
   const withoutButton = limitReached ? trusted.filter(entry => !isActiveCard(entry)) : trusted;
   const skippedActive = limitReached && withoutButton.length ? trusted.filter(isActiveCard) : [];
@@ -469,6 +475,10 @@ function mechanicsNote(item: CatalogItem, facts: BaseFacts | null, traits: Set<s
 function isActiveItem(itemId: string, usePinnedFacts: boolean): boolean {
   return usePinnedFacts && PINNED_BASE_FACTS[itemId]?.active === true;
 }
+/** Whether the active-item limit counts this item on this catalogue (false on an unsupported build). */
+export function countsAsActiveItem(itemId: string, catalog: Catalog): boolean {
+  return isActiveItem(itemId, catalog.clientVersion === PINNED_CLIENT && catalog.revision === PINNED_REVISION);
+}
 function executionCondition(description: string, facts: BaseFacts | null): string | null {
   if (/^(?:weapon|bullet)\s+damage\s+vs\.?\s+(?:NPCs?|non.?heroes)/i.test(description)) return 'Its listed damage bonus is against NPCs; hero-fight value is limited.';
   if (/sacrifice\s+health/i.test(description)) return 'Costs health while active; the health tradeoff needs care.';
@@ -566,8 +576,16 @@ function bonusValue(offer: ScreenOffer, items: Map<string, CatalogItem>, mechani
   if (absorbed.length) reasons.push(`Upgrades your ${quantityNames(absorbed.map(entry => entry.name))}, which it absorbs.`);
   return { points: roundPoints(points), reasons };
 }
-/** Weight of the offer-only mechanics/hero-direction heuristic next to measured Street
- * Brawl data. Observed-context scores (own build, enemy kits) keep full weight. */
+/**
+ * Weight of the offer-only mechanics/hero-direction heuristic next to measured Street Brawl data, used
+ * only when the hero has no Street Brawl statistics (or is not identified), and for free Bonus! items.
+ * Held-out test (2026-11-21; games 2026-10-30..11-10 against 11-10..11-21, 7,509 hero × item pairs):
+ * the second half's per-hero item result regressed on the first half's shrunk estimate (itemDelta) and
+ * this heuristic gives 0.98 (±0.004) for the estimate and 0.001 (±0.008) for the heuristic, where 1
+ * would be this weight; within one hero and tier (as a draft compares cards) 0.98 and 0.012 (±0.009).
+ * Alone it does predict (0.25 ±0.02), but only through the hero direction the hero's own results
+ * already hold; at this weight it added about 1 win-rate point of spread per card.
+ */
 const HEURISTIC_WEIGHT = 0.35;
 /** Win rates average over every enemy line-up; counters to the enemies actually read
  * (and the own build actually read) outweigh them. */
@@ -596,29 +614,29 @@ export function remainingChoiceTiers(round: number | null, choice: number | null
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V'];
 type Pools = (tier: number) => PoolCard[] | null;
 /**
- * Tier pools for this hero and enemy team, valued like the cards on screen: measured value, the
- * weighted offer-only heuristic, and the extras a fresh card would carry — a Bonus! item when it
- * upgrades something you own, the enemy-build bonus, and the Enhanced uplift times the chance a
+ * Tier pools for this hero and enemy team, valued like the cards on screen: measured value (the
+ * offer-only heuristic has no weight for a hero with statistics) and the extras a fresh card would
+ * carry — a Bonus! item when it upgrades something you own, the enemy-build bonus, and the Enhanced uplift times the chance a
  * card is Enhanced. A RARE card's chance is not published, so a fresh draft is given none (a shown
- * RARE keeps its tier bonus).
+ * RARE keeps its tier bonus). `eligible` (the active-item limit) marks cards the pick passes over
+ * unless the whole fresh draft is like them.
  */
-function draftPools(heroId: string, hero: CatalogHero | null, usePinnedFacts: boolean, enemyHeroIds: readonly string[], owned: ReadonlySet<string>,
-  context: ScreenOfferContext, items: Map<string, CatalogItem>, mechanics: BonusMechanics): Pools {
+function draftPools(heroId: string, enemyHeroIds: readonly string[], owned: ReadonlySet<string>,
+  context: ScreenOfferContext, items: Map<string, CatalogItem>, mechanics: BonusMechanics, eligible?: (itemId: string) => boolean): Pools {
   const ownedList = [...owned];
   const enhancedRate = enhancedOfferRate();
   const extra = (itemId: string) => {
     const item = items.get(itemId);
-    const heuristic = item ? HEURISTIC_WEIGHT * profileItem(item, hero, usePinnedFacts).points : 0;
     const absorbed = absorbedComponents(itemId, ownedList).map(id => items.get(id)?.tier)
       .filter((tier): tier is number => typeof tier === 'number' && Number.isFinite(tier));
     // Its free item's identity is unknown: the average item of the absorbed tier, as for an unread bonus on screen.
     const bonusTier = absorbed.length ? Math.min(...absorbed) : null;
     const bonus = bonusTier !== null ? BONUS_ITEM_POINTS + tierPoints({ tier: bonusTier } as CatalogItem) + mechanics.expected(bonusTier) : 0;
-    return heuristic + (item ? buildFit(item, context, items).points : 0) + bonus + enhancedRate * enhancedPoints(itemId);
+    return (item ? buildFit(item, context, items).points : 0) + bonus + enhancedRate * enhancedPoints(itemId);
   };
   const cache = new Map<number, PoolCard[] | null>();
   return tier => {
-    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra, owned: ownedList }));
+    if (!cache.has(tier)) cache.set(tier, draftPool(heroId, tier, enemyHeroIds, { exclude: owned, extra, owned: ownedList, ...(eligible ? { eligible } : {}) }));
     return cache.get(tier)!;
   };
 }

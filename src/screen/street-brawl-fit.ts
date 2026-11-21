@@ -13,21 +13,28 @@ const WIN_RATE_CAP = 4;
  */
 const COUNTER_WEIGHT = 60;
 const COUNTER_CAP = 3;
-/** Residuals inside this band are mostly sampling noise (about 0.4 points for a typical sample) and earn nothing. */
-const COUNTER_NOISE = 0.005;
+/**
+ * Each enemy's residual loses this much (toward zero) before it scores. Split-half test (2026-11-21;
+ * games 2026-10-30..11-10 against 11-10..11-21, 7,568 enemy × item pairs): residuals agree between
+ * halves at r = 0.80-0.94 for pairs of 2,000+ games, and are not hero-matchup leakage (the holders' hero
+ * mix explains under 1% of them). With a 0.25-point band the first half predicts the second at slope
+ * 0.99 with the lowest error (0.22 pt²); the earlier 0.5-point band cut real counters (slope 1.13,
+ * 0.26 pt²). The bundled residuals use both halves, so this is if anything still on the safe side.
+ */
+export const COUNTER_NOISE = 0.0025;
 /** A residual of at least this many win-rate points makes the item a counter to that enemy (or a weakness, below minus it). */
 export const COUNTER_EDGE = 0.015;
 /**
  * Synergy with owned items (item-synergy.ts): the shrunk pair lift, summed over the owned items.
- * After shrinking, a pair's estimate still carries about 0.2-0.3 points of noise, so the same
- * band as counters takes 0.5 points off each pair before it scores; across six owned items the
- * summed lift falls between -3 and +2 points for 90% of offers. The cap (2 points, about 3.3
- * win-rate points) keeps a long owned list, whose pairs partly repeat each other, from
- * outweighing the item's own result.
+ * The shrinking alone is calibrated. Split-half test (2026-11-21; pair tables of games 2026-10-30..11-10
+ * and 11-10..11-21, 14,494 pairs in both): the first half's shrunk lift predicts the second half's at
+ * slope 1.09 (r = 0.74) with the lowest error (0.40 pt²). The 0.5-point band once taken off each pair
+ * halved real synergy (slope 1.85, 0.55 pt²), so no band is taken. The cap (2 points, about 3.3
+ * win-rate points) keeps a long owned list, whose pairs partly repeat each other, from outweighing
+ * the item's own result (pairs are measured two items at a time; their sum over many is not).
  */
 const SYNERGY_WEIGHT = WIN_RATE_WEIGHT;
 const SYNERGY_CAP = 2;
-const SYNERGY_NOISE = 0.005;
 /** A shrunk pair lift of at least this many win-rate points is named in the reasons (or concerns, below minus it). */
 export const SYNERGY_EDGE = 0.01;
 /** Shrinkage defaults for snapshots without estimated priors (see street-brawl-fetch.ts, which estimates both). */
@@ -100,7 +107,7 @@ export function ownedSynergy(itemId: string, ownedItemIds: readonly string[], da
   // Owned items this pick would absorb are gone once it is taken, so they cannot pair with it.
   const absorbed = new Set(absorbedComponents(itemId, ownedItemIds));
   const synergies = synergiesWith(itemId, ownedItemIds.filter(id => !absorbed.has(id)), data);
-  const points = clamp(synergies.reduce((sum, entry) => sum + Math.sign(entry.synergy) * Math.max(0, Math.abs(entry.synergy) - SYNERGY_NOISE), 0) * SYNERGY_WEIGHT, SYNERGY_CAP);
+  const points = clamp(synergies.reduce((sum, entry) => sum + entry.synergy, 0) * SYNERGY_WEIGHT, SYNERGY_CAP);
   return { synergies, points };
 }
 
@@ -209,18 +216,23 @@ function tierValues(heroId: string, tier: number, enemyHeroIds: readonly string[
   return pool;
 }
 
-/** One card a fresh draft of a tier can show: its value on the fit scale and its chance of being drawn (weights sum to 1). */
-export interface PoolCard { id: string; value: number; weight: number }
+/**
+ * One card a fresh draft of a tier can show: its value on the fit scale and its chance of being drawn
+ * (weights sum to 1). `eligible: false` marks a card the pick passes over while another card of the
+ * draft is eligible (an active item once the player's active-item limit is reached).
+ */
+export interface PoolCard { id: string; value: number; weight: number; eligible?: boolean }
 
 /**
  * Every card a fresh draft of `tier` can show this hero (owned items excluded: a draft never
  * offers them), valued on the streetBrawlFit scale plus `extra` (Bonus!, Enhanced or enemy-build
  * value the caller can predict for that card) and, given `owned`, its synergy with the owned
- * items (as in streetBrawlFit). Weights follow Valve's Good-bucket bias. Null
+ * items (as in streetBrawlFit). Weights follow Valve's Good-bucket bias. `eligible` marks the cards
+ * the pick would only take when the whole draft is like them (see PoolCard). Null
  * when the hero or tier has no data.
  */
 export function draftPool(heroId: string, tier: number, enemyHeroIds: readonly string[] = [],
-  options: { exclude?: ReadonlySet<string>; extra?: (itemId: string) => number; owned?: readonly string[] } = {}): PoolCard[] | null {
+  options: { exclude?: ReadonlySet<string>; extra?: (itemId: string) => number; owned?: readonly string[]; eligible?: (itemId: string) => boolean } = {}): PoolCard[] | null {
   if (!streetBrawlData().heroes[heroId]) return null;
   const cards = tierValues(heroId, tier, enemyHeroIds).filter(card => !options.exclude?.has(card.id));
   if (cards.length < 3) return null;
@@ -232,7 +244,8 @@ export function draftPool(heroId: string, tier: number, enemyHeroIds: readonly s
   // Synergy with the owned items, so the shown cards (scored with it) and a fresh draft stay on one scale.
   const owned = options.owned ?? [];
   return cards.map(card => ({ id: card.id, value: card.value + (options.extra?.(card.id) ?? 0) + (owned.length ? ownedSynergy(card.id, owned).points : 0),
-    weight: biased && isGoodItem(heroId, card.id) ? goodWeight : otherWeight }));
+    weight: biased && isGoodItem(heroId, card.id) ? goodWeight : otherWeight,
+    ...(options.eligible && !options.eligible(card.id) ? { eligible: false } : {}) }));
 }
 
 /** Draw-weighted average card value of a pool. */
@@ -254,16 +267,24 @@ const bestCache = new Map<string, BestOfThree>();
 const BEST_CACHE_SIZE = 48;
 
 /**
- * Exact distribution of the best of three distinct cards drawn one after another with
- * probability proportional to their weights (sampling without replacement).
+ * Exact distribution of the card taken from three distinct cards drawn one after another with
+ * probability proportional to their weights (sampling without replacement): the best eligible
+ * card, or the best card when none of the three is eligible (as the pick does).
  */
 export function bestOfThree(pool: readonly PoolCard[]): BestOfThree {
   const sorted = [...pool].filter(card => card.weight > 0).sort((a, b) => a.value - b.value || a.id.localeCompare(b.id));
-  const key = sorted.map(card => `${card.value.toFixed(4)}:${card.weight.toFixed(6)}`).join(',');
+  const key = sorted.map(card => `${card.value.toFixed(4)}:${card.weight.toFixed(6)}${card.eligible === false ? 'x' : ''}`).join(',');
   const cached = bestCache.get(key);
   if (cached) return cached;
   const n = sorted.length;
   const mass = new Array<number>(n).fill(0);
+  // Cards are sorted by value, so the highest index is the best card.
+  const eligible = sorted.map(card => card.eligible !== false);
+  const taken = (i: number, j: number, k: number) => {
+    let best = -1;
+    for (const index of [i, j, k]) if (eligible[index] && index > best) best = index;
+    return best >= 0 ? best : Math.max(i, j, k);
+  };
   const total = sorted.reduce((sum, card) => sum + card.weight, 0);
   for (let i = 0; i < n; i++) {
     const pi = sorted[i]!.weight / total, restI = total - sorted[i]!.weight;
@@ -273,7 +294,7 @@ export function bestOfThree(pool: readonly PoolCard[]): BestOfThree {
       if (!(restJ > 0)) continue;
       for (let k = 0; k < n; k++) {
         if (k === i || k === j) continue;
-        mass[Math.max(i, j, k)]! += pj * sorted[k]!.weight / restJ;
+        mass[taken(i, j, k)]! += pj * sorted[k]!.weight / restJ;
       }
     }
   }

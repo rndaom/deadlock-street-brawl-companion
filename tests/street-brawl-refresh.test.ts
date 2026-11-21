@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coversCurrentWindow, isStreetBrawlData, streetBrawlData, type HeroData } from '../src/screen/street-brawl-data';
+import { coversCurrentWindow, isStreetBrawlData, keepEarlierExtras, streetBrawlData, type HeroData } from '../src/screen/street-brawl-data';
 import { readStoredSettings } from '../src/shared/settings';
 
 describe('daily Street Brawl data refresh guard', () => {
@@ -18,6 +18,17 @@ describe('daily Street Brawl data refresh guard', () => {
     const older = { ...current, window: { ...window, since: new Date(Date.parse(window.since) - 20 * 86_400_000).toISOString() } };
     expect(coversCurrentWindow(older, current)).toBe(false);
     expect(coversCurrentWindow(current, current)).toBe(true);
+  });
+  it('keeps the previous Enhanced results and item pairs when their requests failed', () => {
+    const current = streetBrawlData();
+    const { enhanced, itemPairs, ...bare } = current;
+    expect(enhanced).toBeDefined();
+    const kept = keepEarlierExtras({ ...bare, fetchedAt: '2030-01-01T00:00:00.000Z' }, current);
+    expect(kept.enhanced).toBe(enhanced);
+    expect(kept.itemPairs).toBe(itemPairs);
+    expect(kept.fetchedAt).toBe('2030-01-01T00:00:00.000Z');
+    const fresher = { ...enhanced!, share: 0.5 };
+    expect(keepEarlierExtras({ ...current, enhanced: fresher }, current).enhanced).toBe(fresher);
   });
   it("keeps the valid saved settings when one entry is unknown or invalid", () => {
     expect(readStoredSettings({ overlay: false, textScale: 9, fromANewerVersion: true, alwaysOnTop: true })).toEqual({ overlay: false, alwaysOnTop: true });

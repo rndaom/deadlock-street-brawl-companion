@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import publicCatalogJson from '../data/public-catalog.json';
-import { evaluateScreenOffers, resetDraftMemory, type ScreenOfferContext, type StreetBrawlAdvice } from '../src/screen/screen-advice';
+import { countsAsActiveItem, evaluateScreenOffers, resetDraftMemory, type ScreenOfferContext, type StreetBrawlAdvice } from '../src/screen/screen-advice';
 import type { ScreenOffer } from '../src/shared/screen-reading';
 import type { Catalog } from '../src/shared/types';
 
@@ -46,7 +46,8 @@ describe('the active-item limit', () => {
   });
 
   it('picks the best card without a button once the limit is reached, and names the active card passed over', () => {
-    const open = evaluate(mixed(), { ownedItemIds: OWNED_ACTIVE });
+    // The same owned items without a limit (owned items move scores through item-pair synergy).
+    const open = evaluate(mixed(), { ownedItemIds: OWNED_ACTIVE.slice(0, 2) });
     const advice = evaluate(mixed(), { ownedItemIds: OWNED_ACTIVE.slice(0, 2), maxActiveItems: 2 });
     expect(advice.preferredPosition).toBe(2);
     expect(advice.title).toBe('Pick Burst Fire');
@@ -139,5 +140,35 @@ describe('the active-item limit and the pick hold', () => {
     const advice = evaluate(cards, { ownedItemIds: OWNED_ACTIVE, maxActiveItems: 1, shownPick: { offers: cards, position: 1 } });
     // Heroic Aura leads by far and is excluded; Burst Fire leads Bullet Shredder by more than the margin.
     expect(advice.preferredPosition).toBe(2);
+  });
+});
+
+describe('the active-item limit and the reroll call', () => {
+  /** Non-active tier-3 cards for Necro, weakest first by their score on screen. */
+  const plainTier3 = () => {
+    const ids = catalog.items.filter(item => item.tier === 3 && !countsAsActiveItem(item.id, catalog) && !OWNED_ACTIVE.includes(item.id)).map(item => item.id);
+    expect(ids.length).toBeGreaterThan(10);
+    const scored = ids.map(id => ({ id, score: scoreAt(evaluate([offer(id, 0), offer(ids[0] === id ? ids[1]! : ids[0]!, 1), offer(ids[2] === id ? ids[3]! : ids[2]!, 2)]), 0) }));
+    return scored.sort((a, b) => a.score - b.score).map(entry => entry.id);
+  };
+  /** Index of the first rising triple of plain cards the reroll call keeps (the call is monotonic in the pick). */
+  const keepFrom = (ids: string[], context: Partial<ScreenOfferContext>) => {
+    for (let at = 0; at + 2 < ids.length; at++) {
+      resetDraftMemory();
+      const advice = evaluate([offer(ids[at]!, 0), offer(ids[at + 1]!, 1), offer(ids[at + 2]!, 2)], { rerolls: 1, round: 4, choice: 1, ...context });
+      if (!advice.rerollSuggested) return at;
+    }
+    return ids.length;
+  };
+
+  it('values a fresh draft without the active cards the limit passes over, so a plain draft is rerolled less', () => {
+    const ids = plainTier3();
+    const owned = { ownedItemIds: OWNED_ACTIVE.slice(0, 1) };
+    // The pick and its value are the same with and without the limit (no card on screen has a button);
+    // only the fresh draft loses the active cards the player would pass over.
+    const open = keepFrom(ids, owned);
+    const limited = keepFrom(ids, { ...owned, maxActiveItems: 1 });
+    expect(open).toBeGreaterThan(0);
+    expect(limited).toBeLessThan(open);
   });
 });

@@ -7,6 +7,7 @@ import type { Catalog } from '../src/shared/types';
 import { evaluateContextOffers, isContextObservationUsable } from '../src/screen/context-advice';
 import { evaluateScreenOffers } from '../src/screen/screen-advice';
 import { resetScreenMatchContext } from '../src/screen/match-state';
+import { setStreetBrawlData, streetBrawlData } from '../src/screen/street-brawl-data';
 
 const catalog = publicCatalog as Catalog;
 const now = 1_800_000_000_000;
@@ -34,6 +35,16 @@ function offer(itemId: string, position: number, patch: Partial<ScreenOffer> = {
   return { position, itemId, name: catalog.items.find(item => item.id === itemId)?.name ?? itemId,
     bonusIds: [], variant: 'base', confidence: 1, warning: null, ...patch };
 }
+/** Runs `check` with the measured Street Brawl results of these items made equal for every hero, so only the observed context separates them. */
+function withEqualStats(itemIds: readonly string[], check: () => void) {
+  const bundled = streetBrawlData();
+  const even = (stats: Record<string, { delta: number; winRate: number; matches: number }>) =>
+    Object.fromEntries(Object.entries(stats).map(([id, stat]) => [id, itemIds.includes(id) ? { ...stat, delta: 0 } : stat]));
+  const heroes = Object.fromEntries(Object.entries(bundled.heroes).map(([id, hero]) => [id, { ...hero, itemStats: even(hero.itemStats),
+    good: hero.good.filter(itemId => !itemIds.includes(itemId)) }]));
+  expect(setStreetBrawlData({ ...bundled, globalItemStats: even(bundled.globalItemStats), heroes })).toBe(true);
+  try { check(); } finally { setStreetBrawlData(bundled); }
+}
 const offense = () => [offer('upgrade_improved_spirit', 0), offer('upgrade_rapid_rounds', 1), offer('upgrade_non_player_bonus', 2)];
 const protection = () => [offer('upgrade_metal_skin', 0), offer('upgrade_magic_shield', 1), offer('upgrade_non_player_bonus', 2)];
 function advise(offers: ScreenOffer[], context: ScreenMatchContext) {
@@ -52,13 +63,16 @@ describe('actual observed-context offer comparisons', () => {
     const ranks = [ability(0, 0, false), ability(1, 0, false), ability(2, 1, true), ability(3, 0, false)];
     const spirit = match({ localAbilities: ranks, abilityCompleteness: 'complete', abilityObservation: observation() });
     const weapon = match({ ...spirit, localInventory: [item('upgrade_damage_recycler', 0), item('upgrade_titan_round', 1)] });
-    const first = advise(offense(), spirit), second = advise(offense(), weapon);
-    expect(first.preferredPosition).toBe(0);
-    expect(second.preferredPosition).toBe(1);
-    expect(second.title).toMatch(/^(Pick|Slight edge:) Rapid Rounds$/);
-    expect(second.reasons.join(' ')).toContain('Leech');
-    expect(second.reasons.join(' ')).toContain('9% fire rate');
-    expect(second.factsUsed?.some(fact => fact.scope === 'own' && fact.label.includes('Titanic Magazine'))).toBe(true);
+    // Measured results set to equal: the bundled statistics move with every refresh.
+    withEqualStats(offense().map(card => card.itemId), () => {
+      const first = advise(offense(), spirit), second = advise(offense(), weapon);
+      expect(first.preferredPosition).toBe(0);
+      expect(second.preferredPosition).toBe(1);
+      expect(second.title).toMatch(/^(Pick|Slight edge:) Rapid Rounds$/);
+      expect(second.reasons.join(' ')).toContain('Leech');
+      expect(second.reasons.join(' ')).toContain('9% fire rate');
+      expect(second.factsUsed?.some(fact => fact.scope === 'own' && fact.label.includes('Titanic Magazine'))).toBe(true);
+    });
   });
 
   it('uses the actually read Fixation upgrade that adds explicit spirit scaling', () => {

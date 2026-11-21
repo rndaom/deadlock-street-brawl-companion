@@ -90,6 +90,17 @@ export function coversCurrentWindow(saved: StreetBrawlData, inUse: StreetBrawlDa
   const savedSince = Date.parse(saved.window?.since ?? ''), usedSince = Date.parse(inUse.window?.since ?? '');
   return Number.isNaN(usedSince) || savedSince >= usedSince;
 }
+/**
+ * Enhanced results and item pairs are optional extras whose heavy queries the API often answers with a 504.
+ * A download that lacks one keeps the previous data's copy instead of turning that part of the pick maths off.
+ */
+export function keepEarlierExtras(fresh: StreetBrawlData, previous: StreetBrawlData = current): StreetBrawlData {
+  return {
+    ...fresh,
+    ...(fresh.enhanced === undefined && previous.enhanced !== undefined ? { enhanced: previous.enhanced } : {}),
+    ...(fresh.itemPairs === undefined && previous.itemPairs !== undefined ? { itemPairs: previous.itemPairs } : {}),
+  };
+}
 export function setStreetBrawlData(data: StreetBrawlData): boolean {
   if (!isStreetBrawlData(data)) return false;
   current = data; good = goodSets(data);
